@@ -34,6 +34,7 @@ export interface GameApi {
   newGame(seed: number, playerName: string): void;   // createNewGame → bootstrapWorld(createRng(seed).fork('world'))
   advance(weeks: number): void;     // createGameSystems(data) 로 advanceWeek 반복, 이벤트 누적
   advanceToPhase(phase: CalendarPhaseId): void;  // 그 단계가 시작되는 주까지(최대 52주)
+  advanceUntil(stop: (s: GameState) => boolean, maxWeeks: number): void;  // 매 주 진행 후 stop(state) 가 true 면 멈춤(최대 maxWeeks 주)
   book(mareId: HorseId, stallionId: HorseId): BookingResult;   // 성공 시 state 갱신
   save(): Promise<void>;            // createIndexedDbSaveStore, 슬롯 id 'autosave'
   load(): Promise<boolean>;
@@ -142,6 +143,27 @@ export function useGame(): GameApi {
     [requireState],
   );
 
+  const advanceUntil = useCallback(
+    (stop: (s: GameState) => boolean, maxWeeks: number): void => {
+      if (!Number.isInteger(maxWeeks) || maxWeeks < 0) {
+        throw new RangeError(`advanceUntil: maxWeeks 는 0 이상의 정수여야 한다: ${maxWeeks}`);
+      }
+      let current = requireState();
+      const systems = gameSystems();
+      const events: GameEvent[] = [];
+      for (let i = 0; i < maxWeeks; i++) {
+        const result = advanceWeek(current, systems);
+        current = result.state;
+        events.push(...result.events);
+        if (stop(current)) break;
+      }
+      stateRef.current = current;
+      setState(current);
+      setLastEvents(events);
+    },
+    [requireState],
+  );
+
   const book = useCallback(
     (mareId: HorseId, stallionId: HorseId): BookingResult => {
       const current = requireState();
@@ -187,5 +209,5 @@ export function useGame(): GameApi {
     return true;
   }, []);
 
-  return { state, lastEvents, newGame, advance, advanceToPhase, book, save, load };
+  return { state, lastEvents, newGame, advance, advanceToPhase, advanceUntil, book, save, load };
 }

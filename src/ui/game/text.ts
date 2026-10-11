@@ -1,11 +1,13 @@
 import commentsJson from '../../../data/text/comments.ko.json';
 import { cyrb128 } from '../../engine/rng/hash';
 import { formatDateKo } from '../../engine/time/calendar';
+import type { BookingError } from '../../engine/breeding/season';
 import {
   type AssessmentComment,
   type AssessmentStage,
   type CalendarPhaseId,
   type CommentKey,
+  type CountryCode,
   type Grade,
   type GameEvent,
   type GrowthProfile,
@@ -13,6 +15,7 @@ import {
   type HorseStatus,
   type Money,
   type NickLabel,
+  type Sex,
 } from '../../engine/types';
 
 /** 1 펄롱(furlong) 의 미터 값. 단위 환산이므로 밸런스 상수가 아니다. */
@@ -137,6 +140,73 @@ export function stageKo(s: AssessmentStage): string {
 
 export function statusKo(s: HorseStatus): string {
   return STATUS_KO[s];
+}
+
+/** 달력 단계 한국어 이름. 예: 'breeding' → '교배 시기' */
+export function phaseKo(p: CalendarPhaseId): string {
+  return PHASE_KO[p];
+}
+
+const SEX_KO: Record<Sex, string> = { female: '암말', male: '수말' };
+const GELDED_KO = '거세마';
+
+/** 성별 한국어. 거세된 수말은 '거세마'. */
+export function sexKo(sex: Sex, gelded: boolean): string {
+  if (sex === 'male' && gelded) return GELDED_KO;
+  return SEX_KO[sex];
+}
+
+/** 마체 평가 6항목(종합 제외 포함) 키. ConformationReport 에서 stage 를 뺀 키다. */
+export type ConformationKey = 'overall' | 'frame' | 'hindquarters' | 'legs' | 'action' | 'temperament';
+
+const CONFORMATION_KO: Record<ConformationKey, string> = {
+  overall: '종합',
+  frame: '체격',
+  hindquarters: '후구',
+  legs: '다리',
+  action: '걸음',
+  temperament: '기질',
+};
+
+/** 마체 평가 항목 한국어 라벨 */
+export function conformationLabelKo(key: ConformationKey): string {
+  return CONFORMATION_KO[key];
+}
+
+const BOOKING_ERROR_KO: Record<BookingError, string> = {
+  not_breeding_season: '교배 시기가 아닙니다. 먼저 종부 시즌까지 진행하세요.',
+  not_your_mare: '내 말이 아니라서 교배를 예약할 수 없습니다.',
+  not_a_broodmare: '번식 암말이 아니라서 교배를 예약할 수 없습니다.',
+  mare_too_young: '아직 교배하기에 어린 암말입니다.',
+  already_pregnant: '이미 임신 중인 암말입니다.',
+  already_covered: '이번 시즌에 이미 교배가 예약된 암말입니다.',
+  stallion_not_available: '교배할 수 없는 종마입니다.',
+  book_full: '이 종마의 이번 시즌 교배 두수가 가득 찼습니다.',
+  insufficient_funds: '자금이 부족해 종부료를 낼 수 없습니다.',
+};
+
+/** 교배 예약 실패 사유 → 한국어 */
+export function bookingErrorKo(e: BookingError): string {
+  return BOOKING_ERROR_KO[e];
+}
+
+const COUNTRY_KO: Record<CountryCode, string> = {
+  GB: '영국',
+  IE: '아일랜드',
+  FR: '프랑스',
+  DE: '독일',
+  IT: '이탈리아',
+  JP: '일본',
+  US: '미국',
+  AU: '호주',
+  HK: '홍콩',
+  AE: '아랍에미리트',
+  CA: '캐나다',
+};
+
+/** 국가 코드 → 국가 한국어 명 */
+export function countryKo(c: CountryCode): string {
+  return COUNTRY_KO[c];
 }
 
 /** 이벤트 한 줄 요약. 말 이름은 nameOf 로 바꿔 넣는다. */

@@ -1,22 +1,30 @@
 import { describe, expect, it } from 'vitest';
 import commentsJson from '../../data/text/comments.ko.json';
 import { formatDateKo } from '../../src/engine/time/calendar';
+import type { BookingError } from '../../src/engine/breeding/season';
 import {
   COMMENT_KEYS,
   type AssessmentComment,
+  type CountryCode,
   type GameEvent,
   type HorseStatus,
 } from '../../src/engine/types';
 import {
+  bookingErrorKo,
   commentText,
+  conformationLabelKo,
+  countryKo,
   distanceHintKo,
   eventKo,
   feeKo,
   gradeColor,
   growthKo,
   nickLabelKo,
+  phaseKo,
+  sexKo,
   stageKo,
   statusKo,
+  type ConformationKey,
 } from '../../src/ui/game/text';
 
 const nameOf = (id: string): string => `말-${id}`;
@@ -122,6 +130,15 @@ describe('라벨 표', () => {
   });
 });
 
+describe('phaseKo', () => {
+  it('달력 단계 한국어 이름을 돌려준다', () => {
+    expect(phaseKo('foaling')).toBe('출산 시기');
+    expect(phaseKo('breeding')).toBe('교배 시기');
+    expect(phaseKo('turf_flat')).toBe('잔디 평지 시즌');
+    expect(phaseKo('aw_winter')).toBe('올웨더 겨울 시즌');
+  });
+});
+
 describe('eventKo', () => {
   const date = { year: 2026, week: 7 };
 
@@ -173,5 +190,54 @@ describe('eventKo', () => {
     };
     const line = eventKo(e, nameOf);
     expect(line).not.toMatch(/능력|레이팅|rating|speed|stamina/i);
+  });
+});
+
+describe('sexKo', () => {
+  it('암말, 수말, 거세마를 구분한다', () => {
+    expect(sexKo('female', false)).toBe('암말');
+    expect(sexKo('male', false)).toBe('수말');
+    expect(sexKo('male', true)).toBe('거세마');
+  });
+});
+
+describe('conformationLabelKo', () => {
+  it('마체 평가 6항목 라벨을 모두 돌려준다', () => {
+    const keys: ConformationKey[] = ['overall', 'frame', 'hindquarters', 'legs', 'action', 'temperament'];
+    const labels = keys.map((k) => conformationLabelKo(k));
+    expect(labels).toEqual(['종합', '체격', '후구', '다리', '걸음', '기질']);
+  });
+});
+
+describe('bookingErrorKo', () => {
+  it('BookingError 의 모든 종류를 매핑하고 서로 다른 문장을 준다', () => {
+    const all: BookingError[] = [
+      'not_breeding_season',
+      'not_your_mare',
+      'not_a_broodmare',
+      'mare_too_young',
+      'already_pregnant',
+      'already_covered',
+      'stallion_not_available',
+      'book_full',
+      'insufficient_funds',
+    ];
+    const texts = all.map((e) => bookingErrorKo(e));
+    for (const t of texts) {
+      expect(t.length).toBeGreaterThan(0);
+    }
+    expect(new Set(texts).size).toBe(all.length);
+  });
+});
+
+describe('countryKo', () => {
+  it('CountryCode 전부에 한국어 국가명을 준다', () => {
+    const all: CountryCode[] = ['GB', 'IE', 'FR', 'DE', 'IT', 'JP', 'US', 'AU', 'HK', 'AE', 'CA'];
+    for (const c of all) {
+      expect(countryKo(c).length).toBeGreaterThan(0);
+    }
+    expect(countryKo('GB')).toBe('영국');
+    expect(countryKo('IE')).toBe('아일랜드');
+    expect(countryKo('FR')).toBe('프랑스');
   });
 });
