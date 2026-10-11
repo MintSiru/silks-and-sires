@@ -8,6 +8,7 @@ import {
   REPLAYABLE_MAX,
 } from '../config/season';
 import type { SampleField } from '../race/sampleField';
+import { applyRatingsInPlace } from './handicapper';
 import type {
   CareerRecord,
   Declaration,
@@ -201,6 +202,9 @@ export function applyRaceResultInPlace(state: GameState, args: ApplyRaceResultAr
       addLeading(tables, 'breeder', horse.breederId, { won, placed, groupWin, prize });
     }
   }
+
+  // 1b. OR 갱신(M3-C3): 레이스 전 OR 기준으로 PR 을 계산해 OR·첫 OR 대기분을 갱신
+  applyRatingsInPlace(next, race, result, date);
 
   // 2. 시리즈: 이 레이스가 레그인 시리즈만
   const templateId = scheduled.templateId;
