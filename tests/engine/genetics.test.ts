@@ -398,3 +398,26 @@ describe('buildMatingPreview', () => {
     expect(preview.comments.length).toBeLessThanOrEqual(3);
   });
 });
+
+describe('건강도 평균 회귀', () => {
+  /** 시드 'prefix-i' 로 n 마리를 만들고 건강도 평균을 낸다 (인브리드·닉스 보정 없음) */
+  function meanSoundness(prefix: string, n: number, sire: Horse, dam: Horse): number {
+    const values: number[] = [];
+    for (let i = 0; i < n; i++) {
+      values.push(breed(createRng(`${prefix}-${i}`), plainArgs(sire, dam)).soundness);
+    }
+    return meanOf(values);
+  }
+
+  it('부모 건강도가 모두 10 이면 1,000회 평균 > 10 + (70-10)×0.15 - 1', () => {
+    const low = makeHorse('SL10', { soundness: 10 });
+    const mean = meanSoundness('sound-low', 1000, low, low);
+    expect(mean).toBeGreaterThan(10 + (70 - 10) * 0.15 - 1);
+  });
+
+  it('부모 건강도가 모두 95 이면 1,000회 평균 < 95', () => {
+    const high = makeHorse('SH95', { soundness: 95 });
+    const mean = meanSoundness('sound-high', 1000, high, high);
+    expect(mean).toBeLessThan(95);
+  });
+});

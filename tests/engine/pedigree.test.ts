@@ -7,6 +7,7 @@ import {
   type PedigreeLookup,
 } from '../../src/engine/breeding/pedigree';
 import {
+  dominantCrosses,
   findInbreeding,
   inbreedingLabel,
   totalBloodPercent,
@@ -228,5 +229,71 @@ describe('inbreedingLabel / totalBloodPercent', () => {
     const crosses = findInbreeding(buildPedigree(crossX34, 'R'));
     expect(totalBloodPercent(crosses)).toBe(18.75);
     expect(totalBloodPercent([])).toBe(0);
+  });
+});
+
+describe('dominantCrosses: 중복 합산 제거', () => {
+  // 족보: A 가 부측 대 3(R.S.P.A), 모측 대 3(R.D.Q.A) 에 나온다. A 의 부 B·모 C 는 두 A 노드 아래에 함께 나온다.
+  // 따라서 B·C 는 A 로 설명되고, A 만 지배 교차로 남아야 한다.
+  const sameAsA: PedigreeLookup = lookupOf({
+    R: ['S', 'D'],
+    S: ['P', null],
+    P: ['A', null],
+    A: ['B', 'C'],
+    D: ['Q', null],
+    Q: [null, 'A'],
+  });
+
+  it('A 가 3×3 이고 A 의 부·모가 4×4 로 같이 잡혀도 결과는 A 하나뿐', () => {
+    const root = buildPedigree(sameAsA, 'R');
+    const all = findInbreeding(root);
+    expect(all.map((c) => c.ancestorId).sort()).toEqual(['A', 'B', 'C']);
+
+    const dominant = dominantCrosses(root, all);
+    expect(dominant.map((c) => c.ancestorId)).toEqual(['A']);
+    expect(dominant[0]?.label).toBe('3×3');
+    expect(dominant[0]?.bloodPercent).toBe(25);
+  });
+
+  it('A 의 부 B 가 A 와 무관한 경로(R.D.T.B)로도 나오면 B 는 남는다', () => {
+    // T 는 교차가 아니며 B 를 부로 가진다. 이 B 노드는 A 아래가 아니다.
+    const family: PedigreeLookup = lookupOf({
+      R: ['S', 'D'],
+      S: ['P', null],
+      P: ['A', null],
+      A: ['B', 'C'],
+      D: ['Q', 'T'],
+      Q: [null, 'A'],
+      T: ['B', null],
+    });
+    const root = buildPedigree(family, 'R');
+    const dominant = dominantCrosses(root, findInbreeding(root));
+    expect(dominant.map((c) => c.ancestorId)).toContain('B');
+    expect(dominant.map((c) => c.ancestorId)).toContain('A');
+    expect(dominant.map((c) => c.ancestorId)).not.toContain('C');
+  });
+
+  it('서로 무관한 두 공통 조상은 둘 다 남는다', () => {
+    // X 와 Y 는 각각 부측·모측 대 2 에 나오며 서로의 조상이 아니다.
+    const family: PedigreeLookup = lookupOf({
+      R: ['S', 'D'],
+      S: ['X', 'Y'],
+      D: ['X', 'Y'],
+    });
+    const root = buildPedigree(family, 'R');
+    const dominant = dominantCrosses(root, findInbreeding(root));
+    expect(dominant.map((c) => c.ancestorId)).toEqual(['X', 'Y']);
+  });
+
+  it('교차가 없으면 빈 배열', () => {
+    const root = buildPedigree(lookupOf({ R: ['A', 'B'] }), 'R');
+    expect(dominantCrosses(root, findInbreeding(root))).toEqual([]);
+    expect(dominantCrosses(root, [])).toEqual([]);
+  });
+
+  it('입력이 정렬되지 않아도 혈량 내림차순·ancestorId 오름차순으로 돌려준다', () => {
+    const root = buildPedigree(crossX34, 'R');
+    const shuffled = [...findInbreeding(root)];
+    expect(dominantCrosses(root, shuffled)).toEqual(findInbreeding(root));
   });
 });

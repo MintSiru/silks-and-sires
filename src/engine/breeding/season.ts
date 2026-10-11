@@ -24,7 +24,7 @@ import type {
   WeeklySystem,
 } from '../types';
 import { breed } from './genetics';
-import { findInbreeding } from './inbreeding';
+import { dominantCrosses, findInbreeding } from './inbreeding';
 import { nickKey } from './nicks';
 import { buildMatingPedigree, type PedigreeLookup } from './pedigree';
 
@@ -265,7 +265,8 @@ function deliverFoals(
     }
 
     const lookup: PedigreeLookup = (id) => state.horses[id];
-    const inbreeding = findInbreeding(buildMatingPedigree(lookup, sire.id, dam.id));
+    const root = buildMatingPedigree(lookup, sire.id, dam.id);
+    const inbreeding = dominantCrosses(root, findInbreeding(root));
 
     if (usedNames === null) {
       usedNames = new Set(Object.values(state.horses).map((h) => h.name));

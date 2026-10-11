@@ -53,13 +53,69 @@ export function findInbreeding(
     });
   }
 
-  crosses.sort((a, b) => {
-    if (b.bloodPercent !== a.bloodPercent) return b.bloodPercent - a.bloodPercent;
-    if (a.ancestorId < b.ancestorId) return -1;
-    if (a.ancestorId > b.ancestorId) return 1;
-    return 0;
-  });
+  crosses.sort(compareCrosses);
   return crosses;
+}
+
+/** 교차 정렬 규칙: 혈량 내림차순, 같으면 ancestorId 오름차순 */
+function compareCrosses(a: InbreedingCross, b: InbreedingCross): number {
+  if (b.bloodPercent !== a.bloodPercent) return b.bloodPercent - a.bloodPercent;
+  if (a.ancestorId < b.ancestorId) return -1;
+  if (a.ancestorId > b.ancestorId) return 1;
+  return 0;
+}
+
+/**
+ * 혈통표를 깊이 우선으로 돌며 교차 조상 노드의 등장 수(total)와,
+ * 그중 경로 위에 다른 교차 조상 Y 가 있어 Y 로 설명되는 등장 수(explained)를 센다.
+ * path 는 현재 노드의 조상 가운데 교차 조상 id 스택이다.
+ */
+function countAppearances(
+  node: PedigreeNode | null,
+  crossIds: ReadonlySet<HorseId>,
+  path: HorseId[],
+  total: Map<HorseId, number>,
+  explained: Map<HorseId, number>,
+): void {
+  if (node === null) return;
+  const id = node.horseId;
+  if (id === null || !crossIds.has(id)) {
+    countAppearances(node.sire, crossIds, path, total, explained);
+    countAppearances(node.dam, crossIds, path, total, explained);
+    return;
+  }
+
+  total.set(id, (total.get(id) ?? 0) + 1);
+  if (path.some((ancestor) => ancestor !== id)) {
+    explained.set(id, (explained.get(id) ?? 0) + 1);
+  }
+
+  path.push(id);
+  countAppearances(node.sire, crossIds, path, total, explained);
+  countAppearances(node.dam, crossIds, path, total, explained);
+  path.pop();
+}
+
+/**
+ * 지배 교차만 남긴다: 교차 조상 X 가, 혈통표 안에서 다른 교차 조상 Y 의 조상으로 **모든 등장 위치에서** 설명되면 제외.
+ * (X 의 각 등장 노드가 어떤 Y 노드의 하위 트리 안에 있으면 그 등장은 Y 로 설명된다. 모든 등장이 설명되면 X 제외)
+ * 결과는 입력과 같은 정렬 규칙(bloodPercent 내림차순, 같으면 ancestorId 오름차순).
+ */
+export function dominantCrosses(
+  root: PedigreeNode,
+  crosses: readonly InbreedingCross[],
+): InbreedingCross[] {
+  const crossIds: ReadonlySet<HorseId> = new Set(crosses.map((c) => c.ancestorId));
+  const total = new Map<HorseId, number>();
+  const explained = new Map<HorseId, number>();
+  countAppearances(root, crossIds, [], total, explained);
+
+  const kept = crosses.filter((cross) => {
+    const appearances = total.get(cross.ancestorId) ?? 0;
+    const explainedCount = explained.get(cross.ancestorId) ?? 0;
+    return !(appearances > 0 && explainedCount === appearances);
+  });
+  return kept.sort(compareCrosses);
 }
 
 /** 표기: 부측 대들 오름차순 "×" 연결, 이어서 모측 대들 오름차순 "×" 연결. 예: "4×3", "4×5×3" */

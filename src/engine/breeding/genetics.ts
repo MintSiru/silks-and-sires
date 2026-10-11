@@ -35,6 +35,7 @@ import {
   REGRESSION_TO_MEAN,
   SIRE_WEIGHT,
   SOUNDNESS_INHERIT_SD,
+  SOUNDNESS_REGRESSION,
   STYLE_FROM_DAM_P,
   STYLE_FROM_SIRE_P,
   SURFACE_INHERIT_KEEP,
@@ -51,6 +52,7 @@ import {
   GOING_PREF_MIN,
   GROWTH_DECLINE_RATE,
   GROWTH_PEAK_AGE,
+  SOUNDNESS_MEAN,
   STYLE_WEIGHTS,
 } from '../config/horse';
 import { abilityAtAge, sampleGrowthProfile } from '../horse/growthCurve';
@@ -82,6 +84,11 @@ function average(a: number, b: number): number {
 
 function clamp(v: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, v));
+}
+
+/** 건강도 부모 중간값을 집단 평균 쪽으로 SOUNDNESS_REGRESSION 만큼 당긴다(세대 누적 감쇠 방지) */
+function soundnessRegressed(mid: number): number {
+  return mid + (SOUNDNESS_MEAN - mid) * SOUNDNESS_REGRESSION;
 }
 
 /** 인브리드 혈량(bp %) 에 따른 잠재 보정과 건강도 감점(양수) */
@@ -236,10 +243,9 @@ export function breed(rng: Rng, args: BreedArgs): Horse {
   const preferredStyle = inheritStyle(rng, sire, dam);
 
   // 7. 건강도, 정신
+  const soundnessMid = soundnessRegressed(average(sire.soundness, dam.soundness));
   const soundness = clamp(
-    average(sire.soundness, dam.soundness) +
-      rng.normal(0, SOUNDNESS_INHERIT_SD) -
-      inbreed.soundness,
+    soundnessMid + rng.normal(0, SOUNDNESS_INHERIT_SD) - inbreed.soundness,
     ABILITY_MIN,
     ABILITY_MAX,
   );

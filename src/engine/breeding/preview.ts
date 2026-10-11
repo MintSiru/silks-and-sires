@@ -14,7 +14,7 @@ import {
 } from '../config/genetics';
 import { DIST_OPT_MAX, DIST_OPT_MIN } from '../config/horse';
 import { buildMatingPedigree, type PedigreeLookup } from './pedigree';
-import { findInbreeding } from './inbreeding';
+import { dominantCrosses, findInbreeding } from './inbreeding';
 import { nickKey, nickLabel, nickValue } from './nicks';
 
 export interface BuildMatingPreviewArgs {
@@ -44,7 +44,8 @@ export function buildMatingPreview(args: BuildMatingPreviewArgs): MatingPreview 
   const { sire, dam, damsireLineId, lookup, nicks, revealedNicks } = args;
 
   // 인브리드 (실존 혈통표 기준)
-  const inbreeding = findInbreeding(buildMatingPedigree(lookup, sire.id, dam.id));
+  const root = buildMatingPedigree(lookup, sire.id, dam.id);
+  const inbreeding = dominantCrosses(root, findInbreeding(root));
 
   // 닉스: 계통 둘 다 있고 공개된 조합일 때만 값을 읽는다
   const sireLine = sire.sireLineId;

@@ -26,6 +26,8 @@ export const GOING_INHERIT_SD = 0.7;
 export const SURFACE_INHERIT_KEEP = 0.7;
 export const SURFACE_INHERIT_SD = 0.25;
 export const SOUNDNESS_INHERIT_SD = 8;
+/** 건강도 집단 평균 회귀: mid = mid + (SOUNDNESS_MEAN - mid) × SOUNDNESS_REGRESSION */
+export const SOUNDNESS_REGRESSION = 0.15;
 export const MENTAL_INHERIT_SD = 10;
 /** 성장형: 부 형 SIRE_P, 모 형 DAM_P, 나머지 무작위 */
 export const GROWTH_FROM_SIRE_P = 0.4;
