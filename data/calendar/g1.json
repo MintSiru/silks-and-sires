@@ -1,1 +1,3159 @@
-[]
+[
+  {
+    "id": "torreverde_2000_guineas",
+    "name": "Torreverde 2000 Guineas",
+    "racecourseId": "torreverde",
+    "distance": 1609,
+    "layoutId": "torreverde_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 20,
+    "schedule": {
+      "month": 4,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 2,
+    "tags": [
+      "classic"
+    ]
+  },
+  {
+    "id": "torreverde_1000_guineas",
+    "name": "Torreverde 1000 Guineas",
+    "racecourseId": "torreverde",
+    "distance": 1609,
+    "layoutId": "torreverde_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 20,
+    "schedule": {
+      "month": 4,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 1,
+    "tags": [
+      "classic",
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "prix_des_tilleuls",
+    "name": "Prix des Tilleuls",
+    "racecourseId": "saint_ourens",
+    "distance": 2100,
+    "layoutId": "saint_ourens_grande",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 4,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 4,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 1,
+    "tags": []
+  },
+  {
+    "id": "marlow_2000_guineas",
+    "name": "Marlow 2000 Guineas",
+    "racecourseId": "marlow_downs",
+    "distance": 1609,
+    "layoutId": "marlow_straight",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      285000,
+      110000,
+      55000,
+      27500,
+      15000,
+      7500
+    ],
+    "maxRunners": 20,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 2,
+    "tags": [
+      "classic"
+    ]
+  },
+  {
+    "id": "marlow_1000_guineas",
+    "name": "Marlow 1000 Guineas",
+    "racecourseId": "marlow_downs",
+    "distance": 1609,
+    "layoutId": "marlow_straight",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      285000,
+      110000,
+      55000,
+      27500,
+      15000,
+      7500
+    ],
+    "maxRunners": 20,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 1,
+    "tags": [
+      "classic",
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "saint_ourens_2000_guineas",
+    "name": "Saint-Ourens 2000 Guineas",
+    "racecourseId": "saint_ourens",
+    "distance": 1600,
+    "layoutId": "saint_ourens_grande",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      285000,
+      110000,
+      55000,
+      27500,
+      15000,
+      7500
+    ],
+    "maxRunners": 20,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 2,
+    "tags": [
+      "classic"
+    ]
+  },
+  {
+    "id": "saint_ourens_1000_guineas",
+    "name": "Saint-Ourens 1000 Guineas",
+    "racecourseId": "saint_ourens",
+    "distance": 1600,
+    "layoutId": "saint_ourens_grande",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      285000,
+      110000,
+      55000,
+      27500,
+      15000,
+      7500
+    ],
+    "maxRunners": 20,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 1,
+    "tags": [
+      "classic",
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "wexborough_mile",
+    "name": "Wexborough Mile",
+    "racecourseId": "wexborough",
+    "distance": 1609,
+    "layoutId": "wexborough_straight",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 4,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 1,
+    "tags": []
+  },
+  {
+    "id": "torreverde_derby",
+    "name": "Torreverde Derby",
+    "racecourseId": "torreverde",
+    "distance": 2213,
+    "layoutId": "torreverde_main",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 20,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 1,
+    "tags": [
+      "classic"
+    ]
+  },
+  {
+    "id": "kilcarrow_2000_guineas",
+    "name": "Kilcarrow 2000 Guineas",
+    "racecourseId": "kilcarrow_heath",
+    "distance": 1609,
+    "layoutId": "kilcarrow_main",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      285000,
+      110000,
+      55000,
+      27500,
+      15000,
+      7500
+    ],
+    "maxRunners": 20,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 2,
+    "tags": [
+      "classic"
+    ]
+  },
+  {
+    "id": "kilcarrow_1000_guineas",
+    "name": "Kilcarrow 1000 Guineas",
+    "racecourseId": "kilcarrow_heath",
+    "distance": 1609,
+    "layoutId": "kilcarrow_main",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      285000,
+      110000,
+      55000,
+      27500,
+      15000,
+      7500
+    ],
+    "maxRunners": 20,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 1,
+    "tags": [
+      "classic",
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "kilcarrow_spring_crown",
+    "name": "Kilcarrow Spring Crown",
+    "racecourseId": "kilcarrow_heath",
+    "distance": 2012,
+    "layoutId": "kilcarrow_main",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 4,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 3,
+    "tags": []
+  },
+  {
+    "id": "prix_des_ormes",
+    "name": "Prix des Ormes",
+    "racecourseId": "vallenaire",
+    "distance": 2000,
+    "layoutId": "vallenaire_main",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 1,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "wesselfeld_2000_guineas",
+    "name": "Wesselfeld 2000 Guineas",
+    "racecourseId": "wesselfeld",
+    "distance": 1609,
+    "layoutId": "wesselfeld_main",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 20,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 1,
+    "tags": [
+      "classic"
+    ]
+  },
+  {
+    "id": "valmerano_oaks",
+    "name": "Valmerano Oaks",
+    "racecourseId": "valmerano",
+    "distance": 2213,
+    "layoutId": "valmerano_main",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 1,
+    "tags": [
+      "classic",
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "ashcombe_derby",
+    "name": "Ashcombe Derby",
+    "racecourseId": "ashcombe",
+    "distance": 2414,
+    "layoutId": "ashcombe_main",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      855000,
+      330000,
+      165000,
+      82500,
+      45000,
+      22500
+    ],
+    "maxRunners": 20,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 2,
+    "tags": [
+      "classic"
+    ]
+  },
+  {
+    "id": "ashcombe_oaks",
+    "name": "Ashcombe Oaks",
+    "racecourseId": "ashcombe",
+    "distance": 2414,
+    "layoutId": "ashcombe_main",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      342000,
+      132000,
+      66000,
+      33000,
+      18000,
+      9000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 3,
+    "tags": [
+      "classic",
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "ashcombe_coronet",
+    "name": "Ashcombe Coronet",
+    "racecourseId": "ashcombe",
+    "distance": 2414,
+    "layoutId": "ashcombe_main",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 4,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 1,
+    "tags": []
+  },
+  {
+    "id": "wesselfeld_1000_guineas",
+    "name": "Wesselfeld 1000 Guineas",
+    "racecourseId": "wesselfeld",
+    "distance": 1609,
+    "layoutId": "wesselfeld_main",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 20,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 1,
+    "tags": [
+      "classic",
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "vallenaire_derby",
+    "name": "Vallenaire Derby",
+    "racecourseId": "vallenaire",
+    "distance": 2100,
+    "layoutId": "vallenaire_main",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      855000,
+      330000,
+      165000,
+      82500,
+      45000,
+      22500
+    ],
+    "maxRunners": 20,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 1,
+    "tags": [
+      "classic"
+    ]
+  },
+  {
+    "id": "prix_de_morvenne",
+    "name": "Prix de Morvenne",
+    "racecourseId": "saint_ourens",
+    "distance": 1850,
+    "layoutId": "saint_ourens_grande",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 4,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 1,
+    "tags": []
+  },
+  {
+    "id": "gran_premio_di_valmerano",
+    "name": "Gran Premio di Valmerano",
+    "racecourseId": "valmerano",
+    "distance": 2414,
+    "layoutId": "valmerano_main",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      142500,
+      55000,
+      27500,
+      13750,
+      7500,
+      3750
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 1,
+    "tags": [
+      "national_flagship"
+    ]
+  },
+  {
+    "id": "vallenaire_oaks",
+    "name": "Vallenaire Oaks",
+    "racecourseId": "vallenaire",
+    "distance": 2100,
+    "layoutId": "vallenaire_main",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      342000,
+      132000,
+      66000,
+      33000,
+      18000,
+      9000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 1,
+    "tags": [
+      "classic",
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "sovereign_mile",
+    "name": "Sovereign Mile",
+    "racecourseId": "kingsmere_heath",
+    "distance": 1609,
+    "layoutId": "kingsmere_straight",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 4,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 6,
+    "tags": []
+  },
+  {
+    "id": "crown_sprint",
+    "name": "Crown Sprint",
+    "racecourseId": "kingsmere_heath",
+    "distance": 1006,
+    "layoutId": "kingsmere_straight",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 20,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 1,
+    "tags": [
+      "sprint"
+    ]
+  },
+  {
+    "id": "heathland_mile",
+    "name": "Heathland Mile",
+    "racecourseId": "kingsmere_heath",
+    "distance": 1609,
+    "layoutId": "kingsmere_triangle",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 5,
+    "tags": []
+  },
+  {
+    "id": "kingsmere_midsummer_stakes",
+    "name": "Kingsmere Midsummer Stakes",
+    "racecourseId": "kingsmere_heath",
+    "distance": 2012,
+    "layoutId": "kingsmere_triangle",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 4,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 7,
+    "tags": []
+  },
+  {
+    "id": "bluebell_stakes",
+    "name": "Bluebell Stakes",
+    "racecourseId": "kingsmere_heath",
+    "distance": 1609,
+    "layoutId": "kingsmere_triangle",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 4,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "kingsmere_cup",
+    "name": "Kingsmere Cup",
+    "racecourseId": "kingsmere_heath",
+    "distance": 4023,
+    "layoutId": "kingsmere_triangle",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 4,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 8,
+    "tags": [
+      "stayers"
+    ]
+  },
+  {
+    "id": "hawthorn_sprint",
+    "name": "Hawthorn Sprint",
+    "racecourseId": "kingsmere_heath",
+    "distance": 1207,
+    "layoutId": "kingsmere_straight",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 20,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 2,
+    "tags": [
+      "sprint"
+    ]
+  },
+  {
+    "id": "highcourt_sprint",
+    "name": "Highcourt Sprint",
+    "racecourseId": "kingsmere_heath",
+    "distance": 1207,
+    "layoutId": "kingsmere_straight",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 4,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 20,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 3,
+    "tags": [
+      "sprint"
+    ]
+  },
+  {
+    "id": "kilcarrow_derby",
+    "name": "Kilcarrow Derby",
+    "racecourseId": "kilcarrow_heath",
+    "distance": 2414,
+    "layoutId": "kilcarrow_main",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      855000,
+      330000,
+      165000,
+      82500,
+      45000,
+      22500
+    ],
+    "maxRunners": 20,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 2,
+    "tags": [
+      "classic"
+    ]
+  },
+  {
+    "id": "meadowsweet_stakes",
+    "name": "Meadowsweet Stakes",
+    "racecourseId": "kilcarrow_heath",
+    "distance": 2012,
+    "layoutId": "kilcarrow_main",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 1,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "ravensbridge_summer_cup",
+    "name": "Ravensbridge Summer Cup",
+    "racecourseId": "ravensbridge_park",
+    "distance": 2012,
+    "layoutId": "ravensbridge_oval",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 7,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 1,
+    "tags": []
+  },
+  {
+    "id": "hohenmoor_derby",
+    "name": "Hohenmoor Derby",
+    "racecourseId": "hohenmoor",
+    "distance": 2414,
+    "layoutId": "hohenmoor_main",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      114000,
+      44000,
+      22000,
+      11000,
+      6000,
+      3000
+    ],
+    "maxRunners": 20,
+    "schedule": {
+      "month": 7,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 1,
+    "tags": [
+      "classic"
+    ]
+  },
+  {
+    "id": "grand_prix_de_clairval",
+    "name": "Grand Prix de Clairval",
+    "racecourseId": "clairval",
+    "distance": 2400,
+    "layoutId": "clairval_main",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 4,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 7,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 1,
+    "tags": []
+  },
+  {
+    "id": "midsummer_sprint",
+    "name": "Midsummer Sprint",
+    "racecourseId": "marlow_downs",
+    "distance": 1207,
+    "layoutId": "marlow_july",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 20,
+    "schedule": {
+      "month": 7,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 1,
+    "tags": [
+      "sprint"
+    ]
+  },
+  {
+    "id": "linden_stakes",
+    "name": "Linden Stakes",
+    "racecourseId": "marlow_downs",
+    "distance": 1609,
+    "layoutId": "marlow_july",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 7,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 2,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "prix_de_vallenaire",
+    "name": "Prix de Vallenaire",
+    "racecourseId": "vallenaire",
+    "distance": 1600,
+    "layoutId": "vallenaire_main",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 7,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 1,
+    "tags": []
+  },
+  {
+    "id": "kilcarrow_oaks",
+    "name": "Kilcarrow Oaks",
+    "racecourseId": "kilcarrow_heath",
+    "distance": 2414,
+    "layoutId": "kilcarrow_main",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      342000,
+      132000,
+      66000,
+      33000,
+      18000,
+      9000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 7,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 1,
+    "tags": [
+      "classic",
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "grand_prix_de_saint_ourens",
+    "name": "Grand Prix de Saint-Ourens",
+    "racecourseId": "saint_ourens",
+    "distance": 2400,
+    "layoutId": "saint_ourens_grande",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 7,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 1,
+    "tags": []
+  },
+  {
+    "id": "kingsmere_summer_crown",
+    "name": "Kingsmere Summer Crown",
+    "racecourseId": "kingsmere_heath",
+    "distance": 2414,
+    "layoutId": "kingsmere_triangle",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      855000,
+      330000,
+      165000,
+      82500,
+      45000,
+      22500
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 7,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 1,
+    "tags": [
+      "national_flagship"
+    ]
+  },
+  {
+    "id": "selsworth_mile",
+    "name": "Selsworth Mile",
+    "racecourseId": "selsworth_downs",
+    "distance": 1609,
+    "layoutId": "selsworth_main",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 1,
+    "tags": []
+  },
+  {
+    "id": "selsworth_cup",
+    "name": "Selsworth Cup",
+    "racecourseId": "selsworth_downs",
+    "distance": 3218,
+    "layoutId": "selsworth_main",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 3,
+    "tags": [
+      "stayers"
+    ]
+  },
+  {
+    "id": "downland_stakes",
+    "name": "Downland Stakes",
+    "racecourseId": "selsworth_downs",
+    "distance": 2012,
+    "layoutId": "selsworth_main",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 2,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "prix_de_la_plage",
+    "name": "Prix de la Plage",
+    "racecourseId": "port_aubray",
+    "distance": 1600,
+    "layoutId": "port_aubray_straight",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 2,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "prix_des_dunes",
+    "name": "Prix des Dunes",
+    "racecourseId": "port_aubray",
+    "distance": 1300,
+    "layoutId": "port_aubray_straight",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 1,
+    "tags": []
+  },
+  {
+    "id": "wesselfeld_oaks",
+    "name": "Wesselfeld Oaks",
+    "racecourseId": "wesselfeld",
+    "distance": 2213,
+    "layoutId": "wesselfeld_main",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      114000,
+      44000,
+      22000,
+      11000,
+      6000,
+      3000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 1,
+    "tags": [
+      "classic",
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "prix_du_grand_phare",
+    "name": "Prix du Grand Phare",
+    "racecourseId": "port_aubray",
+    "distance": 1600,
+    "layoutId": "port_aubray_straight",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 1,
+    "tags": []
+  },
+  {
+    "id": "kilcarrow_juvenile_sprint",
+    "name": "Kilcarrow Juvenile Sprint",
+    "racecourseId": "kilcarrow_heath",
+    "distance": 1207,
+    "layoutId": "kilcarrow_main",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      171000,
+      66000,
+      33000,
+      16500,
+      9000,
+      4500
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 1,
+    "tags": [
+      "two_year_old",
+      "sprint"
+    ]
+  },
+  {
+    "id": "easterholm_grand_stakes",
+    "name": "Easterholm Grand Stakes",
+    "racecourseId": "easterholm",
+    "distance": 2072,
+    "layoutId": "easterholm_main",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 2,
+    "tags": []
+  },
+  {
+    "id": "northern_oaks",
+    "name": "Northern Oaks",
+    "racecourseId": "easterholm",
+    "distance": 2414,
+    "layoutId": "easterholm_main",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 3,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "easterholm_dash",
+    "name": "Easterholm Dash",
+    "racecourseId": "easterholm",
+    "distance": 1006,
+    "layoutId": "easterholm_straight",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 20,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 1,
+    "tags": [
+      "sprint"
+    ]
+  },
+  {
+    "id": "prix_des_embruns",
+    "name": "Prix des Embruns",
+    "racecourseId": "port_aubray",
+    "distance": 1200,
+    "layoutId": "port_aubray_straight",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      171000,
+      66000,
+      33000,
+      16500,
+      9000,
+      4500
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 1,
+    "tags": [
+      "two_year_old",
+      "sprint"
+    ]
+  },
+  {
+    "id": "prix_des_mouettes",
+    "name": "Prix des Mouettes",
+    "racecourseId": "port_aubray",
+    "distance": 2000,
+    "layoutId": "port_aubray_round",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 2,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "aldermoor_sprint",
+    "name": "Aldermoor Sprint",
+    "racecourseId": "aldermoor_park",
+    "distance": 1207,
+    "layoutId": "aldermoor_straight",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 20,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 1,
+    "tags": [
+      "sprint"
+    ]
+  },
+  {
+    "id": "prix_de_la_butte",
+    "name": "Prix de la Butte",
+    "racecourseId": "saint_ourens",
+    "distance": 1600,
+    "layoutId": "saint_ourens_grande",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 1,
+    "tags": []
+  },
+  {
+    "id": "grosser_preis_von_lichtenau",
+    "name": "Großer Preis von Lichtenau",
+    "racecourseId": "lichtenau",
+    "distance": 2414,
+    "layoutId": "lichtenau_main",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      142500,
+      55000,
+      27500,
+      13750,
+      7500,
+      3750
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 1,
+    "tags": [
+      "national_flagship"
+    ]
+  },
+  {
+    "id": "ballinvar_crown",
+    "name": "Ballinvar Crown",
+    "racecourseId": "ballinvar",
+    "distance": 2012,
+    "layoutId": "ballinvar_main",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      855000,
+      330000,
+      165000,
+      82500,
+      45000,
+      22500
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 2,
+    "tags": [
+      "national_flagship"
+    ]
+  },
+  {
+    "id": "hollyhock_stakes",
+    "name": "Hollyhock Stakes",
+    "racecourseId": "ballinvar",
+    "distance": 1609,
+    "layoutId": "ballinvar_main",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 1,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "kilcarrow_st_leger",
+    "name": "Kilcarrow St Leger",
+    "racecourseId": "kilcarrow_heath",
+    "distance": 2816,
+    "layoutId": "kilcarrow_main",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      342000,
+      132000,
+      66000,
+      33000,
+      18000,
+      9000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 3,
+    "tags": [
+      "classic",
+      "stayers"
+    ]
+  },
+  {
+    "id": "kilcarrow_juvenile_stakes",
+    "name": "Kilcarrow Juvenile Stakes",
+    "racecourseId": "kilcarrow_heath",
+    "distance": 1408,
+    "layoutId": "kilcarrow_straight",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      171000,
+      66000,
+      33000,
+      16500,
+      9000,
+      4500
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 2,
+    "tags": [
+      "two_year_old"
+    ]
+  },
+  {
+    "id": "kilcarrow_fillies_stakes",
+    "name": "Kilcarrow Fillies' Stakes",
+    "racecourseId": "kilcarrow_heath",
+    "distance": 1408,
+    "layoutId": "kilcarrow_straight",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      171000,
+      66000,
+      33000,
+      16500,
+      9000,
+      4500
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 1,
+    "tags": [
+      "two_year_old",
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "dunholme_st_leger",
+    "name": "Dunholme St Leger",
+    "racecourseId": "dunholme_moor",
+    "distance": 2921,
+    "layoutId": "dunholme_main",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      342000,
+      132000,
+      66000,
+      33000,
+      18000,
+      9000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 1,
+    "tags": [
+      "classic",
+      "stayers"
+    ]
+  },
+  {
+    "id": "prix_des_glycines",
+    "name": "Prix des Glycines",
+    "racecourseId": "saint_ourens",
+    "distance": 2400,
+    "layoutId": "saint_ourens_grande",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 1,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "lichtenau_st_leger",
+    "name": "Lichtenau St Leger",
+    "racecourseId": "lichtenau",
+    "distance": 2816,
+    "layoutId": "lichtenau_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 1,
+    "tags": [
+      "classic",
+      "stayers"
+    ]
+  },
+  {
+    "id": "marlow_juvenile_cup",
+    "name": "Marlow Juvenile Cup",
+    "racecourseId": "marlow_downs",
+    "distance": 1207,
+    "layoutId": "marlow_straight",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      171000,
+      66000,
+      33000,
+      16500,
+      9000,
+      4500
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 2,
+    "tags": [
+      "two_year_old",
+      "sprint"
+    ]
+  },
+  {
+    "id": "marlow_fillies_sprint",
+    "name": "Marlow Fillies' Sprint",
+    "racecourseId": "marlow_downs",
+    "distance": 1207,
+    "layoutId": "marlow_straight",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      171000,
+      66000,
+      33000,
+      16500,
+      9000,
+      4500
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 1,
+    "tags": [
+      "two_year_old",
+      "fillies_mares",
+      "sprint"
+    ]
+  },
+  {
+    "id": "silverbirch_stakes",
+    "name": "Silverbirch Stakes",
+    "racecourseId": "marlow_downs",
+    "distance": 1609,
+    "layoutId": "marlow_straight",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 3,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "valmerano_st_leger",
+    "name": "Valmerano St Leger",
+    "racecourseId": "valmerano",
+    "distance": 2816,
+    "layoutId": "valmerano_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 1,
+    "tags": [
+      "classic",
+      "stayers"
+    ]
+  },
+  {
+    "id": "prix_de_letoile_dautomne",
+    "name": "Prix de l'Étoile d'Automne",
+    "racecourseId": "saint_ourens",
+    "distance": 2400,
+    "layoutId": "saint_ourens_grande",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      2850000,
+      1100000,
+      550000,
+      275000,
+      150000,
+      75000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 10,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 7,
+    "tags": [
+      "national_flagship"
+    ]
+  },
+  {
+    "id": "prix_de_la_rotonde",
+    "name": "Prix de la Rotonde",
+    "racecourseId": "saint_ourens",
+    "distance": 2000,
+    "layoutId": "saint_ourens_grande",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 10,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 5,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "prix_de_la_cascade",
+    "name": "Prix de la Cascade",
+    "racecourseId": "saint_ourens",
+    "distance": 1000,
+    "layoutId": "saint_ourens_straight",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 20,
+    "schedule": {
+      "month": 10,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 1,
+    "tags": [
+      "sprint"
+    ]
+  },
+  {
+    "id": "prix_des_jeunes_espoirs",
+    "name": "Prix des Jeunes Espoirs",
+    "racecourseId": "saint_ourens",
+    "distance": 1400,
+    "layoutId": "saint_ourens_grande",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      171000,
+      66000,
+      33000,
+      16500,
+      9000,
+      4500
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 10,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 2,
+    "tags": [
+      "two_year_old"
+    ]
+  },
+  {
+    "id": "prix_des_demoiselles",
+    "name": "Prix des Demoiselles",
+    "racecourseId": "saint_ourens",
+    "distance": 1600,
+    "layoutId": "saint_ourens_grande",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      171000,
+      66000,
+      33000,
+      16500,
+      9000,
+      4500
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 10,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 4,
+    "tags": [
+      "two_year_old",
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "prix_du_bois_dore",
+    "name": "Prix du Bois-Doré",
+    "racecourseId": "saint_ourens",
+    "distance": 1400,
+    "layoutId": "saint_ourens_grande",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 10,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 3,
+    "tags": []
+  },
+  {
+    "id": "prix_du_long_chemin",
+    "name": "Prix du Long Chemin",
+    "racecourseId": "saint_ourens",
+    "distance": 4000,
+    "layoutId": "saint_ourens_grande",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 4,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 10,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 6,
+    "tags": [
+      "stayers"
+    ]
+  },
+  {
+    "id": "chalkpit_stakes",
+    "name": "Chalkpit Stakes",
+    "racecourseId": "marlow_downs",
+    "distance": 1408,
+    "layoutId": "marlow_straight",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      171000,
+      66000,
+      33000,
+      16500,
+      9000,
+      4500
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 10,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 1,
+    "tags": [
+      "two_year_old"
+    ]
+  },
+  {
+    "id": "bramblewood_fillies_stakes",
+    "name": "Bramblewood Fillies' Stakes",
+    "racecourseId": "marlow_downs",
+    "distance": 1609,
+    "layoutId": "marlow_straight",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      171000,
+      66000,
+      33000,
+      16500,
+      9000,
+      4500
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 10,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 2,
+    "tags": [
+      "two_year_old",
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "premio_dama_di_torreverde",
+    "name": "Premio Dama di Torreverde",
+    "racecourseId": "torreverde",
+    "distance": 2012,
+    "layoutId": "torreverde_main",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      114000,
+      44000,
+      22000,
+      11000,
+      6000,
+      3000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 10,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 1,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "kingsmere_autumn_crown",
+    "name": "Kingsmere Autumn Crown",
+    "racecourseId": "kingsmere_heath",
+    "distance": 2012,
+    "layoutId": "kingsmere_triangle",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 10,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 3,
+    "tags": [
+      "champions_day"
+    ]
+  },
+  {
+    "id": "kingsmere_autumn_mile",
+    "name": "Kingsmere Autumn Mile",
+    "racecourseId": "kingsmere_heath",
+    "distance": 1609,
+    "layoutId": "kingsmere_triangle",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 10,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 2,
+    "tags": [
+      "champions_day"
+    ]
+  },
+  {
+    "id": "kingsmere_ladies_crown",
+    "name": "Kingsmere Ladies' Crown",
+    "racecourseId": "kingsmere_heath",
+    "distance": 2414,
+    "layoutId": "kingsmere_triangle",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 10,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 4,
+    "tags": [
+      "fillies_mares",
+      "champions_day"
+    ]
+  },
+  {
+    "id": "kingsmere_autumn_sprint",
+    "name": "Kingsmere Autumn Sprint",
+    "racecourseId": "kingsmere_heath",
+    "distance": 1207,
+    "layoutId": "kingsmere_straight",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      228000,
+      88000,
+      44000,
+      22000,
+      12000,
+      6000
+    ],
+    "maxRunners": 20,
+    "schedule": {
+      "month": 10,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 1,
+    "tags": [
+      "sprint",
+      "champions_day"
+    ]
+  },
+  {
+    "id": "dunholme_futurity",
+    "name": "Dunholme Futurity",
+    "racecourseId": "dunholme_moor",
+    "distance": 1609,
+    "layoutId": "dunholme_straight",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      171000,
+      66000,
+      33000,
+      16500,
+      9000,
+      4500
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 10,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 1,
+    "tags": [
+      "two_year_old"
+    ]
+  },
+  {
+    "id": "criterium_dautomne",
+    "name": "Critérium d'Automne",
+    "racecourseId": "clairval",
+    "distance": 1400,
+    "layoutId": "clairval_main",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      171000,
+      66000,
+      33000,
+      16500,
+      9000,
+      4500
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 10,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 1,
+    "tags": [
+      "two_year_old"
+    ]
+  },
+  {
+    "id": "saint_ourens_st_leger",
+    "name": "Saint-Ourens St Leger",
+    "racecourseId": "saint_ourens",
+    "distance": 3100,
+    "layoutId": "saint_ourens_grande",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      171000,
+      66000,
+      33000,
+      16500,
+      9000,
+      4500
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 10,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 1,
+    "tags": [
+      "classic",
+      "stayers"
+    ]
+  },
+  {
+    "id": "criterium_de_clairval",
+    "name": "Critérium de Clairval",
+    "racecourseId": "clairval",
+    "distance": 2000,
+    "layoutId": "clairval_main",
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      171000,
+      66000,
+      33000,
+      16500,
+      9000,
+      4500
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 11,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 1,
+    "tags": [
+      "two_year_old"
+    ]
+  }
+]

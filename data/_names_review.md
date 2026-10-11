@@ -179,3 +179,10 @@ Opus 검수용. 근거는 모델 지식 기준의 판단이며 실존 여부를 
 
 명사 (200): Anvil, Forge, Ingot, Sabre, Lance, Arrow, Lantern, Ember, Beacon, Compass, Sextant, Lighthouse, Harbour, Meadow, Brook, River, Torrent, Cascade, Glacier, Summit, Ridge, Valley, Canyon, Heath, Moor, Forest, Grove, Thicket, Orchard, Willow, Cedar, Laurel, Juniper, Heather, Thistle, Clover, Briar, Bramble, Fern, Lotus, Iris, Aspen, Birch, Maple, Hawthorn, Rowan, Elm, Ivy, Myrtle, Poplar, Tundra, Steppe, Savanna, Prairie, Plateau, Mesa, Lagoon, Tide, Shore, Cloud, Frost, Dawn, Dusk, Twilight, Sunrise, Solstice, Equinox, Zephyr, Gale, Breeze, Monsoon, Aurora, Rainbow, Horizon, Skyline, Starlight, Moonbeam, Comet, Meteor, Nebula, Quartz, Granite, Marble, Basalt, Flint, Slate, Obsidian, Nickel, Anthem, Ballad, Sonnet, Lyric, Madrigal, Overture, Serenade, Rhapsody, Cantata, Requiem, Prelude, Chorus, Fanfare, Herald, Sentinel, Warden, Regent, Monarch, Coronet, Diadem, Throne, Citadel, Bastion, Fortress, Castle, Tower, Spire, Abbey, Chapel, Odyssey, Quest, Voyage, Pilgrim, Wanderer, Rover, Drifter, Vagabond, Sojourn, Envoy, Emissary, Griffin, Unicorn, Sphinx, Chimera, Valkyrie, Titan, Atlas, Orion, Hourglass, Tapestry, Mosaic, Cameo, Brocade, Banner, Pennant, Ensign, Crest, Emblem, Insignia, Sigil, Heron, Osprey, Kestrel, Merlin, Hawk, Eagle, Swallow, Sparrow, Lark, Finch, Wren, Starling, Plover, Curlew, Gannet, Harrier, Peregrine, Goshawk, Corsair, Buccaneer, Mariner, Privateer, Lynx, Panther, Jaguar, Cougar, Ocelot, Leopard, Cheetah, Mustang, Bronco, Pinto, Wolfram, Tungsten, Zircon, Beryl, Mercury, Jasper, Agate, Lapis, Pewter, Brass, Cinder, Pyre, Tinder, Kindle, Spark, Torch, Hearth, Vesper, Matins, Pennon
 
+
+## M3-A4a 캘린더 이름 (G1 88개 · 시리즈 15개)
+
+- 레이스 이름·id 는 계획 4장 가상 이름을 그대로 썼다. 전체 목록은 data/calendar/g1.json, 시리즈는 data/calendar/series.json 에 있다.
+- 경마장 이름은 기존 가상 경마장(data/racecourses.json)만 쓴다. 새 경마장 이름 없음.
+- 확신 낮은 이름(프랑스 `Prix ...` 형식 다수, Chalkpit·Hollyhock·Silverbirch·Bramblewood·Linden·Bluebell·Downland·Meadowsweet·Coronet·Northern Oaks 등)은 data/calendar/_review.md 4장에 정리했다. Opus 가 실존 여부를 확인해 달라.
+- 시리즈 이름은 id 만 쓴다(nameKey = `series.<id>`). 사람 이름 없음.

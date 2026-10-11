@@ -1,1 +1,195 @@
-[]
+[
+  {
+    "id": "gb_triple_crown",
+    "nameKey": "series.gb_triple_crown",
+    "kind": "crown",
+    "legs": [
+      "marlow_2000_guineas",
+      "ashcombe_derby",
+      "dunholme_st_leger"
+    ],
+    "winsRequired": 3,
+    "bonus": 1000000
+  },
+  {
+    "id": "ie_triple_crown",
+    "nameKey": "series.ie_triple_crown",
+    "kind": "crown",
+    "legs": [
+      "kilcarrow_2000_guineas",
+      "kilcarrow_derby",
+      "kilcarrow_st_leger"
+    ],
+    "winsRequired": 3,
+    "bonus": 1000000
+  },
+  {
+    "id": "fr_triple_crown",
+    "nameKey": "series.fr_triple_crown",
+    "kind": "crown",
+    "legs": [
+      "saint_ourens_2000_guineas",
+      "vallenaire_derby",
+      "saint_ourens_st_leger"
+    ],
+    "winsRequired": 3,
+    "bonus": 1000000
+  },
+  {
+    "id": "de_triple_crown",
+    "nameKey": "series.de_triple_crown",
+    "kind": "crown",
+    "legs": [
+      "wesselfeld_2000_guineas",
+      "hohenmoor_derby",
+      "lichtenau_st_leger"
+    ],
+    "winsRequired": 3,
+    "bonus": 1000000
+  },
+  {
+    "id": "it_triple_crown",
+    "nameKey": "series.it_triple_crown",
+    "kind": "crown",
+    "legs": [
+      "torreverde_2000_guineas",
+      "torreverde_derby",
+      "valmerano_st_leger"
+    ],
+    "winsRequired": 3,
+    "bonus": 1000000
+  },
+  {
+    "id": "gb_tiara",
+    "nameKey": "series.gb_tiara",
+    "kind": "crown",
+    "legs": [
+      "marlow_1000_guineas",
+      "ashcombe_oaks",
+      "dunholme_st_leger"
+    ],
+    "winsRequired": 3,
+    "bonus": 500000
+  },
+  {
+    "id": "ie_tiara",
+    "nameKey": "series.ie_tiara",
+    "kind": "crown",
+    "legs": [
+      "kilcarrow_1000_guineas",
+      "kilcarrow_oaks",
+      "kilcarrow_st_leger"
+    ],
+    "winsRequired": 3,
+    "bonus": 500000
+  },
+  {
+    "id": "fr_tiara",
+    "nameKey": "series.fr_tiara",
+    "kind": "crown",
+    "legs": [
+      "saint_ourens_1000_guineas",
+      "vallenaire_oaks",
+      "prix_des_glycines"
+    ],
+    "winsRequired": 3,
+    "bonus": 500000
+  },
+  {
+    "id": "de_tiara",
+    "nameKey": "series.de_tiara",
+    "kind": "crown",
+    "legs": [
+      "wesselfeld_1000_guineas",
+      "wesselfeld_oaks",
+      "lichtenau_st_leger"
+    ],
+    "winsRequired": 3,
+    "bonus": 500000
+  },
+  {
+    "id": "it_tiara",
+    "nameKey": "series.it_tiara",
+    "kind": "crown",
+    "legs": [
+      "torreverde_1000_guineas",
+      "valmerano_oaks",
+      "premio_dama_di_torreverde"
+    ],
+    "winsRequired": 3,
+    "bonus": 500000
+  },
+  {
+    "id": "european_derby_triple",
+    "nameKey": "series.european_derby_triple",
+    "kind": "crown",
+    "legs": [
+      "ashcombe_derby",
+      "vallenaire_derby",
+      "kilcarrow_derby"
+    ],
+    "winsRequired": 3,
+    "bonus": 2000000
+  },
+  {
+    "id": "european_mile_triple",
+    "nameKey": "series.european_mile_triple",
+    "kind": "crown",
+    "legs": [
+      "selsworth_mile",
+      "prix_du_grand_phare",
+      "kingsmere_autumn_mile"
+    ],
+    "winsRequired": 3,
+    "bonus": 1000000
+  },
+  {
+    "id": "british_oaks_triple",
+    "nameKey": "series.british_oaks_triple",
+    "kind": "crown",
+    "legs": [
+      "ashcombe_oaks",
+      "northern_oaks"
+    ],
+    "winsRequired": 2,
+    "bonus": 500000
+  },
+  {
+    "id": "european_stayers_series",
+    "nameKey": "series.european_stayers_series",
+    "kind": "crown",
+    "legs": [
+      "kingsmere_cup",
+      "selsworth_cup",
+      "prix_du_long_chemin"
+    ],
+    "winsRequired": 2,
+    "requiredLegs": [
+      "kingsmere_cup"
+    ],
+    "bonus": 500000
+  },
+  {
+    "id": "european_sprint_series",
+    "nameKey": "series.european_sprint_series",
+    "kind": "points",
+    "legs": [
+      "crown_sprint",
+      "easterholm_dash",
+      "hawthorn_sprint",
+      "highcourt_sprint",
+      "midsummer_sprint",
+      "prix_des_dunes",
+      "aldermoor_sprint",
+      "prix_de_la_cascade",
+      "kingsmere_autumn_sprint"
+    ],
+    "pointsByPosition": [
+      10,
+      6,
+      4,
+      2
+    ],
+    "bonus": 300000
+  }
+]
