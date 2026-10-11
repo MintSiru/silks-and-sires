@@ -11,6 +11,8 @@ tools: Read, Write, Edit, Glob, Grep, Bash
 - 실명 허용: 국가명, 종마(씨수말) 이름. 그 외 전부 가상.
 - 가상 이름은 해당 국가 언어의 자연스러운 지명·인명 형태로 만든다(영국: Ashcombe, 프랑스: Saint-Ourens 등).
 - 실제 경마장, 레이스, 후원사, 생산목장, 세일 회사, 실존 인물과 같거나 한 글자만 바꾼 이름은 금지.
+- 예외: 클래식 유형명 Derby, Oaks, 1000 Guineas, 2000 Guineas, St Leger 는 가상 경마장·지명과 결합해 쓸 수 있다(예: Ashcombe Derby).
+  실제 레이스 전체 이름(Epsom Derby, Irish Derby, Kentucky Derby, Irish Oaks 등)은 여전히 금지.
 - 확신이 없는 이름은 쓰지 말고 다른 이름으로 바꾼다. 만든 이름 목록은 data/_names_review.md 에 남겨 Opus가 검수하게 한다.
 - 종마 데이터는 이름과 ID를 분리해 저장한다(이름만 바꿔 가상화할 수 있게).
 

@@ -17,10 +17,22 @@ const names = namesJson as Names;
 
 /** 실명 금지 목록 (CLAUDE.md 원칙 1, M1-02 명세 2). 대소문자 무시, 부분 문자열 검사. */
 const FORBIDDEN_WORDS = [
-  'Derby',
-  'Oaks',
-  'Guineas',
-  'Leger',
+  // 클래식 유형명(Derby, Oaks, Guineas, St Leger)은 일반어로 허용(2026-10-11 사용자 결정).
+  // 실제 레이스 전체 이름이 되는 조합만 금지한다.
+  'Epsom Derby',
+  'Irish Derby',
+  'Kentucky Derby',
+  'French Derby',
+  'German Derby',
+  'Deutsches Derby',
+  'Derby Italiano',
+  'Epsom Oaks',
+  'Irish Oaks',
+  'Kentucky Oaks',
+  "Oaks d'Italia",
+  'Irish 1000 Guineas',
+  'Irish 2000 Guineas',
+  'Irish St Leger',
   'Arc',
   'Triomphe',
   'Jockey Club',
