@@ -17,6 +17,11 @@ export interface TrackSegment {
   turn?: 'left' | 'right';
   /** 구간 전체 고도 변화(m). + 오르막, - 내리막. 구간 안에서는 일정한 경사로 본다. */
   rise: number;
+  /**
+   * 캠버(횡경사): 주로가 안쪽 레일 쪽(+) 또는 바깥쪽(−)으로 기운 정도, −1~+1. 생략 = 0.
+   * 기운 쪽으로 주자가 흘러가는 경향(레인 드리프트)으로 반영한다(M3-A2).
+   */
+  camber?: number;
 }
 
 /**
@@ -43,6 +48,20 @@ export interface CourseDistance {
   layoutId: string;
 }
 
+/** 경마장 특징 태그(화면 표시·AI 판단용). 실제 계산은 레이아웃 구간 값으로 한다 */
+export type CourseFeature =
+  | 'uphill_finish'
+  | 'downhill_run'
+  | 'dip'
+  | 'false_straight'
+  | 'camber'
+  | 'straight_course'
+  | 'tight_turns'
+  | 'galloping'
+  | 'undulating'
+  | 'long_straight'
+  | 'short_straight';
+
 export interface Racecourse {
   id: RacecourseId;
   /** 가상 이름 */
@@ -57,6 +76,8 @@ export interface Racecourse {
   drainage: number;
   layouts: TrackLayout[];
   distances: CourseDistance[];
+  /** 특징 태그. 생략 = 없음 */
+  features?: CourseFeature[];
 }
 
 /** 미니맵 좌표(m 단위, 임의 원점). 뷰어가 화면에 맞게 축소한다. */

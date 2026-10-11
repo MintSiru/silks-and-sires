@@ -9,3 +9,4 @@ export * from './race';
 export * from './game';
 export * from './bloodline';
 export * from './breeding';
+export * from './season';

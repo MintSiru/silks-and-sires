@@ -124,3 +124,5 @@
 - 2026-10-11 | 사용자 | 경주마 이름에 사망 후 70년 이상 역사 인물(예술·문학·음악·탐험·과학) 허용 — CLAUDE.md 원칙 1 예외 3 추가. 정치·종교·근현대·경마계 인물 금지, 사람 이름은 전부 가상.
 - 2026-10-11 | 승인 | M2-01d 사용자 제공 15두 — 222두, cup 3·NH 3 확보, Daryz 갱신(FR·middle). 조상 Diktat←Warning←Known Fact←In Reality←Intentionally(계통 sl_intentionally 신설 승인). 미확인 고리: Galiway, Tasleet, Showcasing, Mehmas → Sealiway·Bradsell·Aesterius 부계 예외(사용자 정보 요청).
 - 2026-10-11 | 사용자 | M2-15 미확인 15두 거리·주로 확정(사용자 제공): Vino Rosso classic/dirt, Mandaloun classic/dirt, Maxfield speed/dirt, Golden Pal speed/turf, Constitution speed/dirt, Half Ours speed/dirt, Raise a Native·Mr. Prospector·Harlan speed/dirt, Vindication speed/dirt, Bold Reasoning speed/both, Giant's Causeway speed/turf, Danzig·Storm Cat·Sickle 현행 유지. M2-01e 완료 후 Opus 가 데이터 반영.
+- 2026-10-11 | 사용자 | M3 착수 승인.
+- 2026-10-11 | 기술(Opus) | M3-A1 공용 타입: types/season.ts(ScheduleSlot·RaceTemplate·RaceTag·SeriesDefinition·Declaration·ScheduledRace·Meeting·RatingChange·SeriesProgress·LeadingTables·SeasonState), TrackSegment.camber, Racecourse.features(CourseFeature). GameState.seasonState 연결은 A6 에서.
