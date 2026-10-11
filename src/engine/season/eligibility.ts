@@ -1,3 +1,4 @@
+import { MAX_FATIGUE_TO_RUN } from '../config/conditioning';
 import {
   DISTANCE_TOLERANCE,
   MAIDEN_MAX_WINS,
@@ -29,7 +30,8 @@ export function raceCountryOf(lookup: CourseCountryLookup | undefined, racecours
 
 /**
  * 출주 가능 여부(레이스 조건 기준).
- * status in_training, 부상 없음, fitness ≥ MIN_FITNESS_TO_RUN, 나이 범위, 성별, 핸디캡 OR 범위,
+ * status in_training, 부상 없음, fitness ≥ MIN_FITNESS_TO_RUN, fatigue ≤ MAX_FATIGUE_TO_RUN(M3-C1),
+ * 나이 범위, 성별, 핸디캡 OR 범위,
  * 메이든(무승)·노비스(1승 이하) 조건, 마지막 출주 후 최소 주 수(그룹 레이스는 더 길다).
  * 그룹·리스티드 OR 하한, 거리 적합, 나라, 한 주 한 레이스는 호출자(declarations)가 따로 본다.
  */
@@ -42,6 +44,7 @@ export function isEligible(
   if (horse.status !== 'in_training') return false;
   if (horse.condition.injury !== null) return false;
   if (horse.condition.fitness < MIN_FITNESS_TO_RUN) return false;
+  if (horse.condition.fatigue > MAX_FATIGUE_TO_RUN) return false;
 
   const { minAge, maxAge, sex, ratingMin, ratingMax } = race.conditions;
   const age = ageInYear(horse.birthYear, date.year);

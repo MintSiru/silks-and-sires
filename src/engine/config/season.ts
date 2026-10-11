@@ -32,13 +32,5 @@ export const PLACED_MAX_POSITION = 3;
 /** 레이스 시드 상한(정수, 포함) */
 export const RACE_SEED_MAX = 0x7fffffff;
 
-/**
- * 휴식 회복 (M3-A6c 임시 규칙, C1 이 대체). in_training·resting 말에 주마다 적용.
- * fitness 는 REST_FITNESS_CAP 미만일 때만 올린다(이미 상한 이상이면 낮추지 않는다).
- */
-export const REST_FATIGUE_RECOVERY = 10;
-export const REST_FITNESS_GAIN = 4;
-export const REST_FITNESS_CAP = 85;
-
 /** 플레이어 말이 이 나이(연도 차) 이상이고 yearling 이면 조교사 배정과 함께 in_training 으로 바뀐다 */
 export const PLAYER_TRAINING_START_AGE = 2;

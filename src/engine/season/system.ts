@@ -1,17 +1,12 @@
 /**
- * 시즌 주간 시스템 (M3-A6c, id 'season').
- * 주마다 순서: (a) 연도 전환 → (b) 이번 주 개최 실행 → (c) 다음 주 개최 생성 → (d) 휴식 회복(임시).
+ * 시즌 주간 시스템 (M3-A6c, id 'season'; (d) 컨디션은 M3-C1).
+ * 주마다 순서: (a) 연도 전환 → (b) 이번 주 개최 실행 → (c) 다음 주 개최 생성 → (d) 조교·휴양·부상 처리.
  * 개최 흐름: state.date 가 D 일 때 seasonState.meetings 에 D 주 개최가 들어 있다(플레이어 출주 접수 대상).
  * run(D) 이 D 주 개최를 실행하고 D+1 주 개최를 만든다.
  */
-import {
-  CONDITION_MIN,
-  REST_FATIGUE_RECOVERY,
-  REST_FITNESS_CAP,
-  REST_FITNESS_GAIN,
-  RESULTS_KEEP_SEASONS,
-} from '../config/season';
-import { nextDate } from '../time/calendar';
+import { RESULTS_KEEP_SEASONS } from '../config/season';
+import { weeklyConditionInPlace } from '../horse/conditioning';
+import { ageInYear, nextDate } from '../time/calendar';
 import type {
   GameDate,
   GameEvent,
@@ -40,8 +35,8 @@ export interface SeasonStaticData {
 
 /** 연도 전환이 일어나는 주(1월 1주) */
 const FIRST_WEEK = 1;
-/** 휴식 회복 대상 상태 */
-const RECOVERING_STATUSES: readonly HorseStatus[] = ['in_training', 'resting'];
+/** 컨디션 주간 처리 대상 상태 */
+const CONDITION_STATUSES: readonly HorseStatus[] = ['in_training', 'resting'];
 
 function sameDate(a: GameDate, b: GameDate): boolean {
   return a.year === b.year && a.week === b.week;
@@ -139,14 +134,29 @@ function scheduleNextWeek(draft: GameState, data: SeasonStaticData, date: GameDa
   draft.seasonState.nextGeneratedRace = built.nextGeneratedRace;
 }
 
-/** (d) 휴식 회복(임시): in_training·resting 말의 피로 감소, 준비도 회복(상한까지) */
-function recoverResting(draft: GameState): void {
+/**
+ * (d) 컨디션 주간 처리(M3-C1): in_training·resting 말을 id 순으로 돌며 조교·휴양·부상을 적용한다.
+ * ranThisWeek 는 이번 주 개최 실행(b) 이후의 lastRun 으로 판정한다. 플레이어 말에 새 부상이 나면 horse_injured 를 낸다.
+ */
+function conditionWeek(draft: GameState, date: GameDate, rng: Rng, events: GameEvent[]): void {
   for (const id of Object.keys(draft.horses).sort()) {
     const horse = draft.horses[id];
-    if (horse === undefined || !RECOVERING_STATUSES.includes(horse.status)) continue;
-    horse.condition.fatigue = Math.max(CONDITION_MIN, horse.condition.fatigue - REST_FATIGUE_RECOVERY);
-    if (horse.condition.fitness < REST_FITNESS_CAP) {
-      horse.condition.fitness = Math.min(REST_FITNESS_CAP, horse.condition.fitness + REST_FITNESS_GAIN);
+    if (horse === undefined || !CONDITION_STATUSES.includes(horse.status)) continue;
+
+    const trainer = horse.trainerId === null ? undefined : draft.trainers[horse.trainerId];
+    const last = draft.seasonState.lastRun[horse.id];
+    const ranThisWeek = last !== undefined && sameDate(last, date);
+    const age = ageInYear(horse.birthYear, date.year);
+
+    const injury = weeklyConditionInPlace(horse, trainer, age, ranThisWeek, rng);
+    if (injury !== null && horse.ownerId === draft.playerOwnerId) {
+      events.push({
+        type: 'horse_injured',
+        horseId: horse.id,
+        kind: injury.kind,
+        weeksOut: injury.weeksOut,
+        date: { ...date },
+      });
     }
   }
 }
@@ -171,7 +181,7 @@ export function createSeasonSystem(data: SeasonStaticData): WeeklySystem {
       }
       runThisWeek(draft, data, courseCountry, date, rng, events);
       scheduleNextWeek(draft, data, date, rng);
-      recoverResting(draft);
+      conditionWeek(draft, date, rng.fork('condition'), events);
       return events;
     },
   };
