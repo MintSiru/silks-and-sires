@@ -12,6 +12,7 @@ import {
 import {
   bookingErrorKo,
   commentText,
+  complementKo,
   conformationLabelKo,
   countryKo,
   distanceHintKo,
@@ -19,6 +20,7 @@ import {
   feeKo,
   gradeColor,
   growthKo,
+  matingRoleKo,
   nickLabelKo,
   phaseKo,
   sexKo,
@@ -28,6 +30,36 @@ import {
 } from '../../src/ui/game/text';
 
 const nameOf = (id: string): string => `말-${id}`;
+
+describe('matingRoleKo', () => {
+  it('배합 역할 값마다 정해진 한국어 문구를 돌려준다', () => {
+    expect(matingRoleKo('speed')).toBe('스피드 담당');
+    expect(matingRoleKo('balanced')).toBe('균형형');
+    expect(matingRoleKo('stamina')).toBe('스태미나 담당');
+    expect(matingRoleKo('unknown')).toBe('미상');
+  });
+
+  it('모든 역할 값에 서로 다른 문구를 준다', () => {
+    const texts = (['speed', 'balanced', 'stamina', 'unknown'] as const).map((r) => matingRoleKo(r));
+    expect(new Set(texts).size).toBe(4);
+    for (const t of texts) {
+      expect(t.length).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe('complementKo', () => {
+  it('보완형 가능성 값마다 정해진 한국어 문구를 돌려준다', () => {
+    expect(complementKo('likely')).toBe('보완형 배합 (부마 스피드 + 모계 스태미나)');
+    expect(complementKo('unlikely')).toBe('보완형 아님');
+    expect(complementKo('unknown')).toBe('판단 불가 (외조부 미상)');
+  });
+
+  it('모든 보완형 값에 서로 다른 문구를 준다', () => {
+    const texts = (['likely', 'unlikely', 'unknown'] as const).map((c) => complementKo(c));
+    expect(new Set(texts).size).toBe(3);
+  });
+});
 
 describe('commentText', () => {
   it('같은 seedKey 는 항상 같은 문장을 고른다', () => {

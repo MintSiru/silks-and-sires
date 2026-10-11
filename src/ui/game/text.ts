@@ -13,6 +13,8 @@ import {
   type GrowthProfile,
   type HorseId,
   type HorseStatus,
+  type MatingPreview,
+  type MatingRole,
   type Money,
   type NickLabel,
   type Sex,
@@ -117,6 +119,29 @@ export function nickLabelKo(l: NickLabel): string {
 
 export function growthKo(g: GrowthProfile['type'] | 'unknown'): string {
   return GROWTH_KO[g];
+}
+
+const MATING_ROLE_KO: Record<MatingRole | 'unknown', string> = {
+  speed: '스피드 담당',
+  balanced: '균형형',
+  stamina: '스태미나 담당',
+  unknown: '미상',
+};
+
+/** 배합 역할 한국어. 예: 'speed' → '스피드 담당' */
+export function matingRoleKo(r: MatingRole | 'unknown'): string {
+  return MATING_ROLE_KO[r];
+}
+
+const COMPLEMENT_KO: Record<MatingPreview['complement'], string> = {
+  likely: '보완형 배합 (부마 스피드 + 모계 스태미나)',
+  unlikely: '보완형 아님',
+  unknown: '판단 불가 (외조부 미상)',
+};
+
+/** 보완형(부 스피드 + 모계 스태미나) 가능성 한국어 */
+export function complementKo(c: MatingPreview['complement']): string {
+  return COMPLEMENT_KO[c];
 }
 
 /** 예: {min:1400,max:2000} → "1,400m ~ 2,000m (7f ~ 10f)" */

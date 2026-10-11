@@ -20,11 +20,13 @@ import type {
 import {
   bookingErrorKo,
   commentText,
+  complementKo,
   countryKo,
   distanceHintKo,
   eventKo,
   feeKo,
   growthKo,
+  matingRoleKo,
   nickLabelKo,
   phaseKo,
 } from '../game/text';
@@ -253,6 +255,7 @@ function BreedingView({ state, game, onNewGame }: BreedingViewProps): JSX.Elemen
   const matingView = useMemo(() => {
     if (mare === null || sire === null || stallion === undefined) return null;
     const lookup: PedigreeLookup = (id) => state.horses[id];
+    const damsire = mare.sireId === null ? null : (state.horses[mare.sireId] ?? null);
     const preview = buildMatingPreview({
       sire,
       dam: mare,
@@ -260,6 +263,7 @@ function BreedingView({ state, game, onNewGame }: BreedingViewProps): JSX.Elemen
       lookup,
       nicks: getNicks(),
       revealedNicks: new Set(state.breeding.revealedNicks),
+      damsire,
     });
     const root = buildMatingPedigree(lookup, sire.id, mare.id);
     return { preview, root, inbreedTotal: totalBloodPercent(preview.inbreeding) };
@@ -506,6 +510,20 @@ function BreedingView({ state, game, onNewGame }: BreedingViewProps): JSX.Elemen
             <dl className="preview__facts">
               <dt>닉스</dt>
               <dd>{nickLabelKo(matingView.preview.nick.label)}</dd>
+              <dt>역할</dt>
+              <dd>
+                {`부마 ${matingRoleKo(matingView.preview.roles.sire)} · 모계 ${matingRoleKo(matingView.preview.roles.damSide)}`}
+              </dd>
+              <dt>보완형</dt>
+              <dd>
+                {matingView.preview.complement === 'likely' ? (
+                  <span className="comment comment--positive">
+                    {complementKo(matingView.preview.complement)}
+                  </span>
+                ) : (
+                  complementKo(matingView.preview.complement)
+                )}
+              </dd>
               <dt>인브리드</dt>
               <dd>
                 {matingView.preview.inbreeding.length === 0 ? (
