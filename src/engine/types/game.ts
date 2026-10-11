@@ -1,5 +1,5 @@
 import type { HorseId, JockeyId, OwnerId, TrainerId } from './common';
-import type { Horse, Mare, Stallion } from './horse';
+import type { Horse, HorseStatus, Mare, Stallion } from './horse';
 import type { Jockey, Owner, Trainer } from './people';
 import type { RaceResult } from './race';
 import type { Rng, RngState } from './rng';
@@ -10,7 +10,14 @@ export type GameEvent =
   | { type: 'week_started'; date: GameDate }
   | { type: 'new_year'; year: number }
   | { type: 'phase_started'; phase: CalendarPhaseId; date: GameDate }
-  | { type: 'phase_ended'; phase: CalendarPhaseId; date: GameDate };
+  | { type: 'phase_ended'; phase: CalendarPhaseId; date: GameDate }
+  | { type: 'horse_status_changed'; horseId: HorseId; from: HorseStatus; to: HorseStatus; date: GameDate };
+
+/** 배합 관련 진행 상태 */
+export interface BreedingState {
+  /** 공개된 닉스 키 (breeding/nicks.ts 의 nickKey 형식) */
+  revealedNicks: string[];
+}
 
 /**
  * 게임 전체 상태. JSON 직렬화 가능한 순수 데이터만 담는다(클래스·함수·Map·undefined 값 금지).
@@ -35,6 +42,9 @@ export interface GameState {
   owners: Record<OwnerId, Owner>;
   trainers: Record<TrainerId, Trainer>;
   jockeys: Record<JockeyId, Jockey>;
+  breeding: BreedingState;
+  /** 가상 말 ID 발급용 일련번호 (1부터) */
+  nextHorseNumber: number;
   /** 완료된 레이스 결과 (M3 에서 보존 정책 결정) */
   raceResults: RaceResult[];
   /** 최근 이벤트 로그 (최대 길이는 config 에서) */

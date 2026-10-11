@@ -48,6 +48,8 @@ export function createNewGame(opts: NewGameOptions): GameState {
     owners: { [PLAYER_OWNER_ID]: owner },
     trainers: {},
     jockeys: {},
+    breeding: { revealedNicks: [] },
+    nextHorseNumber: 1,
     raceResults: [],
     eventLog: [],
   };

@@ -49,6 +49,8 @@ function makeState(): GameState {
     owners: { [PLAYER_ID]: playerOwner },
     trainers: {},
     jockeys: {},
+    breeding: { revealedNicks: [] },
+    nextHorseNumber: 1,
     raceResults: [],
     eventLog: [{ type: 'week_started', date: { year: 2026, week: 7 } }],
   };

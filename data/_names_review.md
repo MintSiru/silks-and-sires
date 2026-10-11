@@ -160,3 +160,22 @@ Opus 검수용. 근거는 모델 지식 기준의 판단이며 실존 여부를 
 | 마주 | Écurie Montsaulnes | 가상 프랑스식 마방명 형태(Montsaulnes는 지명 형태지만 실존 경마 관계 없음). 확인 필요 |
 | 마주 | Patrick Fenlow | 가상 인명(희귀 성). 실존 인물로 알려진 바 없음. 확인 필요 |
 | 마주 | Quillfeather Racing | 가상 법인명 형태. 실존 마주로 알려진 바 없음 |
+
+## 말 이름 단어장 (M2-04)
+
+용도: 경주마 이름을 "Adj Noun" 조합으로 만들 때 쓰는 영어 단어장(형용사 150, 명사 200). 파일: data/names/horse_words.json.
+
+검토 근거 요약
+- 범주: 색·날씨·자연·금속·문학·음악·기사·조류·맹수·항해 어휘. 사람 이름·지명·경마장 이름은 넣지 않았다.
+- 대조 1: data/stallions/names.json 의 모든 종마 이름(토큰 단위)과 대조해 겹침 없음.
+- 대조 2: 2026 명단(M2-01b 그룹 A~I)의 말 이름 토큰과 대조해 겹침 없음.
+- 대조 3: 명세 예시(Frankel, Galileo, Enable, Shergar, Eclipse, Nijinsky 등)와 실존 경주마로 알려진 단어를 제외. 단어 단위로만 검사했고 조합 결과는 검사하지 않았다.
+- 확인 필요: Mercury, Monarch, Titan, Atlas, Orion, Herald 는 일반 신화·어휘이나 경주마 이름으로 쓰인 사례가 있을 수 있어 Opus 확인 바란다.
+- 참고: 아래 단어는 기존 가상 지명·마주명(data/names.json, racecourses.json, races.json 등)의 토큰과 겹친다. 이름 체계가 달라 충돌은 아니나, 같은 단어가 경마장과 말에 함께 나올 수 있다: amber, bramble, briar, brook, cascade, cinder, cobalt, copper, dawn, ember, harbour, hazel, ivory, jasper, juniper, kestrel, lantern, lark, lilac, mariner, meadow, ochre, pale, pennant, pewter, plover, quartz, quest, ridge, rowan, sable, silent, silver, sovereign, starling, thistle, tide, tower, umber, velvet.
+
+단어 목록
+
+형용사 (150): Amber, Azure, Scarlet, Crimson, Ivory, Silver, Gilded, Emerald, Sapphire, Jade, Ebony, Indigo, Violet, Lilac, Coral, Pearl, Ochre, Umber, Russet, Bronze, Copper, Cobalt, Sable, Mauve, Teal, Rosy, Ashen, Hazel, Olive, Saffron, Mahogany, Charcoal, Ruby, Garnet, Opal, Onyx, Topaz, Sterling, Gilt, Platinum, Misty, Frosty, Sunny, Windy, Rainy, Balmy, Crisp, Clear, Bright, Foggy, Breezy, Brisk, Dewy, Hazy, Sultry, Celestial, Stellar, Lunar, Solar, Arctic, Boreal, Alpine, Verdant, Lush, Mossy, Sylvan, Rustic, Pastoral, Swift, Nimble, Fleet, Bold, Brave, Noble, Regal, Proud, Valiant, Fearless, Daring, Wild, Feral, Untamed, Rugged, Hardy, Lofty, Distant, Eternal, Endless, Sovereign, Imperial, Royal, Stately, Ancient, Mythic, Legendary, Gallant, Honest, Modest, Humble, Clever, Wise, Sage, Patient, Steady, Stout, Sturdy, Lean, Lithe, Supple, Graceful, Elegant, Refined, Vintage, Antique, Ornate, Tranquil, Serene, Gentle, Quiet, Silent, Lucid, Vivid, Hasty, Rapid, Fiery, Blazing, Burning, Glowing, Ardent, Fervent, Zealous, Lively, Jovial, Mellow, Wistful, Shadowy, Dapper, Radiant, Luminous, Steel, Iron, Pale, Dusky, Velvet, Silken, Satin, Harvest, Autumnal, Wintry, Vernal
+
+명사 (200): Anvil, Forge, Ingot, Sabre, Lance, Arrow, Lantern, Ember, Beacon, Compass, Sextant, Lighthouse, Harbour, Meadow, Brook, River, Torrent, Cascade, Glacier, Summit, Ridge, Valley, Canyon, Heath, Moor, Forest, Grove, Thicket, Orchard, Willow, Cedar, Laurel, Juniper, Heather, Thistle, Clover, Briar, Bramble, Fern, Lotus, Iris, Aspen, Birch, Maple, Hawthorn, Rowan, Elm, Ivy, Myrtle, Poplar, Tundra, Steppe, Savanna, Prairie, Plateau, Mesa, Lagoon, Tide, Shore, Cloud, Frost, Dawn, Dusk, Twilight, Sunrise, Solstice, Equinox, Zephyr, Gale, Breeze, Monsoon, Aurora, Rainbow, Horizon, Skyline, Starlight, Moonbeam, Comet, Meteor, Nebula, Quartz, Granite, Marble, Basalt, Flint, Slate, Obsidian, Nickel, Anthem, Ballad, Sonnet, Lyric, Madrigal, Overture, Serenade, Rhapsody, Cantata, Requiem, Prelude, Chorus, Fanfare, Herald, Sentinel, Warden, Regent, Monarch, Coronet, Diadem, Throne, Citadel, Bastion, Fortress, Castle, Tower, Spire, Abbey, Chapel, Odyssey, Quest, Voyage, Pilgrim, Wanderer, Rover, Drifter, Vagabond, Sojourn, Envoy, Emissary, Griffin, Unicorn, Sphinx, Chimera, Valkyrie, Titan, Atlas, Orion, Hourglass, Tapestry, Mosaic, Cameo, Brocade, Banner, Pennant, Ensign, Crest, Emblem, Insignia, Sigil, Heron, Osprey, Kestrel, Merlin, Hawk, Eagle, Swallow, Sparrow, Lark, Finch, Wren, Starling, Plover, Curlew, Gannet, Harrier, Peregrine, Goshawk, Corsair, Buccaneer, Mariner, Privateer, Lynx, Panther, Jaguar, Cougar, Ocelot, Leopard, Cheetah, Mustang, Bronco, Pinto, Wolfram, Tungsten, Zircon, Beryl, Mercury, Jasper, Agate, Lapis, Pewter, Brass, Cinder, Pyre, Tinder, Kindle, Spark, Torch, Hearth, Vesper, Matins, Pennon
+

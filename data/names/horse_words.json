@@ -1,0 +1,41 @@
+{
+  "adjectives": [
+    "Amber", "Azure", "Scarlet", "Crimson", "Ivory", "Silver", "Gilded", "Emerald", "Sapphire", "Jade",
+    "Ebony", "Indigo", "Violet", "Lilac", "Coral", "Pearl", "Ochre", "Umber", "Russet", "Bronze",
+    "Copper", "Cobalt", "Sable", "Mauve", "Teal", "Rosy", "Ashen", "Hazel", "Olive", "Saffron",
+    "Mahogany", "Charcoal", "Ruby", "Garnet", "Opal", "Onyx", "Topaz", "Sterling", "Gilt", "Platinum",
+    "Misty", "Frosty", "Sunny", "Windy", "Rainy", "Balmy", "Crisp", "Clear", "Bright", "Foggy",
+    "Breezy", "Brisk", "Dewy", "Hazy", "Sultry", "Celestial", "Stellar", "Lunar", "Solar", "Arctic",
+    "Boreal", "Alpine", "Verdant", "Lush", "Mossy", "Sylvan", "Rustic", "Pastoral", "Swift", "Nimble",
+    "Fleet", "Bold", "Brave", "Noble", "Regal", "Proud", "Valiant", "Fearless", "Daring", "Wild",
+    "Feral", "Untamed", "Rugged", "Hardy", "Lofty", "Distant", "Eternal", "Endless", "Sovereign", "Imperial",
+    "Royal", "Stately", "Ancient", "Mythic", "Legendary", "Gallant", "Honest", "Modest", "Humble", "Clever",
+    "Wise", "Sage", "Patient", "Steady", "Stout", "Sturdy", "Lean", "Lithe", "Supple", "Graceful",
+    "Elegant", "Refined", "Vintage", "Antique", "Ornate", "Tranquil", "Serene", "Gentle", "Quiet", "Silent",
+    "Lucid", "Vivid", "Hasty", "Rapid", "Fiery", "Blazing", "Burning", "Glowing", "Ardent", "Fervent",
+    "Zealous", "Lively", "Jovial", "Mellow", "Wistful", "Shadowy", "Dapper", "Radiant", "Luminous", "Steel",
+    "Iron", "Pale", "Dusky", "Velvet", "Silken", "Satin", "Harvest", "Autumnal", "Wintry", "Vernal"
+  ],
+  "nouns": [
+    "Anvil", "Forge", "Ingot", "Sabre", "Lance", "Arrow", "Lantern", "Ember", "Beacon", "Compass",
+    "Sextant", "Lighthouse", "Harbour", "Meadow", "Brook", "River", "Torrent", "Cascade", "Glacier", "Summit",
+    "Ridge", "Valley", "Canyon", "Heath", "Moor", "Forest", "Grove", "Thicket", "Orchard", "Willow",
+    "Cedar", "Laurel", "Juniper", "Heather", "Thistle", "Clover", "Briar", "Bramble", "Fern", "Lotus",
+    "Iris", "Aspen", "Birch", "Maple", "Hawthorn", "Rowan", "Elm", "Ivy", "Myrtle", "Poplar",
+    "Tundra", "Steppe", "Savanna", "Prairie", "Plateau", "Mesa", "Lagoon", "Tide", "Shore", "Cloud",
+    "Frost", "Dawn", "Dusk", "Twilight", "Sunrise", "Solstice", "Equinox", "Zephyr", "Gale", "Breeze",
+    "Monsoon", "Aurora", "Rainbow", "Horizon", "Skyline", "Starlight", "Moonbeam", "Comet", "Meteor", "Nebula",
+    "Quartz", "Granite", "Marble", "Basalt", "Flint", "Slate", "Obsidian", "Nickel", "Anthem", "Ballad",
+    "Sonnet", "Lyric", "Madrigal", "Overture", "Serenade", "Rhapsody", "Cantata", "Requiem", "Prelude", "Chorus",
+    "Fanfare", "Herald", "Sentinel", "Warden", "Regent", "Monarch", "Coronet", "Diadem", "Throne", "Citadel",
+    "Bastion", "Fortress", "Castle", "Tower", "Spire", "Abbey", "Chapel", "Odyssey", "Quest", "Voyage",
+    "Pilgrim", "Wanderer", "Rover", "Drifter", "Vagabond", "Sojourn", "Envoy", "Emissary", "Griffin", "Unicorn",
+    "Sphinx", "Chimera", "Valkyrie", "Titan", "Atlas", "Orion", "Hourglass", "Tapestry", "Mosaic", "Cameo",
+    "Brocade", "Banner", "Pennant", "Ensign", "Crest", "Emblem", "Insignia", "Sigil", "Heron", "Osprey",
+    "Kestrel", "Merlin", "Hawk", "Eagle", "Swallow", "Sparrow", "Lark", "Finch", "Wren", "Starling",
+    "Plover", "Curlew", "Gannet", "Harrier", "Peregrine", "Goshawk", "Corsair", "Buccaneer", "Mariner", "Privateer",
+    "Lynx", "Panther", "Jaguar", "Cougar", "Ocelot", "Leopard", "Cheetah", "Mustang", "Bronco", "Pinto",
+    "Wolfram", "Tungsten", "Zircon", "Beryl", "Mercury", "Jasper", "Agate", "Lapis", "Pewter", "Brass",
+    "Cinder", "Pyre", "Tinder", "Kindle", "Spark", "Torch", "Hearth", "Vesper", "Matins", "Pennon"
+  ]
+}
