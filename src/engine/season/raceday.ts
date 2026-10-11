@@ -13,7 +13,7 @@ import type {
   ScheduledRace,
   SeriesDefinition,
 } from '../types';
-import { applyRaceResult } from './apply';
+import { applyRaceResultInPlace } from './apply';
 import type { CourseCountryLookup } from './eligibility';
 import { buildRaceField } from './field';
 import { summarizeRace } from './summary';
@@ -23,29 +23,32 @@ export interface RunMeetingContext {
   series: readonly SeriesDefinition[];
 }
 
-export interface RunMeetingOutput {
-  state: GameState;
+export interface RunMeetingInPlaceOutput {
   /** going 과 status·simulated 가 채워진 개최일 */
   meeting: Meeting;
   results: RaceResult[];
   events: GameEvent[];
 }
 
+export interface RunMeetingOutput extends RunMeetingInPlaceOutput {
+  state: GameState;
+}
+
 /**
- * 개최일 하나를 실행한다(마장 결정 → 필드 구성 → 시뮬레이션 또는 요약 → 결과 반영).
+ * 개최일 하나를 실행한다(마장 결정 → 필드 구성 → 시뮬레이션 또는 요약 → 결과 반영). state 를 직접 고친다.
  * - 마장: rollGoing(rng.fork('going:' + meeting.id), 개최 경마장, 개최 월).
  * - 'closed' 레이스만 실행한다. 'open'·'abandoned' 등은 그대로 둔다.
  * - 레이스 시드: rng.fork('race:' + race.id) 에서 정수 하나. 필드 구성도 같은 하위 스트림을 쓴다.
  * - 그룹·리스티드 또는 플레이어 말 출주 레이스는 시뮬레이션(recordReplay false), 나머지는 요약 모드.
- * 입력 state·meeting 은 바꾸지 않는다. 같은 입력·같은 rng 상태면 결과가 같다.
- * 개최일을 seasonState.meetings 에 되돌려 넣는 일은 호출자(A6c)가 한다.
+ * meeting 은 바꾸지 않는다. 개최일을 seasonState.meetings 에서 빼는 일은 호출자(A6c)가 한다.
+ * 복제하지 않으므로 시즌 시스템(draft)에서 쓴다. 입력을 보존해야 하면 runMeeting 을 쓴다.
  */
-export function runMeeting(
+export function runMeetingInPlace(
   state: GameState,
   meeting: Meeting,
   ctx: RunMeetingContext,
   rng: Rng,
-): RunMeetingOutput {
+): RunMeetingInPlaceOutput {
   const courseById = new Map<RacecourseId, Racecourse>();
   for (const c of ctx.courses) {
     courseById.set(c.id, c);
@@ -63,7 +66,7 @@ export function runMeeting(
   const out: Meeting = { ...structuredClone(meeting), going };
 
   // 2. 레이스별 실행
-  let draft = structuredClone(state);
+  const draft = state;
   const races: ScheduledRace[] = [];
   const results: RaceResult[] = [];
   const events: GameEvent[] = [];
@@ -103,23 +106,37 @@ export function runMeeting(
           field: built.field,
         });
 
-    const applied = applyRaceResult(draft, {
-      meeting: out,
-      scheduled,
-      result,
-      field: built.field,
-      series: ctx.series,
-    });
-    draft = applied.state;
-    events.push(...applied.events);
+    events.push(
+      ...applyRaceResultInPlace(draft, {
+        meeting: out,
+        scheduled,
+        result,
+        field: built.field,
+        series: ctx.series,
+      }),
+    );
     results.push(result);
     races.push(scheduled);
   }
 
   return {
-    state: draft,
     meeting: { ...out, races },
     results,
     events,
   };
+}
+
+/**
+ * 개최일 실행의 입력 보존 버전. state 를 복제한 뒤 runMeetingInPlace 를 돌린다(테스트·외부용).
+ * 입력 state·meeting 은 바꾸지 않는다.
+ */
+export function runMeeting(
+  state: GameState,
+  meeting: Meeting,
+  ctx: RunMeetingContext,
+  rng: Rng,
+): RunMeetingOutput {
+  const next = structuredClone(state);
+  const out = runMeetingInPlace(next, meeting, ctx, rng);
+  return { state: next, ...out };
 }

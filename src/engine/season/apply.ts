@@ -130,10 +130,10 @@ function ensureProgress(state: GameState, seriesId: string, year: number): Serie
 }
 
 /**
- * 레이스 결과를 게임 상태에 반영한다. 입력 state 는 바꾸지 않고 복제본을 고쳐 돌려준다.
- * 상금·말 성적·컨디션·리딩·시리즈·결과 보존·다시보기·race_run / series_completed 이벤트를 처리한다.
+ * 레이스 결과를 게임 상태에 직접 반영한다(state 를 고친다). 복제하지 않으므로 시즌 시스템 안에서 쓴다.
+ * 상금·말 성적·컨디션·리딩·시리즈·결과 보존·다시보기·race_run / series_completed 이벤트를 처리하고 이벤트를 돌려준다.
  */
-export function applyRaceResult(state: GameState, args: ApplyRaceResultArgs): ApplyRaceResultOutput {
+export function applyRaceResultInPlace(state: GameState, args: ApplyRaceResultArgs): GameEvent[] {
   const { meeting, scheduled, result, field, series } = args;
   const race = scheduled.race;
 
@@ -147,7 +147,7 @@ export function applyRaceResult(state: GameState, args: ApplyRaceResultArgs): Ap
   const winner = result.runners[0];
   if (winner === undefined) throw new Error('applyRaceResult: 결과에 주자가 없다');
 
-  const next = structuredClone(state);
+  const next = state;
   const events: GameEvent[] = [];
   const gain = fatigueGainFor(race.distance);
   const date = { year: meeting.date.year, week: meeting.date.week };
@@ -270,5 +270,15 @@ export function applyRaceResult(state: GameState, args: ApplyRaceResultArgs): Ap
     });
   }
 
+  return events;
+}
+
+/**
+ * 레이스 결과를 게임 상태에 반영한다. 입력 state 는 바꾸지 않고 복제본을 고쳐 돌려준다(테스트·외부용 래퍼).
+ * 시즌 시스템은 applyRaceResultInPlace 를 쓴다.
+ */
+export function applyRaceResult(state: GameState, args: ApplyRaceResultArgs): ApplyRaceResultOutput {
+  const next = structuredClone(state);
+  const events = applyRaceResultInPlace(next, args);
   return { state: next, events };
 }

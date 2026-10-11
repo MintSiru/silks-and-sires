@@ -304,6 +304,41 @@ describe('AI 출주 결정 · 부담중량 · 기수 배정 (M3-A6a)', () => {
     expect(fields).toBeGreaterThan(0);
   });
 
+  it('6-1. 중량 하한 112: 배정 중량이 112 아래면 112 로 올리고, 탈 수 있는 기수가 없으면 과체중(기수 최저 체중)으로 배정한다', () => {
+    const closed = allRaces(declared).find(({ sr }) => sr.status === 'closed');
+    if (closed === undefined) throw new Error('closed 레이스 없음');
+    const light = structuredClone(closed.sr);
+    light.race = {
+      ...light.race,
+      kind: 'conditions',
+      conditions: { ...light.race.conditions, weightSystem: 'level', baseWeightLb: 110 },
+    };
+
+    // (a) 모든 기수의 최저 기승 체중이 125lb: 배정 110 → 하한 112 → 아무도 못 탐 → 과체중 125lb
+    const heavy = structuredClone(state);
+    for (const j of Object.values(heavy.jockeys)) j.minRidingWeightLb = 125;
+    const over = buildRaceField(heavy, light, JUNE_DATE, createRng(SEED + 29), lookupCountry);
+    expect(over.field.requests.length).toBe(light.declarations.length);
+    for (const req of over.field.requests) {
+      expect(req.weightLb).toBe(125);
+      expect(req.weightLb).toBeGreaterThanOrEqual(heavy.jockeys[req.jockeyId]?.minRidingWeightLb ?? Infinity);
+    }
+
+    // (b) 최저 기승 체중 112 인 기수가 한 명이면 그 기수가 112lb 로 탄다(과체중 아님)
+    const mixed = structuredClone(state);
+    for (const j of Object.values(mixed.jockeys)) j.minRidingWeightLb = 125;
+    const first = Object.values(mixed.jockeys).sort((a, b) => (a.id < b.id ? -1 : 1))[0];
+    if (first === undefined) throw new Error('기수 없음');
+    first.minRidingWeightLb = 112;
+    first.retired = false;
+    const mixedField = buildRaceField(mixed, light, JUNE_DATE, createRng(SEED + 31), lookupCountry);
+    for (const req of mixedField.field.requests) {
+      expect(req.weightLb).toBeGreaterThanOrEqual(112);
+      expect(req.weightLb).toBeGreaterThanOrEqual(mixed.jockeys[req.jockeyId]?.minRidingWeightLb ?? Infinity);
+    }
+    expect(mixedField.field.requests.some((r) => r.weightLb === 112)).toBe(true);
+  });
+
   it('7. buildRaceField 결과로 runRace 가 실행된다', () => {
     const { sr, meeting } = findRace(declared, (x) => x.templateId === GROUP_TEMPLATE_ID);
     const built: BuildRaceFieldResult = buildRaceField(state, sr, JUNE_DATE, createRng(SEED + 23), lookupCountry);

@@ -1,25 +1,38 @@
 import { useCallback, useRef, useState } from 'react';
 import { WEEKS_PER_YEAR, EVENT_LOG_LIMIT } from '../../engine/config/game';
-import { createGameSystems } from '../../engine/state/systems';
-import { bootstrapWorld, type WorldStaticData } from '../../engine/state/world';
-import { createNewGame } from '../../engine/state/newGame';
+import { createGameSystems, type GameStaticData } from '../../engine/state/systems';
+import { bootstrapGame, type BootstrapData } from '../../engine/state/bootstrap';
 import { advanceWeek } from '../../engine/time/advance';
 import { isInPhase } from '../../engine/time/calendar';
-import { bookCovering, type BookingResult, type BreedingStaticData } from '../../engine/breeding/season';
+import { bookCovering, type BookingResult } from '../../engine/breeding/season';
 import { deserializeGame, serializeGame } from '../../engine/save/serialize';
 import {
   getHorseWords,
   getNicks,
+  getPeopleData,
+  getRaceTemplates,
+  getRacecourses,
+  getSeriesDefinitions,
   getStallionNames,
   getStallionRecords,
 } from '../../engine/data/staticData';
-import { createRng } from '../../engine/rng';
+import {
+  assignTrainer,
+  declarePlayerHorse,
+  withdrawPlayerHorse,
+  type AssignTrainerError,
+  type DeclareError,
+  type PlayerResult,
+  type WithdrawError,
+} from '../../engine/season/player';
 import type {
   CalendarPhaseId,
   GameEvent,
   GameState,
   HorseId,
+  RaceId,
   Silks,
+  TrainerId,
   WeeklySystem,
 } from '../../engine/types';
 import {
@@ -31,11 +44,16 @@ import {
 export interface GameApi {
   state: GameState | null;
   lastEvents: GameEvent[];          // 마지막 진행에서 나온 이벤트
-  newGame(seed: number, playerName: string): void;   // createNewGame → bootstrapWorld(createRng(seed).fork('world'))
+  newGame(seed: number, playerName: string): void;   // bootstrapGame(세계·인물·현역마·첫 개최)
   advance(weeks: number): void;     // createGameSystems(data) 로 advanceWeek 반복, 이벤트 누적
   advanceToPhase(phase: CalendarPhaseId): void;  // 그 단계가 시작되는 주까지(최대 52주)
   advanceUntil(stop: (s: GameState) => boolean, maxWeeks: number): void;  // 매 주 진행 후 stop(state) 가 true 면 멈춤(최대 maxWeeks 주)
   book(mareId: HorseId, stallionId: HorseId): BookingResult;   // 성공 시 state 갱신
+  /** 플레이어 말 출주 접수(성공 시 state 갱신). meetingId 는 seasonState.meetings 의 개최 id */
+  declarePlayerHorse(meetingId: string, raceId: RaceId, horseId: HorseId): PlayerResult<DeclareError>;
+  withdrawPlayerHorse(meetingId: string, raceId: RaceId, horseId: HorseId): PlayerResult<WithdrawError>;
+  /** 플레이어 말을 조교사에게 맡긴다(성공 시 state 갱신) */
+  assignTrainer(horseId: HorseId, trainerId: TrainerId): PlayerResult<AssignTrainerError>;
   save(): Promise<void>;            // createIndexedDbSaveStore, 슬롯 id 'autosave'
   load(): Promise<boolean>;
 }
@@ -45,21 +63,29 @@ const PLAYER_SILKS: Silks = { primary: '#1f4e9c', secondary: '#f5c518', pattern:
 const AUTOSAVE_SLOT_ID = 'autosave';
 const AUTOSAVE_NAME = '자동 저장';
 
-function worldData(): WorldStaticData {
+/** 주 시스템이 쓰는 정적 데이터(데이터 파일은 모듈 안에서 한 번만 검증된다) */
+function gameStaticData(): GameStaticData {
   return {
-    stallionRecords: getStallionRecords(),
-    stallionNames: getStallionNames(),
     nicks: getNicks(),
     words: getHorseWords(),
+    stallionRecords: getStallionRecords(),
+    courses: getRacecourses(),
+    templates: getRaceTemplates(),
+    series: getSeriesDefinitions(),
   };
 }
 
-function breedingData(): BreedingStaticData {
-  return { nicks: getNicks(), words: getHorseWords() };
+/** 새 게임 초기화용 정적 데이터 전체 */
+function bootstrapData(): BootstrapData {
+  return {
+    ...gameStaticData(),
+    stallionNames: getStallionNames(),
+    ...getPeopleData(),
+  };
 }
 
 function gameSystems(): WeeklySystem[] {
-  return createGameSystems(breedingData());
+  return createGameSystems(gameStaticData());
 }
 
 let storeInstance: SaveStore | null = null;
@@ -95,8 +121,7 @@ export function useGame(): GameApi {
   }, []);
 
   const newGame = useCallback((seed: number, playerName: string): void => {
-    const base = createNewGame({ seed, playerName, silks: PLAYER_SILKS });
-    const world = bootstrapWorld(base, worldData(), createRng(seed).fork('world'));
+    const world = bootstrapGame({ seed, playerName, silks: PLAYER_SILKS }, bootstrapData());
     stateRef.current = world;
     setState(world);
     setLastEvents([]);
@@ -183,6 +208,33 @@ export function useGame(): GameApi {
     [requireState],
   );
 
+  /** 플레이어 API 결과가 성공이면 상태를 갱신한다. 실패 사유는 호출자에게 그대로 돌려준다. */
+  const applyPlayerResult = useCallback(<E extends string>(result: PlayerResult<E>): PlayerResult<E> => {
+    if (result.ok) {
+      stateRef.current = result.state;
+      setState(result.state);
+    }
+    return result;
+  }, []);
+
+  const declarePlayer = useCallback(
+    (meetingId: string, raceId: RaceId, horseId: HorseId): PlayerResult<DeclareError> =>
+      applyPlayerResult(declarePlayerHorse(requireState(), meetingId, raceId, horseId)),
+    [requireState, applyPlayerResult],
+  );
+
+  const withdrawPlayer = useCallback(
+    (meetingId: string, raceId: RaceId, horseId: HorseId): PlayerResult<WithdrawError> =>
+      applyPlayerResult(withdrawPlayerHorse(requireState(), meetingId, raceId, horseId)),
+    [requireState, applyPlayerResult],
+  );
+
+  const assignTrainerTo = useCallback(
+    (horseId: HorseId, trainerId: TrainerId): PlayerResult<AssignTrainerError> =>
+      applyPlayerResult(assignTrainer(requireState(), horseId, trainerId)),
+    [requireState, applyPlayerResult],
+  );
+
   const save = useCallback(async (): Promise<void> => {
     const current = requireState();
     const savedAt = new Date().toISOString();
@@ -209,5 +261,18 @@ export function useGame(): GameApi {
     return true;
   }, []);
 
-  return { state, lastEvents, newGame, advance, advanceToPhase, advanceUntil, book, save, load };
+  return {
+    state,
+    lastEvents,
+    newGame,
+    advance,
+    advanceToPhase,
+    advanceUntil,
+    book,
+    declarePlayerHorse: declarePlayer,
+    withdrawPlayerHorse: withdrawPlayer,
+    assignTrainer: assignTrainerTo,
+    save,
+    load,
+  };
 }

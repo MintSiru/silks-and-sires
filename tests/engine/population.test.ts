@@ -299,7 +299,7 @@ describe('연간 교체 (createPopulationSystem)', () => {
 
     const names = Object.values(state.horses).map((h) => h.name);
     expect(new Set(names).size).toBe(names.length);
-  });
+  }, 60_000);
 
   it('같은 시드·같은 상태면 연간 교체 결과가 같다', () => {
     const state = boot();

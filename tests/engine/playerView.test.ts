@@ -10,6 +10,9 @@ import { WEEKS_PER_YEAR, START_YEAR } from '../../src/engine/config/game';
 import {
   getHorseWords,
   getNicks,
+  getRaceTemplates,
+  getRacecourses,
+  getSeriesDefinitions,
   getStallionNames,
   getStallionRecords,
 } from '../../src/engine/data/staticData';
@@ -21,10 +24,9 @@ import {
 } from '../../src/engine/horse/playerView';
 import { createRng } from '../../src/engine/rng';
 import { createNewGame } from '../../src/engine/state/newGame';
-import { createGameSystems } from '../../src/engine/state/systems';
+import { createGameSystems, type GameStaticData } from '../../src/engine/state/systems';
 import { bootstrapWorld, type WorldStaticData } from '../../src/engine/state/world';
 import { advanceWeek } from '../../src/engine/time/advance';
-import type { BreedingStaticData } from '../../src/engine/breeding/season';
 import type {
   AssessmentStage,
   GameDate,
@@ -45,8 +47,16 @@ function worldData(): WorldStaticData {
   };
 }
 
-function breedingData(): BreedingStaticData {
-  return { nicks: getNicks(), words: getHorseWords() };
+/** 주 시스템 전체 정적 데이터(시즌 시스템·연간 교체 포함) */
+function gameData(): GameStaticData {
+  return {
+    nicks: getNicks(),
+    words: getHorseWords(),
+    stallionRecords: getStallionRecords(),
+    courses: getRacecourses(),
+    templates: getRaceTemplates(),
+    series: getSeriesDefinitions(),
+  };
 }
 
 function boot(seed = START_SEED): GameState {
@@ -72,9 +82,9 @@ afterEach(() => {
 });
 
 describe('createGameSystems', () => {
-  it('실행 순서는 달력 → 성장 → 교배이다', () => {
-    const systems = createGameSystems(breedingData());
-    expect(systems.map((s) => s.id)).toEqual(['calendar', 'growth', 'breeding']);
+  it('실행 순서는 달력 → 성장 → 교배 → 연간 교체 → 시즌이다', () => {
+    const systems = createGameSystems(gameData());
+    expect(systems.map((s) => s.id)).toEqual(['calendar', 'growth', 'breeding', 'population', 'season']);
   });
 
   it('52주 진행 시 세 시스템이 모두 주마다 한 번씩 실행되고 순서대로 호출된다', () => {
@@ -91,9 +101,14 @@ describe('createGameSystems', () => {
       ownerId: null,
       breederId: null,
     };
-    const state: GameState = { ...base, horses: { ...base.horses, [foal.id]: foal } };
+    // 인물 없이 세계만 만든 상태이므로 연간 교체는 이미 올해 끝난 것으로 둔다(bootstrapGame 과 같은 상태)
+    const state: GameState = {
+      ...base,
+      horses: { ...base.horses, [foal.id]: foal },
+      seasonState: { ...base.seasonState, lastPopulationYear: START_YEAR },
+    };
 
-    const systems = createGameSystems(breedingData());
+    const systems = createGameSystems(gameData());
     const spies = systems.map((s) => vi.spyOn(s, 'run'));
 
     let current = state;

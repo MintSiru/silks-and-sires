@@ -1,6 +1,7 @@
 import {
   JOCKEY_PICK_BASE_WEIGHT,
   MIN_FIELD_SIZE,
+  MIN_RACE_WEIGHT_LB,
   WFA_OLDER_MIN_AGE,
 } from '../config/entries';
 import type { EntryRequest } from '../race/setup';
@@ -93,10 +94,18 @@ function rideable(j: Jockey, weight: number, used: ReadonlySet<JockeyId>): boole
   return !j.retired && !used.has(j.id) && weight >= j.minRidingWeightLb;
 }
 
+/** 기수 배정 결과. weightLb 는 실제 부담중량(과체중이면 배정 중량보다 무겁다) */
+interface RiderPick {
+  jockey: Jockey;
+  weightLb: number;
+}
+
 /**
  * 기수 한 명 배정.
  * 1) 마주 전속 기수가 탈 수 있으면 그 기수(난수 소비 없음).
  * 2) 아니면 같은 나라 기수 중 skill 가중 무작위. 같은 나라에 없으면 전체 기수에서 같은 방식으로 고른다.
+ * 3) 탈 수 있는 기수가 한 명도 없으면(과체중): 미사용 기수 중 최저 기승 체중이 가장 낮은 기수를 쓰고,
+ *    실제 부담중량은 그 기수의 최저 기승 체중으로 올린다(overweight).
  */
 function pickJockey(
   jockeys: readonly Jockey[],
@@ -106,10 +115,10 @@ function pickJockey(
   used: ReadonlySet<JockeyId>,
   raceCountry: CountryCode | null,
   rng: Rng,
-): Jockey {
+): RiderPick {
   const retained = owner.retainedJockeyId === null ? undefined : state.jockeys[owner.retainedJockeyId];
   if (retained !== undefined && rideable(retained, weight, used)) {
-    return retained;
+    return { jockey: retained, weightLb: weight };
   }
 
   let pool = jockeys.filter(
@@ -118,13 +127,21 @@ function pickJockey(
   if (pool.length === 0) {
     pool = jockeys.filter((j) => rideable(j, weight, used));
   }
-  if (pool.length === 0) {
-    throw new Error(`buildRaceField: 부담중량 ${weight}lb 에 탈 수 있는 기수가 없다(마주 ${owner.id})`);
+  if (pool.length > 0) {
+    const jockey = pickWeighted(
+      rng,
+      pool.map((j) => ({ value: j, weight: JOCKEY_PICK_BASE_WEIGHT + j.skill })),
+    );
+    return { jockey, weightLb: weight };
   }
-  return pickWeighted(
-    rng,
-    pool.map((j) => ({ value: j, weight: JOCKEY_PICK_BASE_WEIGHT + j.skill })),
-  );
+
+  const lightest = jockeys
+    .filter((j) => !j.retired && !used.has(j.id))
+    .sort((a, b) => a.minRidingWeightLb - b.minRidingWeightLb || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))[0];
+  if (lightest === undefined) {
+    throw new Error(`buildRaceField: 기수가 부족해 배정할 수 없다(마주 ${owner.id})`);
+  }
+  return { jockey: lightest, weightLb: Math.max(weight, lightest.minRidingWeightLb) };
 }
 
 /** 엔진 RunnerInput.horse 용 Pick 필드(참조 공유 없이 복사) */
@@ -169,17 +186,20 @@ export function buildRaceField(
 
   const horses = declarations.map((d) => requireHorse(state, d.horseId));
   const owners = declarations.map((d) => requireOwner(state, d.ownerId));
-  const weights = preAllowanceWeights(horses, race, date);
+  // 배정 중량: 조건별 감량 후 하한 MIN_RACE_WEIGHT_LB 적용(견습 감량 전)
+  const weights = preAllowanceWeights(horses, race, date).map((w) => Math.max(MIN_RACE_WEIGHT_LB, w));
   const raceCountry = raceCountryOf(courseCountry, race.racecourseId);
   const jockeys = sortedJockeys(state);
   const noAllowance = race.kind === 'group' || race.kind === 'listed';
 
   const used = new Set<JockeyId>();
   const picked: Jockey[] = [];
+  const actualWeights: number[] = [];
   declarations.forEach((_, i) => {
-    const jockey = pickJockey(jockeys, state, at(owners, i), at(weights, i), used, raceCountry, rng);
-    used.add(jockey.id);
-    picked.push(jockey);
+    const rider = pickJockey(jockeys, state, at(owners, i), at(weights, i), used, raceCountry, rng);
+    used.add(rider.jockey.id);
+    picked.push(rider.jockey);
+    actualWeights.push(rider.weightLb);
   });
 
   const requests: EntryRequest[] = [];
@@ -189,7 +209,7 @@ export function buildRaceField(
     const horse = at(horses, i);
     const owner = at(owners, i);
     const jockey = at(picked, i);
-    const weight = at(weights, i);
+    const weight = at(actualWeights, i);
     requests.push({
       horseId: horse.id,
       jockeyId: jockey.id,

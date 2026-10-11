@@ -54,6 +54,8 @@ export const JUVENILE_FOCUS_WEIGHT = 3;
 
 /** 핸디캡 최저 부담중량(lb) */
 export const HANDICAP_MIN_WEIGHT_LB = 112;
+/** 모든 레이스의 배정 중량 하한(lb, WFA·성별 감량 후, 견습 감량 전). 기수 최저 기승 체중 하한과 같다 */
+export const MIN_RACE_WEIGHT_LB = 112;
 
 /** WFA: 3세가 4세 이상에게 받는 감량 나이 */
 export const WFA_YOUNG_AGE = 3;

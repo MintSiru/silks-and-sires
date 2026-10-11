@@ -9,12 +9,23 @@ import horseWordsJson from '../../../data/names/horse_words.json';
 import peoplePoolsJson from '../../../data/people/name_pools.json';
 import peopleBlockedJson from '../../../data/people/blocked_names.json';
 import peoplePlacesJson from '../../../data/people/places.json';
+import raceTemplatesJson from '../../../data/calendar/g1.json';
+import seriesJson from '../../../data/calendar/series.json';
 import { getRacecourse as findRacecourse, loadRacecourses } from '../course/load';
 import { NAME_COUNTRIES, type CountryNamePool, type NameCountry, type NamePools } from '../people/names';
 import type { PeopleStaticData, PlacesData } from '../people/generate';
 import type { NamePool } from '../race/sampleField';
 import type { HorseWords } from '../horse/generate';
-import type { NickEntry, Race, Racecourse, RealStallionRecord, SireLine, StallionNameTable } from '../types';
+import type {
+  NickEntry,
+  Race,
+  RaceTemplate,
+  Racecourse,
+  RealStallionRecord,
+  SeriesDefinition,
+  SireLine,
+  StallionNameTable,
+} from '../types';
 
 /** 경마장 목록은 모듈 안에서 처음 요청될 때 한 번만 검증·캐시한다. */
 let cachedRacecourses: Racecourse[] | null = null;
@@ -50,6 +61,16 @@ export function getRace(id: string): Race {
     throw new Error(`레이스를 찾을 수 없음: ${id}`);
   }
   return found;
+}
+
+/** 고정 일정 레이스 템플릿 (data/calendar/g1.json). A4a 가 채운다. 현재는 빈 배열일 수 있다. */
+export function getRaceTemplates(): RaceTemplate[] {
+  return raceTemplatesJson as RaceTemplate[];
+}
+
+/** 시리즈 정의 (data/calendar/series.json). A4a 가 채운다. 현재는 빈 배열일 수 있다. */
+export function getSeriesDefinitions(): SeriesDefinition[] {
+  return seriesJson as SeriesDefinition[];
 }
 
 /** 가상 이름 풀 (data/names.json). */

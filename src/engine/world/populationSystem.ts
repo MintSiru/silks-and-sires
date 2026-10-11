@@ -47,9 +47,8 @@ function selectionValue(horse: Horse): number {
 }
 
 /**
- * 이미 올해 신규 진입이 끝났는지. 신규 2세(birthYear = 연도 − 2)가 있으면 끝난 것으로 본다.
- * 세계 초기화 직후 2026년 1주도 같은 판정으로 건너뛴다.
- * TODO(M3-A6): SeasonState 에 마지막 교체 연도를 넣으면 이 휴리스틱을 그 값 비교로 바꾼다.
+ * 마이그레이션 직후(lastPopulationYear 가 null)에만 쓰는 대체 판정: 신규 2세(birthYear = 연도 − 2)가 있으면 끝난 것으로 본다.
+ * 새 게임은 bootstrapGame 이 lastPopulationYear 를 시작 연도로 채우므로 이 판정을 쓰지 않는다.
  */
 function entryDoneFor(state: GameState, year: number): boolean {
   return racingHorseIds(state).some((id) => state.horses[id]?.birthYear === year - POPULATION_ENTRY_AGE);
@@ -59,6 +58,7 @@ function entryDoneFor(state: GameState, year: number): boolean {
  * 연간 교체 시스템(id 'population'). 1월 1주에만 동작한다.
  * 순서: 8세 이상 전원 은퇴 → 4세가 된 수말 거세 판정 → 3세 이상 OR 부여 →
  *       4세 이상 나라별 하위 CUT_SHARE 은퇴 → 나라별 신규 2세 투입(두수 = 그 나라 그 해 은퇴 두수).
+ * 중복 실행 방지: seasonState.lastPopulationYear 가 올해면 아무것도 하지 않고, 실행 후 올해로 갱신한다.
  * 처리 순서는 ID 오름차순·나라 순서로 고정되어 같은 상태 + 같은 rng → 같은 결과다.
  */
 export function createPopulationSystem(data: RacingPopulationStaticData): WeeklySystem {
@@ -67,7 +67,9 @@ export function createPopulationSystem(data: RacingPopulationStaticData): Weekly
     run(draft: GameState, ctx) {
       if (ctx.date.week !== REPLACEMENT_WEEK) return [];
       const year = ctx.date.year;
-      if (entryDoneFor(draft, year)) return [];
+      const lastYear = draft.seasonState.lastPopulationYear;
+      if (lastYear === year) return [];
+      if (lastYear === null && entryDoneFor(draft, year)) return [];
 
       const events: GameEvent[] = [];
       const date = ctx.date;
@@ -130,6 +132,7 @@ export function createPopulationSystem(data: RacingPopulationStaticData): Weekly
         }
       }
 
+      draft.seasonState.lastPopulationYear = year;
       return events;
     },
   };
