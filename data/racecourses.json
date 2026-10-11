@@ -35,7 +35,7 @@
       { "distance": 2012, "layoutId": "ashcombe_main" },
       { "distance": 2414, "layoutId": "ashcombe_main" }
     ],
-    "features": ["uphill_finish", "downhill_run", "camber", "tight_turns", "undulating"]
+    "features": ["uphill_finish","downhill_run","camber","tight_turns","undulating"]
   },
   {
     "id": "marlow_downs",
@@ -102,7 +102,7 @@
       { "distance": 3219, "layoutId": "marlow_round" },
       { "distance": 3620, "layoutId": "marlow_round" }
     ],
-    "features": ["straight_course", "dip", "uphill_finish", "galloping"]
+    "features": ["straight_course","dip","uphill_finish","galloping"]
   },
   {
     "id": "kingsmere_heath",
@@ -152,7 +152,7 @@
       { "distance": 3218, "layoutId": "kingsmere_triangle" },
       { "distance": 4023, "layoutId": "kingsmere_triangle" }
     ],
-    "features": ["uphill_finish", "downhill_run", "straight_course", "undulating"]
+    "features": ["uphill_finish","downhill_run","straight_course","undulating"]
   },
   {
     "id": "easterholm",
@@ -200,7 +200,7 @@
       { "distance": 2816, "layoutId": "easterholm_main" },
       { "distance": 3319, "layoutId": "easterholm_main" }
     ],
-    "features": ["galloping", "long_straight"]
+    "features": ["galloping","long_straight"]
   },
   {
     "id": "selsworth_downs",
@@ -250,7 +250,7 @@
       { "distance": 2414, "layoutId": "selsworth_main" },
       { "distance": 3218, "layoutId": "selsworth_main" }
     ],
-    "features": ["undulating", "downhill_run", "tight_turns", "straight_course"]
+    "features": ["undulating","downhill_run","tight_turns","straight_course"]
   },
   {
     "id": "dunholme_moor",
@@ -275,15 +275,14 @@
         "id": "dunholme_main",
         "label": "Main Course",
         "handedness": "left",
-        "closed": false,
+        "closed": true,
         "width": 32,
         "segments": [
-          { "kind": "straight", "length": 1400, "rise": 0 },
-          { "kind": "bend", "length": 642.28, "radius": 320, "turn": "left", "rise": 0 },
-          { "kind": "straight", "length": 350, "rise": 0 },
-          { "kind": "bend", "length": 218.17, "radius": 500, "turn": "left", "rise": 0 },
-          { "kind": "straight", "length": 300, "rise": 0 },
-          { "kind": "bend", "length": 272.27, "radius": 260, "turn": "left", "rise": 0 },
+          { "kind": "bend", "length": 793.99, "radius": 255, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 101, "rise": 0 },
+          { "kind": "bend", "length": 140.58, "radius": 445, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 838.6, "rise": 0 },
+          { "kind": "bend", "length": 370.74, "radius": 130, "turn": "left", "rise": 0 },
           { "kind": "straight", "length": 1000, "rise": 0 }
         ]
       }
@@ -299,7 +298,7 @@
       { "distance": 2921, "layoutId": "dunholme_main" },
       { "distance": 3620, "layoutId": "dunholme_main" }
     ],
-    "features": ["galloping", "long_straight", "straight_course"]
+    "features": ["galloping","long_straight","straight_course"]
   },
   {
     "id": "ravensbridge_park",
@@ -345,7 +344,7 @@
       { "distance": 2012, "layoutId": "ravensbridge_oval" },
       { "distance": 2414, "layoutId": "ravensbridge_oval" }
     ],
-    "features": ["uphill_finish", "short_straight"]
+    "features": ["uphill_finish","short_straight"]
   },
   {
     "id": "aldermoor_park",
@@ -360,16 +359,15 @@
         "id": "aldermoor_main",
         "label": "Main Course",
         "handedness": "left",
-        "closed": false,
+        "closed": true,
         "width": 28,
         "segments": [
-          { "kind": "straight", "length": 1200, "rise": 2 },
-          { "kind": "bend", "length": 537.56, "radius": 280, "turn": "left", "rise": 0 },
-          { "kind": "straight", "length": 500, "rise": 0 },
-          { "kind": "bend", "length": 218.17, "radius": 500, "turn": "left", "rise": 0 },
-          { "kind": "straight", "length": 400, "rise": -1 },
-          { "kind": "bend", "length": 226.89, "radius": 200, "turn": "left", "rise": 0 },
-          { "kind": "straight", "length": 900, "rise": 1 }
+          { "kind": "bend", "length": 395.84, "radius": 150, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 265.2, "rise": 0 },
+          { "kind": "bend", "length": 226.89, "radius": 520, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 408.1, "rise": 0 },
+          { "kind": "bend", "length": 801.98, "radius": 250, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 800, "rise": 0 }
         ]
       },
       {
@@ -390,7 +388,7 @@
       { "distance": 2012, "layoutId": "aldermoor_main" },
       { "distance": 2816, "layoutId": "aldermoor_main" }
     ],
-    "features": ["galloping", "straight_course"]
+    "features": ["galloping","straight_course"]
   },
   {
     "id": "wexborough",
@@ -402,22 +400,6 @@
     "drainage": 0.7,
     "layouts": [
       {
-        "id": "wexborough_main",
-        "label": "Main Course",
-        "handedness": "left",
-        "closed": false,
-        "width": 32,
-        "segments": [
-          { "kind": "straight", "length": 1100, "rise": 0 },
-          { "kind": "bend", "length": 544.54, "radius": 260, "turn": "left", "rise": 0 },
-          { "kind": "straight", "length": 600, "rise": 0 },
-          { "kind": "bend", "length": 239.98, "radius": 550, "turn": "left", "rise": 0 },
-          { "kind": "straight", "length": 350, "rise": 0 },
-          { "kind": "bend", "length": 172.79, "radius": 180, "turn": "left", "rise": 0 },
-          { "kind": "straight", "length": 1000, "rise": 0 }
-        ]
-      },
-      {
         "id": "wexborough_straight",
         "label": "Straight Course",
         "handedness": "straight",
@@ -426,17 +408,34 @@
         "segments": [
           { "kind": "straight", "length": 1700, "rise": 0 }
         ]
+      },
+      {
+        "id": "wexborough_main",
+        "label": "Main Course",
+        "handedness": "left",
+        "closed": true,
+        "width": 32,
+        "segments": [
+          { "kind": "bend", "length": 628.14, "radius": 305, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 262.3, "rise": 0 },
+          { "kind": "bend", "length": 258.95, "radius": 185, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 475, "rise": 0 },
+          { "kind": "bend", "length": 219.49, "radius": 480, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 234.9, "rise": 0 },
+          { "kind": "bend", "length": 473.33, "radius": 200, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 740, "rise": 0 }
+        ]
       }
     ],
     "distances": [
+      { "distance": 1609, "layoutId": "wexborough_straight" },
       { "distance": 1006, "layoutId": "wexborough_main" },
       { "distance": 1207, "layoutId": "wexborough_main" },
       { "distance": 1408, "layoutId": "wexborough_main" },
-      { "distance": 1609, "layoutId": "wexborough_straight" },
       { "distance": 2012, "layoutId": "wexborough_main" },
       { "distance": 2414, "layoutId": "wexborough_main" }
     ],
-    "features": ["galloping", "straight_course", "long_straight"]
+    "features": ["galloping","straight_course","long_straight"]
   },
   {
     "id": "saint_ourens",
@@ -455,9 +454,9 @@
         "width": 30,
         "segments": [
           { "kind": "straight", "length": 150, "rise": 0 },
-          { "kind": "bend", "length": 691.150, "radius": 220, "turn": "right", "rise": 2 },
+          { "kind": "bend", "length": 691.15, "radius": 220, "turn": "right", "rise": 2 },
           { "kind": "straight", "length": 750, "rise": 0 },
-          { "kind": "bend", "length": 691.150, "radius": 220, "turn": "right", "rise": -2 },
+          { "kind": "bend", "length": 691.15, "radius": 220, "turn": "right", "rise": -2 },
           { "kind": "straight", "length": 600, "rise": 0 }
         ]
       }
@@ -500,6 +499,312 @@
       { "distance": 1609, "layoutId": "ardvarrow_park_oval" },
       { "distance": 2012, "layoutId": "ardvarrow_park_oval" },
       { "distance": 2816, "layoutId": "ardvarrow_park_oval" }
-    ]
+    ],
+    "features": ["tight_turns"]
+  },
+  {
+    "id": "kilcarrow_heath",
+    "name": "Kilcarrow Heath",
+    "country": "IE",
+    "surface": "turf",
+    "handedness": "right",
+    "undulation": 0.5,
+    "drainage": 0.8,
+    "layouts": [
+      {
+        "id": "kilcarrow_straight",
+        "label": "Straight Course",
+        "handedness": "straight",
+        "closed": false,
+        "width": 36,
+        "segments": [
+          { "kind": "straight", "length": 1450, "rise": 0 }
+        ]
+      },
+      {
+        "id": "kilcarrow_main",
+        "label": "Main Course",
+        "handedness": "right",
+        "closed": false,
+        "width": 36,
+        "segments": [
+          { "kind": "straight", "length": 655, "rise": 6 },
+          { "kind": "bend", "length": 801.27, "radius": 455, "turn": "right", "rise": -8 },
+          { "kind": "straight", "length": 490, "rise": -4 },
+          { "kind": "bend", "length": 257.44, "radius": 590, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 310, "rise": 4 },
+          { "kind": "bend", "length": 477.7, "radius": 425, "turn": "right", "rise": 4 },
+          { "kind": "straight", "length": 315, "rise": -2 }
+        ]
+      }
+    ],
+    "distances": [
+      { "distance": 1408, "layoutId": "kilcarrow_straight" },
+      { "distance": 1006, "layoutId": "kilcarrow_main" },
+      { "distance": 1207, "layoutId": "kilcarrow_main" },
+      { "distance": 1609, "layoutId": "kilcarrow_main" },
+      { "distance": 2012, "layoutId": "kilcarrow_main" },
+      { "distance": 2414, "layoutId": "kilcarrow_main" },
+      { "distance": 2816, "layoutId": "kilcarrow_main" },
+      { "distance": 3218, "layoutId": "kilcarrow_main" }
+    ],
+    "features": ["galloping","long_straight","straight_course","undulating"]
+  },
+  {
+    "id": "ballinvar",
+    "name": "Ballinvar",
+    "country": "IE",
+    "surface": "turf",
+    "handedness": "left",
+    "undulation": 0.4,
+    "drainage": 0.7,
+    "layouts": [
+      {
+        "id": "ballinvar_main",
+        "label": "Main Course",
+        "handedness": "left",
+        "closed": true,
+        "width": 30,
+        "segments": [
+          { "kind": "bend", "length": 333.53, "radius": 245, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 380, "rise": -2 },
+          { "kind": "bend", "length": 462.24, "radius": 245, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 582, "rise": 0 },
+          { "kind": "bend", "length": 240.46, "radius": 165, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 280, "rise": 0 },
+          { "kind": "bend", "length": 211.62, "radius": 485, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 52.9, "rise": 0 },
+          { "kind": "bend", "length": 199.75, "radius": 175, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 450, "rise": 2 }
+        ]
+      }
+    ],
+    "distances": [
+      { "distance": 1207, "layoutId": "ballinvar_main" },
+      { "distance": 1408, "layoutId": "ballinvar_main" },
+      { "distance": 1609, "layoutId": "ballinvar_main" },
+      { "distance": 2012, "layoutId": "ballinvar_main" },
+      { "distance": 2414, "layoutId": "ballinvar_main" },
+      { "distance": 2816, "layoutId": "ballinvar_main" }
+    ],
+    "features": ["short_straight","tight_turns"]
+  },
+  {
+    "id": "tullamere",
+    "name": "Tullamere",
+    "country": "IE",
+    "surface": "turf",
+    "handedness": "left",
+    "undulation": 0.4,
+    "drainage": 0.7,
+    "layouts": [
+      {
+        "id": "tullamere_main",
+        "label": "Main Course",
+        "handedness": "left",
+        "closed": true,
+        "width": 30,
+        "segments": [
+          { "kind": "bend", "length": 188.5, "radius": 120, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 780.9, "rise": 0 },
+          { "kind": "bend", "length": 212.06, "radius": 135, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 459.5, "rise": 0 },
+          { "kind": "bend", "length": 219.91, "radius": 140, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 710, "rise": -5 },
+          { "kind": "bend", "length": 175.84, "radius": 155, "turn": "left", "rise": 0 },
+          { "kind": "bend", "length": 211.62, "radius": 485, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 320, "rise": 5 }
+        ]
+      }
+    ],
+    "distances": [
+      { "distance": 1006, "layoutId": "tullamere_main" },
+      { "distance": 1207, "layoutId": "tullamere_main" },
+      { "distance": 1609, "layoutId": "tullamere_main" },
+      { "distance": 2012, "layoutId": "tullamere_main" },
+      { "distance": 2414, "layoutId": "tullamere_main" }
+    ],
+    "features": ["uphill_finish"]
+  },
+  {
+    "id": "hohenmoor",
+    "name": "Hohenmoor",
+    "country": "DE",
+    "surface": "turf",
+    "handedness": "right",
+    "undulation": 0.4,
+    "drainage": 0.6,
+    "layouts": [
+      {
+        "id": "hohenmoor_main",
+        "label": "Main Course",
+        "handedness": "right",
+        "closed": true,
+        "width": 30,
+        "segments": [
+          { "kind": "bend", "length": 814.53, "radius": 295, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 766.3, "rise": 0 },
+          { "kind": "bend", "length": 354.27, "radius": 170, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 335, "rise": -4 },
+          { "kind": "bend", "length": 176.28, "radius": 505, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 50.9, "rise": 0 },
+          { "kind": "bend", "length": 261.38, "radius": 240, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 500, "rise": 4 }
+        ]
+      }
+    ],
+    "distances": [
+      { "distance": 1207, "layoutId": "hohenmoor_main" },
+      { "distance": 1609, "layoutId": "hohenmoor_main" },
+      { "distance": 2012, "layoutId": "hohenmoor_main" },
+      { "distance": 2414, "layoutId": "hohenmoor_main" }
+    ],
+    "features": ["uphill_finish"]
+  },
+  {
+    "id": "wesselfeld",
+    "name": "Wesselfeld",
+    "country": "DE",
+    "surface": "turf",
+    "handedness": "right",
+    "undulation": 0.5,
+    "drainage": 0.6,
+    "layouts": [
+      {
+        "id": "wesselfeld_main",
+        "label": "Main Course",
+        "handedness": "right",
+        "closed": true,
+        "width": 30,
+        "segments": [
+          { "kind": "bend", "length": 1087.41, "radius": 330, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 40.8, "rise": 5 },
+          { "kind": "bend", "length": 162.69, "radius": 515, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 678.5, "rise": 0 },
+          { "kind": "bend", "length": 414.18, "radius": 155, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 780, "rise": -5 }
+        ]
+      }
+    ],
+    "distances": [
+      { "distance": 1207, "layoutId": "wesselfeld_main" },
+      { "distance": 1609, "layoutId": "wesselfeld_main" },
+      { "distance": 2012, "layoutId": "wesselfeld_main" },
+      { "distance": 2213, "layoutId": "wesselfeld_main" },
+      { "distance": 2414, "layoutId": "wesselfeld_main" }
+    ],
+    "features": ["undulating"]
+  },
+  {
+    "id": "lichtenau",
+    "name": "Lichtenau",
+    "country": "DE",
+    "surface": "turf",
+    "handedness": "left",
+    "undulation": 0.8,
+    "drainage": 0.6,
+    "layouts": [
+      {
+        "id": "lichtenau_main",
+        "label": "Main Course",
+        "handedness": "left",
+        "closed": true,
+        "width": 30,
+        "segments": [
+          { "kind": "bend", "length": 349.19, "radius": 135, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 55.5, "rise": 10 },
+          { "kind": "bend", "length": 263.06, "radius": 480, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 75, "rise": -12 },
+          { "kind": "bend", "length": 247.98, "radius": 480, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 37.1, "rise": 2 },
+          { "kind": "bend", "length": 381.38, "radius": 145, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 500, "rise": 0 }
+        ]
+      }
+    ],
+    "distances": [
+      { "distance": 1207, "layoutId": "lichtenau_main" },
+      { "distance": 1408, "layoutId": "lichtenau_main" },
+      { "distance": 1609, "layoutId": "lichtenau_main" },
+      { "distance": 2012, "layoutId": "lichtenau_main" },
+      { "distance": 2414, "layoutId": "lichtenau_main" },
+      { "distance": 2816, "layoutId": "lichtenau_main" }
+    ],
+    "features": ["undulating","downhill_run"]
+  },
+  {
+    "id": "torreverde",
+    "name": "Torreverde",
+    "country": "IT",
+    "surface": "turf",
+    "handedness": "right",
+    "undulation": 0.1,
+    "drainage": 0.7,
+    "layouts": [
+      {
+        "id": "torreverde_main",
+        "label": "Main Course",
+        "handedness": "right",
+        "closed": true,
+        "width": 36,
+        "segments": [
+          { "kind": "bend", "length": 610.91, "radius": 325, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 183.2, "rise": 0 },
+          { "kind": "bend", "length": 389.73, "radius": 275, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 230, "rise": 0 },
+          { "kind": "bend", "length": 209.44, "radius": 480, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 215, "rise": 0 },
+          { "kind": "bend", "length": 504.88, "radius": 285, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 55.9, "rise": 0 },
+          { "kind": "bend", "length": 206.28, "radius": 265, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 465, "rise": 0 }
+        ]
+      }
+    ],
+    "distances": [
+      { "distance": 1207, "layoutId": "torreverde_main" },
+      { "distance": 1609, "layoutId": "torreverde_main" },
+      { "distance": 2012, "layoutId": "torreverde_main" },
+      { "distance": 2213, "layoutId": "torreverde_main" },
+      { "distance": 2414, "layoutId": "torreverde_main" }
+    ],
+    "features": ["galloping"]
+  },
+  {
+    "id": "valmerano",
+    "name": "Valmerano",
+    "country": "IT",
+    "surface": "turf",
+    "handedness": "right",
+    "undulation": 0.1,
+    "drainage": 0.7,
+    "layouts": [
+      {
+        "id": "valmerano_main",
+        "label": "Main Course",
+        "handedness": "right",
+        "closed": true,
+        "width": 32,
+        "segments": [
+          { "kind": "bend", "length": 506.58, "radius": 250, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 151.7, "rise": 0 },
+          { "kind": "bend", "length": 186.92, "radius": 595, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 310, "rise": 0 },
+          { "kind": "bend", "length": 378.61, "radius": 210, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 666.1, "rise": 0 },
+          { "kind": "bend", "length": 385.16, "radius": 180, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 700, "rise": 0 }
+        ]
+      }
+    ],
+    "distances": [
+      { "distance": 1207, "layoutId": "valmerano_main" },
+      { "distance": 1609, "layoutId": "valmerano_main" },
+      { "distance": 2012, "layoutId": "valmerano_main" },
+      { "distance": 2213, "layoutId": "valmerano_main" },
+      { "distance": 2414, "layoutId": "valmerano_main" },
+      { "distance": 2816, "layoutId": "valmerano_main" }
+    ],
+    "features": ["long_straight","galloping"]
   }
 ]

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import racecoursesJson from '../../data/racecourses.json';
 import racesJson from '../../data/races.json';
 import namesJson from '../../data/names.json';
+import { buildRacePath, layoutEnd } from '../../src/engine/course/path';
 import type { Racecourse, TrackLayout } from '../../src/engine/types/course';
 import type { Race } from '../../src/engine/types/race';
 
@@ -117,12 +118,105 @@ function sumLengths(layout: TrackLayout): number {
   return layout.segments.reduce((acc, seg) => acc + seg.length, 0);
 }
 
+/** 미니맵 다양성 (2차 반려 C 개정): 주 레이아웃 실루엣 거리 하한. 근거는 _courses_review.md 3장 */
+const SHAPE_MIN_DISTANCE = 0.01;
+const SHAPE_SAMPLES = 64;
+/** 둘레 제한(실제 경마장 규모). 닫힌 고리 1,800~3,300m, 열린 말굽 총길이 ≤ 4,200m */
+const PERIMETER_MIN_M = 1800;
+const PERIMETER_MAX_M = 3300;
+const OPEN_MAX_M = 4200;
+/** 둘레 상한 예외: 2차 반려에서 "바꾸지 않는다"로 지정된 기존 고리 (Kingsmere 4,374m, Ravensbridge 4,022m) */
+const PERIMETER_EXEMPT = ['kingsmere_triangle', 'ravensbridge_oval'];
+
+interface ShapeEntry { ctx: string; shape: { pts: [number, number][]; closed: boolean } }
+
+/** 폴리라인을 둘레(호 길이) 기준 n점으로 리샘플 */
+function resampleByArc(points: { x: number; y: number }[], closed: boolean, n: number): [number, number][] {
+  const P = closed ? [...points, points[0] as { x: number; y: number }] : points;
+  const cum: number[] = [0];
+  for (let i = 1; i < P.length; i++) {
+    const a = P[i - 1] as { x: number; y: number };
+    const b = P[i] as { x: number; y: number };
+    cum.push((cum[i - 1] as number) + Math.hypot(b.x - a.x, b.y - a.y));
+  }
+  const L = cum[cum.length - 1] as number;
+  const out: [number, number][] = [];
+  for (let k = 0; k < n; k++) {
+    const target = closed ? (k * L) / n : (k * L) / (n - 1);
+    let j = 0;
+    while (j < cum.length - 2 && (cum[j + 1] as number) < target) j++;
+    const seg = (cum[j + 1] as number) - (cum[j] as number);
+    const f = seg > 0 ? (target - (cum[j] as number)) / seg : 0;
+    const a = P[j] as { x: number; y: number };
+    const b = P[j + 1] as { x: number; y: number };
+    out.push([a.x + (b.x - a.x) * f, a.y + (b.y - a.y) * f]);
+  }
+  return out;
+}
+
+/** 중심을 원점, 둘레를 1로 정규화한 실루엣 */
+function normalizedShape(points: { x: number; y: number }[], closed: boolean): { pts: [number, number][]; closed: boolean } {
+  const raw = resampleByArc(points, closed, SHAPE_SAMPLES);
+  const cx = raw.reduce((acc, p) => acc + p[0], 0) / raw.length;
+  const cy = raw.reduce((acc, p) => acc + p[1], 0) / raw.length;
+  let L = 0;
+  for (let i = 1; i < points.length; i++) {
+    const a = points[i - 1] as { x: number; y: number };
+    const b = points[i] as { x: number; y: number };
+    L += Math.hypot(b.x - a.x, b.y - a.y);
+  }
+  if (closed) {
+    const a = points[points.length - 1] as { x: number; y: number };
+    const b = points[0] as { x: number; y: number };
+    L += Math.hypot(b.x - a.x, b.y - a.y);
+  }
+  return { pts: raw.map(([x, y]) => [(x - cx) / L, (y - cy) / L]), closed };
+}
+
+/** 두 실루엣의 거리: 방향(정·역)·좌우 반전·(고리는) 시작점 이동 중 최소 평균 점 거리 */
+function shapeDistance(a: { pts: [number, number][]; closed: boolean }, b: { pts: [number, number][]; closed: boolean }): number {
+  const n = a.pts.length;
+  let best = Infinity;
+  for (const mirror of [false, true]) {
+    for (const reverse of [false, true]) {
+      let q = b.pts.map(([x, y]): [number, number] => [mirror ? -x : x, y]);
+      if (reverse) q = [...q].reverse();
+      const shifts = a.closed && b.closed ? n : 1;
+      for (let k = 0; k < shifts; k++) {
+        let sum = 0;
+        for (let i = 0; i < n; i++) {
+          const p = a.pts[i] as [number, number];
+          const r = q[(i + k) % n] as [number, number];
+          sum += Math.hypot(p[0] - r[0], p[1] - r[1]);
+        }
+        best = Math.min(best, sum / n);
+      }
+    }
+  }
+  return best;
+}
+
+/** 주 레이아웃(커브 2개 이상) 실루엣 목록: GB·IE·DE·IT, AW 제외 */
+function mainRoundLayouts(): ShapeEntry[] {
+  const out: ShapeEntry[] = [];
+  for (const course of racecourses.filter((c) => ['GB', 'IE', 'DE', 'IT'].includes(c.country) && c.surface !== 'aw')) {
+    for (const layout of course.layouts) {
+      if (layout.segments.filter((s) => s.kind === 'bend').length < 2) continue;
+      const cd = course.distances.find((d) => d.layoutId === layout.id);
+      if (cd === undefined) throw new Error(`${course.id}/${layout.id} 거리 없음`);
+      const pts = buildRacePath(course, cd.distance, layout.id).layoutPolyline;
+      out.push({ ctx: `${course.id}/${layout.id}`, shape: normalizedShape(pts, layout.closed) });
+    }
+  }
+  return out;
+}
+
 describe('racecourses.json', () => {
-  it('경마장 11곳(영국 9·프랑스 1·아일랜드 AW 1), 잔디 10·AW 1, id 중복 없음', () => {
-    expect(racecourses.length).toBe(11);
+  it('경마장 19곳(영국 9·프랑스 1·아일랜드 4(AW 1)·독일 3·이탈리아 2), 잔디 18·AW 1, id 중복 없음', () => {
+    expect(racecourses.length).toBe(19);
     const ids = racecourses.map((c) => c.id);
     expect(new Set(ids).size).toBe(ids.length);
-    expect(racecourses.filter((c) => c.surface === 'turf').length).toBe(10);
+    expect(racecourses.filter((c) => c.surface === 'turf').length).toBe(18);
     expect(racecourses.filter((c) => c.surface === 'aw').length).toBe(1);
   });
 
@@ -137,6 +231,15 @@ describe('racecourses.json', () => {
       ravensbridge_park: { distances: [1006, 1609, 2012, 2414], features: ['uphill_finish', 'short_straight'] },
       aldermoor_park: { distances: [1006, 1207, 1609, 2012, 2816], features: ['galloping', 'straight_course'] },
       wexborough: { distances: [1006, 1207, 1408, 1609, 2012, 2414], features: ['galloping', 'straight_course', 'long_straight'] },
+      kilcarrow_heath: { distances: [1006, 1207, 1408, 1609, 2012, 2414, 2816, 3218], features: ['galloping', 'long_straight', 'straight_course', 'undulating'] },
+      ballinvar: { distances: [1207, 1408, 1609, 2012, 2414, 2816], features: ['short_straight', 'tight_turns'] },
+      tullamere: { distances: [1006, 1207, 1609, 2012, 2414], features: ['uphill_finish'] },
+      ardvarrow_park: { distances: [1006, 1207, 1408, 1609, 2012, 2816], features: ['tight_turns'] },
+      hohenmoor: { distances: [1207, 1609, 2012, 2414], features: ['uphill_finish'] },
+      wesselfeld: { distances: [1207, 1609, 2012, 2213, 2414], features: ['undulating'] },
+      lichtenau: { distances: [1207, 1408, 1609, 2012, 2414, 2816], features: ['undulating', 'downhill_run'] },
+      torreverde: { distances: [1207, 1609, 2012, 2213, 2414], features: ['galloping'] },
+      valmerano: { distances: [1207, 1609, 2012, 2213, 2414, 2816], features: ['long_straight', 'galloping'] },
     };
     for (const [id, spec] of Object.entries(required)) {
       const course = racecourses.find((c) => c.id === id);
@@ -168,14 +271,77 @@ describe('racecourses.json', () => {
     expect(kingsmere?.distances.find((d) => d.distance === 1609)?.layoutId).toBe('kingsmere_straight');
   });
 
-  it('영국 9곳 라운드 레이아웃(커브 2개 이상) 형상 규칙 (2차 검수 반려 1번)', () => {
+  it('커브 시퀀스(회전각을 10° 단위 반올림)는 GB·IE·DE·IT 라운드 레이아웃 전체에서 서로 다르다 (영국 9곳 포함)', () => {
+    const DEG = 180 / Math.PI;
+    const signature = (layout: { segments: { kind: string; length: number; radius?: number }[] }): string =>
+      layout.segments
+        .filter((s) => s.kind === 'bend')
+        // 0.01° 단위로 먼저 정리해 부동소수 오차로 .5 경계가 흔들리지 않게 한 뒤 10° 단위로 반올림(반올림 .5 는 올림)
+        .map((s) => Math.round(Math.round(((s.length / (s.radius as number)) * DEG) * 100) / 1000) * 10)
+        .join(',');
+    const sigs = racecourses
+      .filter((c) => ['GB', 'IE', 'DE', 'IT'].includes(c.country) && c.surface !== 'aw')
+      .flatMap((c) =>
+        c.layouts
+          .filter((l) => l.segments.filter((s) => s.kind === 'bend').length >= 2)
+          .map((l) => ({ ctx: `${c.id}/${l.id}`, sig: signature(l) })),
+      );
+    expect(sigs.length).toBeGreaterThanOrEqual(17);
+    const bySig = new Map<string, string[]>();
+    for (const s of sigs) bySig.set(s.sig, [...(bySig.get(s.sig) ?? []), s.ctx]);
+    const dupes = [...bySig.entries()].filter(([, ctxs]) => ctxs.length > 1);
+    expect(dupes, '같은 커브 시퀀스').toEqual([]);
+  });
+
+  it('미니맵 다양성: 주 레이아웃의 정규화 실루엣 거리 d ≥ SHAPE_MIN_DISTANCE (모든 쌍, 2차 반려 C 개정)', () => {
+    const shapes = mainRoundLayouts();
+    expect(shapes.length).toBeGreaterThanOrEqual(17);
+    const clashes: string[] = [];
+    for (let i = 0; i < shapes.length; i++) {
+      for (let j = i + 1; j < shapes.length; j++) {
+        const a = shapes[i] as ShapeEntry;
+        const b = shapes[j] as ShapeEntry;
+        const d = shapeDistance(a.shape, b.shape);
+        if (d < SHAPE_MIN_DISTANCE) clashes.push(`${a.ctx} ~ ${b.ctx} (d=${d.toFixed(4)})`);
+      }
+    }
+    expect(clashes, `d < ${SHAPE_MIN_DISTANCE} 인 쌍`).toEqual([]);
+  });
+
+  it('둘레·크기 제한: 닫힌 고리 둘레 1,800~3,300m (예외: 기존 Kingsmere·Ravensbridge), 열린 말굽 총길이 ≤ 4,200m', () => {
+    for (const course of racecourses.filter((c) => ['GB', 'IE', 'DE', 'IT'].includes(c.country) && c.surface !== 'aw')) {
+      for (const layout of course.layouts) {
+        if (layout.segments.filter((s) => s.kind === 'bend').length < 2) continue;
+        const total = layout.segments.reduce((acc, s) => acc + s.length, 0);
+        if (layout.closed) {
+          if (PERIMETER_EXEMPT.includes(layout.id)) continue;
+          expect(total, `${course.id}/${layout.id} 둘레`).toBeGreaterThanOrEqual(PERIMETER_MIN_M);
+          expect(total, `${course.id}/${layout.id} 둘레`).toBeLessThanOrEqual(PERIMETER_MAX_M);
+        } else {
+          expect(total, `${course.id}/${layout.id} 총길이`).toBeLessThanOrEqual(OPEN_MAX_M);
+        }
+      }
+    }
+  });
+
+  it('닫힌 레이아웃(GB·IE·DE·IT)은 끝점이 시작점에서 0.5m 이내로 폐합된다', () => {
+    for (const course of racecourses.filter((c) => ['GB', 'IE', 'DE', 'IT'].includes(c.country) && c.surface !== 'aw')) {
+      for (const layout of course.layouts) {
+        if (!layout.closed) continue;
+        const end = layoutEnd(layout);
+        expect(Math.hypot(end.x, end.y), `${course.id}/${layout.id} 폐합 오차`).toBeLessThanOrEqual(0.5);
+      }
+    }
+  });
+
+  it('영국 9곳·M3-A3b 라운드 레이아웃(커브 2개 이상) 형상 규칙 (AW 제외, 2차 검수 반려 1번 확장)', () => {
     const DEG = 180 / Math.PI;
     /** 회전각(도)이 90의 배수에서 10도 이상 떨어져 있는가 */
     const offMultiple90 = (deg: number): boolean => {
       const r = ((deg % 90) + 90) % 90;
       return Math.min(r, 90 - r) > 10;
     };
-    for (const course of racecourses.filter((c) => c.country === 'GB')) {
+    for (const course of racecourses.filter((c) => ['GB', 'IE', 'DE', 'IT'].includes(c.country) && c.surface !== 'aw')) {
       for (const layout of course.layouts) {
         const bends = layout.segments.filter((s) => s.kind === 'bend');
         if (bends.length < 2) continue;

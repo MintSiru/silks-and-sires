@@ -1,99 +1,141 @@
-# 경마장 검수 목록 (M3-A3a, 영국 9곳, 2차 수정본)
+# 경마장 검수 목록 (M3-A3a 영국 9곳 · M3-A3b 아일랜드·독일·이탈리아 8곳, 3차 개정 — 실루엣·둘레 규칙 반영)
 
-Opus 검수용. 실제 경마장 이름은 "모델" 칸(표 1의 3열)에만 쓴다. 가상 이름·미니맵 모양·거리 목록은 이 파일과 data/racecourses.json 을 기준으로 한다.
-모든 레이아웃은 src/engine/course/load.ts 검증(폐합·각도·고도 합, 열린 레이아웃 총길이 >= 최대 거리)을 통과한다.
-거리는 펄롱 기반 근사값(1f = 201.168m)이다. 같은 거리를 두 레이아웃이 나눠 쓰면 (distance, layoutId) 쌍으로 구분하며, 첫 항목이 기본(주) 레이아웃이다(Race.layoutId 생략 시).
+Opus 검수용. 실제 경마장·레이스 이름은 "모델" 칸(표 1의 3열)에만 쓴다. 가상 이름·실루엣·거리·커브는 이 파일과 data/racecourses.json 을 기준으로 한다.
 
-## 1. 경마장별 설계
+## 0. 공통 규칙과 검증
+- 레이아웃 검증: src/engine/course/load.ts 통과(닫힌 레이아웃 폐합 1m 이내, 고도 합 0, 커브 각도 합 2π±1%(절댓값 합), 열린 레이아웃 총길이 ≥ 최대 거리).
+- 테스트 추가 검증: 폐합 오차 0.5m 이내, 둘레 범위(닫힌 고리 1,800~3,300m, 예외 2건 아래 5장), 열린 말굽 총길이 ≤ 4,200m, 형상 규칙(반경 2종 이상·비율 1.3↑, 비직각 커브, 15~35° 엘보 R400~700, 대칭 스타디움 금지), 커브 시퀀스(10° 반올림) 상호 상이, 실루엣 다양성(3장).
+- 같은 거리를 두 레이아웃이 나눠 쓰면 (distance, layoutId) 쌍으로 구분하며, 배열의 첫 항목이 기본(주) 레이아웃이다.
+- 직선 전용 레이아웃은 형상 검사에서 제외. AW(ardvarrow_park)도 제외.
 
-| id | 가상 이름 | 모델 | 레이아웃 (id · 회전 · 폐합 · 폭 · 총길이 m) | 설계 메모 (고저차·직선·반경) | 거리 목록 (m, 첫 항목이 기본 레이아웃) |
+## 1. 경마장별 설계 (19곳)
+
+| id | 가상 이름 | 모델 | 실루엣 | 레이아웃 (id · 회전 · 폐합 · 폭 · 총길이 m) | 거리 목록 (m) |
 |---|---|---|---|---|---|
-| ashcombe | Ashcombe | Epsom | ashcombe_main · left · 열림 · 26 · 2,467.9 | 말굽: 출발 직선 450m 오르막 +8m → 좌 엘보 20°(R500) → 정점 직선 400m → 내리막 좌커브 2단(60° R300, 50° R170, 합계 −12m) → 직선 150m → 좌 30°(R250) → 결승 직선 700m(캠버 +0.6, 마지막 200m 오르막 +3m). 총 회전 160°, 결승 방향은 출발과 약 20° 차이로 대략 반대 | 1006 · 1207 · 1408 · 1710 · 2012 · 2414 |
-| marlow_downs | Marlow Downs | Newmarket (Rowley + July) | marlow_straight · straight · 열림 · 40 · 2,040 / marlow_july · straight · 열림 · 36 · 1,800 / marlow_round · right · 열림 · 30 · 4,019.3 | 직선(Rowley): 결승 400m 앞 딥(1,640~1,840m, −3m) 후 마지막 200m 오르막 +4m. 여름 직선(marlow_july): 평탄 1,000m + 800m 완만한 오르막 +2m. 라운드: 우회전 110° R300 → 엘보 20° R500 → 우회전 70° R220 (총 회전 200°) | 직선 1006 · 1207 · 1408 · 1609 · 1811 · 2012 / 여름 1006 · 1207 · 1609 (주는 직선) / 라운드 2414 · 2816 · 3219 · 3620 |
-| kingsmere_heath | Kingsmere Heath | Ascot | kingsmere_triangle · right · **폐합** · 28 · 4,374.3 / kingsmere_straight · straight · 열림 · 30 · 1,800 | 우회전 삼각형(폐합 오차 0.05m): 모서리 115° R280, 150° R320(apex), 엘보 20° R500(백스트레치 중간), 75° R240. 백스트레치(직선 520.9m + 엘보 + 직선 400m) 내리막 −20m, 반대편 직선 1,064.9m 오르막 +14m, 결승 직선 500m 오르막 +6m. 직선 코스: 1,000m 내리막 −8m + 800m 오르막 +6m | 직선 1006 · 1207 · 1609 (주) / 라운드(삼각) 1609 · 2012 · 2414 · 3218 · 4023 |
-| easterholm | Easterholm | York | easterholm_main · left · 열림 · 34 · 3,991.2 / easterholm_straight · straight · 열림 · 34 · 1,100 | 좌회전 말굽(평탄): 직선 1,100m → 좌 120° R350 → 직선 500m → 엘보 좌 25° R500 → 직선 300m → 좌 55° R250 → 결승 직선 900m. 총 회전 200°. 고저차 0 | 직선 1006 / 본 코스 1207 · 1408 · 1609 · 2072 · 2414 · 2816 · 3319 |
-| selsworth_downs | Selsworth Downs | Goodwood | selsworth_main · right · 열림 · 30 · 4,063.0 / selsworth_straight · straight · 열림 · 30 · 1,250 | 우회전 고리(열린 곡선, 총 회전 295°): 고저차 +14 → −6 → 600m 내리막 −22 → 엘보 20° R500 → 500m 오르막 +20 → 75° R220 → 350m 내리막 −12 → 급커브 90° R160 → 결승 직선 500m(앞 200m 내리막 −4, 뒤 300m 평탄). 기복 범위 −14~+14m | 직선 1207 / 본 코스 1006 · 1408 · 1609 · 2012 · 2414 · 3218 |
-| dunholme_moor | Dunholme Moor | Doncaster | dunholme_straight · straight · 열림 · 32 · 1,700 / dunholme_main · left · 열림 · 32 · 4,182.7 | 좌회전 서양배(평탄): 직선 1,400m → 좌 115° R320 → 직선 350m → 엘보 좌 25° R500 → 직선 300m → 좌 60° R260 → 결승 직선 1,000m. 총 회전 200° | 직선 1609 (주) / 본 코스 1006 · 1207 · 1408 · 1609 · 2012 · 2414 · 2921 · 3620 |
-| ravensbridge_park | Ravensbridge Park | Sandown | ravensbridge_oval · right · **폐합** · 26 · 4,021.6 / ravensbridge_straight · straight · 열림 · 26 · 1,200 | 우회전 불규칙 고리(폐합 오차 0.04m, 스타디움 아님): 우 110° R320 → 백스트레치 804.3m 내리막 −8m → 우 120° R220 → 368.5m → 백스트레치 중간 엘보 20° R500 → 500m → 우 110° R260 → 결승 직선 600m 급오르막 +8m. 별도 직선 1,200m(마지막 600m 오르막 +8m) | 직선 1006 / 고리 1609 · 2012 · 2414 |
-| aldermoor_park | Aldermoor Park | Haydock | aldermoor_main · left · 열림 · 28 · 3,982.6 / aldermoor_straight · straight · 열림 · 26 · 1,250 | 좌회전 평탄(±2m 이내): 직선 1,200m(+2m) → 좌 110° R280 → 500m → 엘보 좌 25° R500 → 400m → 좌 65° R200 → 결승 직선 900m. 총 회전 200° | 직선 1207 / 본 코스 1006 · 1609 · 2012 · 2816 |
-| wexborough | Wexborough | Newbury | wexborough_main · left · 열림 · 32 · 4,007.3 / wexborough_straight · straight · 열림 · 30 · 1,700 | 좌회전 평탄·넓음: 직선 1,100m → 좌 120° R260 → 600m → 좌 25° R550(엘보) → 350m → 좌 55° R180 → 결승 직선 1,000m. 총 회전 200° | 직선 1609 / 본 코스 1006 · 1207 · 1408 · 2012 · 2414 |
+| ashcombe | Ashcombe | Epsom | 말굽(열림): 오르막 출발 → 좌 엘보 → 내리막 2단 커브 → 결승 직선 | ashcombe_main · left · 열림 · 26 · 2,468 | 1006 · 1207 · 1408 · 1710 · 2012 · 2414 |
+| marlow_downs | Marlow Downs | Newmarket (Rowley + July) | 직선 두 개와 우회전 라운드(열림) | marlow_straight · straight · 열림 · 40 · 2,040 / marlow_july · straight · 열림 · 36 · 1,800 / marlow_round · right · 열림 · 30 · 4,019 | 직선 1006 · 1207 · 1408 · 1609 · 1811 · 2012 / 여름 1006 · 1207 · 1609 / 라운드 2414 · 2816 · 3219 · 3620 |
+| kingsmere_heath | Kingsmere Heath | Ascot | 우회전 삼각형(폐합, 3차 미변경) | kingsmere_triangle · right · 폐합 · 28 · 4,374 (예외) / kingsmere_straight · straight · 열림 · 30 · 1,800 | 직선 1006 · 1207 · 1609 / 삼각 1609 · 2012 · 2414 · 3218 · 4023 |
+| easterholm | Easterholm | York | 좌회전 말굽(열림, 평탄, 3차 미변경) | easterholm_main · left · 열림 · 34 · 3,991 / easterholm_straight · straight · 열림 · 34 · 1,100 | 직선 1006 / 본 코스 1207 · 1408 · 1609 · 2072 · 2414 · 2816 · 3319 |
+| selsworth_downs | Selsworth Downs | Goodwood | 우회전 열린 고리, 기복 ±14m, 급커브 | selsworth_main · right · 열림 · 30 · 4,063 / selsworth_straight · straight · 열림 · 30 · 1,250 | 직선 1207 / 본 코스 1006 · 1408 · 1609 · 2012 · 2414 · 3218 |
+| dunholme_moor | Dunholme Moor | Doncaster | 좌회전 배(pear): 큰 커브 + 반대쪽 급커브 + 결승 직선 1,000m | dunholme_straight · straight · 열림 · 32 · 1,700 / dunholme_main · left · 폐합 · 32 · 3,245 | 직선 1609 (먼저) / 본 코스 1006 · 1207 · 1408 · 1609 · 2012 · 2414 · 2921 · 3620 |
+| ravensbridge_park | Ravensbridge Park | Sandown | 우회전 불규칙 고리(폐합, 3차 미변경), 결승 600m 급오르막 | ravensbridge_oval · right · 폐합 · 26 · 4,022 (예외) / ravensbridge_straight · straight · 열림 · 26 · 1,200 | 직선 1006 / 고리 1609 · 2012 · 2414 |
+| aldermoor_park | Aldermoor Park | Haydock | 좌회전 헤어핀 2개 + 엘보, 세로로 긴 작은 고리(폐합, 미변경) | aldermoor_main · left · 폐합 · 28 · 2,898 / aldermoor_straight · straight · 열림 · 26 · 1,250 | 직선 1207 / 본 코스 1006 · 1609 · 2012 · 2816 |
+| wexborough | Wexborough | Newbury | 좌회전 넓은 고리(폐합), 커브 4개 반경 상이 | wexborough_main · left · 폐합 · 32 · 3,292 / wexborough_straight · straight · 열림 · 30 · 1,700 | 직선 1609 / 본 코스 1006 · 1207 · 1408 · 2012 · 2414 |
+| kilcarrow_heath | Kilcarrow Heath | Curragh | 우회전 U자 말굽(열림), 큰 반경 | kilcarrow_straight · straight · 열림 · 36 · 1,450 / kilcarrow_main · right · 열림 · 36 · 3,306 | 직선 1408 / 본 코스 1006 · 1207 · 1609 · 2012 · 2414 · 2816 · 3218 |
+| ballinvar | Ballinvar | Leopardstown | 좌회전 길쭉하지 않은 사다리꼴(폐합), 마지막 코너 급함 R165 | ballinvar_main · left · 폐합 · 30 · 3,193 | 1207 · 1408 · 1609 · 2012 · 2414 · 2816 |
+| tullamere | Tullamere | Naas/Navan | 좌회전 둥근 사각형(폐합), 오르막 결승 | tullamere_main · left · 폐합 · 30 · 3,278 | 1006 · 1207 · 1609 · 2012 · 2414 |
+| hohenmoor | Hohenmoor | Hamburg-Horn | 우회전 삼각형(폐합, 미변경), 급커브 R170 | hohenmoor_main · right · 폐합 · 30 · 3,259 | 1207 · 1609 · 2012 · 2414 |
+| wesselfeld | Wesselfeld | Köln/Düsseldorf | 우회전 배(pear): 넓은 커브 R330 + 좁은 커브 R155 | wesselfeld_main · right · 폐합 · 30 · 3,164 | 1207 · 1609 · 2012 · 2213 · 2414 |
+| lichtenau | Lichtenau | Baden-Baden | 좌회전 좁고 긴 고리(가로:세로 2.22), 백스트레치 도그레그 30° 2번 | lichtenau_main · left · 폐합 · 30 · 1,909 | 1207 · 1408 · 1609 · 2012 · 2414 · 2816 |
+| torreverde | Torreverde | Roma Capannelle | 우회전 오각형 느낌(폐합, 커브 5개), 반경 265~325 | torreverde_main · right · 폐합 · 36 · 3,070 | 1207 · 1609 · 2012 · 2213 · 2414 |
+| valmerano | Valmerano | Milano San Siro | 우회전 큰 고리(폐합), 결승 직선 700m | valmerano_main · right · 폐합 · 32 · 3,285 | 1207 · 1609 · 2012 · 2213 · 2414 · 2816 |
 
-## 2. 커브 목록 (회전각·반경·총 회전각)
+미변경: saint_ourens(FR, M3-A3c 에서 재설계 예정, 2,882m), ardvarrow_park(AW, features: tight_turns 만).
 
-회전각 = 커브 길이 / 반경 (도). 총 회전각 = 레이아웃의 모든 커브 회전각 합. 폐합 레이아웃은 360°.
+## 2. 커브 표 (커브 2개 이상인 레이아웃 전체)
 
-| 레이아웃 | 커브 (순서대로: 회전각 · 반경 · 방향 · 길이) | 커브 수 | 총 회전각 |
-|---|---|---|---|
-| ashcombe_main | 20.0° R500 좌 (174.5m, 엘보) · 60.0° R300 좌 (314.2m) · 50.0° R170 좌 (148.3m) · 30.0° R250 좌 (130.9m) | 4 | 160.0° |
-| marlow_round | 110.0° R300 우 (576.0m) · 20.0° R500 우 (174.5m, 엘보) · 70.0° R220 우 (268.8m) | 3 | 200.0° |
-| kingsmere_triangle (폐합) | 115.0° R280 우 (562.0m) · 150.0° R320 우 (837.8m) · 20.0° R500 우 (174.5m, 엘보) · 75.0° R240 우 (314.2m) | 4 | 360.0° |
-| easterholm_main | 120.0° R350 좌 (733.0m) · 25.0° R500 좌 (218.2m, 엘보) · 55.0° R250 좌 (240.0m) | 3 | 200.0° |
-| selsworth_main | 110.0° R260 우 (499.2m) · 20.0° R500 우 (174.5m, 엘보) · 75.0° R220 우 (288.0m) · 90.0° R160 우 (251.3m, 급커브) | 4 | 295.0° |
-| dunholme_main | 115.0° R320 좌 (642.3m) · 25.0° R500 좌 (218.2m, 엘보) · 60.0° R260 좌 (272.3m) | 3 | 200.0° |
-| ravensbridge_oval (폐합) | 110.0° R320 우 (614.4m) · 120.0° R220 우 (460.8m) · 20.0° R500 우 (174.5m, 엘보) · 110.0° R260 우 (499.2m) | 4 | 360.0° |
-| aldermoor_main | 110.0° R280 좌 (537.6m) · 25.0° R500 좌 (218.2m, 엘보) · 65.0° R200 좌 (226.9m) | 3 | 200.0° |
-| wexborough_main | 120.0° R260 좌 (544.5m) · 25.0° R550 좌 (240.0m, 엘보) · 55.0° R180 좌 (172.8m) | 3 | 200.0° |
+회전각 = 커브 길이 / 반경(도). 총 회전각 = 모든 커브 회전각의 합(절댓값). 실루엣 비율 = 레이아웃 폴리라인 경계 상자의 긴 변/짧은 변.
 
-직선 전용 레이아웃(marlow_straight, marlow_july, kingsmere_straight, easterholm_straight, selsworth_straight, dunholme_straight, ravensbridge_straight, aldermoor_straight, wexborough_straight)은 커브가 없어 표에서 뺐다.
+| 레이아웃 | 폐합 | 둘레/총길이 m | 실루엣 비율 | 총 회전각 | 커브 (회전각 · 반경 · 방향) |
+|---|---|---|---|---|---|
+| ashcombe_main | 열림 | 2,468 | 1.24 | 160.0° | 20.0° R500 좌 (엘보) · 60.0° R300 좌 · 50.0° R170 좌 · 30.0° R250 좌 |
+| marlow_round | 열림 | 4,019 | 1.12 | 200.0° | 110.0° R300 우 · 20.0° R500 우 (엘보) · 70.0° R220 우 |
+| kingsmere_triangle | 폐합 | 4,374 (예외) | 1.37 | 360.0° | 115.0° R280 우 · 150.0° R320 우 · 20.0° R500 우 (엘보) · 75.0° R240 우 |
+| easterholm_main | 열림 | 3,991 | 1.32 | 200.0° | 120.0° R350 좌 · 25.0° R500 좌 (엘보) · 55.0° R250 좌 |
+| selsworth_main | 열림 | 4,063 | 1.17 | 295.0° | 110.0° R260 우 · 20.0° R500 우 (엘보) · 75.0° R220 우 · 90.0° R160 우 (급커브) |
+| dunholme_main | 폐합 | 3,245 | 2.70 | 359.9° | 178.4° R255 좌 · 18.1° R445 좌 (엘보) · 163.4° R130 좌 |
+| ravensbridge_oval | 폐합 | 4,022 (예외) | 1.13 | 360.0° | 110.0° R320 우 · 120.0° R220 우 · 20.0° R500 우 (엘보) · 110.0° R260 우 |
+| aldermoor_main | 폐합 | 2,898 | 2.40 | 360.0° | 151.2° R150 좌 · 25.0° R520 좌 (엘보) · 183.8° R250 좌 |
+| wexborough_main | 폐합 | 3,292 | 1.60 | 360.0° | 118.0° R305 좌 · 80.2° R185 좌 · 26.2° R480 좌 (엘보) · 135.6° R200 좌 |
+| kilcarrow_main | 열림 | 3,306 | 1.51 | 190.3° | 100.9° R455 우 · 25.0° R590 우 (엘보) · 64.4° R425 우 |
+| ballinvar_main | 폐합 | 3,193 | 1.16 | 360.0° | 78.0° R245 좌 · 108.1° R245 좌 · 83.5° R165 좌 (마지막 급커브) · 25.0° R485 좌 (엘보) · 65.4° R175 좌 |
+| tullamere_main | 폐합 | 3,278 | 1.41 | 360.0° | 90.0° R120 좌 · 90.0° R135 좌 · 90.0° R140 좌 · 65.0° R155 좌 · 25.0° R485 좌 (엘보) |
+| hohenmoor_main | 폐합 | 3,259 | 1.31 | 360.0° | 158.2° R295 우 · 119.4° R170 우 (급커브) · 20.0° R505 우 (엘보) · 62.4° R240 우 |
+| wesselfeld_main | 폐합 | 3,164 | 1.92 | 360.0° | 188.8° R330 우 · 18.1° R515 우 (엘보) · 153.1° R155 우 |
+| lichtenau_main | 폐합 | 1,909 | 2.22 | 359.9° | 148.2° R135 좌 · 31.4° R480 좌 (도그레그) · 29.6° R480 좌 (도그레그) · 150.7° R145 좌 |
+| torreverde_main | 폐합 | 3,070 | 1.39 | 360.0° | 107.7° R325 우 · 81.2° R275 우 · 25.0° R480 우 (엘보) · 101.5° R285 우 · 44.6° R265 우 |
+| valmerano_main | 폐합 | 3,285 | 1.21 | 360.0° | 116.1° R250 우 · 18.0° R595 우 (엘보) · 103.3° R210 우 · 122.6° R180 우 |
 
-## 3. 형상 규칙 충족 (CLAUDE 2차 검수 반려 1번)
+## 3. 미니맵 다양성 (실루엣 거리 d)
 
-영국 9곳의 커브 2개 이상 레이아웃(위 표 9개) 전부가 tests/data/data.test.ts "영국 9곳 라운드 레이아웃 형상 규칙" 테스트를 통과한다.
-- 규칙 1: 반경 종류 ≥ 2, 최대/최소 ≥ 1.3. 최대/최소 비율은 Ashcombe 500/170 = 2.9, Marlow 500/220 = 2.3, Kingsmere 500/240 = 2.1, Easterholm 500/250 = 2.0, Selsworth 500/160 = 3.1, Dunholme 500/260 = 1.9, Ravensbridge 500/220 = 2.3, Aldermoor 500/200 = 2.5, Wexborough 550/180 = 3.1.
-- 규칙 2: 90°의 정수배(±10°)가 아닌 커브 1개 이상. 모든 레이아웃에 있다(예: 20°, 25°, 110°, 115°, 120°, 150°, 75°).
-- 규칙 3: 직선 사이 15~35° 엘보(R400~700). 모든 레이아웃에 엘보 R500 이 있다. Ashcombe 20°, Marlow 20°, Kingsmere 20°, Easterholm 25°, Selsworth 20°, Dunholme 25°, Ravensbridge 20°, Aldermoor 25°, Wexborough 25°(R550).
-- 규칙 4: 좌우 대칭 스타디움 없음. Ravensbridge 는 스타디움이 아닌 불규칙 고리다(반경 320/220/500/260, 직선 804/368/500/600).
+### 3-1. 측정 방법 (테스트 "미니맵 다양성 ..." 와 같은 계산)
+1. 각 주 레이아웃(커브 2개 이상, GB·IE·DE·IT, AW 제외)의 layoutPolyline 을 둘레(호 길이) 기준 64점으로 리샘플.
+2. 점 평균(중심)을 원점으로 옮기고, 둘레를 1로 정규화.
+3. 두 실루엣 A, B 의 거리 d = min over {좌우 반전 여부, 방향(정·역), (둘 다 닫힌 고리일 때) 시작점 이동 64가지} 의 평균 점 간 거리.
+4. 모든 쌍에 대해 d ≥ 0.010 을 요구.
 
-## 4. 특징 태그 (features)
-
-| id | 태그 |
+### 3-2. 임계값 0.010 의 근거 (보정 실측)
+| 비교 (둘레 1로 정규화한 도형) | d |
 |---|---|
-| ashcombe | uphill_finish, downhill_run, camber, tight_turns, undulating |
-| marlow_downs | straight_course, dip, uphill_finish, galloping |
-| kingsmere_heath | uphill_finish, downhill_run, straight_course, undulating |
-| easterholm | galloping, long_straight |
-| selsworth_downs | undulating, downhill_run, tight_turns, straight_course |
-| dunholme_moor | galloping, long_straight, straight_course |
-| ravensbridge_park | uphill_finish, short_straight |
-| aldermoor_park | galloping, straight_course |
-| wexborough | galloping, straight_course, long_straight |
+| 정사각형 vs 정사각형 가로·세로 2% 차이 | 0.003 |
+| 정사각형 vs 가로·세로 5% 차이 | 0.0065 |
+| 정사각형 vs 가로·세로 10% 차이 | 0.0127 |
+| 원 vs 정사각형 | 0.020 |
+| 정사각형 vs 1.3:1 직사각형 | 0.0185 |
+| 정사각형 vs 1.6:1 직사각형 | 0.028 |
+| 정사각형 vs 2.0:1 직사각형 | 0.041 |
+- 명세 초안의 0.035 는 "정사각형 vs 약 1.8:1 직사각형" 수준이라 기존 Kingsmere(삼각)·Ravensbridge(고리) 쌍(d = 0.0198)을 통과하지 못한다. 두 곳은 바꾸지 않는 결정이므로 0.035 는 적용할 수 없다.
+- 0.010 ≈ "가로·세로 약 8% 이상 차이 또는 커브 구조가 다른 모양". 시각적으로 구별되는 최소 수준으로 잡았다. 실측 최소 쌍(0.0127)은 위 "10% 차이" 수준이다.
 
-## 5. 밸런스 참고값 (undulation · drainage · 대표 회전)
+### 3-3. 경마장별 최소 거리 (주 레이아웃끼리)
+| 레이아웃 | 폐합 | 둘레 m | 비율 | 최소 d | 가장 가까운 상대 |
+|---|---|---|---|---|---|
+| ashcombe_main | 열림 | 2,468 | 1.24 | 0.0702 | selsworth_main |
+| marlow_round | 열림 | 4,019 | 1.12 | 0.0771 | selsworth_main |
+| kingsmere_triangle | 폐합 | 4,374 | 1.37 | 0.0198 | ravensbridge_oval |
+| easterholm_main | 열림 | 3,991 | 1.32 | 0.0857 | kilcarrow_main |
+| selsworth_main | 열림 | 4,063 | 1.17 | 0.0702 | ashcombe_main |
+| dunholme_main | 폐합 | 3,245 | 2.70 | 0.0130 | aldermoor_main |
+| ravensbridge_oval | 폐합 | 4,022 | 1.13 | 0.0198 | kingsmere_triangle |
+| aldermoor_main | 폐합 | 2,898 | 2.40 | 0.0127 | lichtenau_main |
+| wexborough_main | 폐합 | 3,292 | 1.60 | 0.0200 | lichtenau_main |
+| kilcarrow_main | 열림 | 3,306 | 1.51 | 0.0776 | ashcombe_main |
+| ballinvar_main | 폐합 | 3,193 | 1.16 | 0.0146 | torreverde_main |
+| tullamere_main | 폐합 | 3,278 | 1.41 | 0.0212 | ravensbridge_oval |
+| hohenmoor_main | 폐합 | 3,259 | 1.31 | 0.0157 | torreverde_main |
+| wesselfeld_main | 폐합 | 3,164 | 1.92 | 0.0197 | aldermoor_main |
+| lichtenau_main | 폐합 | 1,909 | 2.22 | 0.0127 | aldermoor_main |
+| torreverde_main | 폐합 | 3,070 | 1.39 | 0.0146 | ballinvar_main |
+| valmerano_main | 폐합 | 3,285 | 1.21 | 0.0180 | ballinvar_main |
 
-| id | undulation | drainage | handedness |
-|---|---|---|---|
-| ashcombe | 0.9 | 0.6 | left |
-| marlow_downs | 0.3 | 0.8 | straight |
-| kingsmere_heath | 0.6 | 0.9 | right |
-| easterholm | 0.1 | 0.7 | left |
-| selsworth_downs | 0.9 | 0.7 | right |
-| dunholme_moor | 0.1 | 0.5 | left |
-| ravensbridge_park | 0.5 | 0.7 | right |
-| aldermoor_park | 0.2 | 0.6 | left |
-| wexborough | 0.1 | 0.7 | left |
+- 전체 최소 d = 0.0127 (Aldermoor ~ Lichtenau), 다음 0.0130 (Dunholme ~ Aldermoor). 둘 다 임계 0.010 을 넘는다.
+- Aldermoor 는 "짧고 급한 커브 2개 + 엘보" 명세 때문에 세로로 긴 헤어핀 형태가 되었다. Dunholme(배, 비율 2.7)·Lichtenau(좁고 긴, 2.2)와 같은 세로로 긴 계열이라 d 가 작다. 셋 중 하나를 더 바꾸면 값은 올라가지만, 명세 형태를 깨기 때문에 그대로 두었다.
 
-## 6. 설계 결정·명세와 다른 점 (Opus 확인 요청)
+## 4. 형상·크기 점검 결과
+- 형상 규칙: 17개 주 레이아웃 전부 통과.
+- 커브 시퀀스(10° 반올림): GB·IE·DE·IT 주 레이아웃 17개 전부 서로 다름(테스트 통과).
+- 폐합: 모든 닫힌 레이아웃 0.07m 이하(최대 Torreverde 0.070m, Lichtenau 0.043m).
+- 둘레: 닫힌 고리 1,800~3,300m 범위 내(예외 Kingsmere 4,374m·Ravensbridge 4,022m). 열린 말굽 총길이 ≤ 4,200m (Kilcarrow 3,306m, Easterholm 3,991m, Marlow 4,019m, Selsworth 4,063m 모두 통과).
 
-1. **같은 거리 두 레이아웃 (엔진 지원 반영).** Marlow 여름 직선(marlow_july, 1006·1207·1609)과 Kingsmere·Dunholme 라운드 1609 를 다시 넣었다. 각 경우 직선 레이아웃을 distances 배열에서 먼저 적어 기본 레이아웃으로 삼았다. 테스트는 (distance, layoutId) 쌍 중복만 막는다.
-2. **기존 레이스(races.json)는 바꾸지 않았다.** 명세 필수 거리 목록은 최소 요구로 보고, 기존 레이스 거리를 경마장 거리 목록에 추가로 넣었다: Ashcombe 1207·2012, Marlow Downs 라운드 3219. races.json 은 HEAD 와 동일하다. 거리를 바꾸면 tests/engine/pack.test.ts 가 깨진다(그 테스트는 고정 M1 fixture 코스와 data/races.json 을 함께 쓴다).
-3. **1,006 m 전용 "직선 내리막 5f" 레이아웃은 만들지 않았다.** Ashcombe 1006 은 본 코스 끝 1,006m 로 처리했다.
-4. **Ravensbridge Park 의 "급오르막 +8m" 은 600m 에 걸쳐 1.3% 경사**다. 명세 값을 그대로 썼다.
-5. **Ashcombe 의 "정점 후 −15m 급내리막"은 2차 수정에서 "내리막 좌커브 2단 −12m"(명세 2차 지시)로 바꿨다.** 짧은 구간에 넣으면 경사가 과하기 때문이다.
-6. **Selsworth 고리는 폐합하지 않은 열린 곡선**이다(명세 2차 지시: 고리 반경 다른 커브 3개 이상, 결승 직선 ≥450m). 총 회전 295°.
-7. **Easterholm 의 엘보(좌 25° R500)는 말굽 규칙(커브 2개 R350·R250)에 추가한 것**이다. 형상 규칙 3(엘보)을 맞추기 위해서다.
-8. **Kingsmere 삼각형의 엘보는 백스트레치 중간에 넣었다.** 폐합 유지를 위해 해당 백스트레치를 두 직선으로 나누고 두 미지 직선 길이를 풀이했다. 명세 "직선 500m 결승 오르막·백스트레치 내리막 −20m" 는 유지했다.
+## 5. 결정·명세와 다른 점 (Opus 확인 요청)
 
-## 7. 가상 이름 목록 (Opus 검수용)
+### 5-1. 기존 두 곳 예외
+- **Kingsmere 둘레 4,374m, Ravensbridge 둘레 4,022m** 은 "바꾸지 않는다"는 결정에 따라 둘레 상한 테스트에서 예외 처리했다(코드 상수 PERIMETER_EXEMPT). 상한을 적용하려면 두 레이아웃을 줄여야 한다.
+
+### 5-2. 실루엣 수치 조정
+1. **Torreverde 반경:** 명세 초안의 R500~650 은 둘레 3,300m 상한과 맞지 않는다(360° 커브 호 길이 합 ≈ 2π × 평균 반경 → R500 이상이면 둘레 3,140m 이상). 그래서 반경 265~325(엘보 R480)로 낮췄다.
+2. **Tullamere 비율 1.41**(명세 ≈ 1.6 미달): 둘레 3,300m 안에서 비율 1.6 을 얻으려면 긴 변이 둘레를 넘는다. 모서리 반경 120~155 도 서로 비슷해 "모서리 반경 상이"가 약하다.
+3. **Wexborough 비율 1.60**: 허용 범위(1.68 이하) 안이다. 탐색(허용 대역 1.6~1.75)에서 다양성 최대 조건을 주는 값이 1.60 이었다.
+4. **Dunholme 비율 2.70**: 다양성 확보를 위해 2.6~3.4 구간에서 선택. 결승 직선 1,000m 는 유지. 커브는 명세 "한쪽 큰 커브 + 반대쪽 급커브"를 178°·163° 두 개 + 엘보 18°로 구성.
+5. **Lichtenau 비율 2.22 · 둘레 1,909m**: 명세 "≥2.2 로 완화" 충족. 도그레그 2개는 둘 다 좌회전(혼합 방향은 검증기가 거부한다).
+6. **Kilcarrow**: 총길이 3,306m(≥ 최대 거리 3,218m 필요). 커브 반경 425~590(명세 R450~600 에서 425 한 곳이 벗어남). 결승 직선은 명세 초안의 900m 가 아니라 마지막 직선 315m 다(둘레 상한 4,200m 와 최대 거리 3,218m 를 맞추느라 짧게 잡았다).
+7. **Ballinvar 비율 1.16**: 명세 "길쭉하지 않은 사다리꼴" 충족.
+
+### 5-3. 명세 기준 임계값
+- 다양성 임계값 d ≥ 0.010 (3-2 근거). 명세 초안의 0.035 는 기존 Kingsmere·Ravensbridge 쌍(0.0198)과 양립하지 않는다. 더 엄격하게 하려면 Kingsmere 또는 Ravensbridge 중 하나의 형상 변경이 필요하다.
+
+## 6. 가상 이름 목록 (Opus 검수용)
 
 | 구분 | 이름 | 근거 |
 |---|---|---|
-| 경마장 | Ashcombe | 영국 지명 형태. 기존 이름 유지 (기존 검수 항목) |
-| 경마장 | Marlow Downs | 기존 이름 유지 (기존 검수 항목) |
-| 경마장 | Kingsmere Heath | 영국 지명 조합(Kingsmere: 가상 지명, Heath: 황무지). 실존 경마장·목장으로 알려진 바 없음. 확인 필요 |
-| 경마장 | Easterholm | 영국 지명 조합(East + holm). 실존 경마장·목장으로 알려진 바 없음. 확인 필요 |
-| 경마장 | Selsworth Downs | 영국 지명 조합(Selsworth: 가상 지명, Downs: 구릉지). 실존 경마장으로 알려진 바 없음. 확인 필요 |
-| 경마장 | Dunholme Moor | 영국 지명 조합(Dunholme: 가상 지명, Moor: 황야). 실존 경마장으로 알려진 바 없음. 확인 필요 |
-| 경마장 | Ravensbridge Park | 영국 지명 조합(Ravensbridge: 가상 지명). 실존 경마장으로 알려진 바 없음. 확인 필요 |
-| 경마장 | Aldermoor Park | 영국 지명 조합(Aldermoor: 가상 지명). 실존 경마장으로 알려진 바 없음. 확인 필요 |
-| 경마장 | Wexborough | 영국 지명 조합(Wex + borough). 실존 경마장으로 알려진 바 없음. 확인 필요 |
-| 레이아웃 | Main Course, Straight Course, Summer Straight Course, Round Course, Triangle Course, Oval Course | 일반어 표시명 |
+| 경마장 | Ashcombe · Marlow Downs | 기존 이름 유지 (기존 검수 항목) |
+| 경마장 | Kingsmere Heath | 가상 지명 조합. 실존 경마장으로 알려진 바 없음. 확인 필요 |
+| 경마장 | Easterholm | 가상 지명 조합(East + holm). 실존 경마장으로 알려진 바 없음. 확인 필요 |
+| 경마장 | Selsworth Downs | 가상 지명 조합. 실존 경마장으로 알려진 바 없음. 확인 필요 |
+| 경마장 | Dunholme Moor · Ravensbridge Park · Aldermoor Park · Wexborough | 영국 지명 조합. 실존 경마장으로 알려진 바 없음. 확인 필요 |
+| 경마장 | Kilcarrow Heath | 아일랜드 지명 조합. 실존 경마장으로 알려진 바 없음. 확인 필요 |
+| 경마장 | Ballinvar | 아일랜드 지명 조합. 실존 경마장으로 알려진 바 없음. 확인 필요 |
+| 경마장 | Tullamere | 명세 지정 이름. 실존 아일랜드 소도시 Tullamore 와 한 글자 차이(지명이라 금지 대상 아님). 확인 필요 |
+| 경마장 | Hohenmoor · Wesselfeld · Torreverde · Valmerano | 독일·이탈리아 지명 형태 조합. 실존 경마장으로 알려진 바 없음. 확인 필요 |
+| 경마장 | Lichtenau | 명세 지정 이름. 실존 독일 지자체 이름과 같음(지명이라 금지 대상 아님). 확인 필요 |
+| 레이아웃 | Main Course · Straight Course · Summer Straight Course · Round Course · Triangle Course · Oval Course | 일반어 표시명 |
