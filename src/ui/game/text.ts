@@ -202,6 +202,7 @@ const COUNTRY_KO: Record<CountryCode, string> = {
   HK: '홍콩',
   AE: '아랍에미리트',
   CA: '캐나다',
+  AR: '아르헨티나',
 };
 
 /** 국가 코드 → 국가 한국어 명 */
