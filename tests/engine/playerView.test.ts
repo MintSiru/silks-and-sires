@@ -3,6 +3,7 @@ import {
   PLAYER_ASSESSOR_SKILL,
   STAGE_FOAL_MAX_AGE,
   STAGE_YEARLING_MAX_AGE,
+  STAGE_ADULT_MIN_AGE,
 } from '../../src/engine/config/playerView';
 import { PLAYER_START_MARES } from '../../src/engine/config/world';
 import { WEEKS_PER_YEAR, START_YEAR } from '../../src/engine/config/game';
@@ -202,6 +203,18 @@ describe('stageFor', () => {
     const exact = stageFor(horseOfAge(base, STAGE_YEARLING_MAX_AGE), at(START_YEAR, 1));
     expect(below).toBe('yearling');
     expect(exact).toBe('two_year_old');
+  });
+
+  it('STAGE_ADULT_MIN_AGE 이상 성마(번식 암말)는 in_training 단계로 평가한다', () => {
+    const below = stageFor(
+      horseOfAge(base, STAGE_ADULT_MIN_AGE, 'broodmare'),
+      at(START_YEAR - 1, WEEKS_PER_YEAR),
+    );
+    const exact = stageFor(horseOfAge(base, STAGE_ADULT_MIN_AGE, 'broodmare'), at(START_YEAR, 1));
+    const old = stageFor(horseOfAge(base, 10, 'broodmare'), at(START_YEAR, 1));
+    expect(below).toBe('two_year_old');
+    expect(exact).toBe('in_training');
+    expect(old).toBe('in_training');
   });
 
   it('단계 경계 순서: foal < yearling < two_year_old', () => {

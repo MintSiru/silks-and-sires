@@ -1,4 +1,9 @@
-import { PLAYER_ASSESSOR_SKILL, STAGE_FOAL_MAX_AGE, STAGE_YEARLING_MAX_AGE } from '../config/playerView';
+import {
+  PLAYER_ASSESSOR_SKILL,
+  STAGE_ADULT_MIN_AGE,
+  STAGE_FOAL_MAX_AGE,
+  STAGE_YEARLING_MAX_AGE,
+} from '../config/playerView';
 import { createRng } from '../rng';
 import type {
   Assessment,
@@ -21,14 +26,16 @@ function compareText(a: string, b: string): number {
 
 /**
  * 평가 단계. status 'in_training' 이면 in_training, 그 외 나이 < STAGE_FOAL_MAX_AGE 이면 foal,
- * < STAGE_YEARLING_MAX_AGE 이면 yearling, 그 외 two_year_old.
+ * < STAGE_YEARLING_MAX_AGE 이면 yearling, < STAGE_ADULT_MIN_AGE 이면 two_year_old,
+ * 그 이상(성마)은 in_training(현재 능력 반영 단계).
  */
 export function stageFor(horse: Horse, date: GameDate): AssessmentStage {
   if (horse.status === 'in_training') return 'in_training';
   const age = ageInYearsAt(horse.birthYear, date);
   if (age < STAGE_FOAL_MAX_AGE) return 'foal';
   if (age < STAGE_YEARLING_MAX_AGE) return 'yearling';
-  return 'two_year_old';
+  if (age < STAGE_ADULT_MIN_AGE) return 'two_year_old';
+  return 'in_training';
 }
 
 /**
