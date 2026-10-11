@@ -250,18 +250,7 @@ describe('이름 표 names.json', () => {
  * 부계 사슬이 5대(자신 포함) 미만인 현역 종마 예외 목록. 위키백과에서 다음 고리를 확인하지 못했다
  * (data/stallions/_review.md "미확인 고리" 참조). 목록은 데이터와 정확히 일치해야 한다.
  */
-const UNVERIFIED_CHAIN_ACTIVE_EXCEPTIONS: readonly string[] = [
-  'Blackbeard',
-  'City of Troy',
-  'Gunite',
-  'Harry Angel',
-  'Jack Christopher',
-  'Justify',
-  'Little Big Bear',
-  'No Nay Never',
-  'Perfect Power',
-  'Sierra Leone',
-];
+const UNVERIFIED_CHAIN_ACTIVE_EXCEPTIONS: readonly string[] = ['Ardad', 'Perfect Power'];
 
 describe('현역 종마 부계 사슬 깊이', () => {
   it('현역 종마는 부계 사슬 깊이 ≥ 5 (자신 포함) 이거나 미확인 고리 예외 목록에 있다', () => {

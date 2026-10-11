@@ -382,3 +382,102 @@ Deep Impact, Sunday Silence, Halo, Hail to Reason, Turn-to, Royal Charger, Scat 
 | stl_vindication | Vindication | historical | `speed` | `speed` (유지) | 미확인 | - | - | 등급·거리 근거 부족 → 미확인(값 유지) |
 | stl_wootton_bassett | Wootton Bassett | historical | `speed` | `speed` (유지) | G1 1,400m×1 | 인포박스 | medium |  |
 | stl_zafonic | Zafonic | historical | `speed` | `speed` (유지) | G1 1,200m×1, 1,400m×2, 1,600m×1 | 인포박스 | high |  |
+
+## M2-01c 사용자 제공 종마 16두 + 부계 고리 5두 (haiku-data, 2026-10-11)
+
+출처: 사용자 제공(2026-10-11) 명단 16두 + 부계 고리 5두. 사용자 원문의 사람·마주·조교사·스터드·레이스 이름과 금액은 데이터·테스트·본 문서 어디에도 기록하지 않았다. 위키백과 확인은 action=raw 원문으로 했다. 레이스명은 적지 않고 등급·거리만 적었다.
+
+### 결과 요약
+- 종마 203두 (기존 172 + 신규 31). 신규 구성: 명단 16두, 부계 고리 5두(Ardad, Hennessy, Fortino II, Acclamation, Ride the Rails), 계통 조상 10두(Grey Sovereign, Cryptoclearance, Royal Applause, Waajib, Try My Best, Speightstown, Ghostzapper, Awesome Again, Deputy Minister, Vice Regent).
+- 잇기 6건(sireKey 갱신): Perfect Power→Ardad, Johannesburg→Hennessy, Caro→Fortino II, Dark Angel→Acclamation, Candy Ride→Ride the Rails, Jack Christopher→Munnings (Munnings 연결 성공).
+- 계통 29개(+1: sl_ardad 루트). 계통 부모 재지정 6건: sl_perfect_power→sl_ardad, sl_johannesburg→sl_storm_cat, sl_caro→sl_phalaris, sl_dark_angel→sl_northern_dancer, sl_gun_runner→sl_mr_prospector, sl_jack_christopher→sl_mr_prospector.
+- 현역(active) 105두: 유럽(GB/IE/FR/DE) 66두, 미국 더트·양용 37두, classic 18두.
+- 현역 부계 깊이 예외: 이전 10두 중 9두 해소(Blackbeard, City of Troy, Gunite, Harry Angel, Jack Christopher, Justify, Little Big Bear, No Nay Never, Sierra Leone — 아래 "사슬 연결" 참조). Perfect Power 는 잔존하고, 신규 Ardad 가 추가되어 남은 예외는 2두: Ardad(speed), Perfect Power(speed). 원인은 아래 "미확인 고리" Kodiac.
+- 테스트 상수 UNVERIFIED_CHAIN_ACTIVE_EXCEPTIONS = ['Ardad', 'Perfect Power'] 로 갱신.
+
+### 미확인 고리 (null 처리)
+- **Kodiac (Ardad 의 부)**: 위키백과 독립 항목을 찾지 못했다(Kodiac, Kodiac (horse), Kodiac (racehorse), Kodiac (stallion), Kodiac (Irish horse) 모두 404). Perfect Power 문서 조부 기재로 Ardad 의 부가 Kodiac 인 것은 확인되지만, Kodiac 의 출생연도·출생국·부를 확인할 수 없어 노드를 만들지 않았다. Ardad.sireKey = null, sl_ardad 루트. 그 결과 Ardad·Perfect Power 가 깊이 예외에 남는다.
+- **Ardad (horse)** 항목도 404 (Perfect Power 문서가 링크하는 제목). Ardad 의 출생·계류는 사용자 제공값 그대로 사용.
+- **Hennessy**: 위키백과 항목 없음(Hennessy (horse), Hennessy (racehorse) 404). Johannesburg 문서의 부 Hennessy 는 확인. 부 Storm Cat 은 명세의 Opus 판단 연결이며 위키백과에서 확인하지 못했다. 사망 기록 미확인 → pensioned, confidence medium.
+- **Ride the Rails**: 위키백과 항목 없음(3개 제목 404). 부 Cryptoclearance 는 Candy Ride 문서 조부 기재로 확인. 사망·계류 미확인 → pensioned, confidence medium.
+- **Waajib**: 항목 없음(Waajib, Waajib (horse) 404). Royal Applause 문서(부 Waajib, 조부 Try My Best, 1982 IRE, 1999 사망 기재)와 Try My Best 문서(자마 Waajib, b. 1983)로 연결. 출생연도 1982 와 1983 이 엇갈림 → 1982(RA 문서 pedigree 표) 채택, confidence medium.
+- **Fortino II**: 위키백과는 "Fortino (FR) 1959" 로 표기(Caro 문서 부, Grey Sovereign 문서 자마 목록 "Fortino, sire of Caro"). 명단의 이름 Fortino II 를 쓰고 출생연도·출생국 일치로 같은 말로 연결. confidence medium.
+
+### 위키백과 확인 결과 (연결 근거)
+- Acclamation (GB, 1999–2024): Dark Angel 문서 부(Acclamation British horse), Royal Applause 문서 자마 목록. 2006년 미국산 동명 말(Acclamation American horse)과 다른 말이다. 2024 사망 → historical.
+- Royal Applause (GB, 1993, 2022 사망): 부 Waajib 확인 → historical.
+- Try My Best (US, 1975–1993): 부 Northern Dancer 확인 → historical.
+- Grey Sovereign (GB, 1948, 1976 사망): 부 Nasrullah 확인 → historical.
+- Cryptoclearance (US, 1984, 2009 사망): 부 Fappiano 확인 → historical.
+- Speightstown (US, 1998, 2023 사망): 부 Gone West, 모부 Storm Cat 확인. 자마 목록에 Echo Town 확인.
+- Munnings: Jack Christopher 문서 부 Munnings 와 조부 Speightstown 으로 확인.
+- Mo Town (2014 수컷): Uncle Mo 문서 자마 목록 확인.
+- Ghostzapper (US, 2000): 부 Awesome Again, 조부 Deputy Minister 확인. 2025 마지막 계류 해(고별 시즌) 기재 → pensioned.
+- Awesome Again (CA, 1994, 2020 사망): 부 Deputy Minister 확인 → historical.
+- Deputy Minister (CA, 1979, 사망 기재): 부 Vice Regent 확인 → historical.
+- Vice Regent (CA, 1967, 1995 사망): 부 Northern Dancer 확인 → historical.
+
+### 등급·거리·표면 근거 (조상)
+- 거리는 위키백과 우승 기록의 거리로 M2-15 규칙(≤9f speed, ~11f classic, ~13.5f middle, 초과 cup)을 적용. 거리가 확인되지 않은 조상은 speed + confidence low.
+- Ghostzapper: 기록 6회 중 5회가 9f 이하(G1 다수) → speed, medium (10f 우승 1회는 예외).
+- Awesome Again: 확인된 우승 거리 9f 포함, 나머지 9f 이하 → speed, medium.
+- Speightstown: 6~7f 스프린터, 더트 전용 기재 → speed, dirt, high.
+- Royal Applause: 스프린터(챔피언 스프린터) → speed, turf, high. Grey Sovereign: 6f 우승 → speed, turf, high.
+- Waajib: 마일러 기재 → speed, turf, medium.
+- Cryptoclearance, Try My Best, Vice Regent: 거리 기재 없음 → speed, low. 표면은 미국 더트 또는 유럽 턴프 등 지역 우승 기준 추정.
+- marketTier 는 금액 미사용. 조상 등급은 위키백과 성적·번식 서술 기준의 게임용 등급(추정): 명단 16두·5두는 명세 표의 tier 값을 그대로 사용.
+
+### 명단·부계 고리 레코드 (31두 중 신규 전부)
+| key | 이름 | 출생 | 출생국 | 부 | 모부 | status | standsIn | tier | distance | surface | confidence | 근거 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| stl_henri_matisse | Henri Matisse | 2022 | IE | Wootton Bassett | Pivotal | active | IE | 4 | speed | turf | medium | 사용자 제공(2026-10-11) · 출생국 IE 추정 |
+| stl_henry_longfellow | Henry Longfellow | 2021 | IE | Dubawi | Galileo | active | IE | 4 | speed | turf | medium | 사용자 제공(2026-10-11) · 출생국·모부 추정 |
+| stl_sioux_nation | Sioux Nation | 2015 | US | Scat Daddy | — | active | IE | 3 | speed | turf | high | 사용자 제공(2026-10-11) · speed |
+| stl_the_antarctic | The Antarctic | 2020 | IE | Dark Angel | — | active | IE | 5 | speed | turf | medium | 사용자 제공(2026-10-11) · 출생국 IE 추정 |
+| stl_domestic_product | Domestic Product | 2021 | US | Practical Joke | — (파일에 없음) | active | US | 3 | speed | dirt | high | 사용자 제공(2026-10-11) · speed |
+| stl_echo_town | Echo Town | 2017 | US | Speightstown | — | active | US | 5 | speed | dirt | high | 사용자 제공(2026-10-11) · speed. 부 Speightstown 자마 목록 확인 |
+| stl_mo_town | Mo Town | 2014 | US | Uncle Mo | — | active | US | 5 | speed | both | high | 사용자 제공(2026-10-11) · speed. Uncle Mo 자마 목록 확인 |
+| stl_munnings | Munnings | 2006 | US | Speightstown | — | active | US | 3 | speed | dirt | high | 사용자 제공(2026-10-11) · speed. Speightstown 자마·Jack Christopher 조부 확인 |
+| stl_territories | Territories | 2012 | IE | Invincible Spirit | Machiavellian | active | GB | 4 | speed | turf | high | 사용자 제공(2026-10-11) · speed. 2026 명단대로 현역 |
+| stl_triple_time | Triple Time | 2019 | IE | Frankel | — | active | GB | 4 | speed | turf | high | 사용자 제공(2026-10-11) · speed |
+| stl_enticed | Enticed | 2015 | US | Medaglia d'Oro | — | active | US | 5 | speed | dirt | high | 사용자 제공(2026-10-11) · speed |
+| stl_mystic_guide | Mystic Guide | 2017 | US | Ghostzapper | A.P. Indy | active | US | 4 | classic | dirt | high | 사용자 제공(2026-10-11) · classic |
+| stl_proxy | Proxy | 2018 | US | Tapit | — | active | US | 3 | classic | dirt | high | 사용자 제공(2026-10-11) · classic |
+| stl_speakers_corner | Speaker's Corner | 2018 | US | Street Sense | Bernardini | active | US | 4 | speed | dirt | high | 사용자 제공(2026-10-11) · speed. 2026 명단대로 현역 |
+| stl_bated_breath | Bated Breath | 2007 | GB | Dansili | — | active | GB | 5 | speed | turf | high | 사용자 제공(2026-10-11) · speed |
+| stl_lead_artist | Lead Artist | 2021 | GB | Dubawi | Frankel | active | GB | 4 | speed | turf | high | 사용자 제공(2026-10-11) · speed |
+| stl_ardad | Ardad | 2014 | IE | 미확인 고리(Kodiac) | — | active | GB | 5 | speed | turf | medium | 사용자 제공(2026-10-11) · speed. 부 노드 미확인 |
+| stl_hennessy | Hennessy | 1993 | US | Storm Cat (Opus 판단) | — | pensioned | — | 5 | speed | dirt | medium | 사용자 제공(2026-10-11) · speed. 사용자 원문 정정: 부 Storm Cat (사용자 원문은 Scat Daddy 의 아들이라 했으나 Scat Daddy 는 Johannesburg 의 자식이므로 사실과 반대) |
+| stl_fortino_ii | Fortino II | 1959 | FR | Grey Sovereign | — | historical | — | 5 | speed | turf | medium | 사용자 제공(2026-10-11) · speed. 1980 사망 사용자 제공 |
+| stl_acclamation | Acclamation | 1999 | GB | Royal Applause | — | historical | — | 5 | speed | turf | high | 사용자 제공(2026-10-11) · speed. 2024 사망 사용자 제공, 위키백과 1999–2024 확인 |
+| stl_ride_the_rails | Ride the Rails | 1991 | US | Cryptoclearance | — | pensioned | — | 5 | speed | dirt | medium | 사용자 제공(2026-10-11) · speed |
+
+조상 (위키백과 확인):
+| key | 이름 | 출생 | 출생국 | 부 | 모부 | status | standsIn | tier | distance | surface | confidence | 근거 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| stl_grey_sovereign | Grey Sovereign | 1948 | GB | Nasrullah | — | historical | — | 4 | speed | turf | high | 위키백과: 1976 사망, 6f 우승 |
+| stl_cryptoclearance | Cryptoclearance | 1984 | US | Fappiano | — | historical | — | 3 | speed | dirt | low | 위키백과: 2009 사망. 거리 미기재 → speed |
+| stl_royal_applause | Royal Applause | 1993 | GB | Waajib | — | historical | — | 3 | speed | turf | high | 위키백과: 2022 사망, 스프린터 챔피언 |
+| stl_waajib | Waajib | 1982 | IE | Try My Best | — | historical | — | 5 | speed | turf | medium | 위키백과(RA·TMB 문서): 1999 사망, 마일러. 연도 1982/1983 엇갈림 |
+| stl_try_my_best | Try My Best | 1975 | US | Northern Dancer | — | historical | — | 4 | speed | turf | low | 위키백과: 1993 사망. 거리 미기재 → speed |
+| stl_speightstown | Speightstown | 1998 | US | Gone West | Storm Cat | historical | — | 2 | speed | dirt | high | 위키백과: 2023 사망, 6f 스프린터, 더트 전용 |
+| stl_ghostzapper | Ghostzapper | 2000 | US | Awesome Again | — | pensioned | — | 2 | speed | dirt | medium | 위키백과: 6f~10f 우승, 9f 이하 다수. 고별 시즌 2025 |
+| stl_awesome_again | Awesome Again | 1994 | CA | Deputy Minister | — | historical | — | 2 | speed | dirt | medium | 위키백과: 2020 사망, 9f 우승 확인 |
+| stl_deputy_minister | Deputy Minister | 1979 | CA | Vice Regent | — | historical | — | 2 | speed | dirt | high | 위키백과: 사망 기재, 6~9f 우승 확인 |
+| stl_vice_regent | Vice Regent | 1967 | CA | Northern Dancer | — | historical | — | 3 | speed | both | low | 위키백과: 1995 사망. 거리·표면 미기재 |
+
+### 사슬 연결 (sire 검증)
+- Perfect Power (IE 2019) ← Ardad (IE 2014, 미확인 고리) — 깊이 2, 예외.
+- Johannesburg (US 1999) ← Hennessy (US 1993) ← Storm Cat(기존). Johannesburg 가 깊이 ≥5 가 되어 Blackbeard, City of Troy, Justify, Little Big Bear, No Nay Never 해소.
+- Caro (FR 1967) ← Fortino II (FR 1959) ← Grey Sovereign (GB 1948) ← Nasrullah(기존).
+- Dark Angel (GB 2005) ← Acclamation (GB 1999) ← Royal Applause (GB 1993) ← Waajib (IE 1982) ← Try My Best (US 1975) ← Northern Dancer(기존). Harry Angel 해소.
+- Candy Ride (AR 1999) ← Ride the Rails (US 1991) ← Cryptoclearance (US 1984) ← Fappiano(기존). Gunite, Sierra Leone 해소.
+- Jack Christopher (US 2019) ← Munnings (US 2006) ← Speightstown (US 1998) ← Gone West(기존). 깊이 12 (≥5). 
+
+### Opus 확인 요청
+1. **Kodiac**: 위키백과 독립 항목이 없다(또는 제목을 못 찾았다). Ardad 와 Perfect Power 가 깊이 예외에 남는다. Kodiac 출생연도·출생국 확인 자료가 있으면 노드 추가 가능.
+2. **Uncle Mo 상태 불일치 (기존 레코드, 이번 티켓에서 미수정)**: 위키백과 Uncle Mo 문서에 2024-12-19 사망 기재. 데이터는 pensioned. historical 로 바꿀지 Opus 판단 필요. 계류 기준 active 아님이라 테스트에는 영향 없음.
+3. **Hennessy 부 Storm Cat**: 명세의 Opus 판단 연결. 위키백과 확인 불가.
+4. **Fortino II 명칭**: 위키백과 표기 Fortino. 같은 말로 판단.
+5. **명단 16두의 등급**: 사용자 제공 정보에 등급 값이 없어 근거 칸에는 거리만 적었다.
+- (M2-01c 보정, Opus) Uncle Mo: 위키백과 2024-12 사망 → historical, 주로 turf→dirt(미국 더트 챔피언, 휴리스틱 오류 정정).

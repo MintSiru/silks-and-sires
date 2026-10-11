@@ -134,37 +134,43 @@
   {
     "id": "sl_johannesburg",
     "label": "Johannesburg line",
-    "parentLineId": null,
+    "parentLineId": "sl_storm_cat",
     "founderKey": "stl_johannesburg"
   },
   {
     "id": "sl_caro",
     "label": "Caro line",
-    "parentLineId": null,
+    "parentLineId": "sl_phalaris",
     "founderKey": "stl_caro"
   },
   {
     "id": "sl_gun_runner",
     "label": "Gun Runner line",
-    "parentLineId": null,
+    "parentLineId": "sl_mr_prospector",
     "founderKey": "stl_gun_runner"
   },
   {
     "id": "sl_jack_christopher",
     "label": "Jack Christopher line",
-    "parentLineId": null,
+    "parentLineId": "sl_mr_prospector",
     "founderKey": "stl_jack_christopher"
   },
   {
     "id": "sl_perfect_power",
     "label": "Perfect Power line",
-    "parentLineId": null,
+    "parentLineId": "sl_ardad",
     "founderKey": "stl_perfect_power"
   },
   {
     "id": "sl_dark_angel",
     "label": "Dark Angel line",
-    "parentLineId": null,
+    "parentLineId": "sl_northern_dancer",
     "founderKey": "stl_dark_angel"
+  },
+  {
+    "id": "sl_ardad",
+    "label": "Ardad line",
+    "parentLineId": null,
+    "founderKey": "stl_ardad"
   }
 ]
