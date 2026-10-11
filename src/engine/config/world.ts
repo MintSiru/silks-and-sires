@@ -4,8 +4,8 @@
 export const TIER_LEVEL = { 1: 82, 2: 76, 3: 70, 4: 64, 5: 58 } as const;
 /** 실명 종마 잠재 능력 표준편차 */
 export const STALLION_SPREAD = 5;
-/** 거리 성향(distanceProfile) → 거리 편향(m) */
-export const PROFILE_DISTANCE = { sprint: 1200, mile: 1600, middle: 2200, staying: 2900 } as const;
+/** 거리 성향(distanceProfile) → 거리 편향(m). speed ~1400m, classic ~2000m, middle ~2400m, cup ~3000m */
+export const PROFILE_DISTANCE = { speed: 1400, classic: 2000, middle: 2400, cup: 3000 } as const;
 /** 시장 인기 등급 → 종부료(€) */
 export const TIER_FEE = { 1: 150_000, 2: 60_000, 3: 30_000, 4: 12_000, 5: 6_000 } as const;
 /** 시장 인기 등급 → 시즌 최대 교배 두수 */

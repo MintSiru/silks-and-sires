@@ -107,3 +107,4 @@
 - 2026-10-11 | 승인 | M2-11 배합·유전 검증 완료(4차) — 기준 이탈 없음. 열린 종마 풀 선택: 20세대 55.1→69.7, 평균 혈량 8.8%, 건강도 68.7. 보너스 끔 무작위 |Δ| 0.95(C1), 닉스 1.77, 단서 ρ 0.86. 바깥 종마 수·상한 민감도는 M4 30년 자동 진행(실제 종마 풀)에서 확인.
 - 2026-10-11 | 기술 | CountryCode 에 'AR'(아르헨티나) 추가 — Gun Runner 의 부 Candy Ride 혈통 연결용. countryKo '아르헨티나'.
 - 2026-10-11 | 반려→승인(Opus 보정) | M2-01b 2026 종마 명단 — 1회 반려(부계 사슬 끊김). 172두(명단 71두 = 위키백과 67 + 사용자 제공 4, 나머지는 계통 조상). 유럽 현역 57, 미국 더트·양용 29. 위키백과 미확인 부계 고리 6건(Munnings, Ardad, Hennessy, Fortino, Acclamation, Ride the Rails)은 지어내지 않고 끊긴 채 기록 → 사용자에게 정보 요청. 명단 미포함 16두도 사용자 처리. Opus 보정: 기초 암말의 부는 부계 사슬 5대 이상 확인된 종마 우선(FOUNDER_SIRE_MIN_CHAIN), _review 실제 종부료 3건 삭제. Wootton Bassett·Caro·Siberian Express 는 위키백과 사망 분류로 historical.
+- 2026-10-11 | 승인 | M2-14 거리 프로필 4단계(speed/classic/middle/cup) — profileOfDistance, 실명 종마 distanceOptimum = 프로필 거리 ± 150(rng 호출 수 불변), 데이터 기계 변환, 현역 일치율 97~99%. 7개 테스트. 부수 효과: 실명 종마 stamina 오프셋 변화(speed −20, middle +13.3, cup +33.3) — M2-15 재분류 후 재확인.

@@ -78,7 +78,7 @@
     "sireLineId": "sl_northern_dancer",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 3,
     "confidence": "high"
@@ -92,7 +92,7 @@
     "sireLineId": "sl_native_dancer",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "both",
     "marketTier": 3,
     "confidence": "high"
@@ -106,7 +106,7 @@
     "sireLineId": "sl_phalaris",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "both",
     "marketTier": 4,
     "confidence": "high"
@@ -120,7 +120,7 @@
     "sireLineId": "sl_native_dancer",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 4,
     "confidence": "high"
@@ -134,7 +134,7 @@
     "sireLineId": "sl_mr_prospector",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 2,
     "confidence": "high"
@@ -148,7 +148,7 @@
     "sireLineId": "sl_mr_prospector",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 3,
     "confidence": "high"
@@ -162,7 +162,7 @@
     "sireLineId": "sl_mr_prospector",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "both",
     "marketTier": 3,
     "confidence": "medium"
@@ -176,7 +176,7 @@
     "sireLineId": "sl_dubai_millennium",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 2,
     "confidence": "high"
@@ -204,7 +204,7 @@
     "sireLineId": "sl_dubawi",
     "status": "active",
     "standsIn": "IE",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 1,
     "confidence": "high"
@@ -246,7 +246,7 @@
     "sireLineId": "sl_sadlers_wells",
     "status": "active",
     "standsIn": "GB",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 1,
     "confidence": "high"
@@ -274,7 +274,7 @@
     "sireLineId": "sl_sadlers_wells",
     "status": "active",
     "standsIn": "IE",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "confidence": "high"
@@ -316,7 +316,7 @@
     "sireLineId": "sl_montjeu",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "staying",
+    "distanceProfile": "cup",
     "surfaceProfile": "turf",
     "marketTier": 3,
     "confidence": "high"
@@ -372,7 +372,7 @@
     "sireLineId": "sl_medaglia_d_oro",
     "status": "active",
     "standsIn": "US",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 2,
     "confidence": "high"
@@ -386,7 +386,7 @@
     "sireLineId": "sl_medaglia_d_oro",
     "status": "active",
     "standsIn": "US",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 3,
     "confidence": "medium"
@@ -400,7 +400,7 @@
     "sireLineId": "sl_danzig",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "both",
     "marketTier": 3,
     "confidence": "high"
@@ -414,7 +414,7 @@
     "sireLineId": "sl_danzig",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 3,
     "confidence": "high"
@@ -484,7 +484,7 @@
     "sireLineId": "sl_invincible_spirit",
     "status": "pensioned",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 3,
     "confidence": "low"
@@ -498,7 +498,7 @@
     "sireLineId": "sl_invincible_spirit",
     "status": "active",
     "standsIn": "GB",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 1,
     "confidence": "high"
@@ -512,7 +512,7 @@
     "sireLineId": "sl_invincible_spirit",
     "status": "active",
     "standsIn": "FR",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "confidence": "medium"
@@ -526,7 +526,7 @@
     "sireLineId": "sl_cape_cross",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 3,
     "confidence": "medium"
@@ -568,7 +568,7 @@
     "sireLineId": "sl_nureyev",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 3,
     "confidence": "high"
@@ -582,7 +582,7 @@
     "sireLineId": "sl_nureyev",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "confidence": "medium"
@@ -652,7 +652,7 @@
     "sireLineId": "sl_into_mischief",
     "status": "active",
     "standsIn": "US",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 2,
     "confidence": "medium"
@@ -666,7 +666,7 @@
     "sireLineId": "sl_into_mischief",
     "status": "active",
     "standsIn": "US",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 2,
     "confidence": "high"
@@ -694,7 +694,7 @@
     "sireLineId": "sl_storm_cat",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "both",
     "marketTier": 2,
     "confidence": "high"
@@ -708,7 +708,7 @@
     "sireLineId": "sl_storm_cat",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 3,
     "confidence": "medium"
@@ -722,7 +722,7 @@
     "sireLineId": "sl_storm_cat",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 3,
     "confidence": "high"
@@ -750,7 +750,7 @@
     "sireLineId": "sl_storm_cat",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 4,
     "confidence": "medium"
@@ -792,7 +792,7 @@
     "sireLineId": "sl_mr_prospector",
     "status": "active",
     "standsIn": "US",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 2,
     "confidence": "medium"
@@ -806,7 +806,7 @@
     "sireLineId": "sl_mr_prospector",
     "status": "active",
     "standsIn": "US",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 3,
     "confidence": "medium"
@@ -834,7 +834,7 @@
     "sireLineId": "sl_ap_indy",
     "status": "active",
     "standsIn": "US",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 1,
     "confidence": "medium"
@@ -848,7 +848,7 @@
     "sireLineId": "sl_ap_indy",
     "status": "active",
     "standsIn": "US",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 2,
     "confidence": "high"
@@ -862,7 +862,7 @@
     "sireLineId": "sl_ap_indy",
     "status": "active",
     "standsIn": "US",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 1,
     "confidence": "medium"
@@ -876,7 +876,7 @@
     "sireLineId": "sl_medaglia_d_oro",
     "status": "active",
     "standsIn": "US",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 3,
     "confidence": "medium"
@@ -890,7 +890,7 @@
     "sireLineId": "sl_into_mischief",
     "status": "active",
     "standsIn": "US",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 3,
     "confidence": "medium"
@@ -918,7 +918,7 @@
     "sireLineId": "sl_sadlers_wells",
     "status": "active",
     "standsIn": "GB",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 2,
     "confidence": "medium"
@@ -932,7 +932,7 @@
     "sireLineId": "sl_dubawi",
     "status": "active",
     "standsIn": "GB",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 2,
     "confidence": "high"
@@ -946,7 +946,7 @@
     "sireLineId": "sl_invincible_spirit",
     "status": "active",
     "standsIn": "FR",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 3,
     "confidence": "medium"
@@ -960,7 +960,7 @@
     "sireLineId": "sl_invincible_spirit",
     "status": "active",
     "standsIn": "FR",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 3,
     "confidence": "low"
@@ -988,7 +988,7 @@
     "sireLineId": "sl_dubawi",
     "status": "active",
     "standsIn": "GB",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 3,
     "confidence": "medium"
@@ -1016,7 +1016,7 @@
     "sireLineId": "sl_phalaris",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "both",
     "marketTier": 4,
     "confidence": "high"
@@ -1030,7 +1030,7 @@
     "sireLineId": "sl_storm_cat",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 4,
     "confidence": "medium"
@@ -1044,7 +1044,7 @@
     "sireLineId": "sl_dubawi",
     "status": "active",
     "standsIn": "IE",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 3,
     "confidence": "high"
@@ -1058,7 +1058,7 @@
     "sireLineId": "sl_storm_cat",
     "status": "active",
     "standsIn": "IE",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
     "confidence": "high"
@@ -1072,7 +1072,7 @@
     "sireLineId": "sl_nureyev",
     "status": "active",
     "standsIn": "IE",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "confidence": "high"
@@ -1100,7 +1100,7 @@
     "sireLineId": "sl_into_mischief",
     "status": "active",
     "standsIn": "US",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 3,
     "confidence": "high"
@@ -1114,7 +1114,7 @@
     "sireLineId": "sl_jack_christopher",
     "status": "active",
     "standsIn": "US",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 4,
     "confidence": "high"
@@ -1128,7 +1128,7 @@
     "sireLineId": "sl_sadlers_wells",
     "status": "active",
     "standsIn": "GB",
-    "distanceProfile": "staying",
+    "distanceProfile": "cup",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "confidence": "high"
@@ -1156,7 +1156,7 @@
     "sireLineId": "sl_dubawi",
     "status": "active",
     "standsIn": "GB",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 3,
     "confidence": "high"
@@ -1170,7 +1170,7 @@
     "sireLineId": "sl_invincible_spirit",
     "status": "active",
     "standsIn": "GB",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 3,
     "confidence": "high"
@@ -1184,7 +1184,7 @@
     "sireLineId": "sl_perfect_power",
     "status": "active",
     "standsIn": "GB",
-    "distanceProfile": "sprint",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "confidence": "high"
@@ -1198,7 +1198,7 @@
     "sireLineId": "sl_storm_cat",
     "status": "active",
     "standsIn": "GB",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 3,
     "confidence": "high"
@@ -1212,7 +1212,7 @@
     "sireLineId": "sl_cape_cross",
     "status": "active",
     "standsIn": "FR",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
     "confidence": "high"
@@ -1226,7 +1226,7 @@
     "sireLineId": "sl_storm_cat",
     "status": "active",
     "standsIn": "FR",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "confidence": "high"
@@ -1240,7 +1240,7 @@
     "sireLineId": "sl_storm_cat",
     "status": "active",
     "standsIn": "IE",
-    "distanceProfile": "sprint",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 2,
     "confidence": "high"
@@ -1254,7 +1254,7 @@
     "sireLineId": "sl_storm_cat",
     "status": "active",
     "standsIn": "IE",
-    "distanceProfile": "sprint",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "confidence": "high"
@@ -1268,7 +1268,7 @@
     "sireLineId": "sl_dubawi",
     "status": "active",
     "standsIn": "IE",
-    "distanceProfile": "sprint",
+    "distanceProfile": "speed",
     "surfaceProfile": "both",
     "marketTier": 4,
     "confidence": "high"
@@ -1282,7 +1282,7 @@
     "sireLineId": "sl_dubawi",
     "status": "active",
     "standsIn": "IE",
-    "distanceProfile": "sprint",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "confidence": "high"
@@ -1296,7 +1296,7 @@
     "sireLineId": "sl_mr_prospector",
     "status": "active",
     "standsIn": "US",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 2,
     "confidence": "high"
@@ -1310,7 +1310,7 @@
     "sireLineId": "sl_ap_indy",
     "status": "active",
     "standsIn": "US",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 4,
     "confidence": "high"
@@ -1324,7 +1324,7 @@
     "sireLineId": "sl_danzig",
     "status": "active",
     "standsIn": "US",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "both",
     "marketTier": 3,
     "confidence": "high"
@@ -1338,7 +1338,7 @@
     "sireLineId": "sl_sadlers_wells",
     "status": "active",
     "standsIn": "GB",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "confidence": "high"
@@ -1352,7 +1352,7 @@
     "sireLineId": "sl_danzig",
     "status": "active",
     "standsIn": "GB",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "both",
     "marketTier": 4,
     "confidence": "high"
@@ -1366,7 +1366,7 @@
     "sireLineId": "sl_mr_prospector",
     "status": "active",
     "standsIn": "US",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 3,
     "confidence": "high"
@@ -1380,7 +1380,7 @@
     "sireLineId": "sl_into_mischief",
     "status": "active",
     "standsIn": "US",
-    "distanceProfile": "sprint",
+    "distanceProfile": "speed",
     "surfaceProfile": "both",
     "marketTier": 4,
     "confidence": "high"
@@ -1394,7 +1394,7 @@
     "sireLineId": "sl_sadlers_wells",
     "status": "active",
     "standsIn": "IE",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "confidence": "high"
@@ -1408,7 +1408,7 @@
     "sireLineId": "sl_cape_cross",
     "status": "active",
     "standsIn": "FR",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "confidence": "high"
@@ -1422,7 +1422,7 @@
     "sireLineId": "sl_phalaris",
     "status": "pensioned",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "confidence": "high"
@@ -1436,7 +1436,7 @@
     "sireLineId": "sl_johannesburg",
     "status": "pensioned",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "confidence": "medium"
@@ -1450,7 +1450,7 @@
     "sireLineId": "sl_mr_prospector",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "confidence": "high"
@@ -1464,7 +1464,7 @@
     "sireLineId": "sl_storm_cat",
     "status": "pensioned",
     "standsIn": null,
-    "distanceProfile": "sprint",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "confidence": "high"
@@ -1478,7 +1478,7 @@
     "sireLineId": "sl_caro",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
     "confidence": "medium"
@@ -1492,7 +1492,7 @@
     "sireLineId": "sl_dark_angel",
     "status": "pensioned",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "confidence": "medium"
@@ -1506,7 +1506,7 @@
     "sireLineId": "sl_mr_prospector",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "both",
     "marketTier": 4,
     "confidence": "high"
@@ -1520,7 +1520,7 @@
     "sireLineId": "sl_mr_prospector",
     "status": "pensioned",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "both",
     "marketTier": 4,
     "confidence": "high"
@@ -1534,7 +1534,7 @@
     "sireLineId": "sl_danehill",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "confidence": "high"
@@ -1548,7 +1548,7 @@
     "sireLineId": "sl_ap_indy",
     "status": "pensioned",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "both",
     "marketTier": 4,
     "confidence": "high"
@@ -1562,7 +1562,7 @@
     "sireLineId": "sl_sadlers_wells",
     "status": "pensioned",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 3,
     "confidence": "high"
@@ -1576,7 +1576,7 @@
     "sireLineId": "sl_gun_runner",
     "status": "pensioned",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 4,
     "confidence": "medium"
@@ -1590,7 +1590,7 @@
     "sireLineId": "sl_mr_prospector",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 2,
     "confidence": "high"
@@ -1604,7 +1604,7 @@
     "sireLineId": "sl_seattle_slew",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "confidence": "high"
@@ -1618,7 +1618,7 @@
     "sireLineId": "sl_storm_cat",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "both",
     "marketTier": 4,
     "confidence": "high"
@@ -1632,7 +1632,7 @@
     "sireLineId": "sl_ap_indy",
     "status": "pensioned",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 3,
     "confidence": "high"
@@ -1646,7 +1646,7 @@
     "sireLineId": "sl_ap_indy",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "confidence": "high"
@@ -1660,7 +1660,7 @@
     "sireLineId": "sl_northern_dancer",
     "status": "pensioned",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "both",
     "marketTier": 4,
     "confidence": "high"
@@ -1674,7 +1674,7 @@
     "sireLineId": "sl_ap_indy",
     "status": "pensioned",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 4,
     "confidence": "high"
@@ -1688,7 +1688,7 @@
     "sireLineId": "sl_storm_cat",
     "status": "active",
     "standsIn": "US",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 3,
     "confidence": "high"
@@ -1702,7 +1702,7 @@
     "sireLineId": "sl_gun_runner",
     "status": "active",
     "standsIn": "US",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 3,
     "confidence": "high"
@@ -1716,7 +1716,7 @@
     "sireLineId": "sl_gun_runner",
     "status": "active",
     "standsIn": "US",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "both",
     "marketTier": 2,
     "confidence": "high"
@@ -1730,7 +1730,7 @@
     "sireLineId": "sl_ap_indy",
     "status": "active",
     "standsIn": "US",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "both",
     "marketTier": 3,
     "confidence": "high"
@@ -1744,7 +1744,7 @@
     "sireLineId": "sl_dark_angel",
     "status": "active",
     "standsIn": "GB",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "confidence": "high"
@@ -1758,7 +1758,7 @@
     "sireLineId": "sl_sadlers_wells",
     "status": "active",
     "standsIn": "GB",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "confidence": "high"
@@ -1772,7 +1772,7 @@
     "sireLineId": "sl_danzig",
     "status": "active",
     "standsIn": "IE",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "confidence": "high"
@@ -1786,7 +1786,7 @@
     "sireLineId": "sl_mr_prospector",
     "status": "active",
     "standsIn": "IE",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "both",
     "marketTier": 5,
     "confidence": "high"
@@ -1800,7 +1800,7 @@
     "sireLineId": "sl_phalaris",
     "status": "pensioned",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
     "confidence": "high"
@@ -1814,7 +1814,7 @@
     "sireLineId": "sl_scat_daddy",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "both",
     "marketTier": 2,
     "confidence": "high"
@@ -1828,7 +1828,7 @@
     "sireLineId": "sl_mr_prospector",
     "status": "pensioned",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 3,
     "confidence": "high"
@@ -1842,7 +1842,7 @@
     "sireLineId": "sl_mr_prospector",
     "status": "pensioned",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 4,
     "confidence": "high"
@@ -1856,7 +1856,7 @@
     "sireLineId": "sl_caro",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "sprint",
+    "distanceProfile": "speed",
     "surfaceProfile": "both",
     "marketTier": 5,
     "confidence": "high"
@@ -1870,7 +1870,7 @@
     "sireLineId": "sl_mr_prospector",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 3,
     "confidence": "high"
@@ -1884,7 +1884,7 @@
     "sireLineId": "sl_mr_prospector",
     "status": "pensioned",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "both",
     "marketTier": 4,
     "confidence": "high"
@@ -1898,7 +1898,7 @@
     "sireLineId": "sl_danehill",
     "status": "pensioned",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "confidence": "high"
@@ -1912,7 +1912,7 @@
     "sireLineId": "sl_mr_prospector",
     "status": "pensioned",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "both",
     "marketTier": 3,
     "confidence": "high"
@@ -1926,7 +1926,7 @@
     "sireLineId": "sl_scat_daddy",
     "status": "active",
     "standsIn": "IE",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 1,
     "confidence": "high"
@@ -1940,7 +1940,7 @@
     "sireLineId": "sl_danehill",
     "status": "active",
     "standsIn": "IE",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 2,
     "confidence": "high"
@@ -1954,7 +1954,7 @@
     "sireLineId": "sl_mr_prospector",
     "status": "active",
     "standsIn": "US",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "confidence": "high"
@@ -1968,7 +1968,7 @@
     "sireLineId": "sl_mr_prospector",
     "status": "active",
     "standsIn": "US",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "both",
     "marketTier": 2,
     "confidence": "high"
@@ -1982,7 +1982,7 @@
     "sireLineId": "sl_scat_daddy",
     "status": "active",
     "standsIn": "US",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 1,
     "confidence": "high"
@@ -1996,7 +1996,7 @@
     "sireLineId": "sl_mr_prospector",
     "status": "active",
     "standsIn": "US",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 2,
     "confidence": "high"
@@ -2010,7 +2010,7 @@
     "sireLineId": "sl_phalaris",
     "status": "pensioned",
     "standsIn": null,
-    "distanceProfile": "sprint",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "confidence": "high"
@@ -2024,7 +2024,7 @@
     "sireLineId": "sl_caro",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 4,
     "confidence": "high"
@@ -2038,7 +2038,7 @@
     "sireLineId": "sl_mr_prospector",
     "status": "pensioned",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 4,
     "confidence": "high"
@@ -2052,7 +2052,7 @@
     "sireLineId": "sl_mr_prospector",
     "status": "pensioned",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "both",
     "marketTier": 4,
     "confidence": "high"
@@ -2066,7 +2066,7 @@
     "sireLineId": "sl_scat_daddy",
     "status": "active",
     "standsIn": "IE",
-    "distanceProfile": "sprint",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "confidence": "high"
@@ -2080,7 +2080,7 @@
     "sireLineId": "sl_scat_daddy",
     "status": "active",
     "standsIn": "IE",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "both",
     "marketTier": 2,
     "confidence": "high"
@@ -2094,7 +2094,7 @@
     "sireLineId": "sl_scat_daddy",
     "status": "active",
     "standsIn": "IE",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "confidence": "high"
@@ -2108,7 +2108,7 @@
     "sireLineId": "sl_mr_prospector",
     "status": "active",
     "standsIn": "US",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 3,
     "confidence": "high"
@@ -2122,7 +2122,7 @@
     "sireLineId": "sl_mr_prospector",
     "status": "active",
     "standsIn": "US",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 4,
     "confidence": "high"
@@ -2136,7 +2136,7 @@
     "sireLineId": "sl_phalaris",
     "status": "pensioned",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "confidence": "high"
@@ -2150,7 +2150,7 @@
     "sireLineId": "sl_caro",
     "status": "pensioned",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "both",
     "marketTier": 4,
     "confidence": "high"
@@ -2178,7 +2178,7 @@
     "sireLineId": "sl_caro",
     "status": "pensioned",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 3,
     "confidence": "high"
@@ -2192,7 +2192,7 @@
     "sireLineId": "sl_caro",
     "status": "active",
     "standsIn": "US",
-    "distanceProfile": "sprint",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 3,
     "confidence": "high"
@@ -2206,7 +2206,7 @@
     "sireLineId": "sl_caro",
     "status": "active",
     "standsIn": "US",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 2,
     "confidence": "high"
@@ -2234,7 +2234,7 @@
     "sireLineId": "sl_deep_impact",
     "status": "active",
     "standsIn": "IE",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 3,
     "confidence": "high"
@@ -2248,7 +2248,7 @@
     "sireLineId": "sl_deep_impact",
     "status": "active",
     "standsIn": "IE",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "confidence": "high"
@@ -2262,7 +2262,7 @@
     "sireLineId": "sl_phalaris",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
     "confidence": "high"
@@ -2276,7 +2276,7 @@
     "sireLineId": "sl_phalaris",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
     "confidence": "high"
@@ -2290,7 +2290,7 @@
     "sireLineId": "sl_phalaris",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
     "confidence": "high"
@@ -2304,7 +2304,7 @@
     "sireLineId": "sl_phalaris",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
     "confidence": "high"
@@ -2318,7 +2318,7 @@
     "sireLineId": "sl_mr_prospector",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
     "confidence": "high"
@@ -2332,7 +2332,7 @@
     "sireLineId": "sl_mr_prospector",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
     "confidence": "high"
@@ -2346,7 +2346,7 @@
     "sireLineId": "sl_gun_runner",
     "status": "pensioned",
     "standsIn": null,
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 5,
     "confidence": "medium"
@@ -2374,7 +2374,7 @@
     "sireLineId": "sl_dubawi",
     "status": "active",
     "standsIn": "FR",
-    "distanceProfile": "mile",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
     "confidence": "high"
@@ -2388,7 +2388,7 @@
     "sireLineId": "sl_mr_prospector",
     "status": "active",
     "standsIn": "GB",
-    "distanceProfile": "sprint",
+    "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "confidence": "medium"

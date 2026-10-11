@@ -4,6 +4,7 @@ import type {
   Condition,
   CountryCode,
   CareerRecord,
+  DistanceProfile,
   HorseId,
   Horse,
   HorseStatus,
@@ -22,6 +23,7 @@ import {
   COURSE_APT_SD,
   DEFAULT_FITNESS,
   DEFAULT_POTENTIAL_SPREAD,
+  DIST_BIAS_SD,
   DIST_OPT_BASE,
   DIST_OPT_MAX,
   DIST_OPT_MIN,
@@ -29,6 +31,7 @@ import {
   DIST_OPT_SD,
   DIST_RANGE_MAX,
   DIST_RANGE_MIN,
+  PROFILE_BOUNDS,
   GOING_PREF_MAX,
   GOING_PREF_MEAN,
   GOING_PREF_MIN,
@@ -76,6 +79,14 @@ export interface GenerateHorseOptions {
 
 function clamp(v: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, v));
+}
+
+/** distanceOptimum(m) → 거리 프로필. PROFILE_BOUNDS 의 경계값은 이하 포함. */
+export function profileOfDistance(distanceOptimum: number): DistanceProfile {
+  if (distanceOptimum <= PROFILE_BOUNDS.speedMax) return 'speed';
+  if (distanceOptimum <= PROFILE_BOUNDS.classicMax) return 'classic';
+  if (distanceOptimum <= PROFILE_BOUNDS.middleMax) return 'middle';
+  return 'cup';
 }
 
 /** 정규 분포 샘플을 능력 범위로 자른다. */
@@ -136,9 +147,11 @@ export function generateHorse(rng: Rng, opts: GenerateHorseOptions): Horse {
   // 3. 현재 능력
   const ability = abilityAtAge(potential, opts.currentYear - opts.birthYear, growth);
 
-  // 4. 적성
+  // 4. 적성 (distanceBias 가 있으면 평균·SD 만 바뀌고 rng 호출은 같은 위치에서 한 번이다)
   const distanceOptimum = clamp(
-    DIST_OPT_BASE + DIST_OPT_PER_STAMINA * potential.stamina + rng.normal(0, DIST_OPT_SD),
+    opts.distanceBias === undefined
+      ? DIST_OPT_BASE + DIST_OPT_PER_STAMINA * potential.stamina + rng.normal(0, DIST_OPT_SD)
+      : opts.distanceBias + rng.normal(0, DIST_BIAS_SD),
     DIST_OPT_MIN,
     DIST_OPT_MAX,
   );

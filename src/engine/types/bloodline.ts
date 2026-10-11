@@ -6,7 +6,8 @@ import type { CountryCode, SireLineId } from './common';
  * 능력치·자손 성적은 게임이 가상으로 생성하므로 여기에는 혈통 관계와 성향만 둔다.
  */
 
-export type DistanceProfile = 'sprint' | 'mile' | 'middle' | 'staying';
+/** 거리 프로필 4단계(docs/stamina-and-nh.md): speed ≤ 9f, classic ~10f, middle ~12f, cup 14f+ */
+export type DistanceProfile = 'speed' | 'classic' | 'middle' | 'cup';
 export type SurfaceProfile = 'turf' | 'dirt' | 'both';
 export type RealStallionStatus = 'active' | 'pensioned' | 'historical';
 

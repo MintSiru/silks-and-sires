@@ -18,8 +18,12 @@ export const MATURITY_FLOOR = 0.5;
 export const DIST_OPT_BASE = 1000;
 export const DIST_OPT_PER_STAMINA = 22;
 export const DIST_OPT_SD = 200;
+/** distanceBias 가 있을 때 distanceOptimum = bias + N(0, DIST_BIAS_SD), [DIST_OPT_MIN, DIST_OPT_MAX] */
+export const DIST_BIAS_SD = 150;
 export const DIST_OPT_MIN = 1000;
 export const DIST_OPT_MAX = 3600;
+/** distanceOptimum(m) → 거리 프로필 경계. 이하 포함: speed ≤ speedMax, classic ≤ classicMax, middle ≤ middleMax, 초과 cup */
+export const PROFILE_BOUNDS = { speedMax: 1800, classicMax: 2200, middleMax: 2700 } as const;
 export const DIST_RANGE_MIN = 300;
 export const DIST_RANGE_MAX = 600;
 /** distanceBias(m) 가 주어지면 stamina 잠재에 (bias - BIAS_REF) / BIAS_DIVISOR 를 더한다 */

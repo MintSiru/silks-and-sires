@@ -11,6 +11,11 @@ import type {
   SurfaceProfile,
 } from '../../src/engine/types/bloodline';
 import type { CountryCode } from '../../src/engine/types/common';
+import { createRng } from '../../src/engine/rng';
+import { createNewGame } from '../../src/engine/state/newGame';
+import { bootstrapWorld, type WorldStaticData } from '../../src/engine/state/world';
+import { profileOfDistance } from '../../src/engine/horse/generate';
+import { getHorseWords, getNicks, getStallionNames, getStallionRecords } from '../../src/engine/data/staticData';
 
 /** M2-01 실명 종마 데이터 검증 (data/stallions/*.json). 스키마는 src/engine/types/bloodline.ts 를 따른다. */
 
@@ -23,7 +28,7 @@ const lineById = new Map(lines.map((l) => [l.id, l] as const));
 
 const COUNTRY_CODES: CountryCode[] = ['GB', 'IE', 'FR', 'DE', 'IT', 'JP', 'US', 'AU', 'HK', 'AE', 'CA', 'AR'];
 const STATUSES: RealStallionStatus[] = ['active', 'pensioned', 'historical'];
-const DISTANCES: DistanceProfile[] = ['sprint', 'mile', 'middle', 'staying'];
+const DISTANCES: DistanceProfile[] = ['speed', 'classic', 'middle', 'cup'];
 const SURFACES: SurfaceProfile[] = ['turf', 'dirt', 'both'];
 const CONFIDENCES = ['high', 'medium', 'low'] as const;
 const EUROPEAN = ['GB', 'IE', 'FR', 'DE'];
@@ -115,6 +120,45 @@ describe('값 범위', () => {
       expect([1, 2, 3, 4, 5], s.key).toContain(s.marketTier);
       expect(CONFIDENCES, s.key).toContain(s.confidence);
     }
+  });
+});
+
+describe('거리 프로필 4단계 (M2-14)', () => {
+  const OLD_PROFILES = ['sprint', 'mile', 'staying'];
+
+  it('stallions.json 에 옛 거리 프로필(sprint/mile/staying)이 남아 있지 않다', () => {
+    const raw = JSON.stringify(stallionsJson);
+    for (const old of OLD_PROFILES) {
+      expect(raw, old).not.toContain(`"distanceProfile":"${old}"`);
+    }
+    for (const s of stallions) {
+      expect(OLD_PROFILES, s.key).not.toContain(s.distanceProfile);
+    }
+  });
+
+  it('세계 초기화 후 현역 실명 종마의 profileOfDistance(distanceOptimum) 이 데이터 프로필과 같은 비율 ≥ 80%', () => {
+    const SILKS = { primary: '#1a3c6e', secondary: '#f2d200', pattern: 'hoops' } as const;
+    const seed = 20260101;
+    const data: WorldStaticData = {
+      stallionRecords: getStallionRecords(),
+      stallionNames: getStallionNames(),
+      nicks: getNicks(),
+      words: getHorseWords(),
+    };
+    const state = bootstrapWorld(
+      createNewGame({ seed, playerName: 'Test Owner', silks: SILKS }),
+      data,
+      createRng(seed),
+    );
+    const active = stallions.filter((s) => s.status === 'active');
+    expect(active.length).toBeGreaterThan(0);
+    let matched = 0;
+    for (const s of active) {
+      const horse = state.horses[s.key];
+      if (horse === undefined) throw new Error(`${s.key} Horse 없음`);
+      if (profileOfDistance(horse.aptitude.distanceOptimum) === s.distanceProfile) matched += 1;
+    }
+    expect(matched / active.length).toBeGreaterThanOrEqual(0.8);
   });
 });
 
