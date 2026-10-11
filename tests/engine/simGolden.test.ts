@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import namesJson from '../../data/names.json';
-import racecoursesJson from '../../data/racecourses.json';
+import racecoursesJson from './fixtures/m1-racecourses.json'; // M1 기준 코스 고정(골든 보존)
 import { getRacecourse, loadRacecourses } from '../../src/engine/course/load';
 import { buildRacePath } from '../../src/engine/course/path';
 import { createRng } from '../../src/engine/rng';
