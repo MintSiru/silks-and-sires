@@ -43,3 +43,4 @@
   (1) 스태미나 소모 기준을 절대속도 16m/s → 자기 cruiseSpeed 로 변경(빠른 말이 구조적으로 탈진하던 문제), staminaDrainPerSecond 시그니처에 cruiseSpeed 추가;
   (2) 밸런스 조정: STAMINA_BASE 40→50, EXHAUSTED 0.88/0.06→0.91/0.05, 작전 배율 축소, SPURT_MAX front 600/prominent 650/midfield 700/held_up 750 (후방 작전 구조적 불리 해소, 작전별 승률 지수 0.6~1.4);
   (3) 수용 기준을 현실형에 맞게 수정: +25 → ≥15/50 (실측 20), +40 → ≥32/50 (실측 37).
+- 2026-10-11 | 승인 | M1-09 통합 — runRace·staticData·데모 화면, 246개 테스트·build 통과. Playwright 로 G1 2400m 재생 확인(브라우저 오류 0). 발견: 오즈 과신(2/9 vs 200/1 다수) → Opus 가 보정.
