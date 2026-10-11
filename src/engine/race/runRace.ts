@@ -16,6 +16,8 @@ import { buildEntries } from './setup';
 import { simulateRace } from './simulate';
 import { estimateStrength, type RaceContext } from './runnerModel';
 
+const PERCENT = 100;
+
 export interface RunRaceInput {
   race: Race;
   course: Racecourse;
@@ -48,6 +50,17 @@ function at<T>(items: readonly T[], index: number): T {
  * 출주 준비(게이트 추첨) → 오즈 산출 → 레이스 시뮬레이션을 시드 하나로 실행한다.
  * 같은 입력 = 같은 출력. 스트림은 시드에서 fork 로 분리한다(draw / odds / sim).
  */
+/**
+ * 예상 전력(-예상 시간, 초)을 필드 평균 대비 % 로 바꾼다. 거리와 무관한 척도라 시장 온도를 한 값으로 쓸 수 있다.
+ * 결과: 클수록 강함, 1.0 = 평균보다 예상 시간이 1% 짧음.
+ */
+export function relativeStrengths(strengths: readonly number[]): number[] {
+  if (strengths.length === 0) return [];
+  const mean = strengths.reduce((a, b) => a + b, 0) / strengths.length;
+  const scale = Math.abs(mean) / PERCENT;
+  return strengths.map((s) => (s - mean) / scale);
+}
+
 export function runRace(input: RunRaceInput): RunRaceOutput {
   const { race, course, going, date, seed, field } = input;
   const recordReplay = input.recordReplay ?? true;
@@ -81,7 +94,7 @@ export function runRace(input: RunRaceInput): RunRaceOutput {
 
   // 4. 능력 추정 → 오즈
   const strengths = runners.map((r) => estimateStrength(r, ctx));
-  const odds = priceField(createRng(seed).fork('odds'), strengths);
+  const odds = priceField(createRng(seed).fork('odds'), relativeStrengths(strengths));
   // runners[i].entry 는 entries[i] 와 같은 객체이므로 한 번만 쓰면 양쪽에 반영된다.
   entries.forEach((e, i) => {
     e.odds = at(odds, i);

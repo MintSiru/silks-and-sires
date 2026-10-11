@@ -1,8 +1,8 @@
 import type { HexColor, RunningStyle, SilksPattern } from '../types';
-/** 시장 인식 오차 표준편차 (strength 단위 = 초) */
-export const MARKET_NOISE_SD = 0.35;
+/** 시장 인식 오차 표준편차. strength 단위 = 필드 평균 대비 예상 주파 시간 % (relativeStrengths) */
+export const MARKET_NOISE_SD = 0.5;
 /** softmax 온도 (초) */
-export const MARKET_TEMPERATURE = 0.55;
+export const MARKET_TEMPERATURE = 1.2;
 /** 북메이커 오버라운드 */
 export const MARKET_OVERROUND = 1.18;
 /** 표준 분수 오즈 사다리 [num, den], 짧은 → 긴 순 */
@@ -14,8 +14,8 @@ export const ODDS_LADDER: readonly (readonly [number, number])[] = [
 ];
 // --- 샘플 출주마 ---
 export const SAMPLE_DEFAULT_LEVEL = 60;
-export const SAMPLE_DEFAULT_LEVEL_SPREAD = 8;
-export const SAMPLE_ABILITY_SD = 6;
+export const SAMPLE_DEFAULT_LEVEL_SPREAD = 4;
+export const SAMPLE_ABILITY_SD = 4;
 export const SAMPLE_ABILITY_MIN = 1;
 export const SAMPLE_ABILITY_MAX = 100;
 /** 거리별 스태미나 목표: SAMPLE_STAMINA_AT_MIN_DIST(1000m) ~ SAMPLE_STAMINA_AT_MAX_DIST(3200m) 선형 */
@@ -24,16 +24,16 @@ export const SAMPLE_STAMINA_MAX_DIST = 3200;
 export const SAMPLE_STAMINA_AT_MIN_DIST = 20;
 export const SAMPLE_STAMINA_AT_MAX_DIST = 90;
 export const SAMPLE_STAMINA_LEVEL_WEIGHT = 0.5;
-export const SAMPLE_STAMINA_SD = 10;
-export const SAMPLE_DISTANCE_OPT_SD = 300;
+export const SAMPLE_STAMINA_SD = 6;
+export const SAMPLE_DISTANCE_OPT_SD = 150;
 export const SAMPLE_DISTANCE_OPT_MIN = 1000;
 export const SAMPLE_DISTANCE_OPT_MAX = 3600;
 export const SAMPLE_DISTANCE_RANGE_MIN = 300;
 export const SAMPLE_DISTANCE_RANGE_MAX = 600;
-export const SAMPLE_GOING_PREF_MIN = 1;
-export const SAMPLE_GOING_PREF_MAX = 5;
-export const SAMPLE_GOING_TOL_MIN = 1;
-export const SAMPLE_GOING_TOL_MAX = 2.5;
+export const SAMPLE_GOING_PREF_MIN = 1.5;
+export const SAMPLE_GOING_PREF_MAX = 3.5;
+export const SAMPLE_GOING_TOL_MIN = 1.5;
+export const SAMPLE_GOING_TOL_MAX = 3;
 export const SAMPLE_AW_APT_SD = 0.4;
 export const SAMPLE_COURSE_APT_SD = 0.3;
 export const SAMPLE_STYLE_WEIGHTS: Record<RunningStyle, number> = { front: 0.15, prominent: 0.3, midfield: 0.35, held_up: 0.2 };
