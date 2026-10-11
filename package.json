@@ -8,6 +8,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:verify": "vitest run tests/verify --no-file-parallelism",
     "typecheck": "tsc --noEmit",
     "lint": "eslint ."
   },
