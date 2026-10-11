@@ -33,6 +33,9 @@ export function createNewGame(opts: NewGameOptions): GameState {
     studName: opts.studName ?? null,
     retainedJockeyId: null,
     horseIds: [],
+    tier: 'small',
+    persona: { commercial: 0.5, prestige: 0.5, patience: 0.5 },
+    namePrefix: null,
   };
 
   return {

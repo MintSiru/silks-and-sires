@@ -21,6 +21,9 @@ const playerOwner: Owner = {
   studName: null,
   retainedJockeyId: null,
   horseIds: [],
+  tier: 'small',
+  persona: { commercial: 0.5, prestige: 0.5, patience: 0.5 },
+  namePrefix: null,
 };
 
 /** 손으로 만든 최소 GameState 픽스처 */

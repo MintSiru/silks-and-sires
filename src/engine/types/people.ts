@@ -1,4 +1,5 @@
 import type { CountryCode, HorseId, JockeyId, Money, OwnerId, Silks, TrainerId } from './common';
+import type { RunningStyle } from './horse';
 
 /** 조교사 성향 */
 export type TrainerStyle = 'early_juveniles' | 'patient' | 'sprinters' | 'stayers' | 'all_round';
@@ -21,6 +22,11 @@ export interface Trainer {
   weeklyFee: Money;
   /** 수용 두수 */
   capacity: number;
+  birthYear: number;
+  /** 조교 성향 −1(스피드 위주) ~ +1(스태미나 위주). 망아지 거리 적성 발현·컨디션 조정에 쓴다(M3-C1) */
+  staminaBias: number;
+  /** 2세 조기 출주 성향 0~1 */
+  juvenileFocus: number;
 }
 
 export interface Jockey {
@@ -37,7 +43,37 @@ export interface Jockey {
   apprenticeAllowanceLb: number;
   /** 전속(retained) 계약 마주 */
   retainedBy: OwnerId | null;
+  /** 세부 능력 0~100 (숨김). skill 은 이들의 종합값으로 유지한다 */
+  abilities: JockeyAbilities;
+  /** 잘 맞는 작전. 없으면 null */
+  preferredStyle: RunningStyle | null;
+  retired: boolean;
 }
+
+/** 기수 세부 능력 (0~100, 숨김) */
+export interface JockeyAbilities {
+  /** 게이트 출발 */
+  start: number;
+  /** 페이스 판단(초반 과열 억제, 자리 잡기) */
+  pace: number;
+  /** 마지막 스퍼트 타이밍·몰아치기 */
+  finish: number;
+  /** 무거운 마장·접전에서 말을 밀어붙이는 힘 */
+  strength: number;
+}
+
+/** AI 마주 성향 (0~1) */
+export interface OwnerPersona {
+  /** 상업성: 세일·종마 가치 중시 */
+  commercial: number;
+  /** 명예: 그룹 레이스·클래식 중시 */
+  prestige: number;
+  /** 인내: 늦게 크는 말·장거리마를 기다림 */
+  patience: number;
+}
+
+/** 마주 규모 */
+export type OwnerTier = 'major' | 'mid' | 'small';
 
 export interface Owner {
   id: OwnerId;
@@ -52,4 +88,9 @@ export interface Owner {
   retainedJockeyId: JockeyId | null;
   /** 보유 말 (Horse.ownerId 와 일관성 유지) */
   horseIds: HorseId[];
+  tier: OwnerTier;
+  /** 플레이어는 중립값(0.5) */
+  persona: OwnerPersona;
+  /** 관명 접두어(이름 짓기 'prefix' 템플릿). 없으면 null */
+  namePrefix: string | null;
 }
