@@ -65,8 +65,11 @@ export interface GrowthProfile {
   declineRate: number;
 }
 
+/** 부상 종류(M3-C1). 가벼운 순: 타박 → 정강이 통증 → 건 손상 → 골절 */
+export type InjuryKind = 'knock' | 'sore_shins' | 'tendon' | 'fracture';
+
 export interface Injury {
-  kind: string;
+  kind: InjuryKind;
   /** 복귀까지 남은 주 */
   weeksOut: number;
 }

@@ -13,6 +13,7 @@ import {
   type GrowthProfile,
   type HorseId,
   type HorseStatus,
+  type InjuryKind,
   type MatingPreview,
   type MatingRole,
   type Money,
@@ -260,7 +261,25 @@ export function eventKo(e: GameEvent, nameOf: (id: HorseId) => string): string {
       return `${formatDateKo(e.date)} · 레이스 결과: 우승 ${nameOf(e.winnerId)}`;
     case 'series_completed':
       return `${formatDateKo(e.date)} · 시리즈 달성: ${nameOf(e.horseId)}`;
+    case 'horse_injured':
+      return `${formatDateKo(e.date)} · 부상: ${nameOf(e.horseId)} (${injuryKo(e.kind)}, 약 ${e.weeksOut}주)`;
     default:
       return assertNever(e);
+  }
+}
+
+/** 부상 종류 한국어 */
+export function injuryKo(kind: InjuryKind): string {
+  switch (kind) {
+    case 'knock':
+      return '타박';
+    case 'sore_shins':
+      return '정강이 통증';
+    case 'tendon':
+      return '건 손상';
+    case 'fracture':
+      return '골절';
+    default:
+      return assertNever(kind);
   }
 }

@@ -389,7 +389,7 @@ describe('AI 출주 결정 · 부담중량 · 기수 배정 (M3-A6a)', () => {
     expect(isEligible({ ...inRange, status: 'resting' }, race, date, seasonState)).toBe(false);
     expect(isEligible({ ...inRange, condition: { ...inRange.condition, fitness: 54 } }, race, date, seasonState)).toBe(false);
     expect(
-      isEligible({ ...inRange, condition: { ...inRange.condition, injury: { kind: 'leg', weeksOut: 2 } } }, race, date, seasonState),
+      isEligible({ ...inRange, condition: { ...inRange.condition, injury: { kind: 'knock', weeksOut: 2 } } }, race, date, seasonState),
     ).toBe(false);
     const recent = { ...seasonState, lastRun: { [inRange.id]: { year: YEAR, week: JUNE_FIRST_WEEK - 1 } } };
     expect(isEligible(inRange, race, date, recent)).toBe(false);

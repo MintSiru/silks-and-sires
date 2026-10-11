@@ -1,5 +1,5 @@
 import type { HorseId, JockeyId, Money, OwnerId, TrainerId } from './common';
-import type { Horse, HorseStatus, Mare, Stallion } from './horse';
+import type { Horse, HorseStatus, InjuryKind, Mare, Stallion } from './horse';
 import type { Jockey, Owner, Trainer } from './people';
 import type { RaceResult } from './race';
 import type { Rng, RngState } from './rng';
@@ -25,7 +25,9 @@ export type GameEvent =
       winnerId: HorseId;
       playerHorseIds: HorseId[];
     }
-  | { type: 'series_completed'; seriesId: SeriesId; horseId: HorseId; date: GameDate };
+  | { type: 'series_completed'; seriesId: SeriesId; horseId: HorseId; date: GameDate }
+  /** 플레이어 말 부상(M3-C1). AI 말 부상은 이벤트로 남기지 않는다 */
+  | { type: 'horse_injured'; horseId: HorseId; kind: InjuryKind; weeksOut: number; date: GameDate };
 
 /** 배합 관련 진행 상태 */
 export interface BreedingState {
