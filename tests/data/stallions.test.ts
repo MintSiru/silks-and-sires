@@ -8,6 +8,7 @@ import type {
   RealStallionStatus,
   SireLine,
   StallionNameTable,
+  StudRole,
   SurfaceProfile,
 } from '../../src/engine/types/bloodline';
 import type { CountryCode } from '../../src/engine/types/common';
@@ -246,11 +247,39 @@ describe('이름 표 names.json', () => {
   });
 });
 
+describe('종마 역할 studRole (M2-01d)', () => {
+  const ROLES: StudRole[] = ['flat', 'dual', 'nh'];
+
+  it('studRole 이 있으면 flat/dual/nh 중 하나 (생략 = flat)', () => {
+    for (const s of stallions) {
+      if (s.studRole === undefined) continue;
+      expect(ROLES, s.key).toContain(s.studRole);
+    }
+  });
+
+  it('NH 종마(studRole nh) ≥ 3두', () => {
+    const nh = stallions.filter((s) => s.studRole === 'nh');
+    expect(nh.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('cup 거리 프로필 종마 ≥ 3두', () => {
+    const cup = stallions.filter((s) => s.distanceProfile === 'cup');
+    expect(cup.length).toBeGreaterThanOrEqual(3);
+  });
+});
+
 /**
  * 부계 사슬이 5대(자신 포함) 미만인 현역 종마 예외 목록. 위키백과에서 다음 고리를 확인하지 못했다
  * (data/stallions/_review.md "미확인 고리" 참조). 목록은 데이터와 정확히 일치해야 한다.
+ * M2-01d: Sealiway(부 Galiway 레코드 보류), Bradsell(부 Tasleet 미확인), Aesterius(부 Mehmas 미확인) 추가.
  */
-const UNVERIFIED_CHAIN_ACTIVE_EXCEPTIONS: readonly string[] = ['Ardad', 'Perfect Power'];
+const UNVERIFIED_CHAIN_ACTIVE_EXCEPTIONS: readonly string[] = [
+  'Aesterius',
+  'Ardad',
+  'Bradsell',
+  'Perfect Power',
+  'Sealiway',
+];
 
 describe('현역 종마 부계 사슬 깊이', () => {
   it('현역 종마는 부계 사슬 깊이 ≥ 5 (자신 포함) 이거나 미확인 고리 예외 목록에 있다', () => {

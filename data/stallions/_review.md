@@ -481,3 +481,73 @@ Deep Impact, Sunday Silence, Halo, Hail to Reason, Turn-to, Royal Charger, Scat 
 4. **Fortino II 명칭**: 위키백과 표기 Fortino. 같은 말로 판단.
 5. **명단 16두의 등급**: 사용자 제공 정보에 등급 값이 없어 근거 칸에는 거리만 적었다.
 - (M2-01c 보정, Opus) Uncle Mo: 위키백과 2024-12 사망 → historical, 주로 turf→dirt(미국 더트 챔피언, 휴리스틱 오류 정정).
+
+## M2-01d 사용자 제공 종마 15두 (haiku-data, 2026-10-11)
+
+출처: 사용자 제공(2026-10-11) 명단 15두 (Daryz 는 기존 레코드 갱신). 사용자 원문의 사람·마주·스터드·레이스 이름과 금액은 데이터·테스트·본 문서 어디에도 기록하지 않았다. 근거 칸에는 등급·거리만 적었다. 암말 이름은 저장하지 않았다.
+
+### 결과 요약
+- 종마 222두 (기존 203 + 신규 19). 구성: 사용자 명단 신규 14두, 기존 갱신 1두(Daryz), 신규 조상 5두(Diktat, Warning, Known Fact, In Reality, Intentionally).
+- names.json 222 키 = stallions.json 222 키.
+- 계통 30개 (+1: `sl_intentionally` 루트, 명세 상한 30 에 도달).
+- studRole: `flat` 12두(명시), `nh` 3두(Los Angeles, Kyprios, Order of St George), 생략(= flat) 207두.
+- 거리 프로필 전체: speed 167 · classic 37 · middle 15 · cup 3.
+- 현역(active) 119두 (기존 105 + 신규 14). 유럽(GB/IE/FR/DE) 계류 80두, 미국 더트·양용 37두(변동 없음).
+- 현역 부계 깊이 예외 5두: Aesterius, Ardad, Bradsell, Perfect Power, Sealiway (기존 2두 + 신규 3두, 아래 "미확인 고리").
+
+### 사용자 명단 15두 (2026-10-11 제공)
+| key | 이름 | 출생 | 국 | 부(sireKey) | 모부(damsireKey) | standsIn | tier | 거리 | 표면 | studRole | confidence | 근거 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| stl_ace_impact | Ace Impact | 2020 | IE | Cracksman (stl_cracksman) | — (Anabaa Blue 파일 없음) | FR | 3 | classic | turf | flat | high | 사용자 제공(2026-10-11) · G1 2,100·2,400m |
+| stl_sealiway | Sealiway | 2018 | FR | — (미확인 고리: Galiway) | — (Kendargent 파일 없음) | FR | 4 | classic | turf | flat | medium | 사용자 제공(2026-10-11) · G1 1,400·2,004m. 2018 FR 은 위키백과 확인 |
+| stl_intello | Intello | 2010 | DE | Galileo (stl_galileo) | Danehill (stl_danehill) | FR | 5 | classic | turf | flat | medium | 사용자 제공(2026-10-11) · 표기 GE → DE 해석 |
+| stl_puchkine | Puchkine | 2021 | FR | Starspangledbanner (stl_starspangledbanner) | — (So You Think 파일 없음) | FR | 5 | speed | turf | flat | high | 사용자 제공(2026-10-11) · speed |
+| stl_stunning_spirit | Stunning Spirit | 2014 | GB | Invincible Spirit (stl_invincible_spirit) | — (Dynaformer 파일 없음) | FR | 5 | speed | turf | flat | high | 사용자 제공(2026-10-11) · speed |
+| stl_daryz | Daryz (갱신) | 2022 | FR | Sea The Stars (stl_sea_the_stars) | — (Selkirk 파일 없음) | FR | 4 | middle | turf | flat | high | 사용자 제공(2026-10-11) · G1 2,400m×2. 이전 cup 판정(M2-15 본문 근거, low)을 사용자 정보로 대체. 출생국 IE → FR 정정 |
+| stl_sea_the_moon | Sea The Moon | 2011 | DE | Sea The Stars (stl_sea_the_stars) | — (Monsun 파일 없음) | GB | 4 | middle | turf | flat | medium | 사용자 제공(2026-10-11) · 표기 GE → DE 해석 |
+| stl_los_angeles | Los Angeles | 2021 | IE | Camelot (stl_camelot) | Dansili (stl_dansili) | IE | 5 | classic | turf | nh | high | 사용자 제공(2026-10-11) · G1 2,000·2,100·2,400m. NH 종마 |
+| stl_kyprios | Kyprios | 2018 | IE | Galileo (stl_galileo) | Danehill (stl_danehill) | IE | 5 | cup | turf | nh | high | 사용자 제공(2026-10-11) · cup. NH 종마 |
+| stl_stradivarius | Stradivarius | 2014 | IE | Sea The Stars (stl_sea_the_stars) | — (Bering 파일 없음) | GB | 4 | cup | turf | flat | high | 사용자 제공(2026-10-11) · cup |
+| stl_order_of_st_george | Order of St George | 2012 | IE | Galileo (stl_galileo) | Gone West (stl_gone_west) | IE | 5 | cup | turf | nh | high | 사용자 제공(2026-10-11) · cup. NH 종마 |
+| stl_bradsell | Bradsell | 2020 | GB | — (미확인 고리: Tasleet) | — (Archipenko 파일 없음) | GB | 4 | speed | turf | flat | medium | 사용자 제공(2026-10-11) · speed |
+| stl_diego_velazquez | Diego Velazquez | 2021 | IE | Frankel (stl_frankel) | Acclamation (stl_acclamation) | GB | 4 | speed | turf | flat | high | 사용자 제공(2026-10-11) · speed |
+| stl_aesterius | Aesterius | 2022 | IE | — (미확인 고리: Mehmas) | — (Hallowed Crown 파일 없음) | GB | 5 | speed | turf | flat | medium | 사용자 제공(2026-10-11) · speed |
+| stl_dream_ahead | Dream Ahead | 2008 | GB | Diktat (stl_diktat, 신규 조상) | — (Cadeaux Genereux 파일 없음) | GB | 5 | speed | turf | flat | medium | 사용자 제공(2026-10-11) · speed. 부 Diktat 연결은 위키백과 Dream Ahead 문서 미조회 |
+
+공통: 전원 status `active` (명단에 standsIn 값이 있으므로 M2-01c 와 같은 방식으로 현역 처리). marketTier 는 명세 표 값을 그대로 썼다(금액 미사용).
+
+### 신규 조상 5두 (위키백과 확인, status historical)
+| key | 이름 | 출생 | 국 | 부 | 모부 | tier | 거리 | 표면 | confidence | 근거 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| stl_diktat | Diktat | 1995 | GB | Warning (stl_warning) | Sadler's Wells (stl_sadlers_wells) | 5 | speed | turf | high | 위키백과 Diktat (horse): 1995–2017, 부 Warning 확인. 7f 중심, 최대 우승 2회 단거리 |
+| stl_warning | Warning | 1985 | US | Known Fact (stl_known_fact) | — (Roberto 파일 없음) | 5 | speed | turf | medium | 위키백과 Warning (British horse): 1985–2000, 부 Known Fact 확인. 소개문 "British" 와 인포박스 country "United States" 불일치 → 인포박스 값 채택 |
+| stl_known_fact | Known Fact | 1977 | US | In Reality (stl_in_reality) | — (Tim Tam 파일 없음) | 5 | speed | turf | high | 위키백과 Known Fact: 1977–2000, 부 In Reality 확인. 마일 챔피언 기재 |
+| stl_in_reality | In Reality | 1964 | US | Intentionally (stl_intentionally) | — (Rough'n Tumble 파일 없음) | 5 | speed | dirt | low | 위키백과 In Reality: 1964–1989, 부 Intentionally 확인. 본문에 거리 미기재 → speed + low (명세 폴백). 표면 dirt 는 미국 기록 기준 추정 |
+| stl_intentionally | Intentionally | 1956 | US | — (미확인 고리: Intent) | — (Discovery 파일 없음) | 5 | speed | dirt | medium | 위키백과 Intentionally (horse): 1956–1970, 미국 스프린터 챔피언 기재, 8f 기록. 부 Intent 는 아래 미확인 고리 |
+
+### 미확인 고리 (null 처리, 지어내지 않음)
+- **Galiway (Sealiway 의 부)**: Sealiway 문서 혈통표에 "Galiway (GB) 2011", 부의 부 Galileo (IRE) 1998 이 있어 출생연도·국·부(Galileo)는 확인. 그러나 Galiway 독립 위키백과 항목이 없고(제목 404, 검색 결과에 Sealiway 만 등장), 사망·은퇴·계류 상태를 확인하지 못했다. status 값을 정할 수 없어 **레코드를 보류**했다. Sealiway.sireKey = null, 계통은 Galileo 계통 `sl_sadlers_wells`. 상태가 확인되면 `stl_galiway`(2011 GB, 부 stl_galileo) 추가 가능 (Opus 질문 1).
+- **Tasleet (Bradsell 의 부)**: Tasleet, Tasleet (horse), Tasleet (racehorse), Tasleet (stallion) 모두 404. 검색 "Tasleet racehorse" 결과에 본인 항목 없음. Bradsell.sireKey = null.
+- **Showcasing (명세의 Tasleet 부)**: Showcasing, (horse), (racehorse), (stallion) 모두 404. 검색 결과에 항목 없음. 따라서 Oasis Dream 연결도 확인 불가.
+- **Mehmas (Aesterius 의 부)**: Mehmas, (horse), (racehorse) 404. 검색 "Mehmas racehorse" 결과에 본인 항목 없음. 명세의 Acclamation 연결도 확인 불가. Aesterius.sireKey = null.
+- **Bradsell 문서**: "Bradsell" 은 동명 인물 문서로 redirect, "Bradsell (horse)" 404. 검색 "Bradsell racehorse" 는 60초 대기 후에도 429 로 실패 → 항목 없음으로 판단하되 검색 결과로는 최종 확인하지 못함.
+- **Intent (Intentionally 의 부)**: Intentionally 인포박스 부 링크 "Intent (horse)" 404 (Wikimedia 오류 페이지). Intentionally.sireKey = null.
+- **damsire 파일 미존재 (null, 외조부 추가 금지 — M2-01e 이관)**: Anabaa Blue, Kendargent, So You Think, Dynaformer, Selkirk, Monsun, Bering, Archipenko, Hallowed Crown, Cadeaux Genereux, Roberto, Tim Tam, Rough'n Tumble, Discovery.
+- **Warning 출생국**: 인포박스 United States 와 소개문 British 충돌 → US 채택, medium.
+
+### 계통 결정 (Haiku 판단, Opus 확인 요청)
+- `sl_intentionally` (Intentionally line, 루트) 신설: Intentionally → In Reality → Known Fact → Warning → Diktat → Dream Ahead 체인을 한 계통으로 묶었다. founder = stl_intentionally (sireLineId 자기 계통). 계통 수 30 (상한).
+- 부 미확인 고리 종마의 계통은 명세가 제시한 체인의 가장 가까운 기존 조상 계통을 추정으로 썼다: Bradsell → `sl_danzig`(Oasis Dream 계통), Aesterius → `sl_northern_dancer`(Acclamation 계통). 두 건 모두 confidence medium, 부 연결은 null.
+- Sealiway 계통은 Galileo 계통 `sl_sadlers_wells`.
+
+### 검증
+- 위키백과 조회: action=raw 로 Sealiway, Diktat (horse), Warning (British horse), Known Fact, In Reality, Intentionally (horse) 를 확인. 요청 간 3초 이상 간격 유지. 검색 API(api.php) 는 429 가 반복되어 60초 대기 후 재시도했고, 재시도 후에도 429 인 항목(Bradsell)은 확인하지 못했다.
+- 테스트: `tests/data/stallions.test.ts` 에 studRole 값 검사, nh ≥ 3, cup ≥ 3 추가. 현역 부계 깊이 예외 목록을 5두로 갱신(명세에 없던 변경, Opus 승인 필요).
+- 명세 3번 금지어 grep (`_review.md` + `stallions/*.json`): 0건.
+
+### Opus 질문
+1. Galiway 상태(사망·은퇴·계류)를 확인할 자료가 있으면 `stl_galiway` 레코드(2011 GB, 부 Galileo) 추가 여부. 현재는 보류.
+2. Warning 출생국: 인포박스 US 채택(현재) vs GB 로 바꿀지.
+3. 계통 `sl_intentionally` 신설(30번째) 승인 여부. 대안은 `sl_phalaris` 루트에 편입(계통 수 유지).
+4. 테스트 예외 목록 갱신(Sealiway, Bradsell, Aesterius 추가) 승인 여부.
+5. 명세 표에 confidence 값이 없어 Haiku 가 "기존 부 연결 확인 + 출생국 확인" 기준으로 부여했다. 조정 필요하면 알려 달라.

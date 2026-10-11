@@ -172,5 +172,11 @@
     "label": "Ardad line",
     "parentLineId": null,
     "founderKey": "stl_ardad"
+  },
+  {
+    "id": "sl_intentionally",
+    "label": "Intentionally line",
+    "parentLineId": null,
+    "founderKey": "stl_intentionally"
   }
 ]

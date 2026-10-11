@@ -122,3 +122,4 @@
 - 2026-10-11 | 사용자 | 비시즌(12~3월)은 올웨더 리스티드 이하 경주만.
 - 2026-10-11 | 사용자 | M3 에서 유럽 경마장 24곳 전부 구축, 원정 2곳(미·호)은 M5.
 - 2026-10-11 | 사용자 | 경주마 이름에 사망 후 70년 이상 역사 인물(예술·문학·음악·탐험·과학) 허용 — CLAUDE.md 원칙 1 예외 3 추가. 정치·종교·근현대·경마계 인물 금지, 사람 이름은 전부 가상.
+- 2026-10-11 | 승인 | M2-01d 사용자 제공 15두 — 222두, cup 3·NH 3 확보, Daryz 갱신(FR·middle). 조상 Diktat←Warning←Known Fact←In Reality←Intentionally(계통 sl_intentionally 신설 승인). 미확인 고리: Galiway, Tasleet, Showcasing, Mehmas → Sealiway·Bradsell·Aesterius 부계 예외(사용자 정보 요청).
