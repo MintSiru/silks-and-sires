@@ -15,22 +15,27 @@
         "closed": false,
         "width": 26,
         "segments": [
-          { "kind": "straight", "length": 450, "rise": 12 },
-          { "kind": "bend", "length": 300, "radius": 250, "turn": "left", "rise": 6 },
-          { "kind": "straight", "length": 500, "rise": -4 },
-          { "kind": "bend", "length": 450, "radius": 280, "turn": "left", "rise": -18 },
-          { "kind": "straight", "length": 350, "rise": -6 },
-          { "kind": "straight", "length": 450, "rise": 4 }
+          { "kind": "straight", "length": 450, "rise": 8 },
+          { "kind": "bend", "length": 174.53, "radius": 500, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 400, "rise": 0 },
+          { "kind": "bend", "length": 314.16, "radius": 300, "turn": "left", "rise": -8 },
+          { "kind": "bend", "length": 148.35, "radius": 170, "turn": "left", "rise": -4 },
+          { "kind": "straight", "length": 150, "rise": 0 },
+          { "kind": "bend", "length": 130.9, "radius": 250, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 500, "rise": 0, "camber": 0.6 },
+          { "kind": "straight", "length": 200, "rise": 3, "camber": 0.6 }
         ]
       }
     ],
     "distances": [
       { "distance": 1006, "layoutId": "ashcombe_main" },
       { "distance": 1207, "layoutId": "ashcombe_main" },
-      { "distance": 1609, "layoutId": "ashcombe_main" },
+      { "distance": 1408, "layoutId": "ashcombe_main" },
+      { "distance": 1710, "layoutId": "ashcombe_main" },
       { "distance": 2012, "layoutId": "ashcombe_main" },
       { "distance": 2414, "layoutId": "ashcombe_main" }
-    ]
+    ],
+    "features": ["uphill_finish", "downhill_run", "camber", "tight_turns", "undulating"]
   },
   {
     "id": "marlow_downs",
@@ -38,7 +43,7 @@
     "country": "GB",
     "surface": "turf",
     "handedness": "straight",
-    "undulation": 0.4,
+    "undulation": 0.3,
     "drainage": 0.8,
     "layouts": [
       {
@@ -46,12 +51,23 @@
         "label": "Straight Course",
         "handedness": "straight",
         "closed": false,
+        "width": 40,
+        "segments": [
+          { "kind": "straight", "length": 1000, "rise": 0 },
+          { "kind": "straight", "length": 640, "rise": 0 },
+          { "kind": "straight", "length": 200, "rise": -3 },
+          { "kind": "straight", "length": 200, "rise": 4 }
+        ]
+      },
+      {
+        "id": "marlow_july",
+        "label": "Summer Straight Course",
+        "handedness": "straight",
+        "closed": false,
         "width": 36,
         "segments": [
-          { "kind": "straight", "length": 800, "rise": -6 },
-          { "kind": "straight", "length": 700, "rise": 2 },
-          { "kind": "straight", "length": 312, "rise": -6 },
-          { "kind": "straight", "length": 200, "rise": 5 }
+          { "kind": "straight", "length": 1000, "rise": 0 },
+          { "kind": "straight", "length": 800, "rise": 2 }
         ]
       },
       {
@@ -62,10 +78,12 @@
         "width": 30,
         "segments": [
           { "kind": "straight", "length": 600, "rise": 0 },
-          { "kind": "bend", "length": 500, "radius": 300, "turn": "right", "rise": 0 },
-          { "kind": "straight", "length": 1000, "rise": -3 },
-          { "kind": "bend", "length": 400, "radius": 260, "turn": "right", "rise": 2 },
-          { "kind": "straight", "length": 900, "rise": 1 }
+          { "kind": "bend", "length": 575.96, "radius": 300, "turn": "right", "rise": -3 },
+          { "kind": "straight", "length": 800, "rise": -3 },
+          { "kind": "bend", "length": 174.53, "radius": 500, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 900, "rise": 2 },
+          { "kind": "bend", "length": 268.78, "radius": 220, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 700, "rise": 1 }
         ]
       }
     ],
@@ -74,10 +92,351 @@
       { "distance": 1207, "layoutId": "marlow_straight" },
       { "distance": 1408, "layoutId": "marlow_straight" },
       { "distance": 1609, "layoutId": "marlow_straight" },
+      { "distance": 1811, "layoutId": "marlow_straight" },
       { "distance": 2012, "layoutId": "marlow_straight" },
+      { "distance": 1006, "layoutId": "marlow_july" },
+      { "distance": 1207, "layoutId": "marlow_july" },
+      { "distance": 1609, "layoutId": "marlow_july" },
       { "distance": 2414, "layoutId": "marlow_round" },
-      { "distance": 3219, "layoutId": "marlow_round" }
-    ]
+      { "distance": 2816, "layoutId": "marlow_round" },
+      { "distance": 3219, "layoutId": "marlow_round" },
+      { "distance": 3620, "layoutId": "marlow_round" }
+    ],
+    "features": ["straight_course", "dip", "uphill_finish", "galloping"]
+  },
+  {
+    "id": "kingsmere_heath",
+    "name": "Kingsmere Heath",
+    "country": "GB",
+    "surface": "turf",
+    "handedness": "right",
+    "undulation": 0.6,
+    "drainage": 0.9,
+    "layouts": [
+      {
+        "id": "kingsmere_straight",
+        "label": "Straight Course",
+        "handedness": "straight",
+        "closed": false,
+        "width": 30,
+        "segments": [
+          { "kind": "straight", "length": 1000, "rise": -8 },
+          { "kind": "straight", "length": 800, "rise": 6 }
+        ]
+      },
+      {
+        "id": "kingsmere_triangle",
+        "label": "Triangle Course",
+        "handedness": "right",
+        "closed": true,
+        "width": 28,
+        "segments": [
+          { "kind": "bend", "length": 562, "radius": 280, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 1064.9, "rise": 14 },
+          { "kind": "bend", "length": 837.76, "radius": 320, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 520.9, "rise": -10 },
+          { "kind": "bend", "length": 174.53, "radius": 500, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 400, "rise": -10 },
+          { "kind": "bend", "length": 314.16, "radius": 240, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 500, "rise": 6 }
+        ]
+      }
+    ],
+    "distances": [
+      { "distance": 1006, "layoutId": "kingsmere_straight" },
+      { "distance": 1207, "layoutId": "kingsmere_straight" },
+      { "distance": 1609, "layoutId": "kingsmere_straight" },
+      { "distance": 1609, "layoutId": "kingsmere_triangle" },
+      { "distance": 2012, "layoutId": "kingsmere_triangle" },
+      { "distance": 2414, "layoutId": "kingsmere_triangle" },
+      { "distance": 3218, "layoutId": "kingsmere_triangle" },
+      { "distance": 4023, "layoutId": "kingsmere_triangle" }
+    ],
+    "features": ["uphill_finish", "downhill_run", "straight_course", "undulating"]
+  },
+  {
+    "id": "easterholm",
+    "name": "Easterholm",
+    "country": "GB",
+    "surface": "turf",
+    "handedness": "left",
+    "undulation": 0.1,
+    "drainage": 0.7,
+    "layouts": [
+      {
+        "id": "easterholm_main",
+        "label": "Main Course",
+        "handedness": "left",
+        "closed": false,
+        "width": 34,
+        "segments": [
+          { "kind": "straight", "length": 1100, "rise": 0 },
+          { "kind": "bend", "length": 733.04, "radius": 350, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 500, "rise": 0 },
+          { "kind": "bend", "length": 218.17, "radius": 500, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 300, "rise": 0 },
+          { "kind": "bend", "length": 239.98, "radius": 250, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 900, "rise": 0 }
+        ]
+      },
+      {
+        "id": "easterholm_straight",
+        "label": "Straight Course",
+        "handedness": "straight",
+        "closed": false,
+        "width": 34,
+        "segments": [
+          { "kind": "straight", "length": 1100, "rise": 0 }
+        ]
+      }
+    ],
+    "distances": [
+      { "distance": 1006, "layoutId": "easterholm_straight" },
+      { "distance": 1207, "layoutId": "easterholm_main" },
+      { "distance": 1408, "layoutId": "easterholm_main" },
+      { "distance": 1609, "layoutId": "easterholm_main" },
+      { "distance": 2072, "layoutId": "easterholm_main" },
+      { "distance": 2414, "layoutId": "easterholm_main" },
+      { "distance": 2816, "layoutId": "easterholm_main" },
+      { "distance": 3319, "layoutId": "easterholm_main" }
+    ],
+    "features": ["galloping", "long_straight"]
+  },
+  {
+    "id": "selsworth_downs",
+    "name": "Selsworth Downs",
+    "country": "GB",
+    "surface": "turf",
+    "handedness": "right",
+    "undulation": 0.9,
+    "drainage": 0.7,
+    "layouts": [
+      {
+        "id": "selsworth_main",
+        "label": "Round Course",
+        "handedness": "right",
+        "closed": false,
+        "width": 30,
+        "segments": [
+          { "kind": "straight", "length": 900, "rise": 14 },
+          { "kind": "bend", "length": 499.16, "radius": 260, "turn": "right", "rise": -6 },
+          { "kind": "straight", "length": 600, "rise": -22 },
+          { "kind": "bend", "length": 174.53, "radius": 500, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 500, "rise": 20 },
+          { "kind": "bend", "length": 287.98, "radius": 220, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 350, "rise": -12 },
+          { "kind": "bend", "length": 251.33, "radius": 160, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 200, "rise": -4 },
+          { "kind": "straight", "length": 300, "rise": 0 }
+        ]
+      },
+      {
+        "id": "selsworth_straight",
+        "label": "Straight Course",
+        "handedness": "straight",
+        "closed": false,
+        "width": 30,
+        "segments": [
+          { "kind": "straight", "length": 1250, "rise": 0 }
+        ]
+      }
+    ],
+    "distances": [
+      { "distance": 1006, "layoutId": "selsworth_main" },
+      { "distance": 1207, "layoutId": "selsworth_straight" },
+      { "distance": 1408, "layoutId": "selsworth_main" },
+      { "distance": 1609, "layoutId": "selsworth_main" },
+      { "distance": 2012, "layoutId": "selsworth_main" },
+      { "distance": 2414, "layoutId": "selsworth_main" },
+      { "distance": 3218, "layoutId": "selsworth_main" }
+    ],
+    "features": ["undulating", "downhill_run", "tight_turns", "straight_course"]
+  },
+  {
+    "id": "dunholme_moor",
+    "name": "Dunholme Moor",
+    "country": "GB",
+    "surface": "turf",
+    "handedness": "left",
+    "undulation": 0.1,
+    "drainage": 0.5,
+    "layouts": [
+      {
+        "id": "dunholme_straight",
+        "label": "Straight Course",
+        "handedness": "straight",
+        "closed": false,
+        "width": 32,
+        "segments": [
+          { "kind": "straight", "length": 1700, "rise": 0 }
+        ]
+      },
+      {
+        "id": "dunholme_main",
+        "label": "Main Course",
+        "handedness": "left",
+        "closed": false,
+        "width": 32,
+        "segments": [
+          { "kind": "straight", "length": 1400, "rise": 0 },
+          { "kind": "bend", "length": 642.28, "radius": 320, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 350, "rise": 0 },
+          { "kind": "bend", "length": 218.17, "radius": 500, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 300, "rise": 0 },
+          { "kind": "bend", "length": 272.27, "radius": 260, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 1000, "rise": 0 }
+        ]
+      }
+    ],
+    "distances": [
+      { "distance": 1609, "layoutId": "dunholme_straight" },
+      { "distance": 1006, "layoutId": "dunholme_main" },
+      { "distance": 1207, "layoutId": "dunholme_main" },
+      { "distance": 1408, "layoutId": "dunholme_main" },
+      { "distance": 1609, "layoutId": "dunholme_main" },
+      { "distance": 2012, "layoutId": "dunholme_main" },
+      { "distance": 2414, "layoutId": "dunholme_main" },
+      { "distance": 2921, "layoutId": "dunholme_main" },
+      { "distance": 3620, "layoutId": "dunholme_main" }
+    ],
+    "features": ["galloping", "long_straight", "straight_course"]
+  },
+  {
+    "id": "ravensbridge_park",
+    "name": "Ravensbridge Park",
+    "country": "GB",
+    "surface": "turf",
+    "handedness": "right",
+    "undulation": 0.5,
+    "drainage": 0.7,
+    "layouts": [
+      {
+        "id": "ravensbridge_oval",
+        "label": "Oval Course",
+        "handedness": "right",
+        "closed": true,
+        "width": 26,
+        "segments": [
+          { "kind": "bend", "length": 614.36, "radius": 320, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 804.3, "rise": -8 },
+          { "kind": "bend", "length": 460.77, "radius": 220, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 368.5, "rise": 0 },
+          { "kind": "bend", "length": 174.53, "radius": 500, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 500, "rise": 0 },
+          { "kind": "bend", "length": 499.16, "radius": 260, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 600, "rise": 8 }
+        ]
+      },
+      {
+        "id": "ravensbridge_straight",
+        "label": "Straight Course",
+        "handedness": "straight",
+        "closed": false,
+        "width": 26,
+        "segments": [
+          { "kind": "straight", "length": 600, "rise": 0 },
+          { "kind": "straight", "length": 600, "rise": 8 }
+        ]
+      }
+    ],
+    "distances": [
+      { "distance": 1006, "layoutId": "ravensbridge_straight" },
+      { "distance": 1609, "layoutId": "ravensbridge_oval" },
+      { "distance": 2012, "layoutId": "ravensbridge_oval" },
+      { "distance": 2414, "layoutId": "ravensbridge_oval" }
+    ],
+    "features": ["uphill_finish", "short_straight"]
+  },
+  {
+    "id": "aldermoor_park",
+    "name": "Aldermoor Park",
+    "country": "GB",
+    "surface": "turf",
+    "handedness": "left",
+    "undulation": 0.2,
+    "drainage": 0.6,
+    "layouts": [
+      {
+        "id": "aldermoor_main",
+        "label": "Main Course",
+        "handedness": "left",
+        "closed": false,
+        "width": 28,
+        "segments": [
+          { "kind": "straight", "length": 1200, "rise": 2 },
+          { "kind": "bend", "length": 537.56, "radius": 280, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 500, "rise": 0 },
+          { "kind": "bend", "length": 218.17, "radius": 500, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 400, "rise": -1 },
+          { "kind": "bend", "length": 226.89, "radius": 200, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 900, "rise": 1 }
+        ]
+      },
+      {
+        "id": "aldermoor_straight",
+        "label": "Straight Course",
+        "handedness": "straight",
+        "closed": false,
+        "width": 26,
+        "segments": [
+          { "kind": "straight", "length": 1250, "rise": 0 }
+        ]
+      }
+    ],
+    "distances": [
+      { "distance": 1006, "layoutId": "aldermoor_main" },
+      { "distance": 1207, "layoutId": "aldermoor_straight" },
+      { "distance": 1609, "layoutId": "aldermoor_main" },
+      { "distance": 2012, "layoutId": "aldermoor_main" },
+      { "distance": 2816, "layoutId": "aldermoor_main" }
+    ],
+    "features": ["galloping", "straight_course"]
+  },
+  {
+    "id": "wexborough",
+    "name": "Wexborough",
+    "country": "GB",
+    "surface": "turf",
+    "handedness": "left",
+    "undulation": 0.1,
+    "drainage": 0.7,
+    "layouts": [
+      {
+        "id": "wexborough_main",
+        "label": "Main Course",
+        "handedness": "left",
+        "closed": false,
+        "width": 32,
+        "segments": [
+          { "kind": "straight", "length": 1100, "rise": 0 },
+          { "kind": "bend", "length": 544.54, "radius": 260, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 600, "rise": 0 },
+          { "kind": "bend", "length": 239.98, "radius": 550, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 350, "rise": 0 },
+          { "kind": "bend", "length": 172.79, "radius": 180, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 1000, "rise": 0 }
+        ]
+      },
+      {
+        "id": "wexborough_straight",
+        "label": "Straight Course",
+        "handedness": "straight",
+        "closed": false,
+        "width": 30,
+        "segments": [
+          { "kind": "straight", "length": 1700, "rise": 0 }
+        ]
+      }
+    ],
+    "distances": [
+      { "distance": 1006, "layoutId": "wexborough_main" },
+      { "distance": 1207, "layoutId": "wexborough_main" },
+      { "distance": 1408, "layoutId": "wexborough_main" },
+      { "distance": 1609, "layoutId": "wexborough_straight" },
+      { "distance": 2012, "layoutId": "wexborough_main" },
+      { "distance": 2414, "layoutId": "wexborough_main" }
+    ],
+    "features": ["galloping", "straight_course", "long_straight"]
   },
   {
     "id": "saint_ourens",

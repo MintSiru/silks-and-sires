@@ -118,21 +118,91 @@ function sumLengths(layout: TrackLayout): number {
 }
 
 describe('racecourses.json', () => {
-  it('경마장 4곳, 잔디 3·AW 1, id 중복 없음', () => {
-    expect(racecourses.length).toBe(4);
+  it('경마장 11곳(영국 9·프랑스 1·아일랜드 AW 1), 잔디 10·AW 1, id 중복 없음', () => {
+    expect(racecourses.length).toBe(11);
     const ids = racecourses.map((c) => c.id);
     expect(new Set(ids).size).toBe(ids.length);
-    expect(racecourses.filter((c) => c.surface === 'turf').length).toBe(3);
+    expect(racecourses.filter((c) => c.surface === 'turf').length).toBe(10);
     expect(racecourses.filter((c) => c.surface === 'aw').length).toBe(1);
   });
 
-  it('모든 distances 의 layoutId 는 그 경마장 layouts 에 존재하고, 거리 값은 경마장 안에서 중복되지 않는다', () => {
+  it('영국 9곳(M3-A3a)은 명세의 필수 거리를 갖고, 필수 특징 태그를 포함한다', () => {
+    const required: Record<string, { distances: number[]; features: string[] }> = {
+      ashcombe: { distances: [1006, 1408, 1710, 2414], features: ['uphill_finish', 'downhill_run', 'camber', 'tight_turns', 'undulating'] },
+      marlow_downs: { distances: [1006, 1207, 1408, 1609, 1811, 2012, 2414, 2816, 3620], features: ['straight_course', 'dip', 'uphill_finish', 'galloping'] },
+      kingsmere_heath: { distances: [1006, 1207, 1609, 2012, 2414, 3218, 4023], features: ['uphill_finish', 'downhill_run', 'straight_course', 'undulating'] },
+      easterholm: { distances: [1006, 1207, 1408, 1609, 2072, 2414, 2816, 3319], features: ['galloping', 'long_straight'] },
+      selsworth_downs: { distances: [1006, 1207, 1408, 1609, 2012, 2414, 3218], features: ['undulating', 'downhill_run', 'tight_turns', 'straight_course'] },
+      dunholme_moor: { distances: [1006, 1207, 1408, 1609, 2012, 2414, 2921, 3620], features: ['galloping', 'long_straight', 'straight_course'] },
+      ravensbridge_park: { distances: [1006, 1609, 2012, 2414], features: ['uphill_finish', 'short_straight'] },
+      aldermoor_park: { distances: [1006, 1207, 1609, 2012, 2816], features: ['galloping', 'straight_course'] },
+      wexborough: { distances: [1006, 1207, 1408, 1609, 2012, 2414], features: ['galloping', 'straight_course', 'long_straight'] },
+    };
+    for (const [id, spec] of Object.entries(required)) {
+      const course = racecourses.find((c) => c.id === id);
+      expect(course, id).toBeDefined();
+      if (course === undefined) continue;
+      const have = course.distances.map((d) => d.distance);
+      for (const d of spec.distances) expect(have, `${id} ${d}`).toContain(d);
+      for (const f of spec.features) expect(course.features ?? [], `${id} ${f}`).toContain(f);
+    }
+  });
+
+  it('모든 distances 의 layoutId 는 그 경마장 layouts 에 존재하고, (distance, layoutId) 쌍은 경마장 안에서 중복되지 않는다', () => {
     for (const course of racecourses) {
       const layoutIds = new Set(course.layouts.map((l) => l.id));
-      const distances = course.distances.map((d) => d.distance);
-      expect(new Set(distances).size).toBe(distances.length);
+      const pairs = course.distances.map((d) => `${d.distance}|${d.layoutId}`);
+      expect(new Set(pairs).size, course.id).toBe(pairs.length);
       for (const d of course.distances) {
         expect(layoutIds.has(d.layoutId), `${course.id}: ${d.layoutId}`).toBe(true);
+      }
+    }
+  });
+
+  it('같은 거리를 두 레이아웃이 나눠 쓰면 첫 항목이 기본(주) 레이아웃이다 (Rowley 직선 먼저)', () => {
+    const marlow = racecourses.find((c) => c.id === 'marlow_downs');
+    expect(marlow?.distances.find((d) => d.distance === 1609)?.layoutId).toBe('marlow_straight');
+    const dunholme = racecourses.find((c) => c.id === 'dunholme_moor');
+    expect(dunholme?.distances.find((d) => d.distance === 1609)?.layoutId).toBe('dunholme_straight');
+    const kingsmere = racecourses.find((c) => c.id === 'kingsmere_heath');
+    expect(kingsmere?.distances.find((d) => d.distance === 1609)?.layoutId).toBe('kingsmere_straight');
+  });
+
+  it('영국 9곳 라운드 레이아웃(커브 2개 이상) 형상 규칙 (2차 검수 반려 1번)', () => {
+    const DEG = 180 / Math.PI;
+    /** 회전각(도)이 90의 배수에서 10도 이상 떨어져 있는가 */
+    const offMultiple90 = (deg: number): boolean => {
+      const r = ((deg % 90) + 90) % 90;
+      return Math.min(r, 90 - r) > 10;
+    };
+    for (const course of racecourses.filter((c) => c.country === 'GB')) {
+      for (const layout of course.layouts) {
+        const bends = layout.segments.filter((s) => s.kind === 'bend');
+        if (bends.length < 2) continue;
+        const ctx = `${course.id}/${layout.id}`;
+        const curves = bends.map((s) => ({
+          radius: s.radius as number,
+          deg: (s.length / (s.radius as number)) * DEG,
+        }));
+        // 규칙 1: 반경 종류 2개 이상, 최대/최소 >= 1.3
+        const radii = [...new Set(curves.map((c) => c.radius))];
+        expect(radii.length, `${ctx} 반경 종류`).toBeGreaterThanOrEqual(2);
+        expect(Math.max(...radii) / Math.min(...radii), `${ctx} 반경 비율`).toBeGreaterThanOrEqual(1.3);
+        // 규칙 2: 90·180 의 정수배(±10°)가 아닌 커브 최소 1개
+        expect(curves.some((c) => offMultiple90(c.deg)), `${ctx} 비정수배 커브`).toBe(true);
+        // 규칙 3: 직선 사이 15~35° 엘보(반경 400~700)
+        expect(
+          curves.some((c) => c.radius >= 400 && c.radius <= 700 && c.deg >= 15 && c.deg <= 35),
+          `${ctx} 엘보`,
+        ).toBe(true);
+        // 규칙 4: 좌우 대칭 스타디움 금지 (같은 반경 두 커브 + 같은 길이 두 직선)
+        const straights = layout.segments.filter((s) => s.kind === 'straight');
+        const stadium =
+          bends.length === 2 &&
+          bends[0]?.radius === bends[1]?.radius &&
+          straights.length === 2 &&
+          straights[0]?.length === straights[1]?.length;
+        expect(stadium, `${ctx} 스타디움`).toBe(false);
       }
     }
   });
@@ -185,12 +255,13 @@ describe('racecourses.json', () => {
 });
 
 describe('races.json', () => {
-  it('레이스 12개, id 중복 없음, 경마장마다 3개', () => {
+  it('레이스 12개, id 중복 없음, 레이스가 정의된 경마장마다 3개 (나머지 경마장의 레이스는 M3-A4 에서 추가)', () => {
     expect(races.length).toBe(12);
     const ids = races.map((r) => r.id);
     expect(new Set(ids).size).toBe(ids.length);
     for (const course of racecourses) {
       const count = races.filter((r) => r.racecourseId === course.id).length;
+      if (count === 0) continue;
       expect(count, course.id).toBe(EXPECTED_DISTANCE_SLOTS);
     }
   });
@@ -206,6 +277,7 @@ describe('races.json', () => {
   it('경마장별 슬롯: 잔디는 그룹 1 + 핸디캡 1 + 메이든 1, AW 는 리스티드 1 + 핸디캡 1 + 메이든 1', () => {
     for (const course of racecourses) {
       const mine = races.filter((r) => r.racecourseId === course.id);
+      if (mine.length === 0) continue;
       const kinds = mine.map((r) => r.kind).sort();
       const expected = course.surface === 'aw'
         ? ['handicap', 'listed', 'maiden']

@@ -48,8 +48,8 @@ function runOne(raceId: string, seed: number, size: number, recordReplay?: boole
 }
 
 describe('staticData', () => {
-  it('경마장 4, 레이스 12, 이름 풀 80/30/30 이다', () => {
-    expect(getRacecourses()).toHaveLength(4);
+  it('경마장 11, 레이스 12, 이름 풀 80/30/30 이다', () => {
+    expect(getRacecourses()).toHaveLength(11);
     expect(getRaces()).toHaveLength(12);
     const pool = getNamePool();
     expect(pool.horses).toHaveLength(80);
