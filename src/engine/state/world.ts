@@ -170,6 +170,7 @@ export function bootstrapWorld(state: GameState, data: WorldStaticData, rng: Rng
     const mareRecord: Mare = {
       horseId: mare.id,
       coveredBy: null,
+        coveredWeek: null,
       pregnant: false,
       dueWeek: null,
       foals: [],

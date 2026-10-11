@@ -158,6 +158,8 @@ export interface Mare {
   horseId: HorseId;
   /** 이번 시즌 교배 종마 */
   coveredBy: HorseId | null;
+  /** 교배 예약 시점: 연도 × 100 + 주 (예: 202610). 예약이 없으면 null. 수태 판정은 이 주가 지난 뒤에 한다 */
+  coveredWeek: number | null;
   pregnant: boolean;
   /** 출산 예정: 연도 × 100 + 주 (예: 202707) — 임신 중일 때만 */
   dueWeek: number | null;
