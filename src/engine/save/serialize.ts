@@ -14,6 +14,12 @@ export const MIGRATIONS: Readonly<Record<number, Migration>> = {
     const year = typeof date?.year === 'number' ? date.year : 2026;
     return { ...state, seasonState: createEmptySeasonState(year) };
   },
+  /** v2 → v3 (M3-C3): OR 미부여 말의 퍼포먼스 레이팅 보관 */
+  2: (state) => {
+    const season = state.seasonState as Record<string, unknown> | undefined;
+    if (season === undefined) return state;
+    return { ...state, seasonState: { ...season, unratedFigures: season.unratedFigures ?? {} } };
+  },
 };
 
 /** 구조 상수(형식 규칙). 밸런스 수치가 아니므로 여기 둔다. */

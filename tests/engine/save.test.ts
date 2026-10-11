@@ -312,8 +312,24 @@ describe('저장 마이그레이션 v1 → v2 (M3)', () => {
     const result = deserializeGame(json);
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(result.state.schemaVersion).toBe(2);
+      expect(result.state.schemaVersion).toBe(SAVE_SCHEMA_VERSION);
       expect(result.state.seasonState).toEqual(createEmptySeasonState(v2.date.year));
+    }
+  });
+});
+
+describe('저장 마이그레이션 v2 → v3 (M3-C3)', () => {
+  it('unratedFigures 가 없는 v2 저장본에 빈 맵을 채운다', () => {
+    const v3 = makeState();
+    const { unratedFigures: _omit, ...season } = v3.seasonState;
+    void _omit;
+    const v2 = { ...v3, schemaVersion: 2, seasonState: season };
+    const json = JSON.stringify({ format: 'silks-and-sires-save', schemaVersion: 2, savedAt: '2026-10-11T00:00:00.000Z', state: v2 });
+    const result = deserializeGame(json);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.state.schemaVersion).toBe(3);
+      expect(result.state.seasonState.unratedFigures).toEqual({});
     }
   });
 });

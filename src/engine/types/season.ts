@@ -149,6 +149,8 @@ export interface SeasonState {
   leading: LeadingTables;
   /** 말별 OR 변동 이력(최근 N건, config) */
   ratingHistory: Record<HorseId, RatingChange[]>;
+  /** OR 이 아직 없는 말의 출주별 퍼포먼스 레이팅(OR 척도). 첫 OR 을 매기면 지운다 (M3-C3) */
+  unratedFigures: Record<HorseId, number[]>;
   /** 자동 생성 레이스 id 일련번호 */
   nextGeneratedRace: number;
   /** 말별 마지막 출주일(연속 출주 제한·컨디션 계산용) */

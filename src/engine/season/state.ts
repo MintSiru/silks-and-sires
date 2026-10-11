@@ -13,6 +13,7 @@ export function createEmptySeasonState(year: number): SeasonState {
     series: {},
     leading: emptyLeadingTables(),
     ratingHistory: {},
+    unratedFigures: {},
     nextGeneratedRace: 1,
     lastRun: {},
     lastPopulationYear: null,
