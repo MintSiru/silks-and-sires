@@ -1,0 +1,300 @@
+import {
+  POPULATION_ABILITY_SPREAD,
+  POPULATION_AGE_SHARES,
+  POPULATION_COUNTRY_ORDER,
+  POPULATION_DISTANCE_DEFAULT_MEDIAN,
+  POPULATION_DISTANCE_SIRE_WEIGHT,
+  POPULATION_FEMALE_SHARE,
+  POPULATION_GELDING_MIN_AGE,
+  POPULATION_GELDING_SHARE,
+  POPULATION_IN_TRAINING,
+  POPULATION_OWNER_TIER_WEIGHT,
+  POPULATION_RATING_MIN_AGE,
+  POPULATION_SIRE_SAME_COUNTRY_MULT,
+  POPULATION_SIRE_TIER_WEIGHT,
+  POPULATION_TIER_LEVEL,
+  POPULATION_TRAINER_SKILL_FLOOR,
+  type PopulationCountry,
+} from '../config/population';
+import { MIN_SIRE_AGE_AT_COVER, PROFILE_DISTANCE, SIRE_BIRTH_MARGIN_YEARS } from '../config/world';
+import { generateHorse, generateHorseName, type HorseWords } from '../horse/generate';
+import { sortStallionRecords } from '../state/stallionHorses';
+import { allocateHorseId } from '../state/world';
+import type {
+  GameState,
+  Horse,
+  HorseId,
+  HorseStatus,
+  Owner,
+  RealStallionRecord,
+  Rng,
+  Sex,
+  Trainer,
+  TrainerId,
+} from '../types';
+import { initialOfficialRating } from './rating';
+
+/** 현역마 집단 생성·교체에 필요한 정적 데이터 */
+export interface RacingPopulationStaticData {
+  /** 실명 종마 레코드(data/stallions/stallions.json). 부(父) 후보는 active·pensioned */
+  stallionRecords: readonly RealStallionRecord[];
+  /** 가상 말 이름 단어장 */
+  words: HorseWords;
+}
+
+/** AI 현역마 상태. 'resting' 도 현역에 포함한다(부상·휴양 중인 현역마). */
+const RACING_STATUSES: readonly HorseStatus[] = ['in_training', 'resting'];
+
+/** 말 한 마리 기준 현재 나이(연도 차) */
+export function ageOf(horse: Horse, year: number): number {
+  return year - horse.birthYear;
+}
+
+/** AI 소속 현역마인가(플레이어 소유·무소속 제외) */
+export function isRacingHorse(state: GameState, horse: Horse): boolean {
+  return (
+    RACING_STATUSES.includes(horse.status) &&
+    horse.ownerId !== null &&
+    horse.ownerId !== state.playerOwnerId
+  );
+}
+
+/** AI 현역마 ID 목록(오름차순). 순회 순서를 고정해 결정성을 지킨다. */
+export function racingHorseIds(state: GameState): HorseId[] {
+  return Object.keys(state.horses)
+    .sort()
+    .filter((id) => {
+      const horse = state.horses[id];
+      return horse !== undefined && isRacingHorse(state, horse);
+    });
+}
+
+/**
+ * 비율 배열을 정수 두수로 나눈다(최대 나머지법). 합은 반드시 total 이 된다.
+ * 나머지가 같으면 배열 순서가 앞선 쪽이 먼저 받는다. rng 를 쓰지 않는다.
+ */
+export function allocateCounts(total: number, shares: readonly { share: number }[]): number[] {
+  const raw = shares.map((s) => total * s.share);
+  const counts = raw.map((v) => Math.floor(v));
+  let remaining = total - counts.reduce((sum, c) => sum + c, 0);
+  const order = raw
+    .map((v, i) => ({ i, frac: v - Math.floor(v) }))
+    .sort((a, b) => b.frac - a.frac || a.i - b.i);
+  for (const { i } of order) {
+    if (remaining <= 0) break;
+    counts[i] = (counts[i] ?? 0) + 1;
+    remaining -= 1;
+  }
+  return counts;
+}
+
+/** 가중치 배열로 인덱스 하나를 고른다. rng.next() 를 정확히 1회 쓴다. */
+export function pickWeightedIndex(rng: Rng, weights: readonly number[]): number {
+  let total = 0;
+  for (const w of weights) total += w;
+  if (!(total > 0)) {
+    throw new RangeError('pickWeightedIndex: 가중치 합이 0 이하다');
+  }
+  const target = rng.next() * total;
+  let cumulative = 0;
+  for (let i = 0; i < weights.length; i++) {
+    cumulative += weights[i] ?? 0;
+    if (target < cumulative) return i;
+  }
+  return weights.length - 1;
+}
+
+/** 나라별 배정 상대(마주·조교사). 객체 참조는 state 의 레코드와 같다. */
+export interface PopulationMarket {
+  owners: Record<PopulationCountry, Owner[]>;
+  trainers: Record<PopulationCountry, Trainer[]>;
+  /** 조교사별 현재 현역마 두수 */
+  load: Map<TrainerId, number>;
+}
+
+/** 나라별 AI 마주·조교사 목록(ID 오름차순)과 현재 조교사 부하를 만든다. 없는 나라면 Error. */
+export function buildMarket(state: GameState): PopulationMarket {
+  const owners = {} as Record<PopulationCountry, Owner[]>;
+  const trainers = {} as Record<PopulationCountry, Trainer[]>;
+  const allOwners = Object.values(state.owners).sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  const allTrainers = Object.values(state.trainers).sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+
+  for (const country of POPULATION_COUNTRY_ORDER) {
+    const countryOwners = allOwners.filter((o) => !o.isPlayer && o.country === country);
+    const countryTrainers = allTrainers.filter((t) => t.country === country);
+    if (countryOwners.length === 0) {
+      throw new Error(`현역마 집단: ${country} AI 마주가 없다(인물 초기화 필요)`);
+    }
+    if (countryTrainers.length === 0) {
+      throw new Error(`현역마 집단: ${country} 조교사가 없다(인물 초기화 필요)`);
+    }
+    owners[country] = countryOwners;
+    trainers[country] = countryTrainers;
+  }
+
+  const load = new Map<TrainerId, number>();
+  for (const id of racingHorseIds(state)) {
+    const horse = state.horses[id];
+    if (horse?.trainerId) {
+      load.set(horse.trainerId, (load.get(horse.trainerId) ?? 0) + 1);
+    }
+  }
+  return { owners, trainers, load };
+}
+
+/** 같은 나라 조교사 중 수용 여유가 남은 사람을 skill 가중으로 고르고 부하를 1 올린다. */
+function pickTrainer(rng: Rng, market: PopulationMarket, country: PopulationCountry): Trainer {
+  const eligible = market.trainers[country].filter(
+    (t) => (market.load.get(t.id) ?? 0) < t.capacity,
+  );
+  if (eligible.length === 0) {
+    throw new RangeError(`현역마 집단: ${country} 조교사 수용 두수가 부족하다`);
+  }
+  const weights = eligible.map((t) => Math.max(t.skill, POPULATION_TRAINER_SKILL_FLOOR));
+  const trainer = eligible[pickWeightedIndex(rng, weights)] as Trainer;
+  market.load.set(trainer.id, (market.load.get(trainer.id) ?? 0) + 1);
+  return trainer;
+}
+
+/** 같은 나라 마주를 tier 가중으로 고른다. */
+function pickOwner(rng: Rng, market: PopulationMarket, country: PopulationCountry): Owner {
+  const pool = market.owners[country];
+  const weights = pool.map((o) => POPULATION_OWNER_TIER_WEIGHT[o.tier]);
+  return pool[pickWeightedIndex(rng, weights)] as Owner;
+}
+
+/** 출생 연도에 교배 가능했던 부(父) 후보: active·pensioned 이고 foaled ≤ birthYear − MIN_AGE − MARGIN */
+function sireCandidates(records: readonly RealStallionRecord[], birthYear: number): RealStallionRecord[] {
+  const latestFoaled = birthYear - MIN_SIRE_AGE_AT_COVER - SIRE_BIRTH_MARGIN_YEARS;
+  return records.filter(
+    (r) => (r.status === 'active' || r.status === 'pensioned') && r.foaled <= latestFoaled,
+  );
+}
+
+/** 부(父) 한 마리: marketTier 가중, 계류국이 같은 나라면 배수 */
+function pickSire(
+  rng: Rng,
+  records: readonly RealStallionRecord[],
+  birthYear: number,
+  country: PopulationCountry,
+): RealStallionRecord {
+  const candidates = sireCandidates(records, birthYear);
+  if (candidates.length === 0) {
+    throw new RangeError(`현역마 집단: 출생 ${birthYear}년 말의 교배 가능한 부(父)가 없다`);
+  }
+  const weights = candidates.map(
+    (c) =>
+      POPULATION_SIRE_TIER_WEIGHT[c.marketTier] *
+      (c.standsIn === country ? POPULATION_SIRE_SAME_COUNTRY_MULT : 1),
+  );
+  return candidates[pickWeightedIndex(rng, weights)] as RealStallionRecord;
+}
+
+export interface RacingHorseSpec {
+  country: PopulationCountry;
+  birthYear: number;
+  currentYear: number;
+  sex: Sex;
+  gelded: boolean;
+}
+
+/**
+ * 현역마 한 마리를 만들어 state.horses 에 넣고 마주·조교사 연결을 갱신한다(state 직접 수정).
+ * rng 사용 순서: 부 → 마주 → 조교사 → 이름 → 말 생성(generateHorse 내부).
+ */
+export function spawnRacingHorse(
+  state: GameState,
+  data: RacingPopulationStaticData,
+  rng: Rng,
+  market: PopulationMarket,
+  used: Set<string>,
+  spec: RacingHorseSpec,
+  records: readonly RealStallionRecord[],
+): Horse {
+  const sire = pickSire(rng, records, spec.birthYear, spec.country);
+  if (state.horses[sire.key] === undefined) {
+    throw new Error(`현역마 집단: 부(父) ${sire.key} 가 세계 초기화(bootstrapWorld)에 없다`);
+  }
+  const owner = pickOwner(rng, market, spec.country);
+  const trainer = pickTrainer(rng, market, spec.country);
+
+  const id = allocateHorseId(state);
+  const name = generateHorseName(rng, data.words, used);
+  const distanceBias =
+    POPULATION_DISTANCE_SIRE_WEIGHT * PROFILE_DISTANCE[sire.distanceProfile] +
+    (1 - POPULATION_DISTANCE_SIRE_WEIGHT) * POPULATION_DISTANCE_DEFAULT_MEDIAN;
+
+  const horse = generateHorse(rng, {
+    id,
+    name,
+    sex: spec.sex,
+    birthYear: spec.birthYear,
+    currentYear: spec.currentYear,
+    countryOfBirth: spec.country,
+    status: 'in_training',
+    level: POPULATION_TIER_LEVEL[sire.marketTier],
+    spread: POPULATION_ABILITY_SPREAD,
+    sireId: sire.key,
+    damId: null,
+    familyId: null,
+    sireLineId: sire.sireLineId,
+    ownerId: owner.id,
+    breederId: owner.id,
+    distanceBias,
+  });
+  horse.gelded = spec.sex === 'male' && spec.gelded;
+  horse.trainerId = trainer.id;
+
+  owner.horseIds.push(id);
+  state.horses[id] = horse;
+  return horse;
+}
+
+/** 성별·거세 여부를 정한다. 거세는 4세 이상 수말에만 POPULATION_GELDING_SHARE 로 적용한다. rng.next() 를 쓴다. */
+export function drawSexAndGelding(rng: Rng, age: number): { sex: Sex; gelded: boolean } {
+  const sex: Sex = rng.chance(POPULATION_FEMALE_SHARE) ? 'female' : 'male';
+  const gelded = sex === 'male' && age >= POPULATION_GELDING_MIN_AGE && rng.chance(POPULATION_GELDING_SHARE);
+  return { sex, gelded };
+}
+
+/** 초기 집단: 나라별 나이 분포대로 말을 만든다. 3세 이상에는 OR 을 붙인다. */
+export function bootstrapRacingPopulation(
+  state: GameState,
+  data: RacingPopulationStaticData,
+  rng: Rng,
+): GameState {
+  if (racingHorseIds(state).length > 0) {
+    throw new Error('bootstrapRacingPopulation: 이미 AI 소속 현역마가 있다(이중 초기화)');
+  }
+  const next = structuredClone(state);
+  const currentYear = next.date.year;
+  const market = buildMarket(next);
+  const used = new Set(Object.values(next.horses).map((h) => h.name));
+  const records = sortStallionRecords(data.stallionRecords);
+
+  for (const country of POPULATION_COUNTRY_ORDER) {
+    const counts = allocateCounts(POPULATION_IN_TRAINING[country], POPULATION_AGE_SHARES);
+    POPULATION_AGE_SHARES.forEach((entry, idx) => {
+      const count = counts[idx] ?? 0;
+      for (let i = 0; i < count; i++) {
+        const age = entry.age;
+        const { sex, gelded } = drawSexAndGelding(rng, age);
+        const horse = spawnRacingHorse(
+          next,
+          data,
+          rng,
+          market,
+          used,
+          { country, birthYear: currentYear - age, currentYear, sex, gelded },
+          records,
+        );
+        if (age >= POPULATION_RATING_MIN_AGE) {
+          horse.officialRating = initialOfficialRating(horse);
+        }
+      }
+    });
+  }
+
+  return next;
+}
+
