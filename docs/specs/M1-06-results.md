@@ -73,7 +73,7 @@ export function buildRaceResult(args: {
 
 ## 수용 기준
 1. sectionalMarks(1609) 길이 7, 첫 값 ≈ 200.82, 마지막 값 ≈ 1407.83; sectionalMarks(2012) 첫 값 ≈ 201.49 (길이 9); 모든 결과 오름차순·distance 미만.
-2. marginFromLengths: 0.05→nose, 0.15→short_head, 0.25→head, 0.4→neck, 0.6→½(0.5), 0.9→¾, 1.1→1, 2.9→3, 3.3→3.5, 4.8→5, 7.4→7, 31→distance. formatMargin/formatMarginKo 가 위 표기대로.
+2. marginFromLengths: 0.05→nose, 0.15→short_head, 0.25→head, 0.4→neck, 0.6→½(0.5), 0.8→¾, 0.9→1, 1.1→1, 2.9→3, 3.3→3.5, 4.8→5, 7.4→7, 31→distance. formatMargin/formatMarginKo 가 위 표기대로.
 3. 5두 픽스처(finishTime 60.000, 60.001, 60.300, 61.000, 70.000 / going 'good' → LPS 5.5 / 마번 1~5):
    1·2번째 말 동착 → 둘 다 position 1, margin 둘 다 null. 3번째 말 position 3, Δ=0.299s → 1.6445L → `{ label: 'lengths', lengths: 1.75 }`.
    4번째 말 Δ=0.7s → 3.85L → `{ lengths, 4 }` (0.5 단위). 5번째 말 Δ=9s → 49.5L → `{ label: 'distance', lengths: 0 }`.

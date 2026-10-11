@@ -168,7 +168,7 @@ export interface RaceResult {
   distance: number;
   seed: number;
   winningTime: number;
-  /** 구간 표지 위치(출발점부터 m). 결승선에서 1펄롱(201.168m)씩 거꾸로 잡은 지점 중 0 초과인 것, 오름차순 */
+  /** 구간 표지 위치(출발점부터 m). 결승선에서 1펄롱(201.168m)씩 거꾸로 잡은 지점 중 MIN_FIRST_SECTION_M(50m) 이상인 것, 오름차순 */
   sectionalMarks: number[];
   /** 착순 오름차순 (동착은 마번 오름차순) */
   runners: RunnerResult[];
