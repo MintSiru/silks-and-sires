@@ -139,11 +139,11 @@
 
 ### 그룹 I 추가 (사용자 제공 2026 명단, 2026-10-11 추가)
 
-- 교배료 미기재 → marketTier 는 Opus 지정: Sea The Stars 1 · Siyouni 1 · Zarak 3 · Vadeni 3 · Daryz 4 · Erevann 4.
+- 교배료(사용자 추가 제공, EUR) → marketTier: Sea The Stars 300,000→1 · Siyouni 150,000→1 · Zarak 80,000→2 · Vadeni 15,000→4 · Daryz 비공개→4 · Erevann 8,000→5.
 - 기존 레코드 갱신 (2두): Sea The Stars (IE, tier 1, high), Siyouni (FR, tier 1, high). 계류국은 기존 검수표(위키백과 확인분)와 일치.
 - 신규 대기 4두 (위키백과 미확인, 기본값 계류국 사용 — 표시):
-  - Zarak: FR (기본값, 미확인) · tier 3 · confidence high 예정
-  - Vadeni: IE (기본값, 미확인) · tier 3 · confidence high 예정
+  - Zarak: FR (기본값, 미확인) · tier 2 · confidence high 예정
+  - Vadeni: IE (기본값, 미확인) · tier 4 · confidence high 예정
   - Daryz: FR (기본값, 미확인) · tier 4 · confidence high 예정
-  - Erevann: FR (기본값, 미확인) · tier 4 · confidence high 예정
+  - Erevann: FR (기본값, 미확인) · tier 5 · confidence high 예정
 - 명단 수: 87두 (기존 갱신 17두 + 신규 대기 70두). 추가 완료 0두, 신규 추가 대기 70두.

@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import namesJson from '../../data/names.json';
 import racecoursesJson from '../../data/racecourses.json';
 import { getRacecourse, loadRacecourses } from '../../src/engine/course/load';
+import { buildRacePath } from '../../src/engine/course/path';
 import { createRng } from '../../src/engine/rng';
 import { buildEntries } from '../../src/engine/race/setup';
 import { generateSampleField, type NamePool } from '../../src/engine/race/sampleField';
@@ -176,13 +177,32 @@ describe('simulateRace 골든 비교', () => {
 });
 
 describe('simulateRace 성능 (골든 설정, 리플레이 포함)', () => {
-  it.skipIf(GENERATE)('20두 3000m 리플레이 포함 워밍업 5회 후 30회 평균 40ms 미만이다', () => {
+  it.skipIf(GENERATE)('20두 3000m 리플레이 포함 워밍업 5회 후 31회 중앙값 35ms 미만이다', () => {
     const input = makeInput(CASES[0] as GoldenCase, true);
     for (let w = 0; w < 5; w++) simulateRace(input);
-    const runs = 30;
-    const start = performance.now();
-    for (let r = 0; r < runs; r++) simulateRace(input);
-    const avg = (performance.now() - start) / runs;
-    expect(avg).toBeLessThan(40);
+    const times: number[] = [];
+    for (let r = 0; r < 31; r++) {
+      const start = performance.now();
+      simulateRace(input);
+      times.push(performance.now() - start);
+    }
+    times.sort((a, b) => a - b);
+    const median = times[15] as number;
+    expect(median).toBeLessThan(35);
+  });
+});
+
+describe('RacePath.sampleInto 과 sample 의 값 일치', () => {
+  it.skipIf(GENERATE)('골든 설정 8개 경로에서 s = 0, 500, 1000, distance, distance+50 모두 같은 값을 준다', () => {
+    for (const c of CASES) {
+      const path = buildRacePath(getRacecourse(COURSES, c.courseId), c.distance);
+      const out = path.sample(0);
+      for (const s of [0, 500, 1000, c.distance, c.distance + 50]) {
+        const expected = path.sample(s);
+        const actual = path.sampleInto(s, out);
+        expect(actual, `${c.key} s=${s}`).toBe(out);
+        expect(actual, `${c.key} s=${s}`).toEqual(expected);
+      }
+    }
   });
 });

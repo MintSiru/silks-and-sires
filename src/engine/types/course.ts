@@ -97,6 +97,8 @@ export interface RacePath {
   /** 주로 폭(m) */
   width: number;
   sample(s: number): RacePathSample;
+  /** sample(s) 와 같은 값을 out 에 써서 반환(새 객체 할당 없음). out.point 객체도 재사용한다 */
+  sampleInto(s: number, out: RacePathSample): RacePathSample;
   /** 레이아웃 전체 폴리라인(미니맵 배경) */
   layoutPolyline: PathPoint[];
   /** 출발점~결승선 폴리라인(미니맵 강조) */

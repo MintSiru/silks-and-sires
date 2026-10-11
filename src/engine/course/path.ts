@@ -23,6 +23,9 @@ interface SegGeom {
   start: number;
   length: number;
   pose: Pose;
+  /** pose.h 의 cos·sin (구간 시작 자세에서 고정, 샘플마다 다시 계산하지 않는다) */
+  cos0: number;
+  sin0: number;
   gradient: number;
   curvature: number;
   turn: 'left' | 'right' | null;
@@ -32,21 +35,45 @@ interface LayoutGeom {
   segs: SegGeom[];
   total: number;
   end: Pose;
+  /** end.h 의 cos·sin */
+  endCos: number;
+  endSin: number;
+}
+
+/**
+ * 구간 안에서 t 만큼 진행한 자세를 out 에 쓴다 (해석적 계산, 적분 없음, 할당 없음).
+ * 시작 자세는 (px, py, ph) 이고 cph = cos(ph), sph = sin(ph) 를 호출자가 넘긴다(같은 값을 다시 계산하지 않기 위해).
+ * 연산 순서는 advance 원본과 같다(결과 비트 동일).
+ */
+function advanceInto(
+  seg: TrackSegment,
+  px: number,
+  py: number,
+  ph: number,
+  cph: number,
+  sph: number,
+  t: number,
+  out: Pose,
+): void {
+  if (seg.kind === 'straight') {
+    out.x = px + t * cph;
+    out.y = py + t * sph;
+    out.h = ph;
+    return;
+  }
+  const r = seg.radius ?? 0;
+  const sigma = seg.turn === 'left' ? 1 : -1;
+  const h = ph + sigma * (t / r);
+  out.x = px + sigma * r * (Math.sin(h) - sph);
+  out.y = py - sigma * r * (Math.cos(h) - cph);
+  out.h = h;
 }
 
 /** 구간 안에서 t 만큼 진행한 자세 (해석적 계산, 적분 없음) */
 function advance(seg: TrackSegment, p: Pose, t: number): Pose {
-  if (seg.kind === 'straight') {
-    return { x: p.x + t * Math.cos(p.h), y: p.y + t * Math.sin(p.h), h: p.h };
-  }
-  const r = seg.radius ?? 0;
-  const sigma = seg.turn === 'left' ? 1 : -1;
-  const h = p.h + sigma * (t / r);
-  return {
-    x: p.x + sigma * r * (Math.sin(h) - Math.sin(p.h)),
-    y: p.y - sigma * r * (Math.cos(h) - Math.cos(p.h)),
-    h,
-  };
+  const out: Pose = { x: 0, y: 0, h: 0 };
+  advanceInto(seg, p.x, p.y, p.h, Math.cos(p.h), Math.sin(p.h), t, out);
+  return out;
 }
 
 function buildGeometry(layout: TrackLayout): LayoutGeom {
@@ -61,6 +88,8 @@ function buildGeometry(layout: TrackLayout): LayoutGeom {
       start: u,
       length: seg.length,
       pose,
+      cos0: Math.cos(pose.h),
+      sin0: Math.sin(pose.h),
       gradient: seg.rise / seg.length,
       curvature: isBend ? 1 / radius : 0,
       turn: isBend ? (seg.turn ?? null) : null,
@@ -68,7 +97,7 @@ function buildGeometry(layout: TrackLayout): LayoutGeom {
     pose = advance(seg, pose, seg.length);
     u += seg.length;
   }
-  return { segs, total: u, end: pose };
+  return { segs, total: u, end: pose, endCos: Math.cos(pose.h), endSin: Math.sin(pose.h) };
 }
 
 /** u 가 속한 구간을 이분 탐색한다. 탐색 순서와 무관하게 같은 결과. */
@@ -99,19 +128,21 @@ interface LocalState {
   h: number;
 }
 
-/** 레이아웃 좌표 u (0 ~ total 로 가정, 범위 밖은 끝으로 자른다) 의 국소 상태 */
-function localAt(geom: LayoutGeom, u: number): LocalState {
+/** 레이아웃 좌표 u (0 ~ total 로 가정, 범위 밖은 끝으로 자른다) 의 국소 상태를 out 에 쓴다 (할당 없음) */
+function localInto(geom: LayoutGeom, u: number, out: LocalState): void {
   const g = locate(geom.segs, u);
   const t = Math.min(Math.max(u - g.start, 0), g.length);
-  const p = advance(g.seg, g.pose, t);
-  return {
-    x: p.x,
-    y: p.y,
-    h: p.h,
-    gradient: g.gradient,
-    curvature: g.curvature,
-    turn: g.turn,
-  };
+  advanceInto(g.seg, g.pose.x, g.pose.y, g.pose.h, g.cos0, g.sin0, t, out);
+  out.gradient = g.gradient;
+  out.curvature = g.curvature;
+  out.turn = g.turn;
+}
+
+/** 레이아웃 좌표 u 의 국소 상태 (새 객체) */
+function localAt(geom: LayoutGeom, u: number): LocalState {
+  const out: LocalState = { x: 0, y: 0, gradient: 0, curvature: 0, turn: null, h: 0 };
+  localInto(geom, u, out);
+  return out;
 }
 
 /** 구간 시작점과 방향을 기준으로 한 레이아웃 끝 자세 (폐합 검사 등에 사용) */
@@ -167,41 +198,53 @@ export function buildRacePath(course: Racecourse, distance: number): RacePath {
   // 출발점 u0: closed 면 [0, L) 로 감싸고, open 이면 L - distance (>= 0 은 위에서 보장)
   const u0 = closed ? (((total - distance) % total) + total) % total : total - distance;
 
-  const sampleAt = (s: number): RacePathSample => {
+  /** 국소 상태 임시 버퍼 (sampleInto 전용, 호출 사이에 값을 남기지 않는다) */
+  const localBuf: LocalState = { x: 0, y: 0, gradient: 0, curvature: 0, turn: null, h: 0 };
+
+  /** sample(s) 와 같은 값을 out 에 쓴다. out.point 객체를 재사용하며 새 객체를 만들지 않는다. */
+  const fillSample = (s: number, out: RacePathSample): RacePathSample => {
     const sc = s > 0 ? s : 0;
     const toFinish = distance - sc;
     const u = u0 + sc;
 
-    let local: LocalState;
+    const local = localBuf;
     if (closed) {
-      local = localAt(geom, u % total);
+      localInto(geom, u % total, local);
     } else if (u <= total) {
-      local = localAt(geom, u);
+      localInto(geom, u, local);
     } else {
       // 결승 후(open): 마지막 구간 끝에서 마지막 방향 그대로 직선 연장
       const d = u - total;
-      local = {
-        x: geom.end.x + d * Math.cos(geom.end.h),
-        y: geom.end.y + d * Math.sin(geom.end.h),
-        h: geom.end.h,
-        gradient: 0,
-        curvature: 0,
-        turn: null,
-      };
+      local.x = geom.end.x + d * geom.endCos;
+      local.y = geom.end.y + d * geom.endSin;
+      local.h = geom.end.h;
+      local.gradient = 0;
+      local.curvature = 0;
+      local.turn = null;
     }
 
-    const point: PathPoint = { x: local.x, y: local.y };
-    return {
-      s: sc,
-      toFinish,
-      gradient: local.gradient,
-      curvature: local.curvature,
-      turn: local.turn,
-      // 결승선 기준 마지막 직선 위인가. 직선 시작점(toFinish === hs)은 직선 밖으로 본다.
-      isHomeStraight: toFinish < 0 || toFinish < hs,
-      point,
-    };
+    out.s = sc;
+    out.toFinish = toFinish;
+    out.gradient = local.gradient;
+    out.curvature = local.curvature;
+    out.turn = local.turn;
+    // 결승선 기준 마지막 직선 위인가. 직선 시작점(toFinish === hs)은 직선 밖으로 본다.
+    out.isHomeStraight = toFinish < 0 || toFinish < hs;
+    out.point.x = local.x;
+    out.point.y = local.y;
+    return out;
   };
+
+  const sampleAt = (s: number): RacePathSample =>
+    fillSample(s, {
+      s: 0,
+      toFinish: 0,
+      gradient: 0,
+      curvature: 0,
+      turn: null,
+      isHomeStraight: false,
+      point: { x: 0, y: 0 },
+    });
 
   const layoutPolyline: PathPoint[] = [];
   for (let k = 0; k * POLYLINE_STEP_M < total; k++) {
@@ -226,6 +269,7 @@ export function buildRacePath(course: Racecourse, distance: number): RacePath {
     homeStraightLength: hs,
     width: layout.width,
     sample: sampleAt,
+    sampleInto: fillSample,
     layoutPolyline,
     racePolyline,
   };

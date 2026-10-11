@@ -27,9 +27,9 @@ function fieldFor(race: Race, course: Racecourse, seed: number, size: number): S
   });
 }
 
-/** 함수 필드(path.sample)를 제외한 비교용 복사본 */
+/** 함수 필드(path.sample, path.sampleInto)를 제외한 비교용 복사본 */
 function comparable(out: RunRaceOutput): unknown {
-  return { ...out, path: { ...out.path, sample: undefined } };
+  return { ...out, path: { ...out.path, sample: undefined, sampleInto: undefined } };
 }
 
 function runOne(raceId: string, seed: number, size: number, recordReplay?: boolean): RunRaceOutput {

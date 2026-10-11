@@ -1,27 +1,48 @@
 import {
-  BATTLE_LANE_M,
-  BATTLE_RANGE_M,
-  BLOCK_DISTANCE_M,
-  DRAFT_DISTANCE_M,
+  BATTLE_LANE_M as BATTLE_LANE_M_CFG,
+  BATTLE_RANGE_M as BATTLE_RANGE_M_CFG,
+  BLOCK_DISTANCE_M as BLOCK_DISTANCE_M_CFG,
+  DRAFT_DISTANCE_M as DRAFT_DISTANCE_M_CFG,
   EARLY_PHASE_M,
   EARLY_PHASE_MAX_FRACTION,
-  EARLY_STYLE_FACTOR,
-  GRADIENT_POWER_RELIEF,
-  GRADIENT_SPEED_K,
-  GUTS_BATTLE_BONUS,
-  HORSE_WIDTH_M,
-  LANE_CLEARANCE_M,
-  MID_STYLE_FACTOR,
-  PACK_AFFORD_SAFETY,
-  PACK_CATCHUP_FRACTION,
-  POST_FINISH_SPEED_FRACTION,
-  SPURT_ALWAYS_DISTANCE_M,
+  EARLY_STYLE_FACTOR as EARLY_STYLE_FACTOR_CFG,
+  GRADIENT_POWER_RELIEF as GRADIENT_POWER_RELIEF_CFG,
+  GRADIENT_SPEED_K as GRADIENT_SPEED_K_CFG,
+  GUTS_BATTLE_BONUS as GUTS_BATTLE_BONUS_CFG,
+  HORSE_WIDTH_M as HORSE_WIDTH_M_CFG,
+  LANE_CLEARANCE_M as LANE_CLEARANCE_M_CFG,
+  MID_STYLE_FACTOR as MID_STYLE_FACTOR_CFG,
+  PACK_AFFORD_SAFETY as PACK_AFFORD_SAFETY_CFG,
+  PACK_CATCHUP_FRACTION as PACK_CATCHUP_FRACTION_CFG,
+  POST_FINISH_SPEED_FRACTION as POST_FINISH_SPEED_FRACTION_CFG,
+  SPURT_ALWAYS_DISTANCE_M as SPURT_ALWAYS_DISTANCE_M_CFG,
   SPURT_MAX_DISTANCE_M,
-  SPURT_SAFETY,
+  SPURT_SAFETY as SPURT_SAFETY_CFG,
 } from '../config/sim';
 import type { Going, PreparedRunner } from '../types';
 import { exhaustedSpeed, staminaDrainPerSecond } from './runnerModel';
 import { DRAIN_EXPONENT } from '../config/runner';
+
+/**
+ * 핫 경로 상수 사본. 테스트 실행기(vite SSR 변환)는 import 한 상수의 읽기를 모듈 객체 속성 접근으로 바꿔
+ * 틱마다 비용이 크다. 모듈 최상위 const 로 한 번 읽어 두며 값은 config 와 같다.
+ */
+const BATTLE_LANE_M = BATTLE_LANE_M_CFG;
+const BATTLE_RANGE_M = BATTLE_RANGE_M_CFG;
+const BLOCK_DISTANCE_M = BLOCK_DISTANCE_M_CFG;
+const DRAFT_DISTANCE_M = DRAFT_DISTANCE_M_CFG;
+const EARLY_STYLE_FACTOR = EARLY_STYLE_FACTOR_CFG;
+const GRADIENT_POWER_RELIEF = GRADIENT_POWER_RELIEF_CFG;
+const GRADIENT_SPEED_K = GRADIENT_SPEED_K_CFG;
+const GUTS_BATTLE_BONUS = GUTS_BATTLE_BONUS_CFG;
+const HORSE_WIDTH_M = HORSE_WIDTH_M_CFG;
+const LANE_CLEARANCE_M = LANE_CLEARANCE_M_CFG;
+const MID_STYLE_FACTOR = MID_STYLE_FACTOR_CFG;
+const PACK_AFFORD_SAFETY = PACK_AFFORD_SAFETY_CFG;
+const PACK_CATCHUP_FRACTION = PACK_CATCHUP_FRACTION_CFG;
+const POST_FINISH_SPEED_FRACTION = POST_FINISH_SPEED_FRACTION_CFG;
+const SPURT_ALWAYS_DISTANCE_M = SPURT_ALWAYS_DISTANCE_M_CFG;
+const SPURT_SAFETY = SPURT_SAFETY_CFG;
 
 /** 초반 구간 한도(m). s 가 이 값보다 작으면 초반 구간이다. */
 export function earlyPhaseLimit(distance: number): number {
@@ -361,4 +382,100 @@ export function isDraftingSorted(
     if (dl < HORSE_WIDTH_M && dl > -HORSE_WIDTH_M) return true;
   }
   return false;
+}
+
+
+/** 한 말의 이웃 판정 결과. scanNeighbors 가 채우고, 같은 말의 같은 틱 판정에만 쓴다. */
+export interface NeighborScan {
+  /** 앞을 막는 말 index (findBlockerSorted 와 같은 규칙), 없으면 -1 */
+  blocker: number;
+  /** 같은 레인대 바로 앞 드래프팅 여부 (isDraftingSorted 와 같은 결과) */
+  drafting: boolean;
+  /** 미결승 말이 경합 범위 안에 있는가 (isBattlingSorted 와 같은 결과) */
+  battling: boolean;
+  /** lanes[0..laneCount) = |진행도 차| < LANE_CLEARANCE_M 인 다른 말들의 레인 */
+  laneCount: number;
+  /** 레인 점유 목록 버퍼 (길이 = 말 수) */
+  readonly lanes: Float64Array;
+}
+
+/** NeighborScan 버퍼를 만든다 (레이스 시작 시 한 번). */
+export function createNeighborScan(n: number): NeighborScan {
+  return { blocker: -1, drafting: false, battling: false, laneCount: 0, lanes: new Float64Array(n) };
+}
+
+/**
+ * 정렬 순서에서 i 의 이웃 창을 한 번만 훑어 막힘·드래프팅·경합·레인 점유 목록을 out 에 모은다. 할당 없음.
+ * 결과는 findBlockerSorted / isDraftingSorted / isBattlingSorted / isLaneFreeSorted 를 따로 호출한 것과 정확히 같다.
+ * 창 범위: 앞쪽은 진행도 차 < LANE_CLEARANCE_M, 뒤쪽은 > -LANE_CLEARANCE_M 까지만 본다(가장 넓은 반경).
+ */
+export function scanNeighbors(
+  i: number,
+  prog: readonly number[],
+  lane: readonly number[],
+  finished: readonly boolean[],
+  order: Int32Array,
+  pos: Int32Array,
+  out: NeighborScan,
+): void {
+  const pi = prog[i] as number;
+  const li = lane[i] as number;
+  const n = order.length;
+  const p0 = pos[i] as number;
+  const lanes = out.lanes;
+  let laneCount = 0;
+  let blocker = -1;
+  let bestGap = Infinity;
+  let drafting = false;
+  let battling = false;
+
+  // 앞쪽 (진행도 차 dp >= 0): 막힘·드래프팅·경합·레인 점유
+  for (let k = p0 + 1; k < n; k++) {
+    const m = order[k] as number;
+    const dp = (prog[m] as number) - pi;
+    if (dp >= LANE_CLEARANCE_M) break;
+    const lm = lane[m] as number;
+    lanes[laneCount] = lm;
+    laneCount++;
+    const dl = lm - li;
+    const sameBand = dl < HORSE_WIDTH_M && dl > -HORSE_WIDTH_M;
+    if (dp > 0 && sameBand) {
+      if (dp < BLOCK_DISTANCE_M && (dp < bestGap || (dp === bestGap && m < blocker))) {
+        bestGap = dp;
+        blocker = m;
+      }
+      if (dp < DRAFT_DISTANCE_M) drafting = true;
+    }
+    if (dp < BATTLE_RANGE_M && finished[m] !== true && Math.abs(lm - li) < BATTLE_LANE_M) {
+      battling = true;
+    }
+  }
+
+  // 뒤쪽 (dp < 0): 레인 점유와 경합만 필요
+  for (let k = p0 - 1; k >= 0; k--) {
+    const m = order[k] as number;
+    const dp = (prog[m] as number) - pi;
+    if (dp <= -LANE_CLEARANCE_M) break;
+    const lm = lane[m] as number;
+    lanes[laneCount] = lm;
+    laneCount++;
+    if (dp > -BATTLE_RANGE_M && finished[m] !== true && Math.abs(lm - li) < BATTLE_LANE_M) {
+      battling = true;
+    }
+  }
+
+  out.blocker = blocker;
+  out.drafting = drafting;
+  out.battling = battling;
+  out.laneCount = laneCount;
+}
+
+/** isLaneFreeSorted 와 같은 결과. scanNeighbors 가 모은 레인 목록으로 판정한다. */
+export function isLaneFreeScan(scan: NeighborScan, candidateLane: number): boolean {
+  const lanes = scan.lanes;
+  for (let k = 0; k < scan.laneCount; k++) {
+    const dl = (lanes[k] as number) - candidateLane;
+    if (dl < HORSE_WIDTH_M && dl > -HORSE_WIDTH_M) return false;
+  }
+  return true;
 }

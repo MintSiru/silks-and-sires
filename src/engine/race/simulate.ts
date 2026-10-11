@@ -1,19 +1,19 @@
 import { LANE_MIN_M } from '../config/runner';
 import {
-  DECEL_MPS2,
-  DRAFT_DRAIN_FACTOR,
-  EXTRAPOLATION_MIN_SPEED_MPS,
-  HORSE_WIDTH_M,
+  DECEL_MPS2 as DECEL_MPS2_CFG,
+  DRAFT_DRAIN_FACTOR as DRAFT_DRAIN_FACTOR_CFG,
+  EXTRAPOLATION_MIN_SPEED_MPS as EXTRAPOLATION_MIN_SPEED_MPS_CFG,
+  HORSE_WIDTH_M as HORSE_WIDTH_M_CFG,
   JUDGE_SD,
-  LANE_CHANGE_MPS,
-  MAX_RACE_SECONDS,
+  LANE_CHANGE_MPS as LANE_CHANGE_MPS_CFG,
+  MAX_RACE_SECONDS as MAX_RACE_SECONDS_CFG,
   PACK_MAX_GAP_M,
   PACK_MIN_GAP_M,
-  POST_FINISH_SECONDS,
-  RAIL_DRIFT_MPS,
-  START_ACCEL_BASE_MPS2,
-  START_ACCEL_FROM_RUN,
-  START_PHASE_SPEED_FRACTION,
+  POST_FINISH_SECONDS as POST_FINISH_SECONDS_CFG,
+  RAIL_DRIFT_MPS as RAIL_DRIFT_MPS_CFG,
+  START_ACCEL_BASE_MPS2 as START_ACCEL_BASE_MPS2_CFG,
+  START_ACCEL_FROM_RUN as START_ACCEL_FROM_RUN_CFG,
+  START_PHASE_SPEED_FRACTION as START_PHASE_SPEED_FRACTION_CFG,
   TICK_SECONDS,
 } from '../config/sim';
 import { GOING_STAMINA_DRAIN } from '../config/going';
@@ -22,6 +22,7 @@ import { createRng } from '../rng';
 import type {
   FinishRecord,
   PreparedRunner,
+  RacePathSample,
   RaceReplay,
   RaceSimInput,
   RaceSimOutput,
@@ -35,18 +36,33 @@ import {
   type RaceContext,
 } from './runnerModel';
 import {
+  createNeighborScan,
   earlyPhaseLimit,
-  findBlockerSorted,
-  isBattlingSorted,
-  isDraftingSorted,
-  isLaneFreeSorted,
+  isLaneFreeScan,
   packTarget,
   resortOrder,
+  scanNeighbors,
   shouldStartSpurtPre,
   spurtConstants,
   targetSpeedAt,
   type SpurtConstants,
 } from './tactics';
+
+/**
+ * 핫 경로 상수 사본. 테스트 실행기(vite SSR 변환)는 import 한 상수의 읽기를 모듈 객체 속성 접근으로 바꿔
+ * 틱마다 비용이 크다. 모듈 최상위 const 로 한 번 읽어 두며 값은 config 와 같다.
+ */
+const DECEL_MPS2 = DECEL_MPS2_CFG;
+const DRAFT_DRAIN_FACTOR = DRAFT_DRAIN_FACTOR_CFG;
+const EXTRAPOLATION_MIN_SPEED_MPS = EXTRAPOLATION_MIN_SPEED_MPS_CFG;
+const HORSE_WIDTH_M = HORSE_WIDTH_M_CFG;
+const LANE_CHANGE_MPS = LANE_CHANGE_MPS_CFG;
+const MAX_RACE_SECONDS = MAX_RACE_SECONDS_CFG;
+const POST_FINISH_SECONDS = POST_FINISH_SECONDS_CFG;
+const RAIL_DRIFT_MPS = RAIL_DRIFT_MPS_CFG;
+const START_ACCEL_BASE_MPS2 = START_ACCEL_BASE_MPS2_CFG;
+const START_ACCEL_FROM_RUN = START_ACCEL_FROM_RUN_CFG;
+const START_PHASE_SPEED_FRACTION = START_PHASE_SPEED_FRACTION_CFG;
 
 /** 길이 n 의 0 배열. Array.from 은 packed 배열을 만들어 slice 와 산술 접근이 빠르다. */
 function zeros(n: number): number[] {
@@ -106,6 +122,10 @@ export function simulateRace(input: RaceSimInput): RaceSimOutput {
   const packMaxGap: number[] = prepared.map((r) => PACK_MAX_GAP_M[r.style]);
   const packMinGap: number[] = prepared.map((r) => PACK_MIN_GAP_M[r.style]);
   const goingDrain = GOING_STAMINA_DRAIN[going];
+  /** 러너별 경로 샘플 버퍼 (틱마다 path.sampleInto 로 재사용, 할당 없음) */
+  const sampleBufs: RacePathSample[] = prepared.map(() => path.sample(0));
+  /** 이웃 판정 버퍼: 말 하나를 판단할 때마다 scanNeighbors 로 채운다 */
+  const scan = createNeighborScan(n);
 
   // --- 상태 배열 (현재 틱 스냅샷) ---
   const prog: number[] = zeros(n);
@@ -203,8 +223,11 @@ export function simulateRace(input: RaceSimInput): RaceSimOutput {
       // 1. 출발 지연 중이면 정지 유지
       if (t + dt <= r.startDelay) continue;
 
-      // 2. 현재 위치 정보
-      const sample = path.sample(p);
+      // 2. 현재 위치 정보 (러너별 버퍼 재사용)
+      const sample = path.sampleInto(p, sampleBufs[i] as RacePathSample);
+
+      // 2-1. 이웃 판정 (막힘·드래프팅·경합·레인 점유): 정렬 순서의 이웃 창을 한 번만 훑는다
+      scanNeighbors(i, prog, lane, finished, order, pos, scan);
 
       // 3. 스퍼트 개시 판단 (한 번 켜지면 유지)
       if (!isFin && spurting[i] !== true) {
@@ -215,8 +238,7 @@ export function simulateRace(input: RaceSimInput): RaceSimOutput {
       const isSpurting = spurting[i] === true;
 
       // 4. 경합 여부: 스퍼트 중이고 근처(범위·레인)에 다른 미결승 말이 있음
-      const battling =
-        isSpurting && !isFin && isBattlingSorted(i, prog, lane, finished, order, pos);
+      const battling = isSpurting && !isFin && scan.battling;
 
       // 5. 기본 목표 속도
       let target = targetSpeedAt(
@@ -257,16 +279,16 @@ export function simulateRace(input: RaceSimInput): RaceSimOutput {
       let nextLaneTarget = laneTarget[i] as number;
       let laneChanged = false;
       if (!isFin) {
-        const b = findBlockerSorted(i, prog, lane, order, pos);
+        const b = scan.blocker;
         if (b >= 0) {
           const blockerSpeed = speed[b] as number;
           if (target > blockerSpeed) {
             const outer = ln + HORSE_WIDTH_M;
             const inner = ln - HORSE_WIDTH_M;
-            if (outer <= laneMax && isLaneFreeSorted(i, outer, prog, lane, order, pos)) {
+            if (outer <= laneMax && isLaneFreeScan(scan, outer)) {
               nextLaneTarget = outer;
               laneChanged = true;
-            } else if (inner >= laneMin && isLaneFreeSorted(i, inner, prog, lane, order, pos)) {
+            } else if (inner >= laneMin && isLaneFreeScan(scan, inner)) {
               nextLaneTarget = inner;
               laneChanged = true;
             } else {
@@ -279,7 +301,7 @@ export function simulateRace(input: RaceSimInput): RaceSimOutput {
       // 7. 레일 붙기: 곡선에서 안쪽으로 조금씩 파고든다
       if (!laneChanged && !handedStraight && nextLaneTarget >= ln) {
         const inner = Math.max(laneMin, ln - RAIL_DRIFT_MPS * dt);
-        if (inner < ln && isLaneFreeSorted(i, inner, prog, lane, order, pos)) {
+        if (inner < ln && isLaneFreeScan(scan, inner)) {
           nextLaneTarget = inner;
         }
       }
@@ -303,7 +325,7 @@ export function simulateRace(input: RaceSimInput): RaceSimOutput {
       //     드래프팅: 같은 레인대 바로 앞에 말이 있으면 소모 감소 (스냅샷 기준)
       let nst = st;
       if (!isFin) {
-        const drafting = isDraftingSorted(i, prog, lane, order, pos);
+        const drafting = scan.drafting;
         const drain =
           staminaDrainPerSecond(ns, r.cruiseSpeed, sample.gradient, going, r.power) *
           (drafting ? DRAFT_DRAIN_FACTOR : 1);

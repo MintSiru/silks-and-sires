@@ -19,7 +19,7 @@
 **그룹 F (US, USD)**: Cody's Wish 75,000 · Enticed 5,000 · Essential Quality 65,000 · Frosted 10,000 · Hard Spun 35,000 · Maxfield 35,000 · Medaglia d'Oro 75,000 · Midshipman 15,000 · Mystic Guide 12,500 · Nyquist 85,000 · Proxy 25,000 · Speaker's Corner 17,500 · Street Sense 60,000
 **그룹 G (GB, GBP)**: Bated Breath 5,000 · Chaldean 20,000 · Frankel 350,000 · Kingman 125,000 · Lead Artist 12,500 · Oasis Dream 15,000
 **그룹 H (US, USD)**: Elite Power 35,000 · Mandaloun 10,000
-**그룹 I (사용자 추가 제공, 교배료 미기재 → Opus 지정 tier, 계류국은 위키백과로 확인하고 확인 안 되면 괄호 안 기본값)**: Sea The Stars tier 1 (IE) · Siyouni tier 1 (FR) · Zarak tier 3 (FR) · Vadeni tier 3 (IE) · Daryz tier 4 (FR) · Erevann tier 4 (FR)
+**그룹 I (사용자 추가 제공, 사용자 추가 제공 교배료(EUR), 계류국은 위키백과로 확인하고 확인 안 되면 괄호 안 기본값)**: Sea The Stars 300,000 → tier 1 (IE) · Siyouni 150,000 → tier 1 (FR) · Zarak 80,000 → tier 2 (FR) · Vadeni 15,000 → tier 4 (IE) · Daryz 비공개 → tier 4 (FR) · Erevann 8,000 → tier 5 (FR)
 (명단 표기 오타는 공식 표기로: "Teritorries" → Territories, "Cloths Of Stars" → Cloth of Stars, "Footstepinthesand" → Footstepsinthesand, "Medaglia D'Oro" → Medaglia d'Oro)
 
 ## 작업

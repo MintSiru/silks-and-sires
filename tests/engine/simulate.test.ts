@@ -255,13 +255,17 @@ describe('simulateRace 옵션', () => {
 });
 
 describe('simulateRace 성능', () => {
-  it('20두 3000m 리플레이 포함 평균 50ms 미만이다', () => {
+  it('20두 3000m 리플레이 포함 워밍업 5회 후 31회 중앙값 50ms 미만이다', () => {
     const input = makeInput('saint_ourens', 3000, 20, 99, true);
-    for (let w = 0; w < 3; w++) simulateRace(input);
-    const runs = 20;
-    const start = performance.now();
-    for (let r = 0; r < runs; r++) simulateRace(input);
-    const avg = (performance.now() - start) / runs;
-    expect(avg).toBeLessThan(50);
+    for (let w = 0; w < 5; w++) simulateRace(input);
+    const times: number[] = [];
+    for (let r = 0; r < 31; r++) {
+      const start = performance.now();
+      simulateRace(input);
+      times.push(performance.now() - start);
+    }
+    times.sort((a, b) => a - b);
+    const median = times[15] as number;
+    expect(median).toBeLessThan(50);
   });
 });

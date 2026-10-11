@@ -84,6 +84,9 @@ function makePath(): RacePath {
     distance: DISTANCE,
     homeStraightLength: DISTANCE,
     width: 30,
+    sampleInto(s: number, out) {
+      return Object.assign(out, this.sample(s));
+    },
     sample(s: number) {
       const sc = Math.max(0, s);
       return {
