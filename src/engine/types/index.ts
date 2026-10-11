@@ -7,3 +7,4 @@ export * from './people';
 export * from './course';
 export * from './race';
 export * from './game';
+export * from './bloodline';
