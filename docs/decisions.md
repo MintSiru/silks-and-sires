@@ -116,3 +116,4 @@
 - 2026-10-11 | 승인 | M2-11 6차(개정 5) — 기준 이탈 없음(C1~C12). 닉스 반사실 2.35, 보완형 4.31/4.40, 무작위 유전 기준값 상승 +0.81(I2), 열린 풀 11~21세대 평균 혈량 10.0%, 단서 ρ 0.86.
 - 2026-10-11 | 승인(Opus 보정) | M2-15 실명 종마 거리 프로필 재분류 — 위키백과 주요 우승 등급·거리 기준 53두 변경(전 speed132/classic0/middle38/cup2 → 후 127/31/13/1), 현역 classic 18%. 미확인 15두 유지, 본문 근거 4두 low(Daryz cup 포함). Camille Pissarro 는 사용자 판정 classic 유지. Opus 보정: 출생연도 3건 위키백과 기준 정정(Polymelus 1902, Seeking the Gold 1985, Pulpit 1994).
 - 2026-10-11 | 승인(Opus 보정) | M2-01c 사용자 제공 21두(명단 16 + 부계 고리 5) — 203두, 계통 조상 10두 추가, 끊긴 사슬 해소(현역 예외 Ardad·Perfect Power 2두만: Kodiac 위키백과 미확인). Hennessy 부 Storm Cat(Opus 정정) 유지. Opus 보정: Uncle Mo historical(2024 사망)·주로 dirt.
+- 2026-10-11 | 사용자 | 종마 15두 추가(M2-01d, 스테이어·NH 포함). 'GE' 표기는 독일(DE)로 해석. € 계류국은 Opus 추정(FR/IE, medium). RealStallionRecord.studRole(flat/dual/nh) 타입 추가(Opus).

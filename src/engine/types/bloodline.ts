@@ -10,6 +10,8 @@ import type { CountryCode, SireLineId } from './common';
 export type DistanceProfile = 'speed' | 'classic' | 'middle' | 'cup';
 export type SurfaceProfile = 'turf' | 'dirt' | 'both';
 export type RealStallionStatus = 'active' | 'pensioned' | 'historical';
+/** 종마 역할: 평지(기본) / 평지·NH 겸용 / NH(장애 생산). docs/stamina-and-nh.md 4-2 */
+export type StudRole = 'flat' | 'dual' | 'nh';
 
 /** 부계 계통. parentLineId 로 상위 계통에 연결(루트는 null) */
 export interface SireLine {
@@ -38,6 +40,8 @@ export interface RealStallionRecord {
   surfaceProfile: SurfaceProfile;
   /** 시장 인기 등급 1(최상)~5. 실제 종부료 대신 게임용 등급 */
   marketTier: 1 | 2 | 3 | 4 | 5;
+  /** 종마 역할. 생략 시 'flat' (NH 시장은 M4) */
+  studRole?: StudRole;
   /** 데이터 확신도 (계류 상태·혈통 관계 기준) */
   confidence: 'high' | 'medium' | 'low';
 }
