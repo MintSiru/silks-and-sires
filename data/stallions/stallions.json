@@ -193,7 +193,7 @@
     "distanceProfile": "middle",
     "surfaceProfile": "turf",
     "marketTier": 1,
-    "confidence": "medium"
+    "confidence": "high"
   },
   {
     "key": "stl_night_of_thunder",
@@ -207,7 +207,7 @@
     "distanceProfile": "mile",
     "surfaceProfile": "turf",
     "marketTier": 1,
-    "confidence": "medium"
+    "confidence": "high"
   },
   {
     "key": "stl_sadlers_wells",
@@ -249,7 +249,7 @@
     "distanceProfile": "mile",
     "surfaceProfile": "turf",
     "marketTier": 1,
-    "confidence": "medium"
+    "confidence": "high"
   },
   {
     "key": "stl_australia",
@@ -262,8 +262,8 @@
     "standsIn": "IE",
     "distanceProfile": "middle",
     "surfaceProfile": "turf",
-    "marketTier": 1,
-    "confidence": "medium"
+    "marketTier": 4,
+    "confidence": "high"
   },
   {
     "key": "stl_churchill",
@@ -276,8 +276,8 @@
     "standsIn": "IE",
     "distanceProfile": "mile",
     "surfaceProfile": "turf",
-    "marketTier": 2,
-    "confidence": "medium"
+    "marketTier": 4,
+    "confidence": "high"
   },
   {
     "key": "stl_gleneagles",
@@ -290,8 +290,8 @@
     "standsIn": "IE",
     "distanceProfile": "middle",
     "surfaceProfile": "turf",
-    "marketTier": 2,
-    "confidence": "medium"
+    "marketTier": 4,
+    "confidence": "high"
   },
   {
     "key": "stl_nathaniel",
@@ -347,7 +347,7 @@
     "distanceProfile": "middle",
     "surfaceProfile": "turf",
     "marketTier": 2,
-    "confidence": "medium"
+    "confidence": "high"
   },
   {
     "key": "stl_el_prado",
@@ -374,8 +374,8 @@
     "standsIn": "US",
     "distanceProfile": "mile",
     "surfaceProfile": "dirt",
-    "marketTier": 3,
-    "confidence": "medium"
+    "marketTier": 2,
+    "confidence": "high"
   },
   {
     "key": "stl_violence",
@@ -458,8 +458,8 @@
     "standsIn": "IE",
     "distanceProfile": "middle",
     "surfaceProfile": "turf",
-    "marketTier": 3,
-    "confidence": "medium"
+    "marketTier": 5,
+    "confidence": "high"
   },
   {
     "key": "stl_cacique",
@@ -501,7 +501,7 @@
     "distanceProfile": "mile",
     "surfaceProfile": "turf",
     "marketTier": 1,
-    "confidence": "medium"
+    "confidence": "high"
   },
   {
     "key": "stl_persian_king",
@@ -543,7 +543,7 @@
     "distanceProfile": "middle",
     "surfaceProfile": "turf",
     "marketTier": 1,
-    "confidence": "medium"
+    "confidence": "high"
   },
   {
     "key": "stl_golden_horn",
@@ -613,7 +613,7 @@
     "distanceProfile": "middle",
     "surfaceProfile": "turf",
     "marketTier": 1,
-    "confidence": "medium"
+    "confidence": "high"
   },
   {
     "key": "stl_seattle_slew",
@@ -668,8 +668,8 @@
     "standsIn": "US",
     "distanceProfile": "mile",
     "surfaceProfile": "dirt",
-    "marketTier": 3,
-    "confidence": "medium"
+    "marketTier": 2,
+    "confidence": "high"
   },
   {
     "key": "stl_storm_bird",
@@ -851,7 +851,7 @@
     "distanceProfile": "mile",
     "surfaceProfile": "dirt",
     "marketTier": 2,
-    "confidence": "medium"
+    "confidence": "high"
   },
   {
     "key": "stl_flightline",
@@ -906,8 +906,8 @@
     "standsIn": "IE",
     "distanceProfile": "middle",
     "surfaceProfile": "turf",
-    "marketTier": 2,
-    "confidence": "medium"
+    "marketTier": 3,
+    "confidence": "high"
   },
   {
     "key": "stl_ulysses",
@@ -935,7 +935,7 @@
     "distanceProfile": "mile",
     "surfaceProfile": "turf",
     "marketTier": 2,
-    "confidence": "medium"
+    "confidence": "high"
   },
   {
     "key": "stl_charm_spirit",
@@ -976,8 +976,8 @@
     "standsIn": "IE",
     "distanceProfile": "middle",
     "surfaceProfile": "turf",
-    "marketTier": 2,
-    "confidence": "medium"
+    "marketTier": 3,
+    "confidence": "high"
   },
   {
     "key": "stl_makfi",

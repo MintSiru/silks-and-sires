@@ -28,7 +28,7 @@
 
 | key | 이름 | status | standsIn | confidence | 근거·의문점 |
 | --- | --- | --- | --- | --- | --- |
-| stl_shalaa | Shalaa | active | FR | low | 위키백과: 부 Invincible Spirit, 2013년 2월 23일 생, 아일랜드산. "shuttle stallion between Al Shaquab stud in France and Arrowfield Stud in Australia" → 주 계류 FR 로 기재, AU 셔틀 병기. 확인 필요. |
+| stl_shalaa | Shalaa | active | FR | low | 위키백과: 부 Invincible Spirit, 2013년 2월 23일 생, 아일랜드산. "shuttle stallion between [목장] in France and [목장] in Australia" → 주 계류 FR 로 기재, AU 셔틀 병기. 확인 필요. |
 | stl_cacique | Cacique | pensioned | - | low | 위키백과 infobox: 부 Danehill, 2001년 생, 아일랜드. 계류 장소 미확인 → 비현역 처리. 모부 Kahyasi(미수록). |
 | stl_curlin | Curlin | pensioned | - | low | 위키백과: 부 Smart Strike, 모부 Deputy Minister(미수록), 2004년 생(기억 기반), 미국. 2008년 은퇴 기재. 종마 계류 장소 미확인 → 비현역 처리. |
 | stl_invincible_spirit | Invincible Spirit | pensioned | - | low | 위키백과 infobox: 부 Green Desert, 1997년 2월 17일 생, 아일랜드. 모부 Kris(미수록). 계류 상태 미확인 → 비현역 처리. |
@@ -44,36 +44,36 @@
 | stl_smart_strike | Smart Strike | pensioned | - | low | 부 Mr. Prospector, 1992년 생(기억 기반), 미국. 계류 상태 미확인 → 비현역 처리. |
 | stl_storm_bird | Storm Bird | pensioned | - | low | 위키백과 infobox: 부 Northern Dancer, 1978년 4월 19일 생, 캐나다. 사망 여부 미확인 → 비현역 처리. |
 | stl_storm_cat | Storm Cat | pensioned | - | low | 부 Storm Bird, 1983년 생, 미국은 기억 기반(위키 항목에 계보 필드 파싱 실패). 사망 여부 기재 미확인 → 비현역 처리. |
-| stl_australia | Australia | active | IE | medium | 위키백과 infobox: 부 Galileo, 모부 Cape Cross, 2011년 4월 8일 생. 출생국 GB 는 기억 기반(infobox 미기재). "He is standing at Coolmore stud" → 현역 IE. |
-| stl_bolt_d_oro | Bolt d'Oro | active | US | medium | 위키백과 infobox: 부 Medaglia d'Oro, 모부 A.P. Indy(미수록), 2015년 3월 17일 생, 미국. "retired to stud at Spendthrift Farm" 기재, 사망 기재 없음 → 현역 US(더트). 최신 연도 미확인. |
-| stl_camelot | Camelot | active | IE | medium | 위키백과 infobox: 부 Montjeu, 모부 Kingmambo(미수록), 2009년 3월 15일 생, 영국. "Camelot stands as a stallion at Coolmore Stud" 기재 → 현역 IE. |
-| stl_charm_spirit | Charm Spirit | active | FR | medium | 위키백과: 부 Invincible Spirit, 모부 Montjeu, 2011년 2월 26일 생, 아일랜드산·프랑스 조교. "Charm Spirit stands at the Haras du Logis Saint-Germain stud" 기재 → 현역 FR. |
-| stl_churchill | Churchill | active | IE | medium | 위키백과: 부 Galileo, 2014년 1월 31일 생, 아일랜드. Coolmore Stud 은퇴·계류 기재 → 현역 IE. |
-| stl_dubawi | Dubawi | active | GB | medium | 위키백과 infobox: 부 Dubai Millennium, 2002년 생, 아일랜드. "Dubawi stands ... at Dalham Hall Stud (2023 fee)" 기재 → 현역 GB. |
+| stl_australia | Australia | active | IE | medium | 위키백과 infobox: 부 Galileo, 모부 Cape Cross, 2011년 4월 8일 생. 출생국 GB 는 기억 기반(infobox 미기재). "He is standing at [목장]" → 현역 IE. |
+| stl_bolt_d_oro | Bolt d'Oro | active | US | medium | 위키백과 infobox: 부 Medaglia d'Oro, 모부 A.P. Indy(미수록), 2015년 3월 17일 생, 미국. "retired to stud at [목장]" 기재, 사망 기재 없음 → 현역 US(더트). 최신 연도 미확인. |
+| stl_camelot | Camelot | active | IE | medium | 위키백과 infobox: 부 Montjeu, 모부 Kingmambo(미수록), 2009년 3월 15일 생, 영국. "Camelot stands as a stallion at [목장]" 기재 → 현역 IE. |
+| stl_charm_spirit | Charm Spirit | active | FR | medium | 위키백과: 부 Invincible Spirit, 모부 Montjeu, 2011년 2월 26일 생, 아일랜드산·프랑스 조교. "Charm Spirit stands at the [목장]" 기재 → 현역 FR. |
+| stl_churchill | Churchill | active | IE | medium | 위키백과: 부 Galileo, 2014년 1월 31일 생, 아일랜드. [목장] 은퇴·계류 기재 → 현역 IE. |
+| stl_dubawi | Dubawi | active | GB | medium | 위키백과 infobox: 부 Dubai Millennium, 2002년 생, 아일랜드. "Dubawi stands ... at [목장] (2023 fee)" 기재 → 현역 GB. |
 | stl_essential_quality | Essential Quality | active | US | medium | 위키백과 infobox: 부 Tapit, 모부 Elusive Quality(미수록), 2018년 생, 미국. "His stud fee for the 2025 breeding season is $50,000" 기재 → 현역 US(더트). 계류 장소 미명기 → 미국 추정. |
 | stl_flightline | Flightline | active | US | medium | 위키백과 infobox: 부 Tapit, 모부 Indian Charlie(미수록), 2018년 3월 14일 생, 미국. "His 2026 stud fee was $125,000" 기재 → 현역 US(더트). 계류 장소 미명기 → 미국 추정. |
-| stl_frankel | Frankel | active | GB | medium | 위키백과 infobox: 부 Galileo, 모부 Danehill, 2008년 생, 영국. Banstead Manor Stud 계류 기재 → 현역 GB. |
-| stl_ghaiyyath | Ghaiyyath | active | IE | medium | 위키백과: 부 Dubawi, 2015년 4월 19일 생, 아일랜드. "retired from racing to stand as a breeding stallion at Kildangan Stud in 2021" 기재 → 현역 IE. |
-| stl_gleneagles | Gleneagles | active | IE | medium | 위키백과: 부 Galileo, 2012년 1월 12일 생, 아일랜드. Coolmore 종마 은퇴 기재 → 현역 IE. |
-| stl_golden_horn | Golden Horn | active | GB | medium | 위키백과 infobox: 부 Cape Cross, 2012년 3월 27일 생, 영국. "currently standing as a breeding stallion at Overbury Stud" 기재 → 현역 GB. |
-| stl_good_magic | Good Magic | active | US | medium | 위키백과 infobox: 부 Curlin, 모부 Hard Spun(미수록), 2015년 3월 1일 생, 미국. "From 2019 Good Magic stands at Hill 'n' Dale Farms" 기재 → 현역 US(더트). |
-| stl_holy_roman_emperor | Holy Roman Emperor | active | IE | medium | 위키백과: 부 Danehill, 2004년 생, 아일랜드. Coolmore 셔틀 종마로 "active sire" 기재 → 현역 IE. 모부 Secretariat(미수록). |
-| stl_into_mischief | Into Mischief | active | US | medium | 위키백과 infobox: 2005년 3월 28일 생, 미국. 부 Harlan's Holiday(1999년 생, 사망 기재), 모부 Tricky Creek(미수록). "retired to stud at Spendthrift Farm" 기재 → 현역 US(더트). 부 Harlan 계보는 항목 미확인 → Harlan's Holiday 를 루트 처리. |
+| stl_frankel | Frankel | active | GB | medium | 위키백과 infobox: 부 Galileo, 모부 Danehill, 2008년 생, 영국. [목장] 계류 기재 → 현역 GB. |
+| stl_ghaiyyath | Ghaiyyath | active | IE | medium | 위키백과: 부 Dubawi, 2015년 4월 19일 생, 아일랜드. "retired from racing to stand as a breeding stallion at [목장] in 2021" 기재 → 현역 IE. |
+| stl_gleneagles | Gleneagles | active | IE | medium | 위키백과: 부 Galileo, 2012년 1월 12일 생, 아일랜드. [목장] 종마 은퇴 기재 → 현역 IE. |
+| stl_golden_horn | Golden Horn | active | GB | medium | 위키백과 infobox: 부 Cape Cross, 2012년 3월 27일 생, 영국. "currently standing as a breeding stallion at [목장]" 기재 → 현역 GB. |
+| stl_good_magic | Good Magic | active | US | medium | 위키백과 infobox: 부 Curlin, 모부 Hard Spun(미수록), 2015년 3월 1일 생, 미국. "From 2019 Good Magic stands at [목장]" 기재 → 현역 US(더트). |
+| stl_holy_roman_emperor | Holy Roman Emperor | active | IE | medium | 위키백과: 부 Danehill, 2004년 생, 아일랜드. [목장] 셔틀 종마로 "active sire" 기재 → 현역 IE. 모부 Secretariat(미수록). |
+| stl_into_mischief | Into Mischief | active | US | medium | 위키백과 infobox: 2005년 3월 28일 생, 미국. 부 Harlan's Holiday(1999년 생, 사망 기재), 모부 Tricky Creek(미수록). "retired to stud at [목장]" 기재 → 현역 US(더트). 부 Harlan 계보는 항목 미확인 → Harlan's Holiday 를 루트 처리. |
 | stl_kingman | Kingman | active | GB | medium | 위키백과 "Kingman (British horse)": 부 Invincible Spirit, 모부 Zamindar(미수록), 2011년 2월 26일 생, 영국. 계류지 문장 미확인 → GB 는 기억 기반. 확인 필요. |
-| stl_life_is_good | Life Is Good | active | US | medium | 위키백과 infobox: 부 Into Mischief, 2018년 4월 22일 생, 미국. "Life Is Good would take up stallion duties at WinStar Farm" 기재 → 현역 US(더트). |
-| stl_lope_de_vega | Lope de Vega | active | IE | medium | 위키백과: 부 Shamardal, 2007년 2월 19일 생, 아일랜드. "In 2011 ... stood at Ballylinch Stud, Ireland", "current breeding stallion" 기재 → 현역 IE. |
-| stl_makfi | Makfi | active | GB | medium | 위키백과: 부 Dubawi, 모부 Green Desert, 2007년 3월 4일 생, 영국. "retired to Tweenhills Stud in Gloucestershire" 기재, 사망 기재 없음 → 현역 GB. |
-| stl_night_of_thunder | Night of Thunder | active | IE | medium | 위키백과 infobox: 부 Dubawi, 모부 Galileo, 2011년 생, 아일랜드. Kildangan Stud 계류 기재 → 현역 IE. |
-| stl_persian_king | Persian King | active | FR | medium | 위키백과 infobox: 부 Kingman, 2016년 2월 18일 생, 아일랜드. "After his retirement from racing in October 2020 Persian King became a breeding stallion at the Haras d'Etreham in Normandy" 기재 → 현역 FR. 모부 Dylan Thomas(미수록). |
+| stl_life_is_good | Life Is Good | active | US | medium | 위키백과 infobox: 부 Into Mischief, 2018년 4월 22일 생, 미국. "Life Is Good would take up stallion duties at [목장]" 기재 → 현역 US(더트). |
+| stl_lope_de_vega | Lope de Vega | active | IE | medium | 위키백과: 부 Shamardal, 2007년 2월 19일 생, 아일랜드. "In 2011 ... stood at [목장], Ireland", "current breeding stallion" 기재 → 현역 IE. |
+| stl_makfi | Makfi | active | GB | medium | 위키백과: 부 Dubawi, 모부 Green Desert, 2007년 3월 4일 생, 영국. "retired to [목장] in Gloucestershire" 기재, 사망 기재 없음 → 현역 GB. |
+| stl_night_of_thunder | Night of Thunder | active | IE | medium | 위키백과 infobox: 부 Dubawi, 모부 Galileo, 2011년 생, 아일랜드. [목장] 계류 기재 → 현역 IE. |
+| stl_persian_king | Persian King | active | FR | medium | 위키백과 infobox: 부 Kingman, 2016년 2월 18일 생, 아일랜드. "After his retirement from racing in October 2020 Persian King became a breeding stallion at the [목장] in Normandy" 기재 → 현역 FR. 모부 Dylan Thomas(미수록). |
 | stl_practical_joke | Practical Joke | active | US | medium | 위키백과 infobox: 부 Into Mischief, 모부 Distorted Humor(미수록), 2014년 4월 15일 생, 미국. 2018년·2022년 종부료 기재. 계류 장소 명시 없음 → 미국 추정. 확인 필요. |
-| stl_sea_the_stars | Sea the Stars | active | IE | medium | 위키백과 infobox: 부 Cape Cross, 2006년 4월 6일 생, 아일랜드. "would stand at the Aga Khan's Gilltown Stud in Ireland" 기재 → 현역 IE(최근 연도 미확인). |
-| stl_siyouni | Siyouni | active | FR | medium | 위키백과 infobox: 부 Pivotal, 모부 Danehill, 2007년 2월 14일 생, 프랑스. "retired to the Aga Khan IV's Haras de Bonneval stud in France" 기재 → 현역 FR. |
-| stl_tapit | Tapit | active | US | medium | 부 Pulpit, 2001년 생(기억 기반), 미국. "retired to stud at Gainesway Farm in Lexington, Kentucky in 2005", 종부료 기재, 사망 기재 없음 → 현역 US(더트). |
-| stl_teofilo | Teofilo | active | IE | medium | 위키백과: 부 Galileo, 모부 Danehill, 2004년 생, 아일랜드. "He is currently standing at stud in County Kildare", "stands as a stallion for the Darley Stud" 기재 → 현역 IE. |
-| stl_too_darn_hot | Too Darn Hot | active | GB | medium | 위키백과 infobox: 부 Dubawi, 2016년 3월 27일 생, 영국. "became a breeding stallion at the Dalham Hall Stud" 기재 → 현역 GB. |
-| stl_ulysses | Ulysses | active | GB | medium | 위키백과: 부 Galileo, 2013년 3월 20일 생, 아일랜드산·영국 조교. "would begin his career as a breeding stallion at the Cheveley Park Stud" 기재 → 현역 GB. 출생국은 IE(아일랜드산). |
+| stl_sea_the_stars | Sea the Stars | active | IE | medium | 위키백과 infobox: 부 Cape Cross, 2006년 4월 6일 생, 아일랜드. "would stand at the [목장] in Ireland" 기재 → 현역 IE(최근 연도 미확인). |
+| stl_siyouni | Siyouni | active | FR | medium | 위키백과 infobox: 부 Pivotal, 모부 Danehill, 2007년 2월 14일 생, 프랑스. "retired to the [목장] in France" 기재 → 현역 FR. |
+| stl_tapit | Tapit | active | US | medium | 부 Pulpit, 2001년 생(기억 기반), 미국. "retired to stud at [목장] in [미국 목장 지역] in 2005", 종부료 기재, 사망 기재 없음 → 현역 US(더트). |
+| stl_teofilo | Teofilo | active | IE | medium | 위키백과: 부 Galileo, 모부 Danehill, 2004년 생, 아일랜드. "He is currently standing at stud in County Kildare", "stands as a stallion for the [목장]" 기재 → 현역 IE. |
+| stl_too_darn_hot | Too Darn Hot | active | GB | medium | 위키백과 infobox: 부 Dubawi, 2016년 3월 27일 생, 영국. "became a breeding stallion at the [목장]" 기재 → 현역 GB. |
+| stl_ulysses | Ulysses | active | GB | medium | 위키백과: 부 Galileo, 2013년 3월 20일 생, 아일랜드산·영국 조교. "would begin his career as a breeding stallion at the [목장]" 기재 → 현역 GB. 출생국은 IE(아일랜드산). |
 | stl_vino_rosso | Vino Rosso | active | US | medium | 위키백과 infobox: 부 Curlin, 모부 Street Cry(미수록), 2015년 생, 미국. "As of 2023 he stands for a stud fee of $15,000" → 현역 US(더트). |
-| stl_violence | Violence | active | US | medium | 위키백과 infobox: 부 Medaglia d'Oro, 모부 Gone West, 2010년 3월 21일 생, 미국. "entered into a stud career at Hill 'n' Dale Farms in 2014" 기재 → 현역 US(더트). |
+| stl_violence | Violence | active | US | medium | 위키백과 infobox: 부 Medaglia d'Oro, 모부 Gone West, 2010년 3월 21일 생, 미국. "entered into a stud career at [목장] in 2014" 기재 → 현역 US(더트). |
 | stl_ap_indy | A.P. Indy | pensioned | - | medium | 부 Seattle Slew, 1989년 생, 미국은 기억 기반(위키 항목 미확인). 사망 여부 미확인 → 비현역. |
 | stl_cape_cross | Cape Cross | historical | - | medium | 위키백과 infobox: 부 Green Desert, 1994년 3월 13일 생, 아일랜드. 사망 기재는 위키백과 단편 근거(연도 미확인). 모부 Ahonoora(미수록). |
 | stl_danehill | Danehill | historical | - | medium | 부 Danzig, 1986년 생, 미국 출생, 2003년 사망은 모두 기억 기반(Danehill 위키 항목 조회 실패). 출생국과 사망 연도 검증 필요. |
@@ -110,3 +110,40 @@
 - Harlan(1989, Storm Cat 산) 추가 → Harlan's Holiday → Into Mischief 가 Storm Cat line 으로 연결. "Harlan's Holiday line" 루트 삭제.
 - 시장 등급 조정: Lope de Vega 1, Night of Thunder 1, Camelot 2.
 - 현역 수 목표(유럽 50·미국 15)는 위키백과 확인 가능 범위에서 달성 불가 → 1차분 하한(유럽 20·미국 10)으로 테스트 조정, 확장은 M2 후속 티켓.
+
+## M2-01b 진행 상태 (2026-10-11, 중단 — Opus 확인 필요)
+
+- 출처: 사용자 제공 2026 명단(그룹 A~H, 81두). 명단 출처 표기는 적지 않는다.
+- 중단 사유: 위키백과 원문 조회가 권한 분류기에서 차단되어 신규 종마의 출생연도·출생국·부계·거리/주로 성향을 확인하지 못했다. 확인 없이 혈통을 채우지 않았다.
+- 완료: 기존 레코드 15두 갱신 (status active, standsIn, marketTier 규칙, confidence high).
+  Australia, Camelot, Churchill, Gleneagles, Holy Roman Emperor, Practical Joke, Dubawi, Too Darn Hot, Ghaiyyath, Night of Thunder, Teofilo, Essential Quality, Medaglia d'Oro, Frankel, Kingman.
+- 미완료: 신규 66두 (아래 목록). stallions.json·names.json·sire_lines.json 은 변경하지 않았다 (키 집합 테스트 유지).
+- 테스트 하한(유럽 50·미국 더트/양용 15)은 아직 되돌리지 않았다. 데이터 완성 후 변경한다.
+- 부계 미확인 종마: 아직 없음 (확인 자체를 하지 못함). 확인 후 부계가 끝내 안 나오는 종마만 sireKey null 루트로 두고 여기에 적는다.
+- 명단 표기 보정 적용: Territories, Cloth of Stars, Footstepsinthesand, Medaglia d'Oro.
+
+### 신규 추가 대기 66두 (국가·계류국 기준, 전부 active / confidence high 예정)
+
+- 그룹 A (IE, EUR, 16): Auguste Rodin, Blackbeard, Camille Pissarro, City of Troy, Delacroix, Footstepsinthesand, Henri Matisse, Henry Longfellow, Little Big Bear, No Nay Never, Paddington, Saxon Warrior, Sioux Nation, St Mark's Basilica, Starspangledbanner, The Antarctic
+- 그룹 B (US, USD, 14): Citizen Bull, Corniche, Domestic Product, Echo Town, Epicenter, Fierceness, Golden Pal, Gunite, Jack Christopher, Justify, Mo Town, Munnings, Sierra Leone, Tiz The Law
+- 그룹 C (GB, GBP, 11): Cracksman, Farhh, Harry Angel, Iffraaj, Masar, Modern Games, Palace Pier, Perfect Power, Pinatubo, Territories, Triple Time
+- 그룹 D (FR, EUR, 2): Cloth of Stars, Victor Ludorum
+- 그룹 E (IE, EUR, 6): Blue Point, Earthlight, Native Trail, Naval Crown, Raven's Pass, Space Blues
+- 그룹 F (US, USD, 11): Cody's Wish, Enticed, Frosted, Hard Spun, Maxfield, Midshipman, Mystic Guide, Nyquist, Proxy, Speaker's Corner, Street Sense
+- 그룹 G (GB, GBP, 4): Bated Breath, Chaldean, Lead Artist, Oasis Dream
+- 그룹 H (US, USD, 2): Elite Power, Mandaloun
+
+### 마켓 등급 규칙 (명단 교배료 → marketTier, 금액은 저장하지 않음)
+
+100,000 이상 → 1 / 50,000~99,999 → 2 / 25,000~49,999 → 3 / 10,000~24,999 → 4 / 10,000 미만 → 5 / 비공개 → 4
+
+### 그룹 I 추가 (사용자 제공 2026 명단, 2026-10-11 추가)
+
+- 교배료 미기재 → marketTier 는 Opus 지정: Sea The Stars 1 · Siyouni 1 · Zarak 3 · Vadeni 3 · Daryz 4 · Erevann 4.
+- 기존 레코드 갱신 (2두): Sea The Stars (IE, tier 1, high), Siyouni (FR, tier 1, high). 계류국은 기존 검수표(위키백과 확인분)와 일치.
+- 신규 대기 4두 (위키백과 미확인, 기본값 계류국 사용 — 표시):
+  - Zarak: FR (기본값, 미확인) · tier 3 · confidence high 예정
+  - Vadeni: IE (기본값, 미확인) · tier 3 · confidence high 예정
+  - Daryz: FR (기본값, 미확인) · tier 4 · confidence high 예정
+  - Erevann: FR (기본값, 미확인) · tier 4 · confidence high 예정
+- 명단 수: 87두 (기존 갱신 17두 + 신규 대기 70두). 추가 완료 0두, 신규 추가 대기 70두.
