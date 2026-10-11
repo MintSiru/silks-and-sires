@@ -1,5 +1,5 @@
 /**
- * M2-11 배합·유전 검증 (명세: docs/specs/M2-11-breeding-verification.md)
+ * M2-11 배합·유전 검증 (명세: docs/specs/M2-11-breeding-verification.md, 개정 1·2)
  *
  * 기본 모드(npm test): 작은 규모(세대 3, 집단 60)로 구조·재현성만 단언한다.
  * FULL 모드(VERIFY=1): 명세 규모로 돌리고 기준 이탈을 리포트 맨 위에 적는다.
@@ -17,12 +17,13 @@ import {
   totalBloodPercent,
 } from '../../src/engine/breeding/inbreeding';
 import { nickValue } from '../../src/engine/breeding/nicks';
-import { buildMatingPedigree } from '../../src/engine/breeding/pedigree';
+import { buildMatingPedigree, type PedigreeLookup } from '../../src/engine/breeding/pedigree';
 import { IN_TRAINING_ABILITY_WEIGHT } from '../../src/engine/config/assessment';
 import {
   INBREED_EXCESS_FROM,
   INBREED_EXCESS_POTENTIAL_PENALTY,
   INBREED_EXCESS_SOUNDNESS_PENALTY,
+  INBREED_LOW,
   NICK_EFFECT_MAX,
   SOUNDNESS_REGRESSION,
 } from '../../src/engine/config/genetics';
@@ -55,7 +56,7 @@ const CYCLES = FULL ? 20 : 3;
 const PER_SEX = FULL ? 100 : 30;
 /**
  * 닉스 효과 실험의 무작위 쌍 수. 고닉스(≥ 0.5) 쌍은 무작위 쌍의 약 3.5% 뿐이라(2000쌍 → 70쌍),
- * FULL 은 고닉스 200쌍 이상을 확보하도록 8000쌍으로 늘린다(M2-11 2차 재실행 요청).
+ * FULL 은 고닉스 200쌍 이상을 확보하도록 8000쌍으로 늘린다.
  */
 const NICK_PAIRS = FULL ? 8000 : 200;
 /** 단서 정확도 실험의 말 수 */
@@ -92,6 +93,7 @@ const SOUNDNESS_FLOOR = 40;
 const SEED = {
   founders: 'm2-11-founders',
   randomMating: 'm2-11-random-mating',
+  avoidMating: 'm2-11-avoid-mating',
   selectionMating: 'm2-11-selection-mating',
   nickPairs: 'm2-11-nick-pairs',
   assessHorses: 'm2-11-assess-horses',
@@ -107,7 +109,12 @@ const CHILD_LINE_IDS: readonly SireLineId[] = getSireLines()
   .filter((line) => line.parentLineId !== null)
   .map((line) => line.id);
 
-type Mode = 'random' | 'selection';
+/**
+ * random: 전체 말 중 무작위 짝.
+ * avoid: 성별별 상위 20% 풀에서, 암말마다 예상 혈량 ≤ INBREED_EXCESS_FROM 인 수말을 무작위로 고른다(개정 2, 판정 대상).
+ * selection: 성별별 상위 20% 풀에서 무작위 짝(무회피 선택, 진단만).
+ */
+type Mode = 'random' | 'avoid' | 'selection';
 
 interface Mating {
   inbred: boolean;
@@ -132,6 +139,15 @@ interface Snapshot {
 interface ScenarioRun {
   snapshots: Snapshot[];
   registry: Map<HorseId, Horse>;
+  /** 회피 선택 전용: 세대별 "허용 수말 없음 → 최저 혈량 수말 대체" 비율(세대 2부터). 다른 모드는 빈 배열 */
+  fallbackRates: number[];
+}
+
+interface ScenarioOptions {
+  /** 진단: 모든 인브리드 보정(보너스·감점)을 끈다. 저장값에 감점이 없으므로 부·모 own 값도 0 */
+  ignoreInbreeding?: boolean;
+  /** 진단(개정 2): 예상 혈량이 INBREED_LOW 초과 INBREED_EXCESS_FROM 이하인 망아지만 보너스를 끈다 */
+  bonusOff?: boolean;
 }
 
 interface NickGroup {
@@ -184,9 +200,11 @@ interface Criterion {
 /** FULL 리포트용 결과 저장소. 테스트 파일 안에서 순서대로 채운다. */
 const results: {
   random?: ScenarioRun;
+  avoid?: ScenarioRun;
   selection?: ScenarioRun;
   randomNoInbreed?: ScenarioRun;
   selectionNoInbreed?: ScenarioRun;
+  randomBonusOff?: ScenarioRun;
   nick?: NickResult;
   assess?: AssessResult;
   timingsMs: Record<string, number>;
@@ -334,21 +352,51 @@ function topShare(horses: readonly Horse[]): Horse[] {
     .slice(0, n);
 }
 
+/** 가상 교배의 예상 혈량(게임 본체와 같은 방식: 지배 교차 합). */
+function expectedBlood(lookup: PedigreeLookup, sire: Horse, dam: Horse): number {
+  const root = buildMatingPedigree(lookup, sire.id, dam.id);
+  return totalBloodPercent(dominantCrosses(root, findInbreeding(root)));
+}
+
+/**
+ * 회피 선택(개정 2): 예상 혈량 ≤ INBREED_EXCESS_FROM 인 수말 가운데 무작위.
+ * 허용 수말이 없으면 풀에서 예상 혈량이 가장 낮은 수말(동점은 id 순).
+ */
+function pickAvoidingSire(
+  rng: Rng,
+  sirePool: readonly Horse[],
+  dam: Horse,
+  lookup: PedigreeLookup,
+): { sire: Horse; fallback: boolean } {
+  const scored = sirePool.map((sire) => ({ sire, blood: expectedBlood(lookup, sire, dam) }));
+  const allowed = scored.filter((s) => s.blood <= INBREED_EXCESS_FROM).map((s) => s.sire);
+  if (allowed.length > 0) return { sire: rng.pick(allowed), fallback: false };
+  const lowest = [...scored].sort(
+    (a, b) => a.blood - b.blood || (a.sire.id < b.sire.id ? -1 : a.sire.id > b.sire.id ? 1 : 0),
+  )[0];
+  if (lowest === undefined) throw new RangeError('빈 수말 풀');
+  return { sire: lowest.sire, fallback: true };
+}
+
 /** 쌍마다 인브리드를 탐지하고 망아지를 만든다. 모계 명성은 0(미사용). */
 function produceFoals(
   rng: Rng,
   pairs: readonly (readonly [Horse, Horse])[],
   gen: number,
   registry: ReadonlyMap<HorseId, Horse>,
-  ignoreInbreeding: boolean,
+  options: ScenarioOptions,
 ): { foals: Horse[]; matings: Mating[] } {
-  const lookup = (id: HorseId): Horse | undefined => registry.get(id);
+  const lookup: PedigreeLookup = (id) => registry.get(id);
   const foals: Horse[] = [];
   const matings: Mating[] = [];
   pairs.forEach(([sire, dam], i) => {
     // 개정 1: 게임 본체(season.ts, preview.ts)와 같은 방식 — 지배 교차만 남긴다.
     const root = buildMatingPedigree(lookup, sire.id, dam.id);
     const crosses = dominantCrosses(root, findInbreeding(root));
+    const bp = totalBloodPercent(crosses);
+    // 개정 2 보너스만 끔: 보너스만 있고 감점은 없는 구간(INBREED_LOW 초과 INBREED_EXCESS_FROM 이하)이면 보정 목록을 비운다.
+    const dropBonus = options.bonusOff === true && bp > INBREED_LOW && bp <= INBREED_EXCESS_FROM;
+    const ignore = options.ignoreInbreeding === true;
     const id = `G${gen}-${String(i).padStart(3, '0')}`;
     const args: BreedArgs = {
       sire,
@@ -357,11 +405,11 @@ function produceFoals(
       damsireLineId: dam.sireLineId,
       nicks: NICKS,
       // 진단 모드에서는 보정만 끈다(인브리드 탐지 결과는 통계에 그대로 남긴다). rng 소비 순서는 같다.
-      inbreeding: ignoreInbreeding ? [] : crosses,
+      inbreeding: ignore || dropBonus ? [] : crosses,
       // M2-05c 1대 한정: 부·모의 과다 감점을 되돌려 유전 기준값을 만든다(season.ts 와 같은 방식).
       // 감점 끔 진단은 저장된 잠재·건강도에 감점이 없으므로 되돌리지 않는다(0). 되돌리면 편향이 생긴다.
-      sireOwnBloodPercent: ignoreInbreeding ? 0 : ownBloodPercent(lookup, sire),
-      damOwnBloodPercent: ignoreInbreeding ? 0 : ownBloodPercent(lookup, dam),
+      sireOwnBloodPercent: ignore ? 0 : ownBloodPercent(lookup, sire),
+      damOwnBloodPercent: ignore ? 0 : ownBloodPercent(lookup, dam),
       damFamilyScore: 0,
       id,
       name: id,
@@ -372,23 +420,25 @@ function produceFoals(
       breederId: null,
     };
     foals.push(breed(rng, args));
-    matings.push({ inbred: crosses.length > 0, bloodPercent: totalBloodPercent(crosses) });
+    matings.push({ inbred: crosses.length > 0, bloodPercent: bp });
   });
   return { foals, matings };
 }
 
 /**
- * 1세대 창시자 + cycles 회 교배. mode 'random': 전체 말 중 무작위 짝.
- * mode 'selection': 세대마다 성별별 잠재 평균 상위 20% 만 부모로 쓴다.
- * 각 세대 쌍 수 = 2 × perSex (집단 크기 유지).
+ * 1세대 창시자 + cycles 회 교배. 모드는 Mode 참고. 각 세대 쌍 수 = 2 × perSex (집단 크기 유지).
  */
-function runScenario(mode: Mode, cycles: number, perSex: number, ignoreInbreeding = false): ScenarioRun {
+function runScenario(mode: Mode, cycles: number, perSex: number, options: ScenarioOptions = {}): ScenarioRun {
   const founders = createFounders(SEED.founders, perSex);
   const registry = new Map<HorseId, Horse>();
   for (const h of founders) registry.set(h.id, h);
-  const rng = createRng(mode === 'random' ? SEED.randomMating : SEED.selectionMating);
+  const seed =
+    mode === 'random' ? SEED.randomMating : mode === 'avoid' ? SEED.avoidMating : SEED.selectionMating;
+  const rng = createRng(seed);
+  const lookup: PedigreeLookup = (id) => registry.get(id);
 
   const snapshots: Snapshot[] = [snapshot(1, founders, null)];
+  const fallbackRates: number[] = [];
   let current = founders;
   for (let c = 1; c <= cycles; c++) {
     const gen = c + 1;
@@ -397,15 +447,24 @@ function runScenario(mode: Mode, cycles: number, perSex: number, ignoreInbreedin
     const sirePool = mode === 'random' ? males : topShare(males);
     const damPool = mode === 'random' ? females : topShare(females);
     const pairs: [Horse, Horse][] = [];
+    let fallbacks = 0;
     for (let i = 0; i < perSex * 2; i++) {
-      pairs.push([rng.pick(sirePool), rng.pick(damPool)]);
+      if (mode === 'avoid') {
+        const dam = rng.pick(damPool);
+        const pick = pickAvoidingSire(rng, sirePool, dam, lookup);
+        if (pick.fallback) fallbacks++;
+        pairs.push([pick.sire, dam]);
+      } else {
+        pairs.push([rng.pick(sirePool), rng.pick(damPool)]);
+      }
     }
-    const { foals, matings } = produceFoals(rng, pairs, gen, registry, ignoreInbreeding);
+    if (mode === 'avoid') fallbackRates.push(fallbacks / pairs.length);
+    const { foals, matings } = produceFoals(rng, pairs, gen, registry, options);
     for (const f of foals) registry.set(f.id, f);
     snapshots.push(snapshot(gen, foals, matings));
     current = foals;
   }
-  return { snapshots, registry };
+  return { snapshots, registry, fallbackRates };
 }
 
 /* ------------------------------------------------------------------ */
@@ -418,7 +477,7 @@ function runNickSection(): NickResult {
   const females = founders.filter((h) => h.sex === 'female');
   const rng = createRng(SEED.nickPairs);
   const byId = new Map<HorseId, Horse>(founders.map((h) => [h.id, h]));
-  const lookup = (id: HorseId): Horse | undefined => byId.get(id);
+  const lookup: PedigreeLookup = (id) => byId.get(id);
 
   const high: { avg: number; nick: number }[] = [];
   const low: { avg: number; nick: number }[] = [];
@@ -535,11 +594,11 @@ function runAssessSection(): AssessResult {
 
 function buildCriteria(): Criterion[] {
   const rnd = results.random?.snapshots;
-  const sel = results.selection?.snapshots;
+  const avoid = results.avoid?.snapshots;
   const selNoInbreed = results.selectionNoInbreed?.snapshots;
   const nick = results.nick;
   const assess = results.assess;
-  if (!rnd || !sel || !nick || !assess) throw new Error('FULL 결과가 모두 없다');
+  if (!rnd || !avoid || !nick || !assess) throw new Error('FULL 결과가 모두 없다');
 
   const r0 = first(rnd);
   const rndRest = rnd.slice(1);
@@ -552,8 +611,9 @@ function buildCriteria(): Criterion[] {
   const ratioMin = Math.min(...ratios);
   const ratioMax = Math.max(...ratios);
 
-  const s0 = first(sel);
-  const sLast = last(sel);
+  // 개정 2: C3·C4·C9~C11 은 회피 선택으로 판정한다.
+  const s0 = first(avoid);
+  const sLast = last(avoid);
   const gain = sLast.potentialMean - s0.potentialMean;
 
   const stageRho = (stage: AssessmentStage): number => {
@@ -583,16 +643,16 @@ function buildCriteria(): Criterion[] {
     },
     {
       id: 'C3',
-      text: `선택 교배: 20세대 후 평균 상승 +${SELECT_GAIN_MIN} 이상`,
+      text: `회피 선택: 20세대 후 평균 상승 +${SELECT_GAIN_MIN} 이상`,
       observed: `1세대 ${fmt(s0.potentialMean)} → 마지막 ${fmt(sLast.potentialMean)} (상승 ${fmt(gain)})`,
       pass: gain >= SELECT_GAIN_MIN,
     },
     {
       id: 'C4',
-      text: `선택 교배: ${SATURATION_CAP} 미만에서 포화`,
+      text: `회피 선택: ${SATURATION_CAP} 미만에서 포화`,
       observed:
         `마지막 세대 평균 ${fmt(sLast.potentialMean)}, 최대 ${fmt(sLast.potentialMax)}` +
-        (selNoInbreed ? ` (참고: 감점 끔 마지막 ${fmt(last(selNoInbreed).potentialMean)})` : ''),
+        (selNoInbreed ? ` (참고: 닫힌 무회피 감점 끔 마지막 ${fmt(last(selNoInbreed).potentialMean)})` : ''),
       pass: sLast.potentialMean < SATURATION_CAP,
     },
     {
@@ -619,22 +679,22 @@ function buildCriteria(): Criterion[] {
       observed: `${fmt(rhoFoal, 3)} < ${fmt(rhoYearling, 3)} < ${fmt(rhoTwo, 3)} < ${fmt(rhoIn, 3)}`,
       pass: monotonic,
     },
-    // 개정 4: 닫힌 집단 붕괴 판정(선택 교배, 마지막 세대). 인브리드율 100% 자체는 기준이 아니다.
+    // 개정 4: 닫힌 집단 붕괴 판정(회피 선택, 마지막 세대). 인브리드율 100% 자체는 기준이 아니다.
     {
       id: 'C9',
-      text: `선택 교배 붕괴: 마지막 세대 평균 혈량 ≤ ${BLOOD_COLLAPSE_MAX}% (교배 기준)`,
+      text: `회피 선택 붕괴: 마지막 세대 평균 혈량 ≤ ${BLOOD_COLLAPSE_MAX}% (교배 기준)`,
       observed: `${fmt(sLast.meanBloodPercent)}% (인브리드율 ${fmt((sLast.inbreedRate ?? 0) * 100, 1)}%)`,
       pass: (sLast.meanBloodPercent ?? Number.POSITIVE_INFINITY) <= BLOOD_COLLAPSE_MAX,
     },
     {
       id: 'C10',
-      text: `선택 교배 붕괴: 마지막 세대 건강도 평균 ≥ ${SOUNDNESS_FLOOR}`,
+      text: `회피 선택 붕괴: 마지막 세대 건강도 평균 ≥ ${SOUNDNESS_FLOOR}`,
       observed: `${fmt(sLast.soundnessMean)} (1세대 ${fmt(s0.soundnessMean)})`,
       pass: sLast.soundnessMean >= SOUNDNESS_FLOOR,
     },
     {
       id: 'C11',
-      text: '선택 교배 붕괴: 마지막 세대 잠재 평균 ≥ 1세대 잠재 평균',
+      text: '회피 선택 붕괴: 마지막 세대 잠재 평균 ≥ 1세대 잠재 평균',
       observed: `${fmt(sLast.potentialMean)} vs 1세대 ${fmt(s0.potentialMean)}`,
       pass: sLast.potentialMean >= s0.potentialMean,
     },
@@ -659,16 +719,24 @@ function snapshotTable(snaps: readonly Snapshot[]): string[] {
   ];
 }
 
+interface CauseInput {
+  rnd: readonly Snapshot[];
+  rndNo: readonly Snapshot[];
+  rndBonusOff: readonly Snapshot[];
+  avoid: readonly Snapshot[];
+  closed: readonly Snapshot[];
+  closedNo: readonly Snapshot[];
+  /** 회피 선택 세대별 대체 비율(index 0 = 2세대) */
+  fallbackRates: readonly number[];
+  nick: NickResult | null;
+  assess: AssessResult | null;
+}
+
 /** 이탈의 원인을 진단 실행 결과로 요약한다(해석 문장은 숫자와 함께만 쓴다). */
-function buildCauseLines(
-  rnd: readonly Snapshot[],
-  rndNo: readonly Snapshot[],
-  sel: readonly Snapshot[],
-  selNo: readonly Snapshot[],
-  nick: NickResult | null,
-  assess: AssessResult | null,
-): string[] {
+function buildCauseLines(input: CauseInput): string[] {
+  const { rnd, rndNo, rndBonusOff, avoid, closed, closedNo, fallbackRates, nick, assess } = input;
   const lines: string[] = [];
+
   if (rnd.length > 0 && rndNo.length > 0) {
     const z = last(rnd);
     const b = first(rndNo);
@@ -677,34 +745,58 @@ function buildCauseLines(
     lines.push(
       `- 무작위 교배 잠재: 감점 끔 진단은 잠재 ${fmt(b.potentialMean)} → ${fmt(y.potentialMean)}, 건강도 ${fmt(b.soundnessMean)} → ${fmt(y.soundnessMean)} 로 평탄하다. ` +
         `1대 한정 반영 후(감점 켬)는 인브리드율 ${firstHalfInbred ? firstHalfInbred.generation + '세대에 50% 이상' : '50% 미만'}, ` +
-        `마지막 세대 잠재 평균 ${fmt(z.potentialMean)}, 건강도 ${fmt(z.soundnessMean)}. ` +
-        `잠재 상승(C1 이탈)은 부·모 감점을 되돌려 기준값이 올라가는 효과와 근친 보너스(INBREED_BONUS_MAX, 자손에게 그대로 유전)가 섞인 결과로 보이나, ` +
-        `감점 끔 진단은 보너스도 함께 꺼지므로 이 실행만으로는 둘을 나눌 수 없다(가설, 미검증).`,
+        `마지막 세대 잠재 평균 ${fmt(z.potentialMean)}, 건강도 ${fmt(z.soundnessMean)}.`,
     );
+  }
+  if (rnd.length > 0 && rndBonusOff.length > 0) {
+    const r0 = first(rnd);
+    const bo = rndBonusOff.slice(1);
+    const boDev = bo.reduce((m, s) => Math.max(m, Math.abs(s.potentialMean - r0.potentialMean)), 0);
+    const bl = last(rndBonusOff);
+    const verdict =
+      boDev <= MEAN_BAND
+        ? `보너스만 끈 진단에서 상승이 C1 기준(±${MEAN_BAND}) 안으로 사라졌다(최대 |Δ| ${fmt(boDev)}). 근친 보너스 유전이 C1 상승의 원인으로 확정된다(개정 2 기준).`
+        : `보너스만 끈 진단에서도 상승이 남는다(최대 |Δ| ${fmt(boDev)}). 근친 보너스 유전만으로는 C1 상승을 설명하지 못한다.`;
     lines.push(
-      `- 마지막 세대 감점구간(혈량 > ${INBREED_EXCESS_FROM}%) 교배 비율 ${fmt(z.excessRate === null ? null : z.excessRate * 100, 1)}%. ` +
+      `- 보너스만 끔(개정 2 진단): 같은 시드에서 예상 혈량 ${INBREED_LOW}% 초과 ${INBREED_EXCESS_FROM}% 이하 망아지의 보너스만 끔. ` +
+        `마지막 세대 잠재 평균 ${fmt(bl.potentialMean)} (1세대 ${fmt(r0.potentialMean)}), 감점 켬 ${fmt(last(rnd).potentialMean)}. ${verdict}`,
+    );
+  }
+  if (rnd.length > 0) {
+    const zExcess = last(rnd).excessRate;
+    lines.push(
+      `- 마지막 세대 감점구간(혈량 > ${INBREED_EXCESS_FROM}%) 교배 비율 ${fmt(zExcess === null ? null : zExcess * 100, 1)}%. ` +
         `건강도 중간값은 SOUNDNESS_REGRESSION(${SOUNDNESS_REGRESSION}) 만큼 집단 평균 쪽으로 당겨진다(genetics.ts soundnessRegressed).`,
     );
   }
-  if (sel.length > 0 && selNo.length > 0) {
-    const sl = last(sel);
-    const sn = last(selNo);
+
+  if (avoid.length > 0) {
+    const sl = last(avoid);
+    const cl = closed.length > 0 ? last(closed) : null;
     lines.push(
-      `- 선택 교배: 감점을 끄면 잠재 평균이 마지막 ${fmt(sn.potentialMean)} 까지 오르고 85 미만에서 완만해진다(포화 확인). ` +
-        `감점을 켜면 마지막 ${fmt(sl.potentialMean)}. 선택 효과 자체보다 근친 감점이 결과를 지배한다.`,
+      `- 회피 선택(판정): 마지막 세대 잠재 ${fmt(sl.potentialMean)}, 건강도 ${fmt(sl.soundnessMean)}, 평균 혈량 ${fmt(sl.meanBloodPercent)}%, 인브리드율 ${fmt((sl.inbreedRate ?? 0) * 100, 1)}%` +
+        (cl ? `. 닫힌 무회피 선택(진단)의 같은 세대 평균 혈량은 ${fmt(cl.meanBloodPercent)}%, 잠재 ${fmt(cl.potentialMean)}, 건강도 ${fmt(cl.soundnessMean)}.` : '.'),
     );
+    const halfIdx = fallbackRates.findIndex((v) => v >= 0.5);
     lines.push(
-      `- 1대 한정 반영 후(M2-05c): 부·모의 과다 감점은 부·모 자신의 기준값으로 되돌려져 자손에게 전달되지 않는다. ` +
-        `선택 교배 마지막 세대의 건강도 ${fmt(sl.soundnessMean)}, 잠재 ${fmt(sl.potentialMean)}, 평균 혈량 ${fmt(sl.meanBloodPercent)}% 는 ` +
-        `감점 끔 진단(마지막 건강도 ${fmt(last(selNo).soundnessMean)}, 잠재 ${fmt(last(selNo).potentialMean)})과 비교해 읽는다. ` +
-        `남는 감점은 해당 말 자신의 건강도(혈량 1%p 초과당 ${INBREED_EXCESS_SOUNDNESS_PENALTY})와 잠재(1%p당 ${INBREED_EXCESS_POTENTIAL_PENALTY})뿐이다.`,
+      `- 회피 선택 한계: 허용 수말(예상 혈량 ≤ ${INBREED_EXCESS_FROM}%)이 없어 최저 혈량 수말로 대체된 쌍 비율이 ` +
+        `${halfIdx >= 0 ? `${halfIdx + 2}세대부터 50% 이상` : '50% 미만'}, 마지막 세대 ${fmt((fallbackRates.length > 0 ? last(fallbackRates) : 0) * 100, 1)}%. ` +
+        `대체가 누적된 뒤에는 회피가 작동하지 않아 혈량이 감점 구간에 머문다(같은 풀 안에서 근친 회피가 불가능해지는 시점이 있다).`,
     );
-    // 정상상태 산술(근사, 1대 한정 후): 부·모 건강도를 감점 전 값으로 되돌리므로 s̄ = 0.85(s̄ + Ē) + 0.15·SOUNDNESS_MEAN − Ē 에서 s̄ ≈ SOUNDNESS_MEAN − Ē.
+    const soundnessE = SOUNDNESS_MEAN - sl.soundnessMean;
     lines.push(
       `- 건강도 정상상태(근사, 1대 한정 후): 건강도 평균 ≈ ${SOUNDNESS_MEAN} − E (E = 세대 평균 자기 감점). ` +
-        `관측 역산 E = ${SOUNDNESS_MEAN} − 건강도: 무작위 마지막 ${rnd.length > 0 ? fmt(SOUNDNESS_MEAN - last(rnd).soundnessMean) : '—'}, 선택 마지막 ${fmt(SOUNDNESS_MEAN - sl.soundnessMean)}. ` +
-        `선택 교배 E 가 ${fmt(SOUNDNESS_MEAN - sl.soundnessMean, 0)} 근처인 것은 평균 혈량 ${fmt(sl.meanBloodPercent)}% 에서 ` +
-        `혈량 1%p 초과당 감점 ${INBREED_EXCESS_SOUNDNESS_PENALTY} 과 정합한다(근사, 정확한 E 는 미측정).`,
+        `회피 선택 마지막 세대 역산 E = ${fmt(soundnessE)}` +
+        (rnd.length > 0 ? `, 무작위 마지막 세대 역산 E = ${fmt(SOUNDNESS_MEAN - last(rnd).soundnessMean)}` : '') +
+        `. 근사식이며 정확한 E 는 미측정이다. 혈량 1%p 초과당 건강도 감점은 ${INBREED_EXCESS_SOUNDNESS_PENALTY}, 잠재 감점은 ${INBREED_EXCESS_POTENTIAL_PENALTY}.`,
+    );
+  }
+  if (closed.length > 0 && closedNo.length > 0) {
+    const sl = last(closed);
+    const sn = last(closedNo);
+    lines.push(
+      `- 닫힌 무회피 선택(진단): 감점을 끄면 잠재 평균이 마지막 ${fmt(sn.potentialMean)} 까지 오르고 85 미만에서 완만해진다(포화 확인). ` +
+        `감점을 켜면 마지막 ${fmt(sl.potentialMean)}, 건강도 ${fmt(sl.soundnessMean)}, 평균 혈량 ${fmt(sl.meanBloodPercent)}%. 근친 감점이 결과를 지배한다.`,
     );
   }
   if (nick) {
@@ -724,7 +816,8 @@ function buildCauseLines(
 
 function buildReport(criteria: readonly Criterion[], timings: Record<string, number>): string {
   const rnd = results.random?.snapshots ?? [];
-  const sel = results.selection?.snapshots ?? [];
+  const avoid = results.avoid?.snapshots ?? [];
+  const closed = results.selection?.snapshots ?? [];
   const nick = results.nick;
   const assess = results.assess;
   const deviations = criteria.filter((c) => !c.pass);
@@ -732,11 +825,14 @@ function buildReport(criteria: readonly Criterion[], timings: Record<string, num
 
   const out: string[] = [];
   out.push('# M2-11 배합·유전 검증 리포트', '');
-  out.push('M2-05c(근친 약세 1대 한정) 반영 재실행', '');
+  out.push('개정 2(회피 선택·보너스 끔 진단) 반영 재실행', '');
   out.push('- 작성일: 2026-10-11');
   out.push('- 실행: `VERIFY=1 npx vitest run tests/verify/breeding.test.ts` (FULL 모드)');
   const sec = (key: string): string => fmt((timings[key] ?? 0) / 1000, 1);
-  out.push(`- 소요: 무작위 ${sec('random')}초 · 선택 ${sec('selection')}초 · 닉스 ${sec('nick')}초 · 단서 ${sec('assess')}초 · 합계 ${fmt(totalMs / 1000, 1)}초`);
+  out.push(
+    `- 소요: 무작위 ${sec('random')}초 · 회피 ${sec('avoid')}초 · 닫힌 무회피 ${sec('selection')}초 · 보너스 끔 ${sec('bonusOff')}초 · ` +
+      `닉스 ${sec('nick')}초 · 단서 ${sec('assess')}초 · 합계 ${fmt(totalMs / 1000, 1)}초`,
+  );
   out.push('');
 
   out.push('## 기준 이탈 지표', '');
@@ -747,12 +843,21 @@ function buildReport(criteria: readonly Criterion[], timings: Record<string, num
   }
   out.push('');
 
-  const causeLines = buildCauseLines(results.random?.snapshots ?? [], results.randomNoInbreed?.snapshots ?? [], results.selection?.snapshots ?? [], results.selectionNoInbreed?.snapshots ?? [], nick ?? null, assess ?? null);
-  if (causeLines.length > 0) {
-    out.push('### 원인 진단 (관측 요약, 판정 아님)', '');
-    out.push(...causeLines);
-    out.push('');
-  }
+  out.push('### 원인 진단 (관측 요약, 판정 아님)', '');
+  out.push(
+    ...buildCauseLines({
+      rnd,
+      rndNo: results.randomNoInbreed?.snapshots ?? [],
+      rndBonusOff: results.randomBonusOff?.snapshots ?? [],
+      avoid,
+      closed,
+      closedNo: results.selectionNoInbreed?.snapshots ?? [],
+      fallbackRates: results.avoid?.fallbackRates ?? [],
+      nick: nick ?? null,
+      assess: assess ?? null,
+    }),
+  );
+  out.push('');
 
   out.push('## 기준 판정 전체', '');
   out.push('| # | 기준 | 관측 | 판정 |', '|---|---|---|---|');
@@ -762,28 +867,50 @@ function buildReport(criteria: readonly Criterion[], timings: Record<string, num
   out.push('## 실행 조건', '');
   out.push('| 항목 | 값 |', '|---|---|');
   out.push(`| 창시자 시드 | \`${SEED.founders}\` (수 ${PER_SEX}·암 ${PER_SEX}, 능력 level ${FOUNDER_LEVEL}, spread ${FOUNDER_SPREAD}) |`);
-  out.push(`| 무작위 교배 시드 | \`${SEED.randomMating}\` |`);
-  out.push(`| 선택 교배 시드 | \`${SEED.selectionMating}\` (상위 ${SELECT_RATIO * 100}% 성별별) |`);
+  out.push(`| 무작위 교배 시드 | \`${SEED.randomMating}\` (보너스 끔 진단도 같은 시드) |`);
+  out.push(`| 회피 선택 시드 | \`${SEED.avoidMating}\` (상위 ${SELECT_RATIO * 100}% 성별별, 예상 혈량 ≤ ${INBREED_EXCESS_FROM}% 수말 무작위, 없으면 최저) |`);
+  out.push(`| 닫힌 무회피 선택 시드 | \`${SEED.selectionMating}\` (상위 ${SELECT_RATIO * 100}% 성별별, 진단만) |`);
   out.push(`| 닉스 쌍 시드 | \`${SEED.nickPairs}\` (쌍 ${NICK_PAIRS}개) |`);
   out.push(`| 단서 말 시드 | \`${SEED.assessHorses}\` (말 ${ASSESS_HORSES}두, 평가자 능력 ${ASSESS_SKILL}) |`);
   out.push(`| 교배 사이클 | ${CYCLES}회 (1세대 창시자 + 2~${CYCLES + 1}세대) |`);
-  out.push(`| 쌍당 교배 | 매 세대 쌍 ${PER_SEX * 2}개, 모계 명성 0 |`);
+  out.push(`| 쌍당 교배 | 매 세대 쌍 ${PER_SEX * 2}개, 모계 명성 0, 부·모 own 혈량 전달(1대 한정) |`);
   out.push('');
 
   out.push('## 1. 닫힌 집단 무작위 교배', '');
   out.push(...snapshotTable(rnd));
   out.push('');
 
-  out.push('## 2. 선택 교배 (성별별 잠재 평균 상위 20%)', '');
-  out.push(...snapshotTable(sel));
+  out.push('## 2. 회피 선택 (판정 대상, 성별별 잠재 평균 상위 20% 풀에서 예상 혈량 ≤ 25% 수말 무작위)', '');
+  out.push(...snapshotTable(avoid));
   out.push('');
-  if (rnd.length > 0 && sel.length > 0) {
-    const s0 = first(sel);
-    const sl = last(sel);
+  if (avoid.length > 0) {
+    const s0 = first(avoid);
+    const sl = last(avoid);
     out.push(
-      `- 선택 교배 건강도: ${fmt(s0.soundnessMean)} → ${fmt(sl.soundnessMean)} (변화 ${fmt(sl.soundnessMean - s0.soundnessMean)}), ` +
-        `인브리드율: 2세대 ${fmt((sel[1]?.inbreedRate ?? 0) * 100, 1)}% → 마지막 ${fmt((sl.inbreedRate ?? 0) * 100, 1)}%, ` +
-        `평균 혈량: 2세대 ${fmt(sel[1]?.meanBloodPercent ?? null)}% → 마지막 ${fmt(sl.meanBloodPercent)}%`,
+      `- 회피 선택 건강도: ${fmt(s0.soundnessMean)} → ${fmt(sl.soundnessMean)} (변화 ${fmt(sl.soundnessMean - s0.soundnessMean)}), ` +
+        `인브리드율: 2세대 ${fmt((avoid[1]?.inbreedRate ?? 0) * 100, 1)}% → 마지막 ${fmt((sl.inbreedRate ?? 0) * 100, 1)}%, ` +
+        `평균 혈량: 2세대 ${fmt(avoid[1]?.meanBloodPercent ?? null)}% → 마지막 ${fmt(sl.meanBloodPercent)}%`,
+    );
+    const fb = results.avoid?.fallbackRates ?? [];
+    if (fb.length > 0) {
+      out.push(
+        `- 회피 불가 대체 비율(허용 수말 없음 → 최저 혈량 수말, 쌍 기준): 2세대 ${fmt((fb[0] ?? 0) * 100, 1)}%` +
+          ` → 마지막 ${fmt(last(fb) * 100, 1)}%. 세대별(2→): ${fb.map((v) => fmt(v * 100, 0)).join(' · ')}`,
+      );
+    }
+    out.push('');
+  }
+
+  out.push('## 2-b. 닫힌 무회피 선택 (진단만, 판정 제외)', '');
+  out.push(...snapshotTable(closed));
+  out.push('');
+  if (closed.length > 0) {
+    const s0 = first(closed);
+    const sl = last(closed);
+    out.push(
+      `- 닫힌 무회피 선택 건강도: ${fmt(s0.soundnessMean)} → ${fmt(sl.soundnessMean)} (변화 ${fmt(sl.soundnessMean - s0.soundnessMean)}), ` +
+        `인브리드율: 2세대 ${fmt((closed[1]?.inbreedRate ?? 0) * 100, 1)}% → 마지막 ${fmt((sl.inbreedRate ?? 0) * 100, 1)}%, ` +
+        `평균 혈량: 2세대 ${fmt(closed[1]?.meanBloodPercent ?? null)}% → 마지막 ${fmt(sl.meanBloodPercent)}%`,
     );
     out.push('');
   }
@@ -801,7 +928,7 @@ function buildReport(criteria: readonly Criterion[], timings: Record<string, num
   }
   out.push('');
 
-  out.push('## 4. 단서 정확도 (overall 등급 vs 진짜 잠재 평균)', '');
+  out.push('## 4. 단서 정확도 (overall 등급 vs 진짜 값)', '');
   if (assess) {
     out.push('| 단계 | ρ (단계별 진짜 값, 판정) | ρ (잠재 기준, 명세 원안 참고) | ρ (조교 혼합 기준, 참고) | 평균 등급 점수(S=5…E=0) | S | A | B | C | D | E |', '|---|---|---|---|---|---|---|---|---|---|---|');
     for (const s of assess.stages) {
@@ -814,15 +941,15 @@ function buildReport(criteria: readonly Criterion[], timings: Record<string, num
   }
   out.push('');
 
-  out.push('## 5. 진단: 인브리드 보정을 끈 같은 시드 실행', '');
-  out.push('인브리드 감점(혈량 > 25%)을 교배에서만 끄고, 탐지 통계는 그대로 기록했다. 나머지 규칙은 동일.', '');
-  const rndNo = results.randomNoInbreed?.snapshots ?? [];
-  const selNo = results.selectionNoInbreed?.snapshots ?? [];
-  out.push('### 5-1. 무작위 교배 (보정 끔)', '');
-  out.push(...snapshotTable(rndNo));
+  out.push('## 5. 진단', '');
+  out.push('### 5-1. 무작위 교배, 인브리드 보정 끔 (교배에서만 끔, 탐지 통계는 그대로 기록)', '');
+  out.push(...snapshotTable(results.randomNoInbreed?.snapshots ?? []));
   out.push('');
-  out.push('### 5-2. 선택 교배 (보정 끔)', '');
-  out.push(...snapshotTable(selNo));
+  out.push('### 5-2. 닫힌 무회피 선택, 인브리드 보정 끔', '');
+  out.push(...snapshotTable(results.selectionNoInbreed?.snapshots ?? []));
+  out.push('');
+  out.push('### 5-3. 무작위 교배, 보너스만 끔 (개정 2: 예상 혈량 ' + INBREED_LOW + '% 초과 ' + INBREED_EXCESS_FROM + '% 이하 망아지만 보너스 없음)', '');
+  out.push(...snapshotTable(results.randomBonusOff?.snapshots ?? []));
   out.push('');
 
   out.push('## 가정과 해석 메모', '');
@@ -830,14 +957,15 @@ function buildReport(criteria: readonly Criterion[], timings: Record<string, num
   out.push('- 하위 계통: parentLineId 가 있는 계통 17개에서 창시자 sireLineId 를 무작위 배정했다. 루트 계통 2개는 제외.');
   out.push('- 모부 계통: 교배의 damsireLineId 는 어미의 sireLineId 를 쓴다(어미의 부 = 어미 계통, breed 가 그대로 물려주는 값).');
   out.push('- 표준편차: 모집단 SD(분모 n). 잠재 평균은 5개 능력 잠재치의 단순 평균.');
+  out.push('- 세대 잠재 평균·건강도는 망아지 자신의 감점(잠재 0.4/%p, 건강도 1.0/%p)을 포함한 저장값이다(개정 측정 기준).');
   out.push('- 모계 명성 점수는 0으로 고정(닫힌 집단에 명성 정보가 없음). 인브리드 보정은 교배마다 `dominantCrosses(root, findInbreeding(root))` 결과를 쓴다(season.ts·preview.ts 와 같은 방식).');
   out.push('- 1대 한정(M2-05c): 부·모의 기준값은 `ownBloodPercent(lookup, 부·모)` 로 구한 자신의 혈량을 breed 에 넘겨 과다 감점을 되돌린다(season.ts 와 같은 방식). 감점 끔 진단은 저장값에 감점이 없으므로 이 값을 0 으로 넘긴다.');
-  out.push('- 닉스 실험은 고닉스 쌍 200개 이상을 확보하려고 FULL 8000쌍(기본 200쌍)을 쓴다.');
+  out.push('- 회피 선택(개정 2): 암말마다 성별별 상위 20% 수말 중 예상 혈량 ≤ 25% 인 수말에서 무작위로 고른다. 없으면 예상 혈량 최저 수말. 판정 대상이다.');
   out.push('- 단서 실험: 말은 2살(2024년생). 진짜 값은 개정 3에 따라 단계별로 정한다: foal·yearling·two_year_old 는 잠재 평균, in_training 은 현재 능력 0.6 + 잠재 0.4.');
-  out.push('- 닉스 효과: 같은 시드로 닉스 유무만 바꾼 반사실 쌍을 함께 기록. 기전이 맞으면 잔차는 0에 가깝다(클램프 제외).');
+  out.push('- 닉스 효과: 같은 시드로 닉스 유무만 바꾼 반사실 쌍을 함께 기록. 기전이 맞으면 잔차는 0에 가깝다(클램프 제외). FULL 8000쌍(고닉스 200쌍 이상 확보).');
   out.push('');
 
-  if (nick && rnd.length > 0) {
+  if (rnd.length > 0) {
     out.push(`> 생성: ${new Date().toISOString()}`);
     out.push('');
   }
@@ -850,9 +978,9 @@ function buildReport(criteria: readonly Criterion[], timings: Record<string, num
 
 describe('M2-11 배합·유전 검증', () => {
   it(
-    '재현성: 같은 시드로 무작위·선택 교배를 두 번 돌리면 말 레코드가 완전히 같다',
+    '재현성: 같은 시드로 무작위·회피·닫힌 선택 교배를 두 번 돌리면 말 레코드가 완전히 같다',
     () => {
-      for (const mode of ['random', 'selection'] as const) {
+      for (const mode of ['random', 'avoid', 'selection'] as const) {
         const a = runScenario(mode, CYCLES, PER_SEX);
         const b = runScenario(mode, CYCLES, PER_SEX);
         expect(a.snapshots).toEqual(b.snapshots);
@@ -910,7 +1038,29 @@ describe('M2-11 배합·유전 검증', () => {
   );
 
   it(
-    `선택 교배 ${CYCLES}세대 시뮬레이션 (성별별 상위 ${SELECT_RATIO * 100}%)`,
+    `회피 선택 ${CYCLES}세대 시뮬레이션 (판정 대상, 성별별 상위 ${SELECT_RATIO * 100}%, 예상 혈량 ≤ ${INBREED_EXCESS_FROM}% 수말)`,
+    () => {
+      const t0 = performance.now();
+      const run = runScenario('avoid', CYCLES, PER_SEX);
+      results.timingsMs.avoid = performance.now() - t0;
+      results.avoid = run;
+
+      expect(run.snapshots).toHaveLength(CYCLES + 1);
+      for (const s of run.snapshots) {
+        expect(Number.isFinite(s.potentialMean)).toBe(true);
+        expect(Number.isFinite(s.soundnessMean)).toBe(true);
+      }
+      say(
+        `[회피] 1세대 평균 ${fmt(first(run.snapshots).potentialMean)} → 마지막 ${fmt(last(run.snapshots).potentialMean)}` +
+          `, 평균 혈량 마지막 ${fmt(last(run.snapshots).meanBloodPercent)}%, 건강도 마지막 ${fmt(last(run.snapshots).soundnessMean)}` +
+          ` (${fmt((results.timingsMs.avoid ?? 0) / 1000, 2)}초)`,
+      );
+    },
+    TEST_TIMEOUT_MS,
+  );
+
+  it(
+    `닫힌 무회피 선택 ${CYCLES}세대 시뮬레이션 (진단, 같은 시드 규칙)`,
     () => {
       const t0 = performance.now();
       const run = runScenario('selection', CYCLES, PER_SEX);
@@ -923,7 +1073,7 @@ describe('M2-11 배합·유전 검증', () => {
         expect(Number.isFinite(s.soundnessMean)).toBe(true);
       }
       say(
-        `[선택] 1세대 평균 ${fmt(first(run.snapshots).potentialMean)} → 마지막 ${fmt(last(run.snapshots).potentialMean)}` +
+        `[닫힌 무회피] 1세대 평균 ${fmt(first(run.snapshots).potentialMean)} → 마지막 ${fmt(last(run.snapshots).potentialMean)}` +
           `, 인브리드율 마지막 ${fmt((last(run.snapshots).inbreedRate ?? 0) * 100, 1)}%` +
           ` (${fmt((results.timingsMs.selection ?? 0) / 1000, 2)}초)`,
       );
@@ -932,9 +1082,9 @@ describe('M2-11 배합·유전 검증', () => {
   );
 
   it(
-    `진단: 인브리드 보정 끔 — 무작위 교배 (같은 시드, 통계는 그대로 기록)`,
+    '진단: 인브리드 보정 끔 — 무작위 교배 (같은 시드, 통계는 그대로 기록)',
     () => {
-      const run = runScenario('random', CYCLES, PER_SEX, true);
+      const run = runScenario('random', CYCLES, PER_SEX, { ignoreInbreeding: true });
       results.randomNoInbreed = run;
       expect(run.snapshots).toHaveLength(CYCLES + 1);
       say(
@@ -946,13 +1096,26 @@ describe('M2-11 배합·유전 검증', () => {
   );
 
   it(
-    `진단: 인브리드 보정 끔 — 선택 교배 (같은 시드)`,
+    '진단: 인브리드 보정 끔 — 닫힌 무회피 선택 (같은 시드)',
     () => {
-      const run = runScenario('selection', CYCLES, PER_SEX, true);
+      const run = runScenario('selection', CYCLES, PER_SEX, { ignoreInbreeding: true });
       results.selectionNoInbreed = run;
       expect(run.snapshots).toHaveLength(CYCLES + 1);
       say(
-        `[진단 선택·보정 끔] 1세대 평균 ${fmt(first(run.snapshots).potentialMean)} → 마지막 ${fmt(last(run.snapshots).potentialMean)}`,
+        `[진단 닫힌 무회피·보정 끔] 1세대 평균 ${fmt(first(run.snapshots).potentialMean)} → 마지막 ${fmt(last(run.snapshots).potentialMean)}`,
+      );
+    },
+    TEST_TIMEOUT_MS,
+  );
+
+  it(
+    '진단(개정 2): 보너스만 끔 — 무작위 교배 (같은 시드)',
+    () => {
+      const run = runScenario('random', CYCLES, PER_SEX, { bonusOff: true });
+      results.randomBonusOff = run;
+      expect(run.snapshots).toHaveLength(CYCLES + 1);
+      say(
+        `[진단 무작위·보너스 끔] 1세대 평균 ${fmt(first(run.snapshots).potentialMean)} → 마지막 ${fmt(last(run.snapshots).potentialMean)}`,
       );
     },
     TEST_TIMEOUT_MS,
