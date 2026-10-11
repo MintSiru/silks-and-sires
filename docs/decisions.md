@@ -117,3 +117,4 @@
 - 2026-10-11 | 승인(Opus 보정) | M2-15 실명 종마 거리 프로필 재분류 — 위키백과 주요 우승 등급·거리 기준 53두 변경(전 speed132/classic0/middle38/cup2 → 후 127/31/13/1), 현역 classic 18%. 미확인 15두 유지, 본문 근거 4두 low(Daryz cup 포함). Camille Pissarro 는 사용자 판정 classic 유지. Opus 보정: 출생연도 3건 위키백과 기준 정정(Polymelus 1902, Seeking the Gold 1985, Pulpit 1994).
 - 2026-10-11 | 승인(Opus 보정) | M2-01c 사용자 제공 21두(명단 16 + 부계 고리 5) — 203두, 계통 조상 10두 추가, 끊긴 사슬 해소(현역 예외 Ardad·Perfect Power 2두만: Kodiac 위키백과 미확인). Hennessy 부 Storm Cat(Opus 정정) 유지. Opus 보정: Uncle Mo historical(2024 사망)·주로 dirt.
 - 2026-10-11 | 사용자 | 종마 15두 추가(M2-01d, 스테이어·NH 포함). 'GE' 표기는 독일(DE)로 해석. € 계류국은 Opus 추정(FR/IE, medium). RealStallionRecord.studRole(flat/dual/nh) 타입 추가(Opus).
+- 2026-10-11 | 기술(계획) | M3 계획(docs/m3-plan.md)·경마장·캘린더 계획(docs/race-calendar-plan.md) 초안 작성 — 유럽 24곳(실제 명문 코스 특성 모델, 가상 이름) + 원정 2, 유럽 G1 89개, 5개국 3관·티아라, 유럽 더비/마일/영국 오크스 3관, 스테이어·스프린트 시리즈. 사용자 승인 대기.
