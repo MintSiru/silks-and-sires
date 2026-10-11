@@ -13,6 +13,7 @@
    예외(사용자 결정 2026-10-11): 클래식 유형명 Derby, Oaks, 1000 Guineas, 2000 Guineas, St Leger 는 일반어로 허용.
    단 가상 경마장·지명과 결합해서만 쓴다(예: Ashcombe Derby). 실제 레이스 전체 이름(Epsom Derby, Irish Derby,
    Kentucky Derby, Irish Oaks 등)과 그 밖의 실제 레이스명(Arc, King George 등)은 계속 금지.
+   예외 2: data/naming/protected.json 은 실존 유명마 이름을 담는 차단 전용 목록이다(docs/naming.md 5장).
 2. 레이스 화면은 2D Canvas 측면 띠 하나: 좌측 미니맵+코스 정보, 중앙 번호 원판(승부복 주색),
    우측 상위 3두+착차+분수 오즈. 3D, 실사 이미지, 실제 방송사·경마 기구 로고 금지.
 3. 유럽 시스템: 그룹 1~3·리스티드·클래스 1~7 핸디캡, 공식 레이팅(OR), 마장 7단계(Firm ~ Heavy),
