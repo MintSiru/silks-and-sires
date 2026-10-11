@@ -8,3 +8,4 @@ export * from './course';
 export * from './race';
 export * from './game';
 export * from './bloodline';
+export * from './breeding';

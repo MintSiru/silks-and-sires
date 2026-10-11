@@ -191,3 +191,28 @@ export function simulateRace(input: RaceSimInput): RaceSimOutput; // race/simula
 - 성능: `tests/perf/race.perf.test.ts` — 20두 3,200m 레이스 평균·최대 계산 시간.
 - 밸런스: `tests/balance/*.test.ts` + `docs/reports/<날짜>-<주제>.md` (인기 1위 승률, 게이트별·작전별 승률, 마장별 착차 분포).
 - 가상화 검사: `tests/data/` 에서 금지 이름 목록(실제 경마장·레이스명) 검색.
+
+## 9. M2 말과 혈통 (설계)
+
+### 사용자 결정
+- 능력치·레이팅 숫자는 **비공개**. 플레이어는 마체 평가 등급(S~E)과 조교사 코멘트(키 → 한국어 문장)로 어림잡는다.
+- 닉스는 **일부만 시작 시 공개**, 나머지는 자손 성적으로 드러난다.
+
+### 모듈
+```
+src/engine/horse/      growthCurve(성장 곡선), generate(말·이름 생성), assessment(단서 생성), growth(주간 성장 시스템)
+src/engine/breeding/   pedigree(혈통표), inbreeding(인브리드 탐지), nicks(닉스 조회·공개), genetics(배합 → 망아지), preview(배합 미리보기)
+data/breeding/nicks.json · data/names/horse_words.json · data/text/comments.ko.json
+```
+### 데이터 흐름
+```
+종마 Horse + 번식 암말 Horse
+  └ breeding/pedigree → 5대 혈통표 → inbreeding → InbreedingCross[] (예: Northern Dancer 4×3, 18.75%)
+  └ nicks(부 계통 × 모부 계통) → 닉스 값 (공개 여부는 GameState 의 공개 목록)
+  └ genetics.breed(rng): 잠재 = 부모 평균 + 닉스 보정 + 인브리드 보정(혈량 구간별 이득/위험) + 모계 보정 + 정규 편차
+                         적성·성장형도 유전 → 망아지 Horse (ability = 잠재 × 성장 곡선)
+  └ preview: 숫자 없이 MatingPreview(닉스 라벨, 인브리드, 거리·조숙 힌트, 코멘트)
+주간: growth 시스템이 나이·성장형에 따라 ability → potential 로 수렴 / assessment 가 단계별(망아지·1세·2세·조교 중) 단서 생성
+```
+### 단서 정확도
+평가 오차 표준편차는 단계(망아지 > 1세 > 2세 > 조교 중)와 평가자 능력에 따라 줄어든다. 같은 말도 평가 시점마다 등급이 조금씩 흔들릴 수 있다(숨김 값을 역산하기 어렵게).

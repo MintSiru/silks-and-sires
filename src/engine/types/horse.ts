@@ -119,8 +119,12 @@ export interface Horse {
   aptitude: Aptitudes;
   preferredStyle: RunningStyle;
   condition: Condition;
-  /** 공식 레이팅(OR). 미부여 시 null */
+  /** 공식 레이팅(OR). 미부여 시 null. 플레이어에게 숫자로 노출하지 않는다(단서로만) */
   officialRating: number | null;
+  /** 모계(female family) 식별자. 시조 암말의 HorseId. 실명 종마 등 미상이면 null */
+  familyId: HorseId | null;
+  /** 다리·체질 건강도 0~100 (숨김). 부상 위험·마체 평가 'legs' 의 근거 */
+  soundness: number;
   record: CareerRecord;
 }
 
