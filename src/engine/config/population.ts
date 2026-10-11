@@ -93,4 +93,10 @@ export const OR_ANCHOR = 72;
 export const OR_ANCHOR_ABILITY = 56;
 export const OR_PER_ABILITY = 2.05;
 export const RATING_MIN = 20;
-export const RATING_MAX = 130;
+export const RATING_MAX = 140;
+/**
+ * 고점 꼬리 보정(사용자 결정 2026-10-11: 그해 최강마 OR 125~130, 역대급 135+):
+ * 능력 평균이 OR_TAIL_FROM_ABILITY 를 넘으면 넘은 만큼 더하되 최대 OR_TAIL_MAX_BONUS.
+ */
+export const OR_TAIL_FROM_ABILITY = 65;
+export const OR_TAIL_MAX_BONUS = 7;

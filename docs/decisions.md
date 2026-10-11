@@ -137,3 +137,6 @@
 - 2026-10-11 | 반려→승인 | M3-C0 현역마 집단 — 5개국 2,400두(GB 900/IE 450/FR 650/DE 200/IT 200), 실명 종마 부, 같은 나라 AI 마주·조교사. OR 평균 69.5·p99 105, 10년 두수 정확 유지, 직렬화 3.5MB, 생성 ~90ms. 남은 과제: 10년 후 7세 비율 0.17(은퇴 컷 구조) → M3-F1 시즌 검증에서 조정.
 - 2026-10-11 | 기술(Opus) | GameState.seasonState 추가, SeasonState.lastRun·lastPopulationYear, GameEvent race_run·series_completed, 저장 스키마 v2 + v1→v2 마이그레이션(빈 시즌 상태; 인물·현역마는 시즌 시스템이 첫 주에 채움). createEmptySeasonState(season/state.ts).
 - 2026-10-11 | 기술(Opus) | SeasonState.replayable(ReplayableRace: race·going·date·seed·field) — 리플레이 프레임 대신 입력을 저장하고 runRace 재실행으로 재생(결정적). 저장 크기 절약.
+- 2026-10-11 | 사용자 | 레이팅 척도 3종: 공식 OR 상한 140(일반 G1 우승마 115~122, 그해 최강마 125~130, 역대급 135+), Racing Ledger(타임폼형) 상한 150(최강마 130~138, 역대급 140~147, 고점에서 OR 보다 +3~10), Global Turf Rankings(론진형) OR 척도·시즌 최고 퍼포먼스 기준.
+- 2026-10-11 | 기술(Opus) | 초기 OR 고점 꼬리 보정: OR_TAIL_FROM_ABILITY 65, 최대 +7, RATING_MAX 140 → 3세 이상 평균 69.9, p99 112, 최고 127.
+- 2026-10-11 | 승인(Opus 보정) | M3-A6a 출주·중량·기수 — 등급 높은 레이스부터 AI 출주, 한 주 한 레이스, 그룹 OR 하한·원정 15%, WFA 표·성별 3lb·핸디캡 중량(하한 112)·그룹 견습 감량 0, 기수 배정(전속 → 같은 나라 skill 가중 → 없으면 타국). 10개 테스트. Opus 보정: courseCountry 인자 필수화. 기수 같은 주 다른 레이스 중복 허용(요일 미구분), 그룹 출주 간격 3주 = 들어가는 레이스 기준 승인.

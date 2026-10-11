@@ -1,4 +1,12 @@
-import { OR_ANCHOR, OR_ANCHOR_ABILITY, OR_PER_ABILITY, RATING_MAX, RATING_MIN } from '../config/population';
+import {
+  OR_ANCHOR,
+  OR_ANCHOR_ABILITY,
+  OR_PER_ABILITY,
+  OR_TAIL_FROM_ABILITY,
+  OR_TAIL_MAX_BONUS,
+  RATING_MAX,
+  RATING_MIN,
+} from '../config/population';
 import type { Abilities, Horse } from '../types';
 
 function clamp(v: number, min: number, max: number): number {
@@ -10,10 +18,14 @@ export function meanAbility(abilities: Abilities): number {
   return (abilities.speed + abilities.stamina + abilities.acceleration + abilities.guts + abilities.power) / 5;
 }
 
-/** 능력 평균 a → 공식 레이팅 OR = clamp(round(ANCHOR + (a − ANCHOR_ABILITY) × PER), MIN, MAX) */
+/**
+ * 능력 평균 a → 공식 레이팅.
+ * OR = clamp(round(ANCHOR + (a − ANCHOR_ABILITY) × PER + clamp(a − TAIL_FROM, 0, TAIL_MAX)), MIN, MAX)
+ */
 export function ratingFromAbility(abilityMean: number): number {
+  const tail = clamp(abilityMean - OR_TAIL_FROM_ABILITY, 0, OR_TAIL_MAX_BONUS);
   return clamp(
-    Math.round(OR_ANCHOR + (abilityMean - OR_ANCHOR_ABILITY) * OR_PER_ABILITY),
+    Math.round(OR_ANCHOR + (abilityMean - OR_ANCHOR_ABILITY) * OR_PER_ABILITY + tail),
     RATING_MIN,
     RATING_MAX,
   );
