@@ -112,4 +112,11 @@ export interface MatingPreview {
   /** 조숙/만성 경향 */
   precocityHint: GrowthProfile['type'] | 'unknown';
   comments: AssessmentComment[];
+  /** 역할 힌트(공개 정보만): 부마 = 부의 거리 프로필, 모계 = 외조부의 거리 프로필 기준 */
+  roles: { sire: MatingRole; damSide: MatingRole | 'unknown' };
+  /** 보완형(부 스피드 + 모계 스태미나) 가능성. 외조부를 모르면 'unknown' */
+  complement: 'likely' | 'unlikely' | 'unknown';
 }
+
+/** 배합 역할: speed 프로필 → 'speed', classic → 'balanced', middle·cup → 'stamina' */
+export type MatingRole = 'speed' | 'balanced' | 'stamina';

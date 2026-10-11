@@ -22,6 +22,16 @@ export const INBREED_EXCESS_SOUNDNESS_PENALTY = 1.0;
 export const FAMILY_BONUS_MAX = 2.5;
 /** 적성 유전 */
 export const DIST_INHERIT_SD = 200;
+/** 거리 적성 가중 평균: 부 0.45 · 외조부(모의 부) 0.30 · 모 0.25. 외조부가 없으면 sire·dam 만 재정규화 */
+export const DIST_WEIGHT = { sire: 0.45, damsire: 0.3, dam: 0.25 } as const;
+/** 거리 프로필별 스태미나 값(speed 0 → cup 1) */
+export const PROFILE_STAMINA = { speed: 0.0, classic: 0.3, middle: 0.7, cup: 1.0 } as const;
+/** 모계 스태미나 = DAM_SIDE_DAMSIRE_W × 외조부 + (1 − DAM_SIDE_DAMSIRE_W) × 모. 외조부가 없으면 모 값만 */
+export const DAM_SIDE_DAMSIRE_W = 0.5;
+/** 보완형: 부 프로필 speed·classic 이고 모계 스태미나가 이 값 이상 */
+export const COMPLEMENT_DAM_STAMINA_MIN = 0.6;
+/** 보완형 망아지의 능력 5종에 더하는 보너스 비율: adj += mid × COMPLEMENT_BONUS. 1대 한정(자손에게 유전되지 않음) */
+export const COMPLEMENT_BONUS = 0.08;
 export const GOING_INHERIT_SD = 0.7;
 export const SURFACE_INHERIT_KEEP = 0.7;
 export const SURFACE_INHERIT_SD = 0.25;

@@ -14,7 +14,11 @@ import type {
   SireLineId,
 } from '../types';
 import {
+  COMPLEMENT_BONUS,
+  COMPLEMENT_DAM_STAMINA_MIN,
+  DAM_SIDE_DAMSIRE_W,
   DIST_INHERIT_SD,
+  DIST_WEIGHT,
   FAMILY_BONUS_MAX,
   FOAL_FITNESS,
   FOAL_MALE_CHANCE,
@@ -32,6 +36,7 @@ import {
   MENTAL_INHERIT_SD,
   NICK_EFFECT_MAX,
   POPULATION_MEAN,
+  PROFILE_STAMINA,
   REGRESSION_TO_MEAN,
   SIRE_WEIGHT,
   SOUNDNESS_INHERIT_SD,
@@ -56,6 +61,7 @@ import {
   STYLE_WEIGHTS,
 } from '../config/horse';
 import { abilityAtAge, sampleGrowthProfile } from '../horse/growthCurve';
+import { profileOfDistance } from '../horse/generate';
 import { totalBloodPercent } from './inbreeding';
 import { nickValue } from './nicks';
 
@@ -79,7 +85,16 @@ export interface BreedArgs {
   sireOwnBloodPercent?: number;
   /** 모 자신의 근친 혈량(%). 생략 시 0 */
   damOwnBloodPercent?: number;
+  /** 모의 부(외조부). 거리 가중·모계 스태미나용. 없으면 null(생략 시 null) */
+  damsire?: Horse | null;
+  /** 부 자신이 보완형으로 태어났는지(부의 잠재에 든 보완 보너스를 되돌린다). 생략 시 false */
+  sireOwnComplement?: boolean;
+  /** 모 자신이 보완형으로 태어났는지. 생략 시 false */
+  damOwnComplement?: boolean;
 }
+
+/** 말 ID → 말 전체. 모르면 undefined */
+export type HorseLookup = (id: HorseId) => Horse | undefined;
 
 /** 두 값의 단순 평균 */
 function average(a: number, b: number): number {
@@ -147,9 +162,81 @@ function blendedPotential(sireValue: number, damValue: number): number {
   return mid + (POPULATION_MEAN - mid) * REGRESSION_TO_MEAN;
 }
 
+/** 능력 전 항목을 (1 + COMPLEMENT_BONUS) 로 나눈다. 보완형 출신 부·모의 보너스를 되돌린다(1대 한정) */
+function withoutComplementBonus(potential: Abilities): Abilities {
+  const divisor = 1 + COMPLEMENT_BONUS;
+  return {
+    speed: potential.speed / divisor,
+    stamina: potential.stamina / divisor,
+    acceleration: potential.acceleration / divisor,
+    guts: potential.guts / divisor,
+    power: potential.power / divisor,
+  };
+}
+
+/**
+ * 부·모 한 쪽의 유전 기준값: 과다 감점을 되돌린 뒤(restoredPotential), 자신이 보완형이었으면 보완 보너스를 뺀다.
+ * 자손은 보완 보너스를 물려받지 않는다.
+ */
+function baseOf(potential: Abilities, penalty: number, ownComplement: boolean): Abilities {
+  const restored = restoredPotential(potential, penalty);
+  return ownComplement ? withoutComplementBonus(restored) : restored;
+}
+
+/** 모계 스태미나: DAM_SIDE_DAMSIRE_W × 외조부 + (1 − DAM_SIDE_DAMSIRE_W) × 모. 외조부가 없으면 모 값만 */
+function damSideStamina(dam: Horse, damsire: Horse | null): number {
+  const damValue = PROFILE_STAMINA[profileOfDistance(dam.aptitude.distanceOptimum)];
+  if (damsire === null) return damValue;
+  const damsireValue = PROFILE_STAMINA[profileOfDistance(damsire.aptitude.distanceOptimum)];
+  return DAM_SIDE_DAMSIRE_W * damsireValue + (1 - DAM_SIDE_DAMSIRE_W) * damValue;
+}
+
+/**
+ * 보완형 여부: 부 프로필이 speed 또는 classic 이고 모계 스태미나가 COMPLEMENT_DAM_STAMINA_MIN 이상.
+ * 외조부가 null 이면 모계 스태미나는 모 값만으로 계산한다.
+ */
+export function isComplementary(sire: Horse, dam: Horse, damsire: Horse | null): boolean {
+  const sireProfile = profileOfDistance(sire.aptitude.distanceOptimum);
+  if (sireProfile !== 'speed' && sireProfile !== 'classic') return false;
+  return damSideStamina(dam, damsire) >= COMPLEMENT_DAM_STAMINA_MIN;
+}
+
+/**
+ * 말 자신이 보완형으로 태어났는지. 부 또는 모를 찾지 못하면 false.
+ * 외조부는 모의 sireId 로 찾고, 없으면 null 로 본다. (inbreeding.ts ownBloodPercent 와 같은 패턴)
+ */
+export function ownComplement(lookup: HorseLookup, horse: Horse): boolean {
+  if (horse.sireId === null || horse.damId === null) return false;
+  const sire = lookup(horse.sireId);
+  const dam = lookup(horse.damId);
+  if (sire === undefined || dam === undefined) return false;
+  const damsire = dam.sireId === null ? null : (lookup(dam.sireId) ?? null);
+  return isComplementary(sire, dam, damsire);
+}
+
+/**
+ * 거리 적성 가중 평균: 부 DIST_WEIGHT.sire, 외조부 DIST_WEIGHT.damsire, 모 DIST_WEIGHT.dam.
+ * 외조부가 null 이면 부·모 가중치만 합으로 나눠 재정규화한다.
+ */
+function inheritedDistance(sire: Horse, dam: Horse, damsire: Horse | null): number {
+  if (damsire === null) {
+    const total = DIST_WEIGHT.sire + DIST_WEIGHT.dam;
+    return (
+      (DIST_WEIGHT.sire * sire.aptitude.distanceOptimum +
+        DIST_WEIGHT.dam * dam.aptitude.distanceOptimum) /
+      total
+    );
+  }
+  return (
+    DIST_WEIGHT.sire * sire.aptitude.distanceOptimum +
+    DIST_WEIGHT.damsire * damsire.aptitude.distanceOptimum +
+    DIST_WEIGHT.dam * dam.aptitude.distanceOptimum
+  );
+}
+
 /**
  * 능력 하나의 잠재 유전. 부·모 유전 기준값(sireBase, damBase)을 섞고 보정 adj 와 정규 편차를 더해
- * [ABILITY_MIN, ABILITY_MAX] 로 자른다
+ * [ABILITY_MIN, ABILITY_MAX] 로 자른다. 보완형 망아지(complement)면 mid × COMPLEMENT_BONUS 를 더한다.
  */
 function inheritAbility(
   rng: Rng,
@@ -157,9 +244,11 @@ function inheritAbility(
   damBase: Abilities,
   key: keyof Abilities,
   adj: number,
+  complement: boolean,
 ): number {
   const mid = blendedPotential(sireBase[key], damBase[key]);
-  return clamp(mid + adj + rng.normal(0, GENETIC_SD), ABILITY_MIN, ABILITY_MAX);
+  const complementBonus = complement ? mid * COMPLEMENT_BONUS : 0;
+  return clamp(mid + adj + complementBonus + rng.normal(0, GENETIC_SD), ABILITY_MIN, ABILITY_MAX);
 }
 
 /** 성장형: 부 SIRE_P, 모 DAM_P, 나머지 무작위(sampleGrowthProfile) */
@@ -216,6 +305,7 @@ function zeroRecord(): CareerRecord {
  */
 export function breed(rng: Rng, args: BreedArgs): Horse {
   const { sire, dam } = args;
+  const damsire = args.damsire ?? null;
 
   // 1. 성별
   const sex = rng.chance(FOAL_MALE_CHANCE) ? 'male' : 'female';
@@ -226,20 +316,22 @@ export function breed(rng: Rng, args: BreedArgs): Horse {
   const nick = nickValue(args.nicks, sire.sireLineId, args.damsireLineId);
   const adj =
     NICK_EFFECT_MAX * nick + inbreed.potential + FAMILY_BONUS_MAX * args.damFamilyScore;
+  const foalComplement = isComplementary(sire, dam, damsire);
 
-  // 부·모 자신의 근친 과다 감점을 되돌린 유전 기준값(1대 한정: 감점은 자손에게 안 간다). 생략 시 0
+  // 부·모 자신의 근친 과다 감점을 되돌리고, 보완형 출신이면 보완 보너스를 뺀 유전 기준값
+  // (1대 한정: 감점과 보너스는 자손에게 안 간다). 생략 시 0 / false
   const sireOwn = inbreedingPenalty(args.sireOwnBloodPercent ?? 0);
   const damOwn = inbreedingPenalty(args.damOwnBloodPercent ?? 0);
-  const sireBase = restoredPotential(sire.potential, sireOwn.potential);
-  const damBase = restoredPotential(dam.potential, damOwn.potential);
+  const sireBase = baseOf(sire.potential, sireOwn.potential, args.sireOwnComplement ?? false);
+  const damBase = baseOf(dam.potential, damOwn.potential, args.damOwnComplement ?? false);
 
   // 3. 잠재 능력 (speed, stamina, acceleration, guts, power 순)
   const potential: Abilities = {
-    speed: inheritAbility(rng, sireBase, damBase, 'speed', adj),
-    stamina: inheritAbility(rng, sireBase, damBase, 'stamina', adj),
-    acceleration: inheritAbility(rng, sireBase, damBase, 'acceleration', adj),
-    guts: inheritAbility(rng, sireBase, damBase, 'guts', adj),
-    power: inheritAbility(rng, sireBase, damBase, 'power', adj),
+    speed: inheritAbility(rng, sireBase, damBase, 'speed', adj, foalComplement),
+    stamina: inheritAbility(rng, sireBase, damBase, 'stamina', adj, foalComplement),
+    acceleration: inheritAbility(rng, sireBase, damBase, 'acceleration', adj, foalComplement),
+    guts: inheritAbility(rng, sireBase, damBase, 'guts', adj, foalComplement),
+    power: inheritAbility(rng, sireBase, damBase, 'power', adj, foalComplement),
   };
 
   // 4. 성장형
@@ -252,8 +344,7 @@ export function breed(rng: Rng, args: BreedArgs): Horse {
 
   // 5. 적성
   const distanceOptimum = clamp(
-    average(sire.aptitude.distanceOptimum, dam.aptitude.distanceOptimum) +
-      rng.normal(0, DIST_INHERIT_SD),
+    inheritedDistance(sire, dam, damsire) + rng.normal(0, DIST_INHERIT_SD),
     DIST_OPT_MIN,
     DIST_OPT_MAX,
   );

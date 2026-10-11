@@ -5,6 +5,7 @@ import {
   breed,
   inbreedingEffect,
   inbreedingPenalty,
+  isComplementary,
   type BreedArgs,
 } from '../../src/engine/breeding/genetics';
 import { ABILITY_MAX } from '../../src/engine/config/horse';
@@ -301,7 +302,17 @@ describe('buildMatingPreview', () => {
       revealedNicks: new Set<string>(),
     });
     expect(Object.keys(preview).sort()).toEqual(
-      ['comments', 'distanceHint', 'damId', 'inbreeding', 'nick', 'precocityHint', 'sireId'].sort(),
+      [
+        'comments',
+        'complement',
+        'distanceHint',
+        'damId',
+        'inbreeding',
+        'nick',
+        'precocityHint',
+        'roles',
+        'sireId',
+      ].sort(),
     );
     expect(JSON.stringify(preview)).not.toContain('potential');
   });
@@ -490,5 +501,145 @@ describe('근친 과다 감점은 1대 한정 (M2-05c)', () => {
       }
       expect(foal.soundness).toBeLessThanOrEqual(ABILITY_MAX);
     }
+  });
+});
+
+/** 거리 적성만 바꾼 말 (잠재·건강도는 기본값) */
+function withDistance(id: string, distanceOptimum: number): Horse {
+  return makeHorse(id, { aptitude: { ...BASE_HORSE.aptitude, distanceOptimum } });
+}
+
+describe('거리 적성 유전 가중과 보완형 (M2-16)', () => {
+  it('거리 가중: 부 1400·외조부 3000·모 2000 이면 1,000두 평균 distanceOptimum 이 2030 ± 25', () => {
+    const sire = withDistance('W_S', 1400);
+    const dam = withDistance('W_D', 2000);
+    const damsire = withDistance('W_G', 3000);
+    const values: number[] = [];
+    for (let i = 0; i < 1000; i++) {
+      const foal = breed(createRng(`dist-w-${i}`), plainArgs(sire, dam, { damsire }));
+      values.push(foal.aptitude.distanceOptimum);
+    }
+    expect(Math.abs(meanOf(values) - 2030)).toBeLessThanOrEqual(25);
+  });
+
+  it('외조부 생략 시 부·모만 재정규화: 부 1400·모 2000 이면 평균 (0.45·1400 + 0.25·2000) / 0.70 ± 25', () => {
+    const sire = withDistance('N_S', 1400);
+    const dam = withDistance('N_D', 2000);
+    const values: number[] = [];
+    for (let i = 0; i < 1000; i++) {
+      values.push(breed(createRng(`dist-n-${i}`), plainArgs(sire, dam)).aptitude.distanceOptimum);
+    }
+    const expected = (0.45 * 1400 + 0.25 * 2000) / 0.7;
+    expect(Math.abs(meanOf(values) - expected)).toBeLessThanOrEqual(25);
+  });
+
+  it('isComplementary: 부 speed + 외조부 cup + 모 middle → true', () => {
+    expect(
+      isComplementary(withDistance('C1', 1400), withDistance('C2', 2500), withDistance('C3', 3000)),
+    ).toBe(true);
+  });
+
+  it('isComplementary: 부 middle → false', () => {
+    expect(
+      isComplementary(withDistance('C4', 2500), withDistance('C5', 2500), withDistance('C6', 3000)),
+    ).toBe(false);
+  });
+
+  it('isComplementary: 부 classic + 외조부 speed + 모 speed → false (모계 스태미나 0)', () => {
+    expect(
+      isComplementary(withDistance('C7', 2000), withDistance('C8', 1400), withDistance('C9', 1400)),
+    ).toBe(false);
+  });
+
+  it('보완형 보너스: 같은 시드·부모(잠재 60)에서 보완형 쌍이 비보완형보다 잠재 평균이 4.0~5.5 크다 (1,000쌍)', () => {
+    const comp = makeHorse('BS_C', { potential: flat(60), aptitude: { ...BASE_HORSE.aptitude, distanceOptimum: 1400 } });
+    const plain = makeHorse('BS_P', { potential: flat(60), aptitude: { ...BASE_HORSE.aptitude, distanceOptimum: 2500 } });
+    const dam = makeHorse('BD', { potential: flat(60), aptitude: { ...BASE_HORSE.aptitude, distanceOptimum: 2500 } });
+    const damsire = withDistance('BG', 3000);
+    const withBonus = meanPotential('bonus-x', 1000, comp, dam, 'speed', { damsire });
+    const withoutBonus = meanPotential('bonus-x', 1000, plain, dam, 'speed', { damsire });
+    const diff = withBonus - withoutBonus;
+    expect(diff).toBeGreaterThanOrEqual(4.0);
+    expect(diff).toBeLessThanOrEqual(5.5);
+  });
+
+  it('1대 한정: 보완형 출신 부(잠재 64.8, own true)는 잠재 60 부(own false)와 같은 망아지를 만든다 (부)', () => {
+    const dam = makeHorse('OCD', { potential: flat(55), soundness: 70, aptitude: { ...BASE_HORSE.aptitude, distanceOptimum: 2500 } });
+    const damsire = withDistance('OCG', 3000);
+    const sireOwn = makeHorse('OCS', { potential: flat(64.8), soundness: 70, aptitude: { ...BASE_HORSE.aptitude, distanceOptimum: 2500 } });
+    const sirePlain = makeHorse('OCS', { potential: flat(60), soundness: 70, aptitude: { ...BASE_HORSE.aptitude, distanceOptimum: 2500 } });
+    for (let i = 0; i < 50; i++) {
+      const a = breed(createRng(`own-c-s-${i}`), plainArgs(sireOwn, dam, { damsire, sireOwnComplement: true }));
+      const b = breed(createRng(`own-c-s-${i}`), plainArgs(sirePlain, dam, { damsire, sireOwnComplement: false }));
+      for (const key of Object.keys(a.potential) as (keyof Abilities)[]) {
+        expect(a.potential[key]).toBeCloseTo(b.potential[key], 9);
+      }
+      expect(a.soundness).toBeCloseTo(b.soundness, 9);
+    }
+  });
+
+  it('1대 한정: 보완형 출신 모(잠재 64.8, own true)는 잠재 60 모(own false)와 같은 망아지를 만든다 (모)', () => {
+    const sire = makeHorse('OCS2', { potential: flat(55), soundness: 70, aptitude: { ...BASE_HORSE.aptitude, distanceOptimum: 2500 } });
+    const damsire = withDistance('OCG2', 3000);
+    const damOwn = makeHorse('OCD2', { potential: flat(64.8), soundness: 70, aptitude: { ...BASE_HORSE.aptitude, distanceOptimum: 2500 } });
+    const damPlain = makeHorse('OCD2', { potential: flat(60), soundness: 70, aptitude: { ...BASE_HORSE.aptitude, distanceOptimum: 2500 } });
+    for (let i = 0; i < 50; i++) {
+      const a = breed(createRng(`own-c-d-${i}`), plainArgs(sire, damOwn, { damsire, damOwnComplement: true }));
+      const b = breed(createRng(`own-c-d-${i}`), plainArgs(sire, damPlain, { damsire, damOwnComplement: false }));
+      for (const key of Object.keys(a.potential) as (keyof Abilities)[]) {
+        expect(a.potential[key]).toBeCloseTo(b.potential[key], 9);
+      }
+      expect(a.soundness).toBeCloseTo(b.soundness, 9);
+    }
+  });
+
+  it('own 보완 필드 생략 시 damsire 를 줘도 보완 보너스 없이 같은 결과(own false 와 동일)', () => {
+    const sire = withDistance('OPS', 1400);
+    const dam = withDistance('OPD', 2500);
+    const damsire = withDistance('OPG', 3000);
+    for (let i = 0; i < 20; i++) {
+      const omitted = breed(createRng(`own-p-${i}`), plainArgs(sire, dam, { damsire }));
+      const explicit = breed(createRng(`own-p-${i}`), plainArgs(sire, dam, { damsire, sireOwnComplement: false, damOwnComplement: false }));
+      expect(omitted).toEqual(explicit);
+    }
+  });
+});
+
+describe('배합 역할·보완형 힌트 (M2-16)', () => {
+  const noLookup: PedigreeLookup = () => undefined;
+
+  function previewOf(sire: Horse, dam: Horse, damsire: Horse | null) {
+    return buildMatingPreview({
+      sire,
+      dam,
+      damsireLineId: null,
+      lookup: noLookup,
+      nicks: [],
+      revealedNicks: new Set<string>(),
+      damsire,
+    });
+  }
+
+  it('역할: 부 speed(1400) → speed, 외조부 classic(2000) → balanced, 외조부 cup(3000) → stamina', () => {
+    const preview = previewOf(withDistance('RS', 1400), withDistance('RD', 2500), withDistance('RG', 2000));
+    expect(preview.roles).toEqual({ sire: 'speed', damSide: 'balanced' });
+    const stayer = previewOf(withDistance('RS2', 2500), withDistance('RD2', 2500), withDistance('RG2', 3000));
+    expect(stayer.roles).toEqual({ sire: 'stamina', damSide: 'stamina' });
+  });
+
+  it('외조부 없으면 damSide unknown, complement unknown', () => {
+    const preview = previewOf(withDistance('RS3', 1400), withDistance('RD3', 2500), null);
+    expect(preview.roles.damSide).toBe('unknown');
+    expect(preview.complement).toBe('unknown');
+  });
+
+  it('부 speed·classic + 외조부 middle·cup → complement likely', () => {
+    expect(previewOf(withDistance('CL1', 1400), withDistance('CD1', 2000), withDistance('CG1', 2500)).complement).toBe('likely');
+    expect(previewOf(withDistance('CL2', 2000), withDistance('CD2', 2000), withDistance('CG2', 3000)).complement).toBe('likely');
+  });
+
+  it('부 middle 이거나 외조부 classic 이면 complement unlikely', () => {
+    expect(previewOf(withDistance('UL1', 2500), withDistance('UD1', 2000), withDistance('UG1', 3000)).complement).toBe('unlikely');
+    expect(previewOf(withDistance('UL2', 1400), withDistance('UD2', 2000), withDistance('UG2', 2000)).complement).toBe('unlikely');
   });
 });

@@ -2,6 +2,7 @@ import type {
   AssessmentComment,
   Horse,
   MatingPreview,
+  MatingRole,
   SireLineId,
   NickEntry,
 } from '../types';
@@ -13,6 +14,7 @@ import {
   SIRE_WEIGHT,
 } from '../config/genetics';
 import { DIST_OPT_MAX, DIST_OPT_MIN } from '../config/horse';
+import { profileOfDistance } from '../horse/generate';
 import { buildMatingPedigree, type PedigreeLookup } from './pedigree';
 import { dominantCrosses, findInbreeding } from './inbreeding';
 import { nickKey, nickLabel, nickValue } from './nicks';
@@ -24,6 +26,8 @@ export interface BuildMatingPreviewArgs {
   lookup: PedigreeLookup;
   nicks: readonly NickEntry[];
   revealedNicks: ReadonlySet<string>;
+  /** 모의 부(외조부) 말. 모르면 생략하거나 null (역할·보완형 힌트가 unknown 이 된다) */
+  damsire?: Horse | null;
 }
 
 function clamp(v: number, min: number, max: number): number {
@@ -36,12 +40,32 @@ function roundedDistance(raw: number): number {
   return clamp(rounded, DIST_OPT_MIN, DIST_OPT_MAX);
 }
 
+/** 말의 거리 프로필 → 배합 역할: speed → 'speed', classic → 'balanced', middle·cup → 'stamina' */
+function matingRoleOf(horse: Horse): MatingRole {
+  const profile = profileOfDistance(horse.aptitude.distanceOptimum);
+  if (profile === 'speed') return 'speed';
+  if (profile === 'classic') return 'balanced';
+  return 'stamina';
+}
+
+/**
+ * 보완형 가능성(공개 정보만): 부가 speed·classic 이고 외조부가 middle·cup 이면 'likely', 아니면 'unlikely'.
+ * 외조부를 모르면 'unknown'. 모 자신의 적성은 쓰지 않는다.
+ */
+function complementHint(sire: Horse, damsire: Horse | null): MatingPreview['complement'] {
+  if (damsire === null) return 'unknown';
+  const sireIsSpeedy = matingRoleOf(sire) !== 'stamina';
+  const damsireIsStayer = matingRoleOf(damsire) === 'stamina';
+  return sireIsSpeedy && damsireIsStayer ? 'likely' : 'unlikely';
+}
+
 /**
  * 배합 미리보기. 순수 함수(rng 미사용). 숫자 능력치를 담지 않으며,
  * 닉스 값은 공개된 조합일 때만 라벨로 노출한다(미공개면 'unknown').
  */
 export function buildMatingPreview(args: BuildMatingPreviewArgs): MatingPreview {
   const { sire, dam, damsireLineId, lookup, nicks, revealedNicks } = args;
+  const damsire = args.damsire ?? null;
 
   // 인브리드 (실존 혈통표 기준)
   const root = buildMatingPedigree(lookup, sire.id, dam.id);
@@ -87,5 +111,10 @@ export function buildMatingPreview(args: BuildMatingPreviewArgs): MatingPreview 
     distanceHint,
     precocityHint,
     comments: candidates.slice(0, 3),
+    roles: {
+      sire: matingRoleOf(sire),
+      damSide: damsire === null ? 'unknown' : matingRoleOf(damsire),
+    },
+    complement: complementHint(sire, damsire),
   };
 }

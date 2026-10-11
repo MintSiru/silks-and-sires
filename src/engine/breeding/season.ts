@@ -23,10 +23,10 @@ import type {
   WeekContext,
   WeeklySystem,
 } from '../types';
-import { breed } from './genetics';
+import { breed, ownComplement, type HorseLookup } from './genetics';
 import { dominantCrosses, findInbreeding, ownBloodPercent } from './inbreeding';
 import { nickKey } from './nicks';
-import { buildMatingPedigree, type PedigreeLookup } from './pedigree';
+import { buildMatingPedigree } from './pedigree';
 
 /** 교배 예약 실패 사유 */
 export type BookingError =
@@ -99,6 +99,12 @@ export function familyScore(state: GameState, mareId: HorseId): number {
 export function damsireLineOf(state: GameState, dam: Horse): SireLineId | null {
   if (dam.sireId === null) return null;
   return state.horses[dam.sireId]?.sireLineId ?? null;
+}
+
+/** 모의 부(외조부) 말 전체: dam.sireId 로 찾는다. 없으면 null */
+function damsireOf(state: GameState, dam: Horse): Horse | null {
+  if (dam.sireId === null) return null;
+  return state.horses[dam.sireId] ?? null;
 }
 
 /**
@@ -264,7 +270,7 @@ function deliverFoals(
       throw new Error(`deliverFoals: 출산 대상의 종마 또는 암말 레코드 없음: ${mareId}`);
     }
 
-    const lookup: PedigreeLookup = (id) => state.horses[id];
+    const lookup: HorseLookup = (id) => state.horses[id];
     const root = buildMatingPedigree(lookup, sire.id, dam.id);
     const inbreeding = dominantCrosses(root, findInbreeding(root));
 
@@ -290,6 +296,9 @@ function deliverFoals(
       breederId: dam.ownerId,
       sireOwnBloodPercent: ownBloodPercent(lookup, sire),
       damOwnBloodPercent: ownBloodPercent(lookup, dam),
+      damsire: damsireOf(state, dam),
+      sireOwnComplement: ownComplement(lookup, sire),
+      damOwnComplement: ownComplement(lookup, dam),
     });
 
     state.horses[foal.id] = foal;
