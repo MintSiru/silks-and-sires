@@ -19,6 +19,7 @@
 **그룹 F (US, USD)**: Cody's Wish 75,000 · Enticed 5,000 · Essential Quality 65,000 · Frosted 10,000 · Hard Spun 35,000 · Maxfield 35,000 · Medaglia d'Oro 75,000 · Midshipman 15,000 · Mystic Guide 12,500 · Nyquist 85,000 · Proxy 25,000 · Speaker's Corner 17,500 · Street Sense 60,000
 **그룹 G (GB, GBP)**: Bated Breath 5,000 · Chaldean 20,000 · Frankel 350,000 · Kingman 125,000 · Lead Artist 12,500 · Oasis Dream 15,000
 **그룹 H (US, USD)**: Elite Power 35,000 · Mandaloun 10,000
+**그룹 I (사용자 추가 제공, 교배료 미기재 → Opus 지정 tier, 계류국은 위키백과로 확인하고 확인 안 되면 괄호 안 기본값)**: Sea The Stars tier 1 (IE) · Siyouni tier 1 (FR) · Zarak tier 3 (FR) · Vadeni tier 3 (IE) · Daryz tier 4 (FR) · Erevann tier 4 (FR)
 (명단 표기 오타는 공식 표기로: "Teritorries" → Territories, "Cloths Of Stars" → Cloth of Stars, "Footstepinthesand" → Footstepsinthesand, "Medaglia D'Oro" → Medaglia d'Oro)
 
 ## 작업
@@ -32,7 +33,7 @@
 1. `data/stallions/stallions.json` 2. `data/stallions/names.json` 3. `data/stallions/sire_lines.json` 4. `data/stallions/_review.md` 5. `tests/data/stallions.test.ts`
 
 ## 수용 기준
-1. 명단 81두 전원 포함, active, 위 국가·tier 정확.
+1. 명단 87두 전원 포함, active, 위 국가·tier 정확.
 2. 유럽 active ≥ 50, 미국 active(dirt/both) ≥ 15 테스트 통과, 기존 구조 테스트 전부 통과.
 3. 암말 이름 없음, 목장·회사 이름 없음(grep 으로 직접 확인하고 보고).
 4. typecheck·lint 통과.
