@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { EVENT_LOG_LIMIT, PHASE_WINDOWS, START_YEAR } from '../../src/engine/config/game';
+import { EVENT_LOG_LIMIT, PHASE_WINDOWS, SAVE_SCHEMA_VERSION, START_YEAR } from '../../src/engine/config/game';
 import {
   addWeeks,
   compareDates,
@@ -237,7 +237,7 @@ describe('createNewGame', () => {
       silks: SILKS,
       studName: null,
     });
-    expect(state.schemaVersion).toBe(1);
+    expect(state.schemaVersion).toBe(SAVE_SCHEMA_VERSION);
     expect(state.initialSeed).toBe(42);
     expect(state.date).toEqual({ year: 2026, week: 1 });
     expect(state.season.year).toBe(2026);

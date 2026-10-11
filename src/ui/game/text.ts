@@ -256,6 +256,10 @@ export function eventKo(e: GameEvent, nameOf: (id: HorseId) => string): string {
         : `${formatDateKo(e.date)} · ${nameOf(e.mareId)} 수태 실패`;
     case 'foal_born':
       return `${formatDateKo(e.date)} · ${nameOf(e.mareId)} 출산: ${nameOf(e.foalId)} (부 ${nameOf(e.stallionId)})`;
+    case 'race_run':
+      return `${formatDateKo(e.date)} · 레이스 결과: 우승 ${nameOf(e.winnerId)}`;
+    case 'series_completed':
+      return `${formatDateKo(e.date)} · 시리즈 달성: ${nameOf(e.horseId)}`;
     default:
       return assertNever(e);
   }

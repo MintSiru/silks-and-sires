@@ -1,4 +1,5 @@
 import { SAVE_SCHEMA_VERSION, WEEKS_PER_YEAR } from '../config/game';
+import { createEmptySeasonState } from '../season/state';
 import { SAVE_FORMAT } from '../types';
 import type { GameState, LoadResult, SaveEnvelope, SaveErrorCode } from '../types';
 
@@ -6,7 +7,14 @@ import type { GameState, LoadResult, SaveEnvelope, SaveErrorCode } from '../type
 export type Migration = (state: Record<string, unknown>) => Record<string, unknown>;
 
 /** key n = 버전 n → n+1 변환. 현재는 비어 있음 */
-export const MIGRATIONS: Readonly<Record<number, Migration>> = {};
+export const MIGRATIONS: Readonly<Record<number, Migration>> = {
+  /** v1 → v2 (M3): 시즌 상태 추가. 현역마·AI 인물은 시즌 시스템이 첫 주에 채운다 */
+  1: (state) => {
+    const date = state.date as { year?: unknown } | undefined;
+    const year = typeof date?.year === 'number' ? date.year : 2026;
+    return { ...state, seasonState: createEmptySeasonState(year) };
+  },
+};
 
 /** 구조 상수(형식 규칙). 밸런스 수치가 아니므로 여기 둔다. */
 const MIN_SCHEMA_VERSION = 1;

@@ -7,6 +7,7 @@ import {
 import { createRng } from '../rng';
 import { seasonForYear } from '../time/calendar';
 import type { CountryCode, GameState, Owner, Silks } from '../types';
+import { createEmptySeasonState } from '../season/state';
 
 export interface NewGameOptions {
   seed: number;
@@ -54,6 +55,7 @@ export function createNewGame(opts: NewGameOptions): GameState {
     breeding: { revealedNicks: [] },
     nextHorseNumber: 1,
     raceResults: [],
+    seasonState: createEmptySeasonState(START_YEAR),
     eventLog: [],
   };
 }

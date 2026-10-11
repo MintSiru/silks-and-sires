@@ -8,6 +8,7 @@ import {
 } from '../../src/engine/save/serialize';
 import type { GameState, Owner } from '../../src/engine/types';
 import { SAVE_FORMAT } from '../../src/engine/types';
+import { createEmptySeasonState } from '../../src/engine/season/state';
 
 const PLAYER_ID = 'owner-player';
 
@@ -55,6 +56,7 @@ function makeState(): GameState {
     breeding: { revealedNicks: [] },
     nextHorseNumber: 1,
     raceResults: [],
+    seasonState: createEmptySeasonState(2026),
     eventLog: [{ type: 'week_started', date: { year: 2026, week: 7 } }],
   };
 }
@@ -297,5 +299,21 @@ describe('deserializeGame 마이그레이션 경로 (현재 버전을 2 로 바�
     if (!result.ok) expect(result.error.code).toBe('unsupported_version');
     vi.doUnmock('../../src/engine/config/game');
     vi.resetModules();
+  });
+});
+
+describe('저장 마이그레이션 v1 → v2 (M3)', () => {
+  it('seasonState 가 없는 v1 저장본을 빈 시즌 상태로 불러온다', () => {
+    const v2 = makeState();
+    const { seasonState: _omit, ...rest } = v2;
+    void _omit;
+    const v1 = { ...rest, schemaVersion: 1 };
+    const json = JSON.stringify({ format: 'silks-and-sires-save', schemaVersion: 1, savedAt: '2026-10-11T00:00:00.000Z', state: v1 });
+    const result = deserializeGame(json);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.state.schemaVersion).toBe(2);
+      expect(result.state.seasonState).toEqual(createEmptySeasonState(v2.date.year));
+    }
   });
 });

@@ -137,4 +137,8 @@ export interface SeasonState {
   ratingHistory: Record<HorseId, RatingChange[]>;
   /** 자동 생성 레이스 id 일련번호 */
   nextGeneratedRace: number;
+  /** 말별 마지막 출주일(연속 출주 제한·컨디션 계산용) */
+  lastRun: Record<HorseId, GameDate>;
+  /** 현역마 연간 교체를 마지막으로 한 연도(중복 실행 방지). 아직 없으면 null */
+  lastPopulationYear: number | null;
 }

@@ -3,6 +3,7 @@ import type { Horse, HorseStatus, Mare, Stallion } from './horse';
 import type { Jockey, Owner, Trainer } from './people';
 import type { RaceResult } from './race';
 import type { Rng, RngState } from './rng';
+import type { SeasonState, SeriesId } from './season';
 import type { CalendarPhaseId, GameDate, Season } from './time';
 
 /** 주 진행 중 발생한 사건. M3 이후 종류가 늘어난다(판별 유니온에 추가). */
@@ -14,7 +15,17 @@ export type GameEvent =
   | { type: 'horse_status_changed'; horseId: HorseId; from: HorseStatus; to: HorseStatus; date: GameDate }
   | { type: 'covering_booked'; mareId: HorseId; stallionId: HorseId; fee: Money; date: GameDate }
   | { type: 'conception'; mareId: HorseId; stallionId: HorseId; success: boolean; date: GameDate }
-  | { type: 'foal_born'; foalId: HorseId; mareId: HorseId; stallionId: HorseId; date: GameDate };
+  | { type: 'foal_born'; foalId: HorseId; mareId: HorseId; stallionId: HorseId; date: GameDate }
+  /** 레이스 종료. 그룹·리스티드 또는 플레이어 말이 나온 레이스만 이벤트로 남긴다 */
+  | {
+      type: 'race_run';
+      raceId: string;
+      meetingId: string;
+      date: GameDate;
+      winnerId: HorseId;
+      playerHorseIds: HorseId[];
+    }
+  | { type: 'series_completed'; seriesId: SeriesId; horseId: HorseId; date: GameDate };
 
 /** 배합 관련 진행 상태 */
 export interface BreedingState {
@@ -48,8 +59,10 @@ export interface GameState {
   breeding: BreedingState;
   /** 가상 말 ID 발급용 일련번호 (1부터) */
   nextHorseNumber: number;
-  /** 완료된 레이스 결과 (M3 에서 보존 정책 결정) */
+  /** 완료된 레이스 결과. 보존 정책(M3): 그룹·리스티드와 플레이어 말 출주 레이스만, 최근 N 시즌(config) */
   raceResults: RaceResult[];
+  /** 시즌 진행 상태(개최·시리즈·리딩·OR 이력) */
+  seasonState: SeasonState;
   /** 최근 이벤트 로그 (최대 길이는 config 에서) */
   eventLog: GameEvent[];
 }
