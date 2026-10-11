@@ -52,5 +52,5 @@
    - **회피 선택(판정 대상):** 성별별 상위 20% 풀에서 짝을 정할 때, 암말마다 풀의 수말 중 예상 혈량(totalBloodPercent(dominantCrosses(root, findInbreeding(root))), root = buildMatingPedigree(lookup, 수.id, 암.id)) 이 INBREED_EXCESS_FROM 이하인 수말 가운데에서 무작위로 고른다. 허용 수말이 없으면 풀에서 예상 혈량이 가장 낮은 수말. (미리보기 경고를 따르는 플레이어)
    - **닫힌 무회피 선택(진단):** 지금의 선택 교배. 표에는 남기되 C3·C9~C11 판정에는 쓰지 않는다.
    - C3·C4·C9·C10·C11 은 회피 선택으로 판정한다.
-7. 진단 추가 "보너스만 끔": 무작위 교배를 같은 시드로, 적정 인브리드 보너스만 0 으로(과다 감점은 유지) 돌린다. 테스트 안에서 breed 결과를 바꾸려면 src 를 고치지 말고, breed 호출 전에 inbreeding 배열을 혈량 ≤ INBREED_HIGH 인 교차만 빼는 식이 아니라 — 정확히는 bp 가 INBREED_LOW~INBREED_HIGH 사이면 inbreeding 을 빈 배열로 넘기고(보너스 0, 감점 0 구간), 그 밖이면 그대로 넘긴다. 결과를 C1 원인 진단 줄에 적는다(보너스 끔에서 상승이 사라지면 원인 확정).
+7. 진단 추가 "보너스만 끔": 무작위 교배를 같은 시드로 돌리되, 망아지의 예상 혈량 bp 가 INBREED_LOW 초과 INBREED_EXCESS_FROM 이하(보너스만 있고 감점은 없는 구간)이면 breed 에 inbreeding 을 빈 배열로 넘긴다. 그 밖의 bp 는 그대로 넘긴다(src 수정 없이 테스트 안에서 처리). 결과를 C1 원인 진단 줄에 적는다. 이 진단에서 상승이 사라지면 원인이 확정된다.
 8. 기본 모드 소요 10초 이내 유지.
