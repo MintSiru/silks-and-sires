@@ -150,6 +150,7 @@ describe('bootstrapWorld', () => {
       expect(state.mares[mareId]).toEqual({
         horseId: mareId,
         coveredBy: null,
+        coveredWeek: null,
         pregnant: false,
         dueWeek: null,
         foals: [],
