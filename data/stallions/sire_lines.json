@@ -14,7 +14,7 @@
   {
     "id": "sl_seattle_slew",
     "label": "Seattle Slew line",
-    "parentLineId": null,
+    "parentLineId": "sl_phalaris",
     "founderKey": "stl_seattle_slew"
   },
   {
@@ -112,5 +112,59 @@
     "label": "Phalaris line",
     "parentLineId": null,
     "founderKey": "stl_phalaris"
+  },
+  {
+    "id": "sl_sunday_silence",
+    "label": "Sunday Silence line",
+    "parentLineId": "sl_phalaris",
+    "founderKey": "stl_sunday_silence"
+  },
+  {
+    "id": "sl_deep_impact",
+    "label": "Deep Impact line",
+    "parentLineId": "sl_sunday_silence",
+    "founderKey": "stl_deep_impact"
+  },
+  {
+    "id": "sl_scat_daddy",
+    "label": "Scat Daddy line",
+    "parentLineId": "sl_johannesburg",
+    "founderKey": "stl_scat_daddy"
+  },
+  {
+    "id": "sl_johannesburg",
+    "label": "Johannesburg line",
+    "parentLineId": null,
+    "founderKey": "stl_johannesburg"
+  },
+  {
+    "id": "sl_caro",
+    "label": "Caro line",
+    "parentLineId": null,
+    "founderKey": "stl_caro"
+  },
+  {
+    "id": "sl_gun_runner",
+    "label": "Gun Runner line",
+    "parentLineId": null,
+    "founderKey": "stl_gun_runner"
+  },
+  {
+    "id": "sl_jack_christopher",
+    "label": "Jack Christopher line",
+    "parentLineId": null,
+    "founderKey": "stl_jack_christopher"
+  },
+  {
+    "id": "sl_perfect_power",
+    "label": "Perfect Power line",
+    "parentLineId": null,
+    "founderKey": "stl_perfect_power"
+  },
+  {
+    "id": "sl_dark_angel",
+    "label": "Dark Angel line",
+    "parentLineId": null,
+    "founderKey": "stl_dark_angel"
   }
 ]

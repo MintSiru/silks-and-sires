@@ -21,7 +21,7 @@ const lines = sireLinesJson as SireLine[];
 const byKey = new Map(stallions.map((s) => [s.key, s] as const));
 const lineById = new Map(lines.map((l) => [l.id, l] as const));
 
-const COUNTRY_CODES: CountryCode[] = ['GB', 'IE', 'FR', 'DE', 'IT', 'JP', 'US', 'AU', 'HK', 'AE', 'CA'];
+const COUNTRY_CODES: CountryCode[] = ['GB', 'IE', 'FR', 'DE', 'IT', 'JP', 'US', 'AU', 'HK', 'AE', 'CA', 'AR'];
 const STATUSES: RealStallionStatus[] = ['active', 'pensioned', 'historical'];
 const DISTANCES: DistanceProfile[] = ['sprint', 'mile', 'middle', 'staying'];
 const SURFACES: SurfaceProfile[] = ['turf', 'dirt', 'both'];
@@ -87,21 +87,21 @@ describe('현역 상태', () => {
     }
   });
 
-  it('유럽(GB/IE/FR/DE) 현역 종마 20두 이상 (M2-01 1차분 하한 — 확장은 M2 후속)', () => {
+  it('유럽(GB/IE/FR/DE) 현역 종마 50두 이상 (M2-01b 목표 하한)', () => {
     const europeanActive = stallions.filter(
       (s) => s.status === 'active' && s.standsIn !== null && EUROPEAN.includes(s.standsIn),
     );
-    expect(europeanActive.length).toBeGreaterThanOrEqual(20);
+    expect(europeanActive.length).toBeGreaterThanOrEqual(50);
   });
 
-  it('미국 더트·양용 현역 종마 10두 이상 (M2-01 1차분 하한 — 확장은 M2 후속)', () => {
+  it('미국 더트·양용 현역 종마 15두 이상 (M2-01b 목표 하한)', () => {
     const usDirtActive = stallions.filter(
       (s) =>
         s.status === 'active' &&
         s.standsIn === 'US' &&
         (s.surfaceProfile === 'dirt' || s.surfaceProfile === 'both'),
     );
-    expect(usDirtActive.length).toBeGreaterThanOrEqual(10);
+    expect(usDirtActive.length).toBeGreaterThanOrEqual(15);
   });
 });
 
@@ -183,5 +183,41 @@ describe('이름 표 names.json', () => {
     for (const l of lines) {
       expect(l.label, l.id).toMatch(/ line$/);
     }
+  });
+});
+
+/**
+ * 부계 사슬이 5대(자신 포함) 미만인 현역 종마 예외 목록. 위키백과에서 다음 고리를 확인하지 못했다
+ * (data/stallions/_review.md "미확인 고리" 참조). 목록은 데이터와 정확히 일치해야 한다.
+ */
+const UNVERIFIED_CHAIN_ACTIVE_EXCEPTIONS: readonly string[] = [
+  'Blackbeard',
+  'City of Troy',
+  'Gunite',
+  'Harry Angel',
+  'Jack Christopher',
+  'Justify',
+  'Little Big Bear',
+  'No Nay Never',
+  'Perfect Power',
+  'Sierra Leone',
+];
+
+describe('현역 종마 부계 사슬 깊이', () => {
+  it('현역 종마는 부계 사슬 깊이 ≥ 5 (자신 포함) 이거나 미확인 고리 예외 목록에 있다', () => {
+    const depthOf = (key: string): number => {
+      let d = 0;
+      let cur: string | null = key;
+      while (cur !== null) {
+        d += 1;
+        cur = (byKey.get(cur) as RealStallionRecord).sireKey;
+      }
+      return d;
+    };
+    const short = stallions
+      .filter((s) => s.status === 'active' && depthOf(s.key) < 5)
+      .map((s) => names[s.key] as string)
+      .sort();
+    expect(short).toEqual([...UNVERIFIED_CHAIN_ACTIVE_EXCEPTIONS].sort());
   });
 });

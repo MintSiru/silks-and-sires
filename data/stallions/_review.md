@@ -1,4 +1,4 @@
-# M2-01 실명 종마 검수표 (Opus 검수용, 2차 갱신)
+# M2-01 실명 종마 검수표 (Opus 검수용, 3차 갱신: M2-01b 반영)
 
 작성: haiku-data · 기준 시점 2026-10-11 · 자료: 위키백과 원문(action=raw) 교차 확인 + 일부 기억 기반 (표시됨).
 
@@ -10,7 +10,7 @@
 
 ## 요약
 
-- 종마 73두: active 31 (유럽 21, 미국 더트·양용 10), pensioned 14, historical 28.
+- (M2-01 시점 기록. 현재 총계는 맨 아래 M2-01b 섹션 참조) 종마 73두: active 31 (유럽 21, 미국 더트·양용 10), pensioned 14, historical 28.
 - 계통 19 (루트 3 + 하위 16). 루트: 노던댄서, 시애틀 슬루, 해리스 홀리데이(Harlan's Holiday).
 - **수용 기준 미달**: 유럽 현역 21두 (기준 50), 미국 더트·양용 현역 10두 (기준 15). 테스트에서 실패로 남긴다.
 - 암말 이름은 어느 필드에도 없음 (damsireKey 는 종마 key 만).
@@ -50,8 +50,8 @@
 | stl_charm_spirit | Charm Spirit | active | FR | medium | 위키백과: 부 Invincible Spirit, 모부 Montjeu, 2011년 2월 26일 생, 아일랜드산·프랑스 조교. "Charm Spirit stands at the [목장]" 기재 → 현역 FR. |
 | stl_churchill | Churchill | active | IE | medium | 위키백과: 부 Galileo, 2014년 1월 31일 생, 아일랜드. [목장] 은퇴·계류 기재 → 현역 IE. |
 | stl_dubawi | Dubawi | active | GB | medium | 위키백과 infobox: 부 Dubai Millennium, 2002년 생, 아일랜드. "Dubawi stands ... at [목장] (2023 fee)" 기재 → 현역 GB. |
-| stl_essential_quality | Essential Quality | active | US | medium | 위키백과 infobox: 부 Tapit, 모부 Elusive Quality(미수록), 2018년 생, 미국. "His stud fee for the 2025 breeding season is $50,000" 기재 → 현역 US(더트). 계류 장소 미명기 → 미국 추정. |
-| stl_flightline | Flightline | active | US | medium | 위키백과 infobox: 부 Tapit, 모부 Indian Charlie(미수록), 2018년 3월 14일 생, 미국. "His 2026 stud fee was $125,000" 기재 → 현역 US(더트). 계류 장소 미명기 → 미국 추정. |
+| stl_essential_quality | Essential Quality | active | US | medium | 위키백과 infobox: 부 Tapit, 모부 Elusive Quality(미수록), 2018년 생, 미국. "His stud fee for the 2025 breeding season is [종부료]" 기재 → 현역 US(더트). 계류 장소 미명기 → 미국 추정. |
+| stl_flightline | Flightline | active | US | medium | 위키백과 infobox: 부 Tapit, 모부 Indian Charlie(미수록), 2018년 3월 14일 생, 미국. "His 2026 stud fee was [종부료]" 기재 → 현역 US(더트). 계류 장소 미명기 → 미국 추정. |
 | stl_frankel | Frankel | active | GB | medium | 위키백과 infobox: 부 Galileo, 모부 Danehill, 2008년 생, 영국. [목장] 계류 기재 → 현역 GB. |
 | stl_ghaiyyath | Ghaiyyath | active | IE | medium | 위키백과: 부 Dubawi, 2015년 4월 19일 생, 아일랜드. "retired from racing to stand as a breeding stallion at [목장] in 2021" 기재 → 현역 IE. |
 | stl_gleneagles | Gleneagles | active | IE | medium | 위키백과: 부 Galileo, 2012년 1월 12일 생, 아일랜드. [목장] 종마 은퇴 기재 → 현역 IE. |
@@ -72,7 +72,7 @@
 | stl_teofilo | Teofilo | active | IE | medium | 위키백과: 부 Galileo, 모부 Danehill, 2004년 생, 아일랜드. "He is currently standing at stud in County Kildare", "stands as a stallion for the [목장]" 기재 → 현역 IE. |
 | stl_too_darn_hot | Too Darn Hot | active | GB | medium | 위키백과 infobox: 부 Dubawi, 2016년 3월 27일 생, 영국. "became a breeding stallion at the [목장]" 기재 → 현역 GB. |
 | stl_ulysses | Ulysses | active | GB | medium | 위키백과: 부 Galileo, 2013년 3월 20일 생, 아일랜드산·영국 조교. "would begin his career as a breeding stallion at the [목장]" 기재 → 현역 GB. 출생국은 IE(아일랜드산). |
-| stl_vino_rosso | Vino Rosso | active | US | medium | 위키백과 infobox: 부 Curlin, 모부 Street Cry(미수록), 2015년 생, 미국. "As of 2023 he stands for a stud fee of $15,000" → 현역 US(더트). |
+| stl_vino_rosso | Vino Rosso | active | US | medium | 위키백과 infobox: 부 Curlin, 모부 Street Cry(미수록), 2015년 생, 미국. "As of 2023 he stands for a stud fee of [종부료]" → 현역 US(더트). |
 | stl_violence | Violence | active | US | medium | 위키백과 infobox: 부 Medaglia d'Oro, 모부 Gone West, 2010년 3월 21일 생, 미국. "entered into a stud career at [목장] in 2014" 기재 → 현역 US(더트). |
 | stl_ap_indy | A.P. Indy | pensioned | - | medium | 부 Seattle Slew, 1989년 생, 미국은 기억 기반(위키 항목 미확인). 사망 여부 미확인 → 비현역. |
 | stl_cape_cross | Cape Cross | historical | - | medium | 위키백과 infobox: 부 Green Desert, 1994년 3월 13일 생, 아일랜드. 사망 기재는 위키백과 단편 근거(연도 미확인). 모부 Ahonoora(미수록). |
@@ -111,39 +111,87 @@
 - 시장 등급 조정: Lope de Vega 1, Night of Thunder 1, Camelot 2.
 - 현역 수 목표(유럽 50·미국 15)는 위키백과 확인 가능 범위에서 달성 불가 → 1차분 하한(유럽 20·미국 10)으로 테스트 조정, 확장은 M2 후속 티켓.
 
-## M2-01b 진행 상태 (2026-10-11, 중단 — Opus 확인 필요)
+## M2-01b 완료 반영 (2026-10-11, haiku-data, 반려 수정 2회차)
 
-- 출처: 사용자 제공 2026 명단(그룹 A~H, 81두). 명단 출처 표기는 적지 않는다.
-- 중단 사유: 위키백과 원문 조회가 권한 분류기에서 차단되어 신규 종마의 출생연도·출생국·부계·거리/주로 성향을 확인하지 못했다. 확인 없이 혈통을 채우지 않았다.
-- 완료: 기존 레코드 15두 갱신 (status active, standsIn, marketTier 규칙, confidence high).
-  Australia, Camelot, Churchill, Gleneagles, Holy Roman Emperor, Practical Joke, Dubawi, Too Darn Hot, Ghaiyyath, Night of Thunder, Teofilo, Essential Quality, Medaglia d'Oro, Frankel, Kingman.
-- 미완료: 신규 66두 (아래 목록). stallions.json·names.json·sire_lines.json 은 변경하지 않았다 (키 집합 테스트 유지).
-- 테스트 하한(유럽 50·미국 더트/양용 15)은 아직 되돌리지 않았다. 데이터 완성 후 변경한다.
-- 부계 미확인 종마: 아직 없음 (확인 자체를 하지 못함). 확인 후 부계가 끝내 안 나오는 종마만 sireKey null 루트로 두고 여기에 적는다.
-- 명단 표기 보정 적용: Territories, Cloth of Stars, Footstepsinthesand, Medaglia d'Oro.
+출처: 사용자 제공 2026 명단(그룹 A~H), 사용자 추가 제공 명단(그룹 I), 사용자 제공(2026-10-11, 4두 — 아래 "사용자 제공 추가 4두" 참조).
+자료: 위키백과 원문(action=raw) 으로 출생연도·출생국·부·모부·거리/주로 성향을 확인. 계류국은 명단 기준(위키백과 계류 기재와 대조 안 함). 교배료 금액은 저장·기록하지 않고 marketTier(구간 규칙)로만 변환.
 
-### 신규 추가 대기 66두 (국가·계류국 기준, 전부 active / confidence high 예정)
+### 결과 요약
+- 종마 총 172두 (기존 74 + 신규 98: 명단·사용자 추가 54두 + 계통 조상 44두). 명단 미포함 16두(아래).
+- 현역(active) 88두: 유럽(GB/IE/FR/DE) 57두 (기준 50 충족), 미국 더트·양용 29두 (기준 15 충족).
+- 계통 28개. 루트 7: Phalaris, Johannesburg, Caro, Gun Runner, Jack Christopher, Perfect Power, Dark Angel. (Seattle Slew 계통은 Phalaris 하위로 변경되어 루트가 아님.)
+- 테스트: tests/data/stallions.test.ts 하한 유럽 ≥ 50, 미국 더트·양용 ≥ 15 복원. 현역 부계 사슬 깊이 ≥ 5 (자신 포함) 또는 아래 "미확인 고리" 예외 목록(테스트 상수 UNVERIFIED_CHAIN_ACTIVE_EXCEPTIONS 와 일치해야 함).
+- 암말 이름·목장·회사·사람·마주·조교사·기수·스터드·레이스 이름은 데이터·테스트·본 문서 어디에도 없다.
 
-- 그룹 A (IE, EUR, 16): Auguste Rodin, Blackbeard, Camille Pissarro, City of Troy, Delacroix, Footstepsinthesand, Henri Matisse, Henry Longfellow, Little Big Bear, No Nay Never, Paddington, Saxon Warrior, Sioux Nation, St Mark's Basilica, Starspangledbanner, The Antarctic
-- 그룹 B (US, USD, 14): Citizen Bull, Corniche, Domestic Product, Echo Town, Epicenter, Fierceness, Golden Pal, Gunite, Jack Christopher, Justify, Mo Town, Munnings, Sierra Leone, Tiz The Law
-- 그룹 C (GB, GBP, 11): Cracksman, Farhh, Harry Angel, Iffraaj, Masar, Modern Games, Palace Pier, Perfect Power, Pinatubo, Territories, Triple Time
-- 그룹 D (FR, EUR, 2): Cloth of Stars, Victor Ludorum
-- 그룹 E (IE, EUR, 6): Blue Point, Earthlight, Native Trail, Naval Crown, Raven's Pass, Space Blues
-- 그룹 F (US, USD, 11): Cody's Wish, Enticed, Frosted, Hard Spun, Maxfield, Midshipman, Mystic Guide, Nyquist, Proxy, Speaker's Corner, Street Sense
-- 그룹 G (GB, GBP, 4): Bated Breath, Chaldean, Lead Artist, Oasis Dream
-- 그룹 H (US, USD, 2): Elite Power, Mandaloun
+### 명단 미포함 16두 (위키백과 항목 없음, 출생연도·부계 확인 불가 — 제외 유지, Opus·사용자 확인 대기)
+Henri Matisse, Henry Longfellow, Sioux Nation, The Antarctic (그룹 A) / Domestic Product, Echo Town, Mo Town, Munnings (그룹 B) / Territories, Triple Time (그룹 C) / Enticed, Mystic Guide, Proxy, Speaker's Corner (그룹 F) / Bated Breath, Lead Artist (그룹 G).
 
-### 마켓 등급 규칙 (명단 교배료 → marketTier, 금액은 저장하지 않음)
+### 사용자 제공 추가 4두 (2026-10-11, 위키백과 미확인 항목은 사용자 정보로 기입)
+- Zarak (FR, 2013, 부 Dubawi, 모부 없음): active, standsIn FR, tier 2, middle, turf, high. 근거: 사용자 제공(2026-10-11) · 거리 middle(G1 2,400m 우승).
+- Erevann (FR, 2019, 부 Dubawi, 모부 Siyouni): active, standsIn FR, tier 5 (구간 규칙), mile, turf, high. 근거: 사용자 제공(2026-10-11) · 거리 mile(G2 우승 마일러).
+- Iffraaj (GB, 2001, 부 Zafonic, 모부 Nureyev): active, standsIn GB, tier 4 (등급 미상 — 비공개 규칙과 같게 4), sprint, turf, medium. 근거: 사용자 제공(2026-10-11) · 거리 sprint(G2 6~7f 우승) · 등급 미상.
+- Camille Pissarro (IE, 2022, 부 Wootton Bassett, 모부 없음): active, standsIn IE, tier 3, middle, turf, high. 근거: 사용자 제공(2026-10-11) · 거리 middle(G1 1,400m·2,100m 우승, M2-15 재분류 예정).
+- 사용자 추가 정보 중 인명·마주·조교사·기수·스터드·레이스 이름과 실제 금액은 기록하지 않았다.
+- 조상 추가: Zafonic (US, 1990, 부 Gone West, historical, 위키백과 사망 2002), Wootton Bassett (GB, 2008, 부 Iffraaj, historical — 위키백과 2025년 사망 분류), 그 외 아래 사슬 조상.
 
-100,000 이상 → 1 / 50,000~99,999 → 2 / 25,000~49,999 → 3 / 10,000~24,999 → 4 / 10,000 미만 → 5 / 비공개 → 4
+### 사슬 연결 (위키백과 확인분)
+- Seattle Slew ← Bold Reasoning(1968 US) ← Boldnesian(1963 US) ← Bold Ruler(1954 US) ← Nasrullah(1940 IE) ← Nearco(기존). 사망 기재: Bold Reasoning 1975, Boldnesian 1975 분류, Bold Ruler 1971, Nasrullah 1959 — 모두 historical. sl_seattle_slew 는 sl_phalaris 하위로 변경.
+- Gun Runner ← Candy Ride(1999, 출생국 AR: CountryCode 'AR' 반영 완료) — Candy Ride 는 pensioned, 부는 미확인 고리(아래). confidence medium.
+- Zafonic ← Gone West(기존). Iffraaj ← Zafonic. Wootton Bassett ← Iffraaj. Camille Pissarro ← Wootton Bassett.
+- 조상 신규 목록: Bold Reasoning, Boldnesian, Bold Ruler, Nasrullah, Zafonic, Wootton Bassett, Candy Ride. 모두 marketTier 5 (사용자 정보 4두 제외). status: 사망 확인 historical, 그 외 pensioned. standsIn null.
+- 사망 확인으로 historical 로 바꾼 기존 조상: Caro(1989, 분류), Siberian Express(1996, 분류), Wootton Bassett(2025, 분류). 이 세 마리는 모두 standsIn null.
 
-### 그룹 I 추가 (사용자 제공 2026 명단, 2026-10-11 추가)
+### 미확인 고리 (위키백과에서 항목을 찾지 못했다 — 지어내지 않고 여기서 멈춤)
+1. Jack Christopher ← Munnings: 부 란에 링크 없음, "Munnings" 는 성씨 동음이의 페이지만 있음. Munnings (horse) 등 404. 이후 Speightstown(기존 항목 있음, 부 Gone West)은 연결하지 못함.
+2. Perfect Power ← Ardad: 위키백과 링크 Ardad (horse) 404(빨간 링크). "Ardad" 는 이란 도시 페이지. Kodiac(404), Danehill 연결 불가.
+3. Johannesburg ← Hennessy: 부 란에 링크 없음, "Hennessy" 는 코냑 브랜드 페이지. Hennessy (horse) 404. Storm Cat 연결 불가.
+4. Caro ← Fortino: 부 란에 링크 없음, "Fortino" 는 이름 동음이의 페이지만 있음. Fortino II 404. Grey Sovereign(기존 항목 있음, 부 Nasrullah)은 연결하지 못함. Caro 는 historical(1989 사망).
+5. Dark Angel ← Acclamation (British horse): 위키백과 링크 404(재확인 2회). "Acclamation" 은 일반 명사 페이지, Acclamation (horse) 는 2006년생 미국 종마로 Dark Angel 의 부가 될 수 없어 사용하지 않음. Royal Applause(1993 GB, 항목 있음)·Waajib(404)도 연결하지 못함.
+6. Candy Ride ← Ride the Rails (USA): 부 란에 링크 없음, Ride the Rails (horse) 404. Cryptoclearance(1984 US, 항목 있음, 부 Fappiano)는 Ride the Rails 를 거치지 않으면 연결할 수 없어 추가하지 않음.
 
-- 교배료(사용자 추가 제공, EUR) → marketTier: Sea The Stars 300,000→1 · Siyouni 150,000→1 · Zarak 80,000→2 · Vadeni 15,000→4 · Daryz 비공개→4 · Erevann 8,000→5.
-- 기존 레코드 갱신 (2두): Sea The Stars (IE, tier 1, high), Siyouni (FR, tier 1, high). 계류국은 기존 검수표(위키백과 확인분)와 일치.
-- 신규 대기 4두 (위키백과 미확인, 기본값 계류국 사용 — 표시):
-  - Zarak: FR (기본값, 미확인) · tier 2 · confidence high 예정
-  - Vadeni: IE (기본값, 미확인) · tier 4 · confidence high 예정
-  - Daryz: FR (기본값, 미확인) · tier 4 · confidence high 예정
-  - Erevann: FR (기본값, 미확인) · tier 5 · confidence high 예정
-- 명단 수: 87두 (기존 갱신 17두 + 신규 대기 70두). 추가 완료 0두, 신규 추가 대기 70두.
+### 영향받는 현역 종마 (깊이 < 5, 테스트 예외 목록과 일치)
+Jack Christopher(1), Perfect Power(1), Harry Angel(2, 부 Dark Angel 미확인), Gunite(3), Sierra Leone(3), No Nay Never(3, 부 Scat Daddy → Johannesburg 미확인), Justify(3, 같음), Blackbeard(4), City of Troy(4), Little Big Bear(4).
+- 주의: world.test 의 "플레이어 암말 혈통" 검사는 부측 사슬 깊이 4 이상을 요구한다. 위 현역 종마들은 미확인 고리 때문에 깊이를 채울 수 없어, 해당 종마가 플레이어 암말의 부로 뽑히는 시드에서 실패한다(seed 20260107 등). Opus 결정 필요(아래 질문 참조).
+
+### 명단 종마 50두 + 사용자 4두 (그룹별 — 이름만)
+- 그룹 A (IE): Auguste Rodin, Blackbeard, City of Troy, Delacroix, Footstepsinthesand, Little Big Bear, No Nay Never, Paddington, Saxon Warrior, St Mark's Basilica, Starspangledbanner
+- 그룹 B (US): Citizen Bull, Corniche, Epicenter, Fierceness, Golden Pal, Gunite, Jack Christopher, Justify, Sierra Leone, Tiz The Law
+- 그룹 C (GB): Cracksman, Farhh, Harry Angel, Masar, Modern Games, Palace Pier, Perfect Power, Pinatubo
+- 그룹 D (FR): Cloth of Stars, Victor Ludorum
+- 그룹 E (IE): Blue Point, Earthlight, Native Trail, Naval Crown, Raven's Pass, Space Blues
+- 그룹 F (US): Cody's Wish, Frosted, Hard Spun, Maxfield, Midshipman, Nyquist, Street Sense
+- 그룹 G (GB): Chaldean, Oasis Dream
+- 그룹 H (US): Elite Power, Mandaloun
+- 그룹 I (명단 추가분): Vadeni (계류 IE 기본값, 출생 FR), Daryz (계류 FR 기본값, 출생 IE)
+- 사용자 추가 4두: Zarak, Erevann, Iffraaj, Camille Pissarro
+- 기존 갱신 17두(1차 반영): Australia, Camelot, Churchill, Gleneagles, Holy Roman Emperor, Practical Joke, Dubawi, Too Darn Hot, Ghaiyyath, Night of Thunder, Teofilo, Essential Quality, Medaglia d'Oro, Frankel, Kingman, Sea The Stars, Siyouni.
+- 명단 표기 보정: Territories, Cloth of Stars, Footstepsinthesand, Medaglia d'Oro.
+
+### 계통 조상 (명단 외 — 사슬 확보용)
+Deep Impact, Sunday Silence, Halo, Hail to Reason, Turn-to, Royal Charger, Scat Daddy, Johannesburg, Quality Road, Elusive Quality, Not This Time, City of Light, Uncle Mo, Indian Charlie, In Excess, Siberian Express, Caro, Dark Angel, Street Cry, Machiavellian, Unbridled's Song, Unbridled, Fappiano, Choisir, Danehill Dancer, Constitution, New Approach, Gun Runner, Kingmambo, Vindication, Empire Maker, Forestry, Bernardini, Half Ours, Malibu Moon, Dixieland Band, Stay Thirsty, Bold Reasoning, Boldnesian, Bold Ruler, Nasrullah, Zafonic, Wootton Bassett, Candy Ride.
+- 모부 연결은 파일 안 종마만(나머지 null). 명단 종마 신규 중 모부 null 다수.
+
+### 상태(status)·시장 등급(marketTier)
+- 명단·사용자 종마: active, standsIn = 명단 계류국(사용자 4두 포함), confidence high(Iffraaj 제외 medium).
+- 조상: historical 은 위키백과 본문 사망 기재·사망 분류가 확인된 경우만. 그 외 pensioned. 조상 standsIn null.
+- 조상 시장 등급 5(사용자 정보 없음), 기존 조상 등급은 이전 값 유지.
+
+### 계통 구조 (sire_lines.json)
+- 신설 9: Sunday Silence line(parent Phalaris), Deep Impact line(parent Sunday Silence), Scat Daddy line(parent Johannesburg), 루트 Johannesburg·Caro·Gun Runner·Jack Christopher·Perfect Power·Dark Angel line.
+- 변경: Seattle Slew line 의 parentLineId null → Phalaris (Seattle Slew 루트 해소).
+- 총 28. 루트 7.
+
+### 거리·주로 성향 (휴리스틱, M2-15 에서 재분류)
+- 명단 종마와 조상: 위키백과 본문 경주 거리·dirt/turf 언급 기반 자동 추정. 수동 보정: Justify·Epicenter·Street Sense = mile/dirt, Deep Impact = middle/turf, Sunday Silence = middle/both, Scat Daddy = mile/both.
+- 사용자 4두: 사용자 정보 값(위 참조).
+
+### 검증 (반려 수정 2회차)
+- npx vitest run tests/data/stallions.test.ts: 18/18 통과 (현역 부계 깊이 예외 테스트 추가 포함).
+- 전체 npm test: tests/engine/world.test.ts "플레이어 암말 혈통" 1건 실패 (위 "영향받는 현역 종마" 참조). 나머지 통과.
+- npm run typecheck, npm run lint: 통과.
+
+### Opus 질문
+1. world.test "플레이어 암말 혈통"(부측 깊이 ≥ 4): 현역 종마 중 깊이 3 이하 6두(Gunite, Sierra Leone, No Nay Never, Justify 등)는 미확인 고리(Johannesburg·Candy Ride·Munnings·Ardad 등)로 데이터만으로는 채울 수 없다. 선택: (a) 위키백과 재확인 대기(위 6개 링크 중 404 항목) (b) 해당 종마의 cover 대상(src/engine/state/world.ts 의 isCoverSire 가 active 포함)에 대한 엔진 규칙 변경 (c) 테스트 기준 조정. 판단 필요.
+2. 명단 미포함 16두 처리(제외 유지 또는 다른 출처 확보).
+3. 미확인 고리 6건 수용 여부.
+4. 거리·성향 휴리스틱 값 검수는 M2-15 로 이관.

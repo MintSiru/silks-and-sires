@@ -13,6 +13,7 @@ import {
   MIN_SIRE_AGE_AT_COVER,
   PLAYER_START_MARES,
   SIRE_BIRTH_MARGIN_YEARS,
+  FOUNDER_SIRE_MIN_CHAIN,
 } from '../config/world';
 import { generateHorse, generateHorseName, type HorseWords } from '../horse/generate';
 import type {
@@ -105,6 +106,21 @@ export function bootstrapWorld(state: GameState, data: WorldStaticData, rng: Rng
   // 4. 플레이어 기초 암말
   const isCoverSire = (r: RealStallionRecord): boolean =>
     r.status === 'active' || r.status === 'pensioned';
+  const byKey = new Map(realRecords.map((r) => [r.key, r] as const));
+  const chainDepth = (r: RealStallionRecord): number => {
+    let depth = 0;
+    let cur: RealStallionRecord | undefined = r;
+    while (cur !== undefined && depth < FOUNDER_SIRE_MIN_CHAIN) {
+      depth++;
+      cur = cur.sireKey === null ? undefined : byKey.get(cur.sireKey);
+    }
+    return depth;
+  };
+  /** 부계 사슬이 충분히 긴 후보를 우선하고, 하나도 없으면 전체 후보 */
+  const preferDocumented = (cands: RealStallionRecord[]): RealStallionRecord[] => {
+    const documented = cands.filter((r) => chainDepth(r) >= FOUNDER_SIRE_MIN_CHAIN);
+    return documented.length > 0 ? documented : cands;
+  };
 
   for (let i = 0; i < PLAYER_START_MARES; i++) {
     // a. 나이·출생 연도·출생국
@@ -115,7 +131,9 @@ export function bootstrapWorld(state: GameState, data: WorldStaticData, rng: Rng
     // b. 암말의 부 (현역·은퇴 종마 중 가중 선택)
     const mareSireRec = pickWeightedSire(
       rng,
-      realRecords.filter((r) => isCoverSire(r) && r.foaled <= latestSireFoaledYear(birthYear)),
+      preferDocumented(
+        realRecords.filter((r) => isCoverSire(r) && r.foaled <= latestSireFoaledYear(birthYear)),
+      ),
     );
 
     // c. 어미(가상)와 어미의 부 (historical 포함 모든 종마)

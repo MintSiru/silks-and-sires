@@ -42,3 +42,5 @@ export const MARE_COUNTRIES = ['GB', 'IE', 'FR'] as const;
 /** 가상 말 ID 접두사와 번호 자릿수 (예: h-000001) */
 export const HORSE_ID_PREFIX = 'h-';
 export const HORSE_ID_DIGITS = 6;
+/** 플레이어 기초 암말의 부(父)는 데이터상 부계 사슬 깊이(자신 포함)가 이 값 이상인 종마를 우선한다(혈통표 공백 방지) */
+export const FOUNDER_SIRE_MIN_CHAIN = 5;
