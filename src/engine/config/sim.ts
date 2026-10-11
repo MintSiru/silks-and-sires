@@ -38,3 +38,16 @@ export const BLOCK_DISTANCE_M = 2.4;
 export const LANE_CLEARANCE_M = 3.0;
 export const LANE_CHANGE_MPS = 1.0;
 export const RAIL_DRIFT_MPS = 0.3;
+
+/** 무리(페이스 추종) 동역학 (M1-07c). 선두 말 기준 간격 관리. */
+/** 선두와의 최대 허용 간격(m). 이보다 뒤처지면 따라붙는다 */
+export const PACK_MAX_GAP_M: Record<RunningStyle, number> = { front: 2, prominent: 6, midfield: 12, held_up: 20 };
+/** 선두와의 최소 간격(m). 이보다 가까우면 페이스를 넘지 않는다(작전 위치 유지) */
+export const PACK_MIN_GAP_M: Record<RunningStyle, number> = { front: 0, prominent: 2, midfield: 6, held_up: 12 };
+/** 따라붙을 때 목표 = 선두 속도 × (1 + 이 값) */
+export const PACK_CATCHUP_FRACTION = 0.01;
+/** 따라가기 비용을 감당할 수 있는지 판단할 때의 여유 배수 */
+export const PACK_AFFORD_SAFETY = 0.7;
+/** 바로 앞(같은 레인대, DRAFT_DISTANCE_M 이내)에 말이 있으면 스태미나 소모 배수 */
+export const DRAFT_DISTANCE_M = 3;
+export const DRAFT_DRAIN_FACTOR = 0.95;

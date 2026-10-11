@@ -2,6 +2,7 @@ import {
   BATTLE_LANE_M,
   BATTLE_RANGE_M,
   BLOCK_DISTANCE_M,
+  DRAFT_DISTANCE_M,
   EARLY_PHASE_M,
   EARLY_PHASE_MAX_FRACTION,
   EARLY_STYLE_FACTOR,
@@ -11,6 +12,8 @@ import {
   HORSE_WIDTH_M,
   LANE_CLEARANCE_M,
   MID_STYLE_FACTOR,
+  PACK_AFFORD_SAFETY,
+  PACK_CATCHUP_FRACTION,
   POST_FINISH_SPEED_FRACTION,
   SPURT_ALWAYS_DISTANCE_M,
   SPURT_MAX_DISTANCE_M,
@@ -18,6 +21,7 @@ import {
 } from '../config/sim';
 import type { Going, PreparedRunner } from '../types';
 import { exhaustedSpeed, staminaDrainPerSecond } from './runnerModel';
+import { DRAIN_EXPONENT } from '../config/runner';
 
 /** 초반 구간 한도(m). s 가 이 값보다 작으면 초반 구간이다. */
 export function earlyPhaseLimit(distance: number): number {
@@ -292,6 +296,69 @@ export function isBattlingSorted(
     if (dp <= -BATTLE_RANGE_M) break;
     if (finished[m] === true) continue;
     if (Math.abs((lane[m] as number) - li) < BATTLE_LANE_M) return true;
+  }
+  return false;
+}
+
+/**
+ * 무리(페이스 추종) 보정. 선두와의 간격으로 목표 속도를 조정한다. 난수 없음.
+ * - 간격 > maxGap 이고 따라가기 비용을 감당할 수 있으면 목표 = max(목표, min(선두 속도 × (1 + CATCHUP), topSpeed))
+ * - 간격 > maxGap 이고 감당 불가면 변경 없음(무리에서 처진다)
+ * - 간격 < minGap 이면 목표 = min(목표, 선두 속도)
+ * maxGap/minGap = PACK_MAX_GAP_M/PACK_MIN_GAP_M[r.style], goingDrain = GOING_STAMINA_DRAIN[going] (레이스 시작 시 한 번 계산해 넘긴다).
+ * 비용 식은 staminaDrainPerSecond(v, cruise, 0, going, power) 와 같다(경사 0 이면 상승 보정이 1).
+ * 호출자가 제외 대상(선두, 미결승 아님, 스퍼트 중, 출발 구간)을 걸러서 호출한다. leaderSpeed > 0 이어야 한다.
+ */
+export function packTarget(
+  target: number,
+  r: PreparedRunner,
+  maxGap: number,
+  minGap: number,
+  goingDrain: number,
+  p: number,
+  toFinish: number,
+  stamina: number,
+  leaderProg: number,
+  leaderSpeed: number,
+): number {
+  const gap = leaderProg - p;
+  if (gap > maxGap) {
+    const ratio = leaderSpeed / r.cruiseSpeed;
+    const speedTerm = DRAIN_EXPONENT === 3 ? ratio * ratio * ratio : ratio ** DRAIN_EXPONENT;
+    const need = (speedTerm * goingDrain * toFinish) / leaderSpeed;
+    if (stamina >= need * PACK_AFFORD_SAFETY) {
+      const catchup = Math.min(leaderSpeed * (1 + PACK_CATCHUP_FRACTION), r.topSpeed);
+      return Math.max(target, catchup);
+    }
+    return target;
+  }
+  if (gap < minGap) {
+    return Math.min(target, leaderSpeed);
+  }
+  return target;
+}
+
+/**
+ * 드래프팅 판정: 같은 레인대(|Δlane| < HORSE_WIDTH_M)에서 0 < 앞말 progress - 내 progress < DRAFT_DISTANCE_M 인 말이 있는가.
+ * 정렬 순서에서 i 뒤쪽만 스캔하고 간격이 DRAFT_DISTANCE_M 이상이면 멈춘다. 스냅샷(prog/lane/order) 기준.
+ */
+export function isDraftingSorted(
+  i: number,
+  prog: readonly number[],
+  lane: readonly number[],
+  order: Int32Array,
+  pos: Int32Array,
+): boolean {
+  const pi = prog[i] as number;
+  const li = lane[i] as number;
+  const n = order.length;
+  for (let k = (pos[i] as number) + 1; k < n; k++) {
+    const j = order[k] as number;
+    const gap = (prog[j] as number) - pi;
+    if (gap >= DRAFT_DISTANCE_M) break;
+    if (gap <= 0) continue;
+    const dl = (lane[j] as number) - li;
+    if (dl < HORSE_WIDTH_M && dl > -HORSE_WIDTH_M) return true;
   }
   return false;
 }

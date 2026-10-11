@@ -8,7 +8,7 @@ export const GOING_LABELS: Record<Going, string> = {
 };
 /** 기본 속도 배수 */
 export const GOING_SPEED_FACTOR: Record<Going, number> = {
-  firm: 1.015, good_to_firm: 1.008, good: 1.0, good_to_soft: 0.985, soft: 0.965, soft_to_heavy: 0.945, heavy: 0.925,
+  firm: 1.03, good_to_firm: 1.015, good: 1.0, good_to_soft: 0.985, soft: 0.965, soft_to_heavy: 0.945, heavy: 0.925,
   standard_to_fast: 1.004, standard: 1.0, standard_to_slow: 0.994,
   dirt_fast: 1.0, dirt_good: 0.995, dirt_muddy: 0.985, dirt_sloppy: 0.98,
 };

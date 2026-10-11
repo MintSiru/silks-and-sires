@@ -1,11 +1,14 @@
 import { LANE_MIN_M } from '../config/runner';
 import {
   DECEL_MPS2,
+  DRAFT_DRAIN_FACTOR,
   EXTRAPOLATION_MIN_SPEED_MPS,
   HORSE_WIDTH_M,
   JUDGE_SD,
   LANE_CHANGE_MPS,
   MAX_RACE_SECONDS,
+  PACK_MAX_GAP_M,
+  PACK_MIN_GAP_M,
   POST_FINISH_SECONDS,
   RAIL_DRIFT_MPS,
   START_ACCEL_BASE_MPS2,
@@ -13,6 +16,7 @@ import {
   START_PHASE_SPEED_FRACTION,
   TICK_SECONDS,
 } from '../config/sim';
+import { GOING_STAMINA_DRAIN } from '../config/going';
 import { buildRacePath } from '../course/path';
 import { createRng } from '../rng';
 import type {
@@ -24,12 +28,19 @@ import type {
   ReplayFrame,
 } from '../types';
 import { buildRaceResult, sectionalMarks } from './results';
-import { prepareRunner, staminaDrainPerSecond, type RaceContext } from './runnerModel';
+import {
+  exhaustedSpeed,
+  prepareRunner,
+  staminaDrainPerSecond,
+  type RaceContext,
+} from './runnerModel';
 import {
   earlyPhaseLimit,
   findBlockerSorted,
   isBattlingSorted,
+  isDraftingSorted,
   isLaneFreeSorted,
+  packTarget,
   resortOrder,
   shouldStartSpurtPre,
   spurtConstants,
@@ -91,6 +102,10 @@ export function simulateRace(input: RaceSimInput): RaceSimOutput {
   const earlyLimit = earlyPhaseLimit(distance);
   /** 러너별 스퍼트 판정 상수 (레이스 시작 시 한 번) */
   const spurtC: SpurtConstants[] = prepared.map((r) => spurtConstants(r, going));
+  /** 무리 보정 간격 한도(작전별, 말 index 별) 와 마장별 스태미나 소모 계수 (레이스 시작 시 한 번) */
+  const packMaxGap: number[] = prepared.map((r) => PACK_MAX_GAP_M[r.style]);
+  const packMinGap: number[] = prepared.map((r) => PACK_MIN_GAP_M[r.style]);
+  const goingDrain = GOING_STAMINA_DRAIN[going];
 
   // --- 상태 배열 (현재 틱 스냅샷) ---
   const prog: number[] = zeros(n);
@@ -99,6 +114,8 @@ export function simulateRace(input: RaceSimInput): RaceSimOutput {
   const speed: number[] = zeros(n);
   const stamina: number[] = prepared.map((r) => r.staminaPool);
   const spurting: boolean[] = falses(n);
+  /** 출발 구간 종료 래치: 속도가 cruise × START_PHASE_SPEED_FRACTION 이상이 된 뒤 true (무리 보정 대상) */
+  const packReady: boolean[] = falses(n);
   const finished: boolean[] = falses(n);
   const finishTime: number[] = zeros(n);
   const nextMark: number[] = zeros(n);
@@ -154,6 +171,19 @@ export function simulateRace(input: RaceSimInput): RaceSimOutput {
       break;
     }
 
+    // --- 선두 판정 (틱 시작 스냅샷: 미결승 말 중 progress 최대, 동률은 작은 index) ---
+    let leader = -1;
+    let leaderProg = -Infinity;
+    for (let i = 0; i < n; i++) {
+      if (finished[i] === true) continue;
+      const pi = prog[i] as number;
+      if (pi > leaderProg) {
+        leaderProg = pi;
+        leader = i;
+      }
+    }
+    const leaderSpeed = leader >= 0 ? (speed[leader] as number) : 0;
+
     // --- 말별 판단 (스냅샷 읽기, nXxx 쓰기) ---
     for (const r of prepared) {
       const i = r.index;
@@ -199,6 +229,29 @@ export function simulateRace(input: RaceSimInput): RaceSimOutput {
         sample.gradient,
         battling,
       );
+
+      // 5-1. 무리 보정: 선두 제외, 미결승, 스퍼트 전, 출발 구간 이후 (래치)
+      if (!isFin && packReady[i] !== true && sp >= r.cruiseSpeed * START_PHASE_SPEED_FRACTION) {
+        packReady[i] = true;
+      }
+      if (!isFin && !isSpurting && packReady[i] === true && i !== leader && leaderSpeed > 0) {
+        target = packTarget(
+          target,
+          r,
+          packMaxGap[i] as number,
+          packMinGap[i] as number,
+          goingDrain,
+          p,
+          sample.toFinish,
+          st,
+          leaderProg,
+          leaderSpeed,
+        );
+        // 탈진 상한은 무리 보정 뒤에도 유지한다
+        if (st <= 0) {
+          target = Math.min(target, exhaustedSpeed(r));
+        }
+      }
 
       // 6. 트래픽: 앞말에 막히면 옆 레인으로 피하거나 속도를 맞춘다
       let nextLaneTarget = laneTarget[i] as number;
@@ -247,9 +300,15 @@ export function simulateRace(input: RaceSimInput): RaceSimOutput {
       const np = p + (ns * dt) / (1 + nl * sample.curvature);
 
       // 11. 스태미나 소모 (결승한 말의 스태미나는 이후 판단에 쓰이지 않으므로 생략)
-      const nst = isFin
-        ? st
-        : Math.max(0, st - staminaDrainPerSecond(ns, r.cruiseSpeed, sample.gradient, going, r.power) * dt);
+      //     드래프팅: 같은 레인대 바로 앞에 말이 있으면 소모 감소 (스냅샷 기준)
+      let nst = st;
+      if (!isFin) {
+        const drafting = isDraftingSorted(i, prog, lane, order, pos);
+        const drain =
+          staminaDrainPerSecond(ns, r.cruiseSpeed, sample.gradient, going, r.power) *
+          (drafting ? DRAFT_DRAIN_FACTOR : 1);
+        nst = Math.max(0, st - drain * dt);
+      }
 
       nProg[i] = np;
       nLane[i] = nl;

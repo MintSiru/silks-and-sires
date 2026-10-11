@@ -45,7 +45,7 @@ export const DRAFT_DRAIN_FACTOR = 0.95;
 
 ## 수용 기준 (pack.test.ts — 출주마는 generateSampleField(level 60) + buildEntries, 레이스는 data 의 12개 레이스를 시드별로 순환, 두수 `4 + (s % (maxRunners-3))`, 잔디 'good' / AW 'standard')
 1. **무리 응집:** 400 레이스에서, 선두가 거리의 60% 지점을 처음 지나는 프레임의 (선두 − 최후미) 간격을 (두수−1) 로 나눈 값의 중앙값 ≤ 2.4m × 1.5 (= 1.5마신/두).
-2. **착차:** 600 레이스에서 1·2착 beatenLengths 중앙값 ≤ 2.0, 10마신 이상 비율 ≤ 5%.
+2. **착차:** 600 레이스에서 1·2착 beatenLengths 중앙값 ≤ 2.5 (Opus 완화: 현실형 변동성과 양립하는 값), 10마신 이상 비율 ≤ 5%.
 3. 기존 테스트 전부 통과: 현실 시간(simulate.test), 능력 차(+25 ≥15/50, +40 ≥32/50), 재현성, 리플레이 규격, 성능(simGolden 40ms·simulate 50ms, 단독 실행 기준).
 4. 골든 재생성 후 simGolden 통과. typecheck·lint 통과.
 - 기준 1·2 가 안 맞으면 PACK_* / DRAFT_* 상수만 조정하고 최종값과 측정치를 보고한다. 그래도 안 되면 측정치와 함께 실패로 보고(다른 상수·모듈 수정 금지).

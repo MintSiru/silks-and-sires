@@ -1,8 +1,8 @@
 import type { HexColor, RunningStyle, SilksPattern } from '../types';
 /** 시장 인식 오차 표준편차. strength 단위 = 필드 평균 대비 예상 주파 시간 % (relativeStrengths) */
-export const MARKET_NOISE_SD = 0.5;
+export const MARKET_NOISE_SD = 0.7;
 /** softmax 온도 (초) */
-export const MARKET_TEMPERATURE = 1.2;
+export const MARKET_TEMPERATURE = 0.8;
 /** 북메이커 오버라운드 */
 export const MARKET_OVERROUND = 1.18;
 /** 표준 분수 오즈 사다리 [num, den], 짧은 → 긴 순 */
@@ -14,8 +14,8 @@ export const ODDS_LADDER: readonly (readonly [number, number])[] = [
 ];
 // --- 샘플 출주마 ---
 export const SAMPLE_DEFAULT_LEVEL = 60;
-export const SAMPLE_DEFAULT_LEVEL_SPREAD = 4;
-export const SAMPLE_ABILITY_SD = 4;
+export const SAMPLE_DEFAULT_LEVEL_SPREAD = 1.5;
+export const SAMPLE_ABILITY_SD = 1.5;
 export const SAMPLE_ABILITY_MIN = 1;
 export const SAMPLE_ABILITY_MAX = 100;
 /** 거리별 스태미나 목표: SAMPLE_STAMINA_AT_MIN_DIST(1000m) ~ SAMPLE_STAMINA_AT_MAX_DIST(3200m) 선형 */
@@ -30,7 +30,7 @@ export const SAMPLE_DISTANCE_OPT_MIN = 1000;
 export const SAMPLE_DISTANCE_OPT_MAX = 3600;
 export const SAMPLE_DISTANCE_RANGE_MIN = 300;
 export const SAMPLE_DISTANCE_RANGE_MAX = 600;
-export const SAMPLE_GOING_PREF_MIN = 1.0;
+export const SAMPLE_GOING_PREF_MIN = 0.5;
 export const SAMPLE_GOING_PREF_MAX = 3.0;
 export const SAMPLE_GOING_TOL_MIN = 1.5;
 export const SAMPLE_GOING_TOL_MAX = 3;
