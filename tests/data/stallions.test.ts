@@ -269,17 +269,10 @@ describe('종마 역할 studRole (M2-01d)', () => {
 });
 
 /**
- * 부계 사슬이 5대(자신 포함) 미만인 현역 종마 예외 목록. 위키백과에서 다음 고리를 확인하지 못했다
- * (data/stallions/_review.md "미확인 고리" 참조). 목록은 데이터와 정확히 일치해야 한다.
- * M2-01d: Sealiway(부 Galiway 레코드 보류), Bradsell(부 Tasleet 미확인), Aesterius(부 Mehmas 미확인) 추가.
+ * 부계 사슬이 5대(자신 포함) 미만인 현역 종마 예외 목록. M2-01e: 사용자 제공 혈통(Galiway, Showcasing,
+ * Tasleet, Mehmas, Kodiac)으로 미확인 고리가 모두 해소되어 빈 목록. 예외가 생기면 여기에 이름을 추가한다.
  */
-const UNVERIFIED_CHAIN_ACTIVE_EXCEPTIONS: readonly string[] = [
-  'Aesterius',
-  'Ardad',
-  'Bradsell',
-  'Perfect Power',
-  'Sealiway',
-];
+const UNVERIFIED_CHAIN_ACTIVE_EXCEPTIONS: readonly string[] = [];
 
 describe('현역 종마 부계 사슬 깊이', () => {
   it('현역 종마는 부계 사슬 깊이 ≥ 5 (자신 포함) 이거나 미확인 고리 예외 목록에 있다', () => {
@@ -297,5 +290,23 @@ describe('현역 종마 부계 사슬 깊이', () => {
       .map((s) => names[s.key] as string)
       .sort();
     expect(short).toEqual([...UNVERIFIED_CHAIN_ACTIVE_EXCEPTIONS].sort());
+  });
+});
+
+describe('현역 외조부 BMS (M2-01e)', () => {
+  it('현역 종마 중 damsireKey 가 있는 비율 ≥ 60%', () => {
+    const active = stallions.filter((s) => s.status === 'active');
+    const withDamsire = active.filter((s) => s.damsireKey !== null);
+    expect(active.length).toBeGreaterThan(0);
+    expect(withDamsire.length / active.length).toBeGreaterThanOrEqual(0.6);
+  });
+
+  it('외조부(damsireKey)는 자기 자신이 아니고, 외조부 출생연도 ≤ 종마 출생연도 − 6', () => {
+    for (const s of stallions) {
+      if (s.damsireKey === null) continue;
+      expect(s.damsireKey, `${s.key} 자기 참조`).not.toBe(s.key);
+      const ds = byKey.get(s.damsireKey) as RealStallionRecord;
+      expect(ds.foaled, `${s.key} 외조부 연도`).toBeLessThanOrEqual(s.foaled - 6);
+    }
   });
 });

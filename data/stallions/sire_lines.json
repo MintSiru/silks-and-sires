@@ -170,7 +170,7 @@
   {
     "id": "sl_ardad",
     "label": "Ardad line",
-    "parentLineId": null,
+    "parentLineId": "sl_danehill",
     "founderKey": "stl_ardad"
   },
   {

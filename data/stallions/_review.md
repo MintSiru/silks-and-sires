@@ -244,7 +244,7 @@ Deep Impact, Sunday Silence, Halo, Hail to Reason, Turn-to, Royal Charger, Scat 
 | stl_ghaiyyath | Ghaiyyath | 현역 | `middle` | `classic` | G1 2,000m×1, 2,100m×1, 2,400m×2 | 인포박스 | low | 구간 혼재: `middle` 2, `classic` 2 |
 | stl_gleneagles | Gleneagles | 현역 | `middle` | `speed` | G1 1,400m×1, 1,600m×2 | 인포박스 | high |  |
 | stl_golden_horn | Golden Horn | 현역 | `middle` | `classic` | G1 2,000m×2, 2,400m×2 | 인포박스 | low | 구간 혼재: `middle` 2, `classic` 2 |
-| stl_golden_pal | Golden Pal | 현역 | `speed` | `speed` (유지) | 미확인 | - | - | 등급·거리 근거 부족 → 미확인(값 유지) |
+| stl_golden_pal | Golden Pal | 현역 | `speed` | `speed` (유지) | 사용자 확정 | 사용자 | high | 사용자 제공(2026-10-11) 확정 · 주로 turf |
 | stl_good_magic | Good Magic | 현역 | `speed` | `speed` (유지) | G1 1,700m×1, 1,800m×2 | 인포박스 | high |  |
 | stl_gunite | Gunite | 현역 | `speed` | `speed` (유지) | G1 1,400m×2 | 인포박스 | high |  |
 | stl_hard_spun | Hard Spun | 현역 | `speed` | `speed` (유지) | G1 1,400m×1 | 인포박스 | medium |  |
@@ -259,9 +259,9 @@ Deep Impact, Sunday Silence, Halo, Hail to Reason, Turn-to, Royal Charger, Scat 
 | stl_little_big_bear | Little Big Bear | 현역 | `speed` | `speed` (유지) | G1 1,200m×1 | 인포박스 | medium |  |
 | stl_lope_de_vega | Lope de Vega | 현역 | `middle` | `speed` | G1 1,600m×1, 2,100m×1 | 인포박스 | low | 구간 혼재: `classic` 1, `speed` 1 |
 | stl_makfi | Makfi | 현역 | `speed` | `speed` (유지) | G1 1,600m×1 | 인포박스 | medium |  |
-| stl_mandaloun | Mandaloun | 현역 | `speed` | `speed` (유지) | 미확인 | - | - | 등급·거리 근거 부족 → 미확인(값 유지) |
+| stl_mandaloun | Mandaloun | 현역 | `speed` | `classic` | 사용자 확정 | 사용자 | high | 사용자 제공(2026-10-11) 확정 · 주로 dirt |
 | stl_masar | Masar | 현역 | `speed` | `middle` | G1 2,400m×1 | 인포박스 | medium |  |
-| stl_maxfield | Maxfield | 현역 | `speed` | `speed` (유지) | 미확인 | - | - | 등급·거리 근거 부족 → 미확인(값 유지) |
+| stl_maxfield | Maxfield | 현역 | `speed` | `speed` (유지) | 사용자 확정 | 사용자 | high | 사용자 제공(2026-10-11) 확정 · 주로 dirt |
 | stl_medaglia_d_oro | Medaglia d'Oro | 현역 | `speed` | `speed` (유지) | G1 1,800m×2, 2,000m×1 | 인포박스 | low | 구간 혼재: `classic` 1, `speed` 2 |
 | stl_midshipman | Midshipman | 현역 | `speed` | `speed` (유지) | G1 1,400m×1 | 인포박스 | medium |  |
 | stl_modern_games | Modern Games | 현역 | `speed` | `speed` (유지) | G1 1,600m×5 | 인포박스 | high |  |
@@ -295,7 +295,7 @@ Deep Impact, Sunday Silence, Halo, Hail to Reason, Turn-to, Royal Charger, Scat 
 | stl_ulysses | Ulysses | 현역 | `speed` | `classic` | G1 2,000m×1, 2,100m×1 | 인포박스 | high |  |
 | stl_vadeni | Vadeni | 현역 | `speed` | `classic` | G1 2,000m×1, 2,100m×1 | 인포박스 | high |  |
 | stl_victor_ludorum | Victor Ludorum | 현역 | `speed` | `speed` (유지) | G1 1,400m×1, 1,600m×1 | 인포박스 | high |  |
-| stl_vino_rosso | Vino Rosso | 현역 | `speed` | `speed` (유지) | 미확인 | - | - | 등급·거리 근거 부족 → 미확인(값 유지) |
+| stl_vino_rosso | Vino Rosso | 현역 | `speed` | `classic` | 사용자 확정 | 사용자 | high | 사용자 제공(2026-10-11) 확정 · 주로 dirt |
 | stl_violence | Violence | 현역 | `speed` | `speed` (유지) | G2 1,700m×1 | 인포박스 | medium |  |
 | stl_zarak | Zarak | 현역 | `middle` | `middle` (유지) | 사용자 제공 G1 2,400m | 사용자 | high |  |
 | stl_bernardini | Bernardini | 비현역 | `speed` | `classic` | G1 1,900m×1, 2,000m×2 | 인포박스 | high |  |
@@ -303,7 +303,7 @@ Deep Impact, Sunday Silence, Halo, Hail to Reason, Turn-to, Royal Charger, Scat 
 | stl_candy_ride | Candy Ride | 비현역 | `speed` | `speed` (유지) | G1 1,600m×2, 2,000m×1 | 인포박스 | low | 구간 혼재: `speed` 2, `classic` 1 |
 | stl_choisir | Choisir | 비현역 | `speed` | `speed` (유지) | G1 1,000m×2, 1,200m×1 | 인포박스 | high |  |
 | stl_city_of_light | City of Light | 비현역 | `speed` | `speed` (유지) | G1 1,400m×1, 1,600m×1, 1,800m×1 | 인포박스 | high |  |
-| stl_constitution | Constitution | 비현역 | `speed` | `speed` (유지) | 미확인 | - | - | 등급·거리 근거 부족 → 미확인(값 유지) |
+| stl_constitution | Constitution | 비현역 | `speed` | `speed` (유지) | 사용자 확정 | 사용자 | high | 사용자 제공(2026-10-11) 확정 · 주로 dirt |
 | stl_dark_angel | Dark Angel | 비현역 | `speed` | `speed` (유지) | G1 1,200m×1 | 인포박스 | medium |  |
 | stl_deep_impact | Deep Impact | 비현역 | `middle` | `middle` (유지) | G1 2,000m×1, 2,200m×1, 2,400m×2, 2,500m×1, 3,000m×1, 3,200m×1 | 인포박스 | low | 구간 혼재: `cup` 2, `classic` 2, `middle` 3 |
 | stl_dixieland_band | Dixieland Band | 비현역 | `speed` | `speed` (유지) | G1 1,800m×1 | 인포박스 | medium |  |
@@ -311,7 +311,7 @@ Deep Impact, Sunday Silence, Halo, Hail to Reason, Turn-to, Royal Charger, Scat 
 | stl_fappiano | Fappiano | 비현역 | `speed` | `speed` (유지) | G1 1,400m×1, 1,600m×1 | 인포박스 | high |  |
 | stl_gun_runner | Gun Runner | 비현역 | `speed` | `speed` (유지) | G1 1,800m×3, 2,000m×2 | 인포박스 | low | 구간 혼재: `speed` 3, `classic` 2 |
 | stl_hail_to_reason | Hail to Reason | 비현역 | `speed` | `speed` (유지) | G1 1,400m×1 | 인포박스 | medium |  |
-| stl_half_ours | Half Ours | 비현역 | `speed` | `speed` (유지) | 미확인 | - | - | 등급·거리 근거 부족 → 미확인(값 유지) |
+| stl_half_ours | Half Ours | 비현역 | `speed` | `speed` (유지) | 사용자 확정 | 사용자 | high | 사용자 제공(2026-10-11) 확정 · 주로 dirt |
 | stl_halo | Halo | 비현역 | `speed` | `classic` | G2 2,200m×1 | 인포박스 | medium |  |
 | stl_indian_charlie | Indian Charlie | 비현역 | `speed` | `speed` (유지) | G1 1,800m×1 | 인포박스 | medium |  |
 | stl_invincible_spirit | Invincible Spirit | 비현역 | `speed` | `speed` (유지) | G1 1,200m×1 | 인포박스 | medium |  |
@@ -328,7 +328,7 @@ Deep Impact, Sunday Silence, Halo, Hail to Reason, Turn-to, Royal Charger, Scat 
 | stl_unbridleds_song | Unbridled's Song | 비현역 | `speed` | `speed` (유지) | G1 1,700m×1, 1,800m×1 | 인포박스 | high |  |
 | stl_uncle_mo | Uncle Mo | 비현역 | `speed` | `speed` (유지) | G1 1,600m×1, 1,700m×1 | 인포박스 | high |  |
 | stl_ap_indy | A.P. Indy | historical | `middle` | `speed` | G1 1,800m×1, 2,000m×1, 2,400m×1 | 인포박스 | low | 구간 혼재: `speed` 1, `middle` 1, `classic` 1 |
-| stl_bold_reasoning | Bold Reasoning | historical | `speed` | `speed` (유지) | 미확인 | - | - | 등급·거리 근거 부족 → 미확인(값 유지) |
+| stl_bold_reasoning | Bold Reasoning | historical | `speed` | `speed` (유지) | 사용자 확정 | 사용자 | high | 사용자 제공(2026-10-11) 확정 · 주로 both |
 | stl_bold_ruler | Bold Ruler | historical | `speed` | `classic` | G1 1,900m×1 | 인포박스 | medium |  |
 | stl_boldnesian | Boldnesian | historical | `speed` | `speed` (유지) | G1 1,800m×1 | 인포박스 | medium |  |
 | stl_cape_cross | Cape Cross | historical | `speed` | `speed` (유지) | G1 1,600m×2 | 인포박스 | high |  |
@@ -336,23 +336,23 @@ Deep Impact, Sunday Silence, Halo, Hail to Reason, Turn-to, Royal Charger, Scat 
 | stl_danehill | Danehill | historical | `middle` | `speed` | G1 1,200m×2 | 인포박스 | high |  |
 | stl_danehill_dancer | Danehill Dancer | historical | `speed` | `speed` (유지) | G1 1,200m×1, 1,400m×1 | 인포박스 | high |  |
 | stl_dansili | Dansili | historical | `middle` | `speed` | G2 1,600m×1 | 인포박스 | medium |  |
-| stl_danzig | Danzig | historical | `speed` | `speed` (유지) | 미확인 | - | - | 등급·거리 근거 부족 → 미확인(값 유지) |
+| stl_danzig | Danzig | historical | `speed` | `speed` (유지) | 사용자 확정 | 사용자 | high | 사용자 제공(2026-10-11) 확정 · 주로 both |
 | stl_dubai_millennium | Dubai Millennium | historical | `speed` | `classic` | G1 1,600m×2, 1,900m×1, 2,000m×2 | 인포박스 | low | 구간 혼재: `speed` 2, `classic` 3 |
 | stl_el_prado | El Prado | historical | `middle` | `speed` | G1 1,400m×1 | 인포박스 | medium |  |
 | stl_elusive_quality | Elusive Quality | historical | `speed` | `speed` (유지) | G1 1,200m×1 | 인포박스 | medium |  |
 | stl_forestry | Forestry | historical | `speed` | `speed` (유지) | G1 1,400m×1 | 인포박스 | medium |  |
 | stl_galileo | Galileo | historical | `middle` | `middle` (유지) | G1 2,400m×4 | 인포박스 | high |  |
-| stl_giant_causeway | Giant's Causeway | historical | `speed` | `speed` (유지) | 미확인 | - | - | 등급·거리 근거 부족 → 미확인(값 유지) |
+| stl_giant_causeway | Giant's Causeway | historical | `speed` | `speed` (유지) | 사용자 확정 | 사용자 | high | 사용자 제공(2026-10-11) 확정 · 주로 turf |
 | stl_gone_west | Gone West | historical | `speed` | `speed` (유지) | G3 1,600m×1 | 인포박스 | medium |  |
 | stl_green_desert | Green Desert | historical | `speed` | `speed` (유지) | G1 1,200m×2 | 인포박스 | high |  |
-| stl_harlan | Harlan | historical | `speed` | `speed` (유지) | 미확인 | - | - | 위키백과 페이지 확인 실패 |
+| stl_harlan | Harlan | historical | `speed` | `speed` (유지) | 사용자 확정 | 사용자 | high | 사용자 제공(2026-10-11) 확정 · 주로 dirt |
 | stl_harlans_holiday | Harlan's Holiday | historical | `speed` | `speed` (유지) | G1 1,800m×4 | 인포박스 | high |  |
 | stl_in_excess | In Excess | historical | `speed` | `speed` (유지) | G1 1,600m×1, 1,800m×1 | 인포박스 | high |  |
 | stl_kingmambo | Kingmambo | historical | `speed` | `speed` (유지) | G1 1,600m×3 | 인포박스 | high |  |
 | stl_machiavellian | Machiavellian | historical | `speed` | `speed` (유지) | G1 1,200m×1, 1,400m×1 | 인포박스 | high |  |
 | stl_malibu_moon | Malibu Moon | historical | `speed` | `speed` (유지) | G1 1,600m×1 | 본문 | low | 본문 기록 1건(기록표 없음). |
 | stl_montjeu | Montjeu | historical | `cup` | `middle` | G1 2,100m×2, 2,400m×5 | 인포박스 | low | 구간 혼재: `classic` 2, `middle` 5 |
-| stl_mr_prospector | Mr. Prospector | historical | `speed` | `speed` (유지) | 미확인 | - | - | 등급·거리 근거 부족 → 미확인(값 유지) |
+| stl_mr_prospector | Mr. Prospector | historical | `speed` | `speed` (유지) | 사용자 확정 | 사용자 | high | 사용자 제공(2026-10-11) 확정 · 주로 dirt |
 | stl_nasrullah | Nasrullah | historical | `speed` | `classic` | G1 2,000m×1 | 인포박스 | medium |  |
 | stl_native_dancer | Native Dancer | historical | `speed` | `speed` (유지) | G1 1,400m×1, 1,600m×1, 1,900m×1, 2,000m×1, 2,400m×1 | 인포박스 | low | 구간 혼재: `speed` 2, `classic` 2, `middle` 1 |
 | stl_nearco | Nearco | historical | `middle` | `middle` (유지) | G1 2,400m×1 | 인포박스 | medium |  |
@@ -366,20 +366,20 @@ Deep Impact, Sunday Silence, Halo, Hail to Reason, Turn-to, Royal Charger, Scat 
 | stl_polymelus | Polymelus | historical | `middle` | `classic` | G1 2,000m×1 | 인포박스 | medium | 위키 출생연도 1902 ≠ 데이터 1907(미수정). |
 | stl_polynesian | Polynesian | historical | `speed` | `classic` | G1 1,900m×1 | 인포박스 | medium |  |
 | stl_pulpit | Pulpit | historical | `middle` | `speed` | G1 1,800m×1 | 인포박스 | medium | 위키 출생연도 1994 ≠ 데이터 1993(미수정). |
-| stl_raise_a_native | Raise a Native | historical | `speed` | `speed` (유지) | 미확인 | - | - | 등급·거리 근거 부족 → 미확인(값 유지) |
+| stl_raise_a_native | Raise a Native | historical | `speed` | `speed` (유지) | 사용자 확정 | 사용자 | high | 사용자 제공(2026-10-11) 확정 · 주로 dirt |
 | stl_sadlers_wells | Sadler's Wells | historical | `middle` | `classic` | G1 1,600m×1, 2,000m×2 | 인포박스 | low | 구간 혼재: `speed` 1, `classic` 2 |
 | stl_scat_daddy | Scat Daddy | historical | `speed` | `speed` (유지) | G1 1,600m×1, 1,800m×1 | 인포박스 | high |  |
 | stl_seattle_slew | Seattle Slew | historical | `middle` | `speed` | G1 1,600m×1, 1,800m×1, 1,900m×1, 2,000m×1, 2,400m×1 | 인포박스 | low | 구간 혼재: `speed` 2, `classic` 2, `middle` 1 |
 | stl_seeking_the_gold | Seeking the Gold | historical | `speed` | `speed` (유지) | G3 1,800m×1 | 인포박스 | medium | 위키 출생연도 1985 ≠ 데이터 1986(미수정). |
 | stl_shamardal | Shamardal | historical | `speed` | `speed` (유지) | G1 1,400m×1, 1,600m×2, 2,100m×1 | 인포박스 | low | 구간 혼재: `speed` 3, `classic` 1 |
 | stl_siberian_express | Siberian Express | historical | `speed` | `speed` (유지) | G1 1,200m×1, 1,600m×1 | 인포박스 | high |  |
-| stl_sickle | Sickle | historical | `middle` | `middle` (유지) | 미확인 | - | - | 등급·거리 근거 부족 → 미확인(값 유지) |
+| stl_sickle | Sickle | historical | `middle` | `middle` (유지) | 사용자 확정 | 사용자 | high | 사용자 제공(2026-10-11) 확정 · 주로 turf |
 | stl_smart_strike | Smart Strike | historical | `middle` | `speed` | G3 1,600m×1, 1,700m×1 | 인포박스 | high |  |
 | stl_storm_bird | Storm Bird | historical | `middle` | `speed` | G1 1,400m×2 | 인포박스 | high |  |
-| stl_storm_cat | Storm Cat | historical | `speed` | `speed` (유지) | 미확인 | - | - | 등급·거리 근거 부족 → 미확인(값 유지) |
+| stl_storm_cat | Storm Cat | historical | `speed` | `speed` (유지) | 사용자 확정 | 사용자 | high | 사용자 제공(2026-10-11) 확정 · 주로 both |
 | stl_street_cry | Street Cry | historical | `speed` | `classic` | G1 1,800m×1, 1,900m×1, 2,000m×1 | 인포박스 | low | 구간 혼재: `classic` 2, `speed` 1 |
 | stl_unbreakable | Unbreakable | historical | `speed` | `speed` (유지) | G2 1,200m×1 | 인포박스 | medium |  |
-| stl_vindication | Vindication | historical | `speed` | `speed` (유지) | 미확인 | - | - | 등급·거리 근거 부족 → 미확인(값 유지) |
+| stl_vindication | Vindication | historical | `speed` | `speed` (유지) | 사용자 확정 | 사용자 | high | 사용자 제공(2026-10-11) 확정 · 주로 dirt |
 | stl_wootton_bassett | Wootton Bassett | historical | `speed` | `speed` (유지) | G1 1,400m×1 | 인포박스 | medium |  |
 | stl_zafonic | Zafonic | historical | `speed` | `speed` (유지) | G1 1,200m×1, 1,400m×2, 1,600m×1 | 인포박스 | high |  |
 
@@ -551,3 +551,216 @@ Deep Impact, Sunday Silence, Halo, Hail to Reason, Turn-to, Royal Charger, Scat 
 3. 계통 `sl_intentionally` 신설(30번째) 승인 여부. 대안은 `sl_phalaris` 루트에 편입(계통 수 유지).
 4. 테스트 예외 목록 갱신(Sealiway, Bradsell, Aesterius 추가) 승인 여부.
 5. 명세 표에 confidence 값이 없어 Haiku 가 "기존 부 연결 확인 + 출생국 확인" 기준으로 부여했다. 조정 필요하면 알려 달라.
+
+## M2-01e 현역 종마 외조부(BMS) 채우기 (haiku-data, 2026-10-11)
+
+출처: 위키백과 원문(action=raw, 인포박스 damsire·sire·foaled·country·death 필드). 요청 간 3.5초 이상, 429 면 60초 대기 후 재시도. 원문은 작업 폴더 캐시에만 두고 저장소에는 넣지 않았다. 사용자 제공 목록(외조부 67두 목록, 혈통표 5두)은 coordinator 지시에 따라 "위키백과 우선, 확인 안 되면 사용자 값(허용 목록만), 그래도 안 되면 null + 미확인" 규칙으로 처리했다. 암말 이름과 금액은 어디에도 기록하지 않았다.
+
+### 결과 요약
+- 현역(active) damsireKey 채움: 전 43/119 (36.1%) → 후 98/123 (79.7%). 수용 기준 60% 충족.
+- 파이프라인 연결 52두 (위키백과 37, 사용자 값 대체 15). 그중 기존 파일 종마 연결 14두(위키백과 기준). 미확인 24두. 사용자 제공 혈통 5두 중 Galiway·Showcasing·Mehmas 는 외조부 연결, Kodiac 은 외조부 null, Tasleet 은 Cadeaux Genereux 연결.
+- 추가 조상 44두 (위키백과 조회) + 사용자 제공 혈통 5두 = 신규 49두. 종마 총수 271두 (기존 222).
+- 계통: 30개 유지(신설 0). sl_ardad 의 parentLineId 를 sl_danehill 로 변경(Kodiac 아래로 편입).
+- 미확인 고리(sireKey null): 6건, 아래 "미확인 고리" 표.
+- 테스트: 부계 사슬 예외 목록 5두 → 0두(사용자 혈통으로 해소). 신규 검사 2개(현역 BMS 비율 ≥ 60%, 외조부 자기 참조 없음·연도 ≤ 종마 − 6).
+
+### 사용자 제공 혈통 5두 (2026-10-11, 정정 반영)
+| key | 이름 | 출생 | 출생국 | 부(sireKey) | 모부(damsireKey) | status | standsIn | tier | 거리 | 표면 | confidence | 근거 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| stl_galiway | Galiway | 2011 | GB | Galileo (stl_galileo) | Danehill | active | FR | 3 | speed | turf | medium | 사용자 제공(2026-10-11) · 거리 미상 |
+| stl_showcasing | Showcasing | 2007 | GB | Oasis Dream (stl_oasis_dream) | Zafonic | active | GB | 3 | speed | turf | high | 사용자 제공(2026-10-11) · 2026 계류 정정 반영 |
+| stl_tasleet | Tasleet | 2013 | GB | Showcasing (stl_showcasing) | Cadeaux Genereux (파일 있음, 연결) | pensioned | — | 5 | speed | turf | high | 사용자 제공(2026-10-11) · 2026 계류 유럽 밖(비공개 종부) → 비현역. 유럽 밖 계류 |
+| stl_mehmas | Mehmas | 2014 | IE | Acclamation (stl_acclamation) | Machiavellian | active | IE | 2 | speed | turf | high | 사용자 제공(2026-10-11) · 2026 계류 정정 반영 |
+| stl_kodiac | Kodiac | 2001 | GB | Danehill (stl_danehill) | — (Kris 파일 없음, null) | active | IE | 4 | speed | turf | high | 사용자 제공(2026-10-11) · 2026 계류 정정 반영 |
+
+- 수정: stl_sealiway.sireKey = stl_galiway, stl_bradsell.sireKey = stl_tasleet, stl_aesterius.sireKey = stl_mehmas, stl_ardad.sireKey = stl_kodiac. Ardad 계통 parent 는 Danehill 계통.
+- Tasleet 의 외조부 Cadeaux Genereux 는 위키백과 조회(Harry Angel, Dream Ahead 의 외조부)로 파일에 추가된 종마이므로 연결했다(지시 A: "파일에 있으면 연결"). Kodiac 의 외조부 Kris 는 파일에 없어 null.
+
+### 현역 BMS 연결 목록 (파이프라인 52두)
+| key | 종마 | 외조부 | 출처 | 외조부 key |
+| --- | --- | --- | --- | --- |
+| stl_churchill | Churchill | Storm Cat | 위키백과 | stl_storm_cat |
+| stl_gleneagles | Gleneagles | Storm Cat | 위키백과 | stl_storm_cat |
+| stl_camelot | Camelot | Kingmambo | 위키백과 | stl_kingmambo |
+| stl_holy_roman_emperor | Holy Roman Emperor | Secretariat | 위키백과 | stl_secretariat |
+| stl_persian_king | Persian King | Dylan Thomas | 위키백과 | stl_dylan_thomas |
+| stl_sea_the_stars | Sea The Stars | Miswaki | 위키백과 | stl_miswaki |
+| stl_golden_horn | Golden Horn | Dubai Destination | 위키백과 | stl_dubai_destination |
+| stl_practical_joke | Practical Joke | Distorted Humor | 위키백과 | stl_distorted_humor |
+| stl_curlin | Curlin | Deputy Minister | 위키백과 | stl_deputy_minister |
+| stl_good_magic | Good Magic | Hard Spun | 위키백과 | stl_hard_spun |
+| stl_vino_rosso | Vino Rosso | Street Cry | 위키백과 | stl_street_cry |
+| stl_tapit | Tapit | Unbridled | 위키백과 | stl_unbridled |
+| stl_essential_quality | Essential Quality | Elusive Quality | 위키백과 | stl_elusive_quality |
+| stl_flightline | Flightline | Indian Charlie | 위키백과 | stl_indian_charlie |
+| stl_bolt_d_oro | Bolt d'Oro | A.P. Indy | 위키백과 | stl_ap_indy |
+| stl_life_is_good | Life Is Good | Distorted Humor | 위키백과 | stl_distorted_humor |
+| stl_ulysses | Ulysses | Kingmambo | 위키백과 | stl_kingmambo |
+| stl_shalaa | Shalaa | War Chant | 위키백과 | stl_war_chant |
+| stl_delacroix | Delacroix | Galileo | 사용자 값(위키백과 미확인 → 대체) | stl_galileo |
+| stl_footstepsinthesand | Footstepsinthesand | Rainbow Quest | 사용자 값(위키백과 미확인 → 대체) | stl_rainbow_quest |
+| stl_citizen_bull | Citizen Bull | Distorted Humor | 위키백과 | stl_distorted_humor |
+| stl_farhh | Farhh | Lando | 위키백과 | stl_lando |
+| stl_palace_pier | Palace Pier | Nayef | 위키백과 | stl_nayef |
+| stl_perfect_power | Perfect Power | Fastnet Rock | 사용자 값(위키백과 미확인 → 대체) | stl_fastnet_rock |
+| stl_pinatubo | Pinatubo | Dalakhani | 위키백과 | stl_dalakhani |
+| stl_victor_ludorum | Victor Ludorum | Kingmambo | 사용자 값(위키백과 미확인 → 대체) | stl_kingmambo |
+| stl_blue_point | Blue Point | Royal Applause | 사용자 값(위키백과 미확인 → 대체) | stl_royal_applause |
+| stl_space_blues | Space Blues | Noverre | 위키백과 | stl_noverre |
+| stl_frosted | Frosted | Deputy Minister | 위키백과 | stl_deputy_minister |
+| stl_hard_spun | Hard Spun | Turkoman | 위키백과 | stl_turkoman |
+| stl_chaldean | Chaldean | Dutch Art | 위키백과 | stl_dutch_art |
+| stl_oasis_dream | Oasis Dream | Dancing Brave | 위키백과 | stl_dancing_brave |
+| stl_vadeni | Vadeni | Monsun | 위키백과 | stl_monsun |
+| stl_epicenter | Epicenter | Candy Ride | 위키백과 | stl_candy_ride |
+| stl_gunite | Gunite | Holy Roman Emperor | 사용자 값(위키백과 미확인 → 대체) | stl_holy_roman_emperor |
+| stl_tiz_the_law | Tiz The Law | Tiznow | 사용자 값(위키백과 미확인 → 대체) | stl_tiznow |
+| stl_harry_angel | Harry Angel | Cadeaux Genereux | 위키백과 | stl_cadeaux_genereux |
+| stl_native_trail | Native Trail | Observatory | 위키백과 | stl_observatory |
+| stl_corniche | Corniche | Speightstown | 사용자 값(위키백과 미확인 → 대체) | stl_speightstown |
+| stl_justify | Justify | Ghostzapper | 위키백과 | stl_ghostzapper |
+| stl_blackbeard | Blackbeard | Kingmambo | 사용자 값(위키백과 미확인 → 대체) | stl_kingmambo |
+| stl_little_big_bear | Little Big Bear | Bering | 위키백과 | stl_bering |
+| stl_midshipman | Midshipman | Coronado's Quest | 사용자 값(위키백과 미확인 → 대체) | stl_coronado_s_quest |
+| stl_ardad | Ardad | Red Clubs | 사용자 값(위키백과 미확인 → 대체) | stl_red_clubs |
+| stl_sioux_nation | Sioux Nation | Oasis Dream | 사용자 값(위키백과 미확인 → 대체) | stl_oasis_dream |
+| stl_domestic_product | Domestic Product | Paynter | 사용자 값(위키백과 미확인 → 대체) | stl_paynter |
+| stl_mo_town | Mo Town | Bernardini | 사용자 값(위키백과 미확인 → 대체) | stl_bernardini |
+| stl_munnings | Munnings | Seeking the Gold | 사용자 값(위키백과 미확인 → 대체) | stl_seeking_the_gold |
+| stl_ace_impact | Ace Impact | Anabaa Blue | 위키백과 | stl_anabaa_blue |
+| stl_sea_the_moon | Sea The Moon | Monsun | 위키백과 | stl_monsun |
+| stl_stradivarius | Stradivarius | Bering | 위키백과 | stl_bering |
+| stl_dream_ahead | Dream Ahead | Cadeaux Genereux | 위키백과 | stl_cadeaux_genereux |
+
+### 추가 조상 (파이프라인 44두, status historical/pensioned)
+규칙: 출생연도·출생국·부는 위키백과 인포박스로 확인. 사망 기재가 있으면 historical, 없으면 pensioned. standsIn null, tier 5. 거리는 위키백과 주요 우승 거리를 자동 추출하지 않았으므로 **speed + turf + low (명세 폴백)**. 부가 파일에 없거나 위키백과에서 확인되지 않으면 sireKey null(미확인 고리). sireLineId 는 부의 계통, 부가 없으면 자식 계통을 추정으로 썼다.
+| key | 이름 | 출생 | 출생국 | 부(sireKey) | status | 계통 | 비고 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| stl_secretariat | Secretariat | 1970 | US | Bold Ruler | historical | sl_phalaris |  |
+| stl_dylan_thomas | Dylan Thomas | 2003 | IE | Danehill | pensioned | sl_danehill |  |
+| stl_miswaki | Miswaki | 1978 | US | Mr. Prospector | pensioned | sl_mr_prospector |  |
+| stl_dubai_destination | Dubai Destination | 1999 | US | Kingmambo | pensioned | sl_mr_prospector |  |
+| stl_distorted_humor | Distorted Humor | 1993 | US | Forty Niner | historical | sl_mr_prospector |  |
+| stl_forty_niner | Forty Niner | 1985 | US | Mr. Prospector | historical | sl_mr_prospector |  |
+| stl_war_chant | War Chant | 1997 | US | Danzig | historical | sl_danzig |  |
+| stl_rainbow_quest | Rainbow Quest | 1981 | US | Blushing Groom | historical | sl_storm_cat |  |
+| stl_blushing_groom | Blushing Groom | 1974 | FR | — | historical | sl_storm_cat | 미확인 고리: 부(Red God) 확인 안 됨 |
+| stl_lando | Lando | 1990 | DE | Acatenango | pensioned | sl_nureyev |  |
+| stl_acatenango | Acatenango | 1982 | DE | Surumu | historical | sl_nureyev |  |
+| stl_surumu | Surumu | 1974 | DE | — | pensioned | sl_nureyev | 미확인 고리: 부(Literat) 확인 안 됨 |
+| stl_nayef | Nayef | 1998 | US | Gulch | pensioned | sl_mr_prospector |  |
+| stl_gulch | Gulch | 1984 | US | Mr. Prospector | historical | sl_mr_prospector |  |
+| stl_fastnet_rock | Fastnet Rock | 2001 | AU | Danehill | historical | sl_danehill |  |
+| stl_dalakhani | Dalakhani | 2000 | IE | Darshaan | historical | sl_phalaris |  |
+| stl_darshaan | Darshaan | 1981 | GB | Shirley Heights | pensioned | sl_phalaris |  |
+| stl_shirley_heights | Shirley Heights | 1975 | GB | Mill Reef | historical | sl_phalaris |  |
+| stl_mill_reef | Mill Reef | 1968 | US | Never Bend | historical | sl_phalaris |  |
+| stl_never_bend | Never Bend | 1960 | US | Nasrullah | historical | sl_phalaris |  |
+| stl_noverre | Noverre | 1998 | US | Rahy | pensioned | sl_storm_cat |  |
+| stl_rahy | Rahy | 1985 | US | Blushing Groom | pensioned | sl_storm_cat |  |
+| stl_turkoman | Turkoman | 1982 | US | Alydar | historical | sl_native_dancer |  |
+| stl_alydar | Alydar | 1975 | US | Raise a Native | pensioned | sl_native_dancer |  |
+| stl_dutch_art | Dutch Art | 2004 | GB | Medicean | pensioned | sl_mr_prospector |  |
+| stl_medicean | Medicean | 1997 | GB | Machiavellian | historical | sl_mr_prospector |  |
+| stl_dancing_brave | Dancing Brave | 1983 | US | Lyphard | historical | sl_northern_dancer |  |
+| stl_lyphard | Lyphard | 1969 | US | Northern Dancer | historical | sl_northern_dancer |  |
+| stl_monsun | Monsun | 1990 | DE | Königsstuhl | pensioned | sl_sadlers_wells |  |
+| stl_konigsstuhl | Königsstuhl | 1976 | DE | — | historical | sl_sadlers_wells | 미확인 고리: 부(Dschingis Khan) 확인 안 됨 |
+| stl_tiznow | Tiznow | 1997 | US | — | pensioned | sl_ap_indy | 미확인 고리: 부(Cee's Tizzy) 확인 안 됨 |
+| stl_cadeaux_genereux | Cadeaux Genereux | 1985 | GB | — | pensioned | sl_dark_angel | 미확인 고리: 부(Young Generation (horse)) 확인 안 됨 |
+| stl_observatory | Observatory | 1997 | US | Distant View | pensioned | sl_mr_prospector |  |
+| stl_distant_view | Distant View | 1991 | US | Mr. Prospector | pensioned | sl_mr_prospector |  |
+| stl_bering | Bering | 1983 | GB | Arctic Tern | pensioned | sl_scat_daddy |  |
+| stl_arctic_tern | Arctic Tern | 1973 | US | Sea-Bird | pensioned | sl_scat_daddy |  |
+| stl_sea_bird | Sea-Bird | 1962 | FR | — | historical | sl_scat_daddy | 미확인 고리: 부(Dan Cupid) 확인 안 됨 |
+| stl_coronado_s_quest | Coronado's Quest | 1995 | US | Forty Niner | pensioned | sl_mr_prospector |  |
+| stl_red_clubs | Red Clubs | 2003 | IE | Red Ransom | pensioned | sl_phalaris |  |
+| stl_red_ransom | Red Ransom | 1987 | US | Roberto | pensioned | sl_phalaris |  |
+| stl_roberto | Roberto | 1969 | US | Hail to Reason | pensioned | sl_phalaris |  |
+| stl_paynter | Paynter | 2009 | US | Awesome Again | historical | sl_northern_dancer |  |
+| stl_anabaa_blue | Anabaa Blue | 1998 | GB | Anabaa | pensioned | sl_danzig |  |
+| stl_anabaa | Anabaa | 1992 | US | Danzig | historical | sl_danzig |  |
+
+### 미확인 고리 (sireKey null)
+| 종마 | 사유 |
+| --- | --- |
+| Blushing Groom | 부(Red God) 확인 안 됨 |
+| Surumu | 부(Literat) 확인 안 됨 |
+| Königsstuhl | 부(Dschingis Khan) 확인 안 됨 |
+| Tiznow | 부(Cee's Tizzy) 확인 안 됨 |
+| Cadeaux Genereux | 부(Young Generation (horse)) 확인 안 됨 |
+| Sea-Bird | 부(Dan Cupid) 확인 안 됨 |
+
+### BMS 미확인 (종마 이름만 기록. 사용자에게 받을 목록)
+| 종마 | 사유 |
+| --- | --- |
+| Dubawi | 위키백과 외조부 값 항목 확인 안 됨; 대체 값 확인 안 됨 |
+| Nathaniel | 위키백과 외조부 값 항목 확인 안 됨; 대체 값 확인 안 됨 |
+| Medaglia d'Oro | 위키백과 외조부 값 항목 확인 안 됨; 대체 값 확인 안 됨 |
+| Kingman | 위키백과 외조부 값 항목 확인 안 됨; 대체 값 확인 안 됨 |
+| Into Mischief | 위키백과 외조부 값 항목 확인 안 됨; 대체 값 확인 안 됨 |
+| Lope de Vega | 위키백과 외조부 값 항목 확인 안 됨; 사용자 값 없음/사용 불가 |
+| Too Darn Hot | 위키백과 인포박스에 외조부 없음 |
+| Ghaiyyath | 위키백과 인포박스에 외조부 없음 |
+| Daryz | 위키백과 외조부 값 항목 확인 안 됨; 사용자 값 없음/사용 불가 |
+| Raven's Pass | 위키백과 외조부 값 항목 확인 안 됨; 사용자 값 없음/사용 불가 |
+| Starspangledbanner | 위키백과 외조부 값 항목 확인 안 됨; 대체 값 확인 안 됨 |
+| Zarak | 위키백과 항목 확인 안 됨; 대체 값 확인 안 됨 |
+| Camille Pissarro | 위키백과 항목 확인 안 됨 |
+| The Antarctic | 위키백과 항목 확인 안 됨 |
+| Echo Town | 위키백과 항목 확인 안 됨 |
+| Triple Time | 위키백과 항목 확인 안 됨 |
+| Enticed | 위키백과 항목 확인 안 됨 |
+| Proxy | 위키백과 항목 확인 안 됨 |
+| Bated Breath | 위키백과 항목 확인 안 됨 |
+| Sealiway | 위키백과 외조부 값 항목 확인 안 됨; 사용자 값 없음/사용 불가 |
+| Puchkine | 위키백과 항목 확인 안 됨 |
+| Stunning Spirit | 위키백과 항목 확인 안 됨 |
+| Bradsell | 위키백과 항목 확인 안 됨 |
+| Aesterius | 위키백과 항목 확인 안 됨 |
+| Kodiac | 사용자 제공 외조부(파일에 없음) → null, 외조부 추가 보류 |
+
+### BMS 충돌 (종마, 위키백과 값, 사용자 값)
+위키백과 값이 있는데 사용자 값과 다른 경우. 사용자 값이 암말 이름이면 저장하지 않고 "암말 이름(미기록)"으로 적었다.
+| 종마 | 위키백과 값 | 사용자 값 | 처리 |
+| --- | --- | --- | --- |
+| Churchill | Storm Cat | Galileo | 위키백과 값 연결 |
+| Holy Roman Emperor | Secretariat | 암말 이름(미기록) | 위키백과 값 연결 |
+| Persian King | Dylan Thomas | Anabaa | 위키백과 값 연결 |
+| Practical Joke | Distorted Humor | Tapit | 위키백과 값 연결 |
+| Lope de Vega | Vettori | Giant's Causeway | 미확인 |
+| Good Magic | Hard Spun | Ghostzapper | 위키백과 값 연결 |
+| Flightline | Indian Charlie | Mineshaft | 위키백과 값 연결 |
+| Ulysses | Kingmambo | Galileo | 위키백과 값 연결 |
+| Shalaa | War Chant | Dansili | 위키백과 값 연결 |
+| Citizen Bull | Distorted Humor | Speightstown | 위키백과 값 연결 |
+| Farhh | Lando | Pivotal | 위키백과 값 연결 |
+| Perfect Power | Frozen Power | Fastnet Rock | 위키백과 미확인 → 사용자 값 연결 |
+| Pinatubo | Dalakhani | In The Wings | 위키백과 값 연결 |
+| Victor Ludorum | Kaldounevees | Kingmambo | 위키백과 미확인 → 사용자 값 연결 |
+| Frosted | Deputy Minister | Pulpit | 위키백과 값 연결 |
+| Chaldean | Dutch Art | Exceed And Excel | 위키백과 값 연결 |
+| Daryz | Selkirk | Zamindar | 미확인 |
+| Gunite | Cowboy Cal | Holy Roman Emperor | 위키백과 미확인 → 사용자 값 연결 |
+| Harry Angel | Cadeaux Genereux | Dark Angel | 위키백과 값 연결 |
+| Native Trail | Observatory | Oasis Dream | 위키백과 값 연결 |
+| Raven's Pass | Lord At War | Sadler's Wells | 미확인 |
+| Starspangledbanner | Made Of Gold | Hölling Heights | 미확인 |
+| Corniche | Najran | Speightstown | 위키백과 미확인 → 사용자 값 연결 |
+| Blackbeard | Born To Sea | Kingmambo | 위키백과 미확인 → 사용자 값 연결 |
+| Little Big Bear | Bering | Galileo | 위키백과 값 연결 |
+| Midshipman | Avenue of Flags | Coronado's Quest | 위키백과 미확인 → 사용자 값 연결 |
+
+### M2-15 표 갱신 (사용자 확정 15두)
+Vino Rosso classic/dirt · Mandaloun classic/dirt · Maxfield speed/dirt · Golden Pal speed/turf · Constitution speed/dirt · Half Ours speed/dirt · Raise a Native speed/dirt · Mr. Prospector speed/dirt · Harlan speed/dirt · Vindication speed/dirt · Bold Reasoning speed/both · Giant's Causeway speed/turf · Danzig·Storm Cat speed/both · Sickle middle/turf (그대로). 위 표의 "미확인" 표시는 "사용자 확정"으로 바꿨다.
+
+### 검증
+- 위키백과 조회: 최종 파이프라인 실행 신규 요청 18건(나머지는 원문 캐시). 요청 간 3.5초 이상, 429 는 60초 대기 후 재시도(발생 시).
+- `tests/data/stallions.test.ts`: 현역 BMS ≥ 60%, 외조부 자기 참조 없음, 외조부 연도 ≤ 종마 − 6, 예외 목록 빈 배열.
+- 금지어 grep 과 npm test / typecheck / lint 결과는 보고서 본문 참조.
+
+### Opus 확인 요청
+1. 외조부 BMS 미확인 종마 목록(위 표)과 충돌 목록을 사용자에게 전달해 확인받을지.
+2. 추가 조상 거리·표면이 전부 speed/turf/low 폴백이다. 위키백과 우승 거리를 추출하는 후속 티켓이 필요한지.
+3. Tasleet 외조부 Cadeaux Genereux 연결(파일 추가 종마 연결)과 Kodiac 외조부 null 처리 확인.
+4. Tasleet "유럽 밖 계류" 처리: 비현역(pensioned) 유지.
