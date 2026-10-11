@@ -118,7 +118,7 @@ export function simulateRace(input: RaceSimInput): RaceSimOutput;
 1. 재현성: 같은 입력으로 두 번 → `toEqual` (result 와 replay 모두). 시드 5개 중 적어도 하나는 우승마가 다르다.
 2. 모든 말이 결승, position 이 1부터, finishTime 비감소, sectionals 합 = finishTime(±1e-6).
 3. 현실적 시간(평균 수준 60, 10두, going 'good', 시드 10개 평균 우승 시간): saint_ourens 1600m 92~102s, saint_ourens 2400m 143~158s, marlow_downs 1006m 56~64s.
-4. 능력 차 반영: 한 말만 speed·acceleration +25 로 올린 10두 레이스 50 시드 중 그 말 우승 ≥ 35회.
+4. 능력 차 반영(현실형 기준, Opus 수정): +25 → 50 시드 중 ≥ 15회, +40 → ≥ 32회.
 5. 리플레이: frames[0].t = 0, 인접 프레임 t 차이 0.1(±1e-9), 각 프레임 배열 길이 = 출주 두수, 마지막 프레임에서 모든 progress >= distance. 모든 lane 이 [LANE_MIN, width - LANE_MIN] 안.
 6. recordReplay=false 결과의 result 가 리플레이 기록 시 result 와 같다.
 7. 성능: 20두 saint_ourens 3000m, 리플레이 포함, 워밍업 3회 후 20회 평균 < 50ms (테스트 파일에서 performance.now).

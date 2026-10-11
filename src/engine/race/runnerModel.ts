@@ -6,7 +6,6 @@ import {
   DISTANCE_FIT_BONUS,
   DISTANCE_FIT_MAX_PENALTY,
   DRAIN_EXPONENT,
-  DRAIN_REF_SPEED_MPS,
   EXHAUSTED_BASE,
   EXHAUSTED_GUTS,
   FATIGUE_EFFECT,
@@ -208,11 +207,12 @@ export function prepareRunner(
  */
 export function staminaDrainPerSecond(
   speed: number,
+  cruiseSpeed: number,
   gradient: number,
   going: Going,
   power01: number,
 ): number {
-  const speedTerm = (speed / DRAIN_REF_SPEED_MPS) ** DRAIN_EXPONENT;
+  const speedTerm = (speed / cruiseSpeed) ** DRAIN_EXPONENT;
   const uphill =
     1 + UPHILL_DRAIN_K * Math.max(0, gradient) * (1 - UPHILL_POWER_RELIEF * power01);
   return speedTerm * GOING_STAMINA_DRAIN[going] * uphill;
@@ -236,7 +236,7 @@ export function estimateStrength(input: RunnerInput, ctx: RaceContext): number {
   const power01 = ability.power / 100;
 
   const needed =
-    (staminaDrainPerSecond(cruise, 0, ctx.going, power01) * ctx.distance) / cruise;
+    (staminaDrainPerSecond(cruise, cruise, 0, ctx.going, power01) * ctx.distance) / cruise;
   const suff = Math.min(1, pool / needed);
   const effSpeed =
     (cruise * (1 - STRENGTH_SPURT_SHARE) + top * STRENGTH_SPURT_SHARE) *

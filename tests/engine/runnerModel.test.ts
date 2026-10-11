@@ -233,20 +233,20 @@ describe('수용 기준 5: 출발 레인 (startLane)', () => {
 });
 
 describe('수용 기준 6: 스태미나 소모', () => {
-  it('staminaDrainPerSecond(16, 0, good, 0.5) = 1', () => {
-    expect(staminaDrainPerSecond(16, 0, 'good', 0.5)).toBeCloseTo(1, 9);
+  it('staminaDrainPerSecond(16, 16, 0, good, 0.5) = 1', () => {
+    expect(staminaDrainPerSecond(16, 16, 0, 'good', 0.5)).toBeCloseTo(1, 9);
   });
 
   it("heavy 에서는 1.16 배다", () => {
-    expect(staminaDrainPerSecond(16, 0, 'heavy', 0.5)).toBeCloseTo(1.16, 9);
+    expect(staminaDrainPerSecond(16, 16, 0, 'heavy', 0.5)).toBeCloseTo(1.16, 9);
   });
 
   it('경사 0.02, power01 0 이면 good 에서 1.16 이다', () => {
-    expect(staminaDrainPerSecond(16, 0.02, 'good', 0)).toBeCloseTo(1.16, 9);
+    expect(staminaDrainPerSecond(16, 16, 0.02, 'good', 0)).toBeCloseTo(1.16, 9);
   });
 
   it('경사 0.02, power01 1 이면 good 에서 1.08 이다', () => {
-    expect(staminaDrainPerSecond(16, 0.02, 'good', 1)).toBeCloseTo(1.08, 9);
+    expect(staminaDrainPerSecond(16, 16, 0.02, 'good', 1)).toBeCloseTo(1.08, 9);
   });
 });
 
