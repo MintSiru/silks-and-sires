@@ -30,3 +30,4 @@
 - 2026-10-11 | 승인 | M1-06 결과 — 16개 테스트 통과. 명세 예시 0.9→¾ 는 Opus 오기, 최근접 ¼ 반올림(0.9→1) 유지. 타입 주석(sectionalMarks ≥ 50m) 정정.
 - 2026-10-11 | 승인 | M1-05 출주 준비·오즈·샘플 필드 — 17개 테스트 통과. 샘플 필드는 RunnerInput 스냅샷만 생성(potential/growth 미보존은 명세 범위상 정상, M2 에서 Horse 생성기로 대체).
 - 2026-10-11 | 승인 | M1-04 주자 모델 — 25개 테스트 통과, 평균마 1600m 순항 16.30 m/s.
+- 2026-10-11 | 반려→승인 | M1-02 데이터 — 1회차 반려(소설 인물·실존 학자 동명 마주 2, 일반명사형 프랑스 레이스명 2). 수정 후 승인. G1 "Prix de la Grande Piste" 는 Opus 가 "Grand Prix de Saint-Ourens" 로 변경. AW 코스명 Ardvarrow Park, 트랙 라벨 "All-Weather Oval"(상표 Tapeta 회피).

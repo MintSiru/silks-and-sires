@@ -1,0 +1,146 @@
+[
+  {
+    "id": "ashcombe",
+    "name": "Ashcombe",
+    "country": "GB",
+    "surface": "turf",
+    "handedness": "left",
+    "undulation": 0.9,
+    "drainage": 0.6,
+    "layouts": [
+      {
+        "id": "ashcombe_main",
+        "label": "Main Course",
+        "handedness": "left",
+        "closed": false,
+        "width": 26,
+        "segments": [
+          { "kind": "straight", "length": 450, "rise": 12 },
+          { "kind": "bend", "length": 300, "radius": 250, "turn": "left", "rise": 6 },
+          { "kind": "straight", "length": 500, "rise": -4 },
+          { "kind": "bend", "length": 450, "radius": 280, "turn": "left", "rise": -18 },
+          { "kind": "straight", "length": 350, "rise": -6 },
+          { "kind": "straight", "length": 450, "rise": 4 }
+        ]
+      }
+    ],
+    "distances": [
+      { "distance": 1006, "layoutId": "ashcombe_main" },
+      { "distance": 1207, "layoutId": "ashcombe_main" },
+      { "distance": 1609, "layoutId": "ashcombe_main" },
+      { "distance": 2012, "layoutId": "ashcombe_main" },
+      { "distance": 2414, "layoutId": "ashcombe_main" }
+    ]
+  },
+  {
+    "id": "marlow_downs",
+    "name": "Marlow Downs",
+    "country": "GB",
+    "surface": "turf",
+    "handedness": "straight",
+    "undulation": 0.4,
+    "drainage": 0.8,
+    "layouts": [
+      {
+        "id": "marlow_straight",
+        "label": "Straight Course",
+        "handedness": "straight",
+        "closed": false,
+        "width": 36,
+        "segments": [
+          { "kind": "straight", "length": 800, "rise": -6 },
+          { "kind": "straight", "length": 700, "rise": 2 },
+          { "kind": "straight", "length": 312, "rise": -6 },
+          { "kind": "straight", "length": 200, "rise": 5 }
+        ]
+      },
+      {
+        "id": "marlow_round",
+        "label": "Round Course",
+        "handedness": "right",
+        "closed": false,
+        "width": 30,
+        "segments": [
+          { "kind": "straight", "length": 600, "rise": 0 },
+          { "kind": "bend", "length": 500, "radius": 300, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 1000, "rise": -3 },
+          { "kind": "bend", "length": 400, "radius": 260, "turn": "right", "rise": 2 },
+          { "kind": "straight", "length": 900, "rise": 1 }
+        ]
+      }
+    ],
+    "distances": [
+      { "distance": 1006, "layoutId": "marlow_straight" },
+      { "distance": 1207, "layoutId": "marlow_straight" },
+      { "distance": 1408, "layoutId": "marlow_straight" },
+      { "distance": 1609, "layoutId": "marlow_straight" },
+      { "distance": 2012, "layoutId": "marlow_straight" },
+      { "distance": 2414, "layoutId": "marlow_round" },
+      { "distance": 3219, "layoutId": "marlow_round" }
+    ]
+  },
+  {
+    "id": "saint_ourens",
+    "name": "Saint-Ourens",
+    "country": "FR",
+    "surface": "turf",
+    "handedness": "right",
+    "undulation": 0.1,
+    "drainage": 0.5,
+    "layouts": [
+      {
+        "id": "saint_ourens_grande",
+        "label": "Grande Piste",
+        "handedness": "right",
+        "closed": true,
+        "width": 30,
+        "segments": [
+          { "kind": "straight", "length": 150, "rise": 0 },
+          { "kind": "bend", "length": 691.150, "radius": 220, "turn": "right", "rise": 2 },
+          { "kind": "straight", "length": 750, "rise": 0 },
+          { "kind": "bend", "length": 691.150, "radius": 220, "turn": "right", "rise": -2 },
+          { "kind": "straight", "length": 600, "rise": 0 }
+        ]
+      }
+    ],
+    "distances": [
+      { "distance": 1600, "layoutId": "saint_ourens_grande" },
+      { "distance": 2000, "layoutId": "saint_ourens_grande" },
+      { "distance": 2400, "layoutId": "saint_ourens_grande" },
+      { "distance": 3000, "layoutId": "saint_ourens_grande" }
+    ]
+  },
+  {
+    "id": "ardvarrow_park",
+    "name": "Ardvarrow Park",
+    "country": "IE",
+    "surface": "aw",
+    "handedness": "left",
+    "undulation": 0,
+    "drainage": 1,
+    "layouts": [
+      {
+        "id": "ardvarrow_park_oval",
+        "label": "All-Weather Oval",
+        "handedness": "left",
+        "closed": true,
+        "width": 22,
+        "segments": [
+          { "kind": "straight", "length": 50, "rise": 0 },
+          { "kind": "bend", "length": 345.575, "radius": 110, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 400, "rise": 0 },
+          { "kind": "bend", "length": 345.575, "radius": 110, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 350, "rise": 0 }
+        ]
+      }
+    ],
+    "distances": [
+      { "distance": 1006, "layoutId": "ardvarrow_park_oval" },
+      { "distance": 1207, "layoutId": "ardvarrow_park_oval" },
+      { "distance": 1408, "layoutId": "ardvarrow_park_oval" },
+      { "distance": 1609, "layoutId": "ardvarrow_park_oval" },
+      { "distance": 2012, "layoutId": "ardvarrow_park_oval" },
+      { "distance": 2816, "layoutId": "ardvarrow_park_oval" }
+    ]
+  }
+]

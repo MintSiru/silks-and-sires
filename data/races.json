@@ -1,0 +1,242 @@
+[
+  {
+    "id": "ashcombe_lantern_trophy",
+    "name": "Lantern Trophy",
+    "racecourseId": "ashcombe",
+    "distance": 2012,
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [80000, 28000, 14000, 7000],
+    "maxRunners": 12
+  },
+  {
+    "id": "ashcombe_thornmere_handicap",
+    "name": "Thornmere Handicap",
+    "racecourseId": "ashcombe",
+    "distance": 1207,
+    "kind": "handicap",
+    "grade": null,
+    "raceClass": 3,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": 0,
+      "ratingMax": 85,
+      "weightSystem": "handicap",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [30000, 11000, 6000, 3000],
+    "maxRunners": 16
+  },
+  {
+    "id": "ashcombe_coppice_maiden_stakes",
+    "name": "Coppice Maiden Stakes",
+    "racecourseId": "ashcombe",
+    "distance": 1006,
+    "kind": "maiden",
+    "grade": null,
+    "raceClass": 5,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [9000, 3000, 1500, 750],
+    "maxRunners": 14
+  },
+  {
+    "id": "marlow_downs_chalkhill_cup",
+    "name": "Chalkhill Cup",
+    "racecourseId": "marlow_downs",
+    "distance": 3219,
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 4,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 129
+    },
+    "prizeMoney": [150000, 55000, 28000, 14000, 7000],
+    "maxRunners": 12
+  },
+  {
+    "id": "marlow_downs_fallowmere_handicap",
+    "name": "Fallowmere Handicap",
+    "racecourseId": "marlow_downs",
+    "distance": 1609,
+    "kind": "handicap",
+    "grade": null,
+    "raceClass": 2,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": 0,
+      "ratingMax": 95,
+      "weightSystem": "handicap",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [40000, 14000, 8000, 4000],
+    "maxRunners": 18
+  },
+  {
+    "id": "marlow_downs_hedgerow_maiden_stakes",
+    "name": "Hedgerow Maiden Stakes",
+    "racecourseId": "marlow_downs",
+    "distance": 1408,
+    "kind": "maiden",
+    "grade": null,
+    "raceClass": 4,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [11000, 4000, 2000, 1000],
+    "maxRunners": 14
+  },
+  {
+    "id": "saint_ourens_grand_prix",
+    "name": "Grand Prix de Saint-Ourens",
+    "racecourseId": "saint_ourens",
+    "distance": 2400,
+    "kind": "group",
+    "grade": "G1",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [300000, 100000, 50000, 25000, 12000],
+    "maxRunners": 16
+  },
+  {
+    "id": "saint_ourens_prix_de_morvenne",
+    "name": "Prix de Morvenne",
+    "racecourseId": "saint_ourens",
+    "distance": 2000,
+    "kind": "handicap",
+    "grade": null,
+    "raceClass": 3,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": 0,
+      "ratingMax": 90,
+      "weightSystem": "handicap",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [35000, 12000, 6000, 3000],
+    "maxRunners": 16
+  },
+  {
+    "id": "saint_ourens_prix_de_vallenaire",
+    "name": "Prix de Vallenaire",
+    "racecourseId": "saint_ourens",
+    "distance": 1600,
+    "kind": "maiden",
+    "grade": null,
+    "raceClass": 5,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [9000, 3000, 1500, 800],
+    "maxRunners": 14
+  },
+  {
+    "id": "ardvarrow_park_quillmore_stakes",
+    "name": "Quillmore Stakes",
+    "racecourseId": "ardvarrow_park",
+    "distance": 1609,
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [50000, 18000, 9000, 4500],
+    "maxRunners": 12
+  },
+  {
+    "id": "ardvarrow_park_corrin_handicap",
+    "name": "Corrin Handicap",
+    "racecourseId": "ardvarrow_park",
+    "distance": 1408,
+    "kind": "handicap",
+    "grade": null,
+    "raceClass": 2,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": 0,
+      "ratingMax": 85,
+      "weightSystem": "handicap",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [25000, 9000, 4500, 2500],
+    "maxRunners": 14
+  },
+  {
+    "id": "ardvarrow_park_greystone_maiden_stakes",
+    "name": "Greystone Maiden Stakes",
+    "racecourseId": "ardvarrow_park",
+    "distance": 1006,
+    "kind": "maiden",
+    "grade": null,
+    "raceClass": 4,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [8000, 2800, 1400, 700],
+    "maxRunners": 12
+  }
+]
