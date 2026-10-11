@@ -1,4 +1,4 @@
-import type { HorseId, JockeyId, OwnerId, TrainerId } from './common';
+import type { HorseId, JockeyId, Money, OwnerId, TrainerId } from './common';
 import type { Horse, HorseStatus, Mare, Stallion } from './horse';
 import type { Jockey, Owner, Trainer } from './people';
 import type { RaceResult } from './race';
@@ -11,7 +11,10 @@ export type GameEvent =
   | { type: 'new_year'; year: number }
   | { type: 'phase_started'; phase: CalendarPhaseId; date: GameDate }
   | { type: 'phase_ended'; phase: CalendarPhaseId; date: GameDate }
-  | { type: 'horse_status_changed'; horseId: HorseId; from: HorseStatus; to: HorseStatus; date: GameDate };
+  | { type: 'horse_status_changed'; horseId: HorseId; from: HorseStatus; to: HorseStatus; date: GameDate }
+  | { type: 'covering_booked'; mareId: HorseId; stallionId: HorseId; fee: Money; date: GameDate }
+  | { type: 'conception'; mareId: HorseId; stallionId: HorseId; success: boolean; date: GameDate }
+  | { type: 'foal_born'; foalId: HorseId; mareId: HorseId; stallionId: HorseId; date: GameDate };
 
 /** 배합 관련 진행 상태 */
 export interface BreedingState {

@@ -159,7 +159,7 @@ export interface Mare {
   /** 이번 시즌 교배 종마 */
   coveredBy: HorseId | null;
   pregnant: boolean;
-  /** 출산 예정일(주) — 임신 중일 때만 */
+  /** 출산 예정: 연도 × 100 + 주 (예: 202707) — 임신 중일 때만 */
   dueWeek: number | null;
   foals: HorseId[];
   /** 자손의 블랙타입 입상 누계 (명문 모계 판정용) */
