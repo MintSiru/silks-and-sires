@@ -1,4 +1,5 @@
 import type { HorseId, JockeyId, Money, OwnerId, RaceId, RacecourseId, TrainerId } from './common';
+import type { SampleField } from '../race/sampleField';
 import type { Going } from './going';
 import type { Race } from './race';
 import type { GameDate } from './time';
@@ -126,7 +127,20 @@ export type LeadingCategory = 'sire' | 'damsire' | 'jockey' | 'trainer' | 'owner
 /** 올해 리딩 집계. key = 대상 id */
 export type LeadingTables = Record<LeadingCategory, Record<string, LeadingEntry>>;
 
-/** GameState.seasonState (A6 에서 GameState 에 붙인다) */
+/**
+ * 다시 볼 수 있는 레이스(플레이어 말 출주 또는 G1). 리플레이 프레임은 저장하지 않고,
+ * 같은 입력으로 runRace 를 다시 돌려 재생한다(같은 시드 = 같은 결과).
+ */
+export interface ReplayableRace {
+  meetingId: string;
+  race: Race;
+  going: Going;
+  date: GameDate;
+  seed: number;
+  field: SampleField;
+}
+
+/** GameState.seasonState */
 export interface SeasonState {
   year: number;
   /** 이번 주와 다음 주 개최만 보관(지난 개최는 결과로만 남긴다) */
@@ -141,4 +155,6 @@ export interface SeasonState {
   lastRun: Record<HorseId, GameDate>;
   /** 현역마 연간 교체를 마지막으로 한 연도(중복 실행 방지). 아직 없으면 null */
   lastPopulationYear: number | null;
+  /** 최근 다시 볼 수 있는 레이스(최대 개수는 config) */
+  replayable: ReplayableRace[];
 }

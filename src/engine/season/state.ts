@@ -16,5 +16,6 @@ export function createEmptySeasonState(year: number): SeasonState {
     nextGeneratedRace: 1,
     lastRun: {},
     lastPopulationYear: null,
+    replayable: [],
   };
 }

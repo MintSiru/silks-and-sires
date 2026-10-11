@@ -136,3 +136,4 @@
 - 2026-10-11 | 반려(1회) | M3-C0 현역마 집단 — 명세 수치 모순(Opus 오류: 신규 30% 투입 + 하위 15% 은퇴 → 10년 +32%) → 은퇴 두수만큼 신규 2세 투입(D). 능력 표 상향(84~72) 거부: 플레이어 생산마(잠재 60대)와 균형 붕괴. 대신 OR 환산식 OR = 72 + (a−56)×2.05.
 - 2026-10-11 | 반려→승인 | M3-C0 현역마 집단 — 5개국 2,400두(GB 900/IE 450/FR 650/DE 200/IT 200), 실명 종마 부, 같은 나라 AI 마주·조교사. OR 평균 69.5·p99 105, 10년 두수 정확 유지, 직렬화 3.5MB, 생성 ~90ms. 남은 과제: 10년 후 7세 비율 0.17(은퇴 컷 구조) → M3-F1 시즌 검증에서 조정.
 - 2026-10-11 | 기술(Opus) | GameState.seasonState 추가, SeasonState.lastRun·lastPopulationYear, GameEvent race_run·series_completed, 저장 스키마 v2 + v1→v2 마이그레이션(빈 시즌 상태; 인물·현역마는 시즌 시스템이 첫 주에 채움). createEmptySeasonState(season/state.ts).
+- 2026-10-11 | 기술(Opus) | SeasonState.replayable(ReplayableRace: race·going·date·seed·field) — 리플레이 프레임 대신 입력을 저장하고 runRace 재실행으로 재생(결정적). 저장 크기 절약.
