@@ -1,7 +1,5 @@
 import { LANE_MIN_M } from '../config/runner';
 import {
-  BATTLE_LANE_M,
-  BATTLE_RANGE_M,
   DECEL_MPS2,
   EXTRAPOLATION_MIN_SPEED_MPS,
   HORSE_WIDTH_M,
@@ -28,11 +26,15 @@ import type {
 import { buildRaceResult, sectionalMarks } from './results';
 import { prepareRunner, staminaDrainPerSecond, type RaceContext } from './runnerModel';
 import {
-  baseTargetSpeed,
   earlyPhaseLimit,
-  findBlocker,
-  isLaneFree,
-  shouldStartSpurt,
+  findBlockerSorted,
+  isBattlingSorted,
+  isLaneFreeSorted,
+  resortOrder,
+  shouldStartSpurtPre,
+  spurtConstants,
+  targetSpeedAt,
+  type SpurtConstants,
 } from './tactics';
 
 /** 길이 n 의 0 배열. Array.from 은 packed 배열을 만들어 slice 와 산술 접근이 빠르다. */
@@ -51,6 +53,7 @@ function clamp(v: number, min: number, max: number): number {
 /**
  * 결정론적 0.1초 틱 레이스 시뮬레이션. 같은 입력 = 같은 출력.
  * 모든 말은 틱 시작 시점의 스냅샷(prog/lane/speed)만 보고 판단하고, 새 값은 별도 배열에 쓴 뒤 틱 끝에 한꺼번에 교체한다.
+ * 이웃 탐색(막힘·레인·경합)은 틱 시작 시점의 진행도 정렬 순서(order/pos)로 근처만 스캔한다. 결과는 O(n²) 전수 탐색과 같다.
  */
 export function simulateRace(input: RaceSimInput): RaceSimOutput {
   const { race, course, going, date, runners, seed, options } = input;
@@ -86,6 +89,8 @@ export function simulateRace(input: RaceSimInput): RaceSimOutput {
   const marks = sectionalMarks(distance);
   const markCount = marks.length;
   const earlyLimit = earlyPhaseLimit(distance);
+  /** 러너별 스퍼트 판정 상수 (레이스 시작 시 한 번) */
+  const spurtC: SpurtConstants[] = prepared.map((r) => spurtConstants(r, going));
 
   // --- 상태 배열 (현재 틱 스냅샷) ---
   const prog: number[] = zeros(n);
@@ -99,6 +104,14 @@ export function simulateRace(input: RaceSimInput): RaceSimOutput {
   const nextMark: number[] = zeros(n);
   /** 말 i 의 k 번째 표지 통과 시각 = markBuf[i * markCount + k] */
   const markBuf: number[] = zeros(n * markCount);
+
+  /** 진행도 정렬 순서: order[k] = k 번째로 뒤처진 말, pos[i] = 말 i 의 위치. 틱 끝마다 갱신한다. */
+  const order = new Int32Array(n);
+  const pos = new Int32Array(n);
+  for (let i = 0; i < n; i++) {
+    order[i] = i;
+    pos[i] = i;
+  }
 
   // --- 다음 틱 값 버퍼 (틱 끝에 상태 배열로 복사) ---
   const nProg: number[] = zeros(n);
@@ -165,53 +178,42 @@ export function simulateRace(input: RaceSimInput): RaceSimOutput {
 
       // 3. 스퍼트 개시 판단 (한 번 켜지면 유지)
       if (!isFin && spurting[i] !== true) {
-        if (shouldStartSpurt(r, st, sample.toFinish, going, judge[i] as number)) {
+        if (shouldStartSpurtPre(spurtC[i] as SpurtConstants, st, sample.toFinish, judge[i] as number)) {
           spurting[i] = true;
         }
       }
       const isSpurting = spurting[i] === true;
 
       // 4. 경합 여부: 스퍼트 중이고 근처(범위·레인)에 다른 미결승 말이 있음
-      let battling = false;
-      if (isSpurting && !isFin) {
-        for (let j = 0; j < n; j++) {
-          if (j === i || finished[j] === true) continue;
-          if (
-            Math.abs((prog[j] as number) - p) < BATTLE_RANGE_M &&
-            Math.abs((lane[j] as number) - ln) < BATTLE_LANE_M
-          ) {
-            battling = true;
-            break;
-          }
-        }
-      }
+      const battling =
+        isSpurting && !isFin && isBattlingSorted(i, prog, lane, finished, order, pos);
 
       // 5. 기본 목표 속도
-      let target = baseTargetSpeed({
+      let target = targetSpeedAt(
         r,
-        s: sample.s,
-        distance,
-        spurting: isSpurting,
-        finished: isFin,
-        stamina: st,
-        gradient: sample.gradient,
+        sample.s,
+        earlyLimit,
+        isSpurting,
+        isFin,
+        st,
+        sample.gradient,
         battling,
-      });
+      );
 
       // 6. 트래픽: 앞말에 막히면 옆 레인으로 피하거나 속도를 맞춘다
       let nextLaneTarget = laneTarget[i] as number;
       let laneChanged = false;
       if (!isFin) {
-        const b = findBlocker(i, prog, lane);
+        const b = findBlockerSorted(i, prog, lane, order, pos);
         if (b >= 0) {
           const blockerSpeed = speed[b] as number;
           if (target > blockerSpeed) {
             const outer = ln + HORSE_WIDTH_M;
             const inner = ln - HORSE_WIDTH_M;
-            if (outer <= laneMax && isLaneFree(i, outer, prog, lane)) {
+            if (outer <= laneMax && isLaneFreeSorted(i, outer, prog, lane, order, pos)) {
               nextLaneTarget = outer;
               laneChanged = true;
-            } else if (inner >= laneMin && isLaneFree(i, inner, prog, lane)) {
+            } else if (inner >= laneMin && isLaneFreeSorted(i, inner, prog, lane, order, pos)) {
               nextLaneTarget = inner;
               laneChanged = true;
             } else {
@@ -224,7 +226,7 @@ export function simulateRace(input: RaceSimInput): RaceSimOutput {
       // 7. 레일 붙기: 곡선에서 안쪽으로 조금씩 파고든다
       if (!laneChanged && !handedStraight && nextLaneTarget >= ln) {
         const inner = Math.max(laneMin, ln - RAIL_DRIFT_MPS * dt);
-        if (inner < ln && isLaneFree(i, inner, prog, lane)) {
+        if (inner < ln && isLaneFreeSorted(i, inner, prog, lane, order, pos)) {
           nextLaneTarget = inner;
         }
       }
@@ -283,6 +285,7 @@ export function simulateRace(input: RaceSimInput): RaceSimOutput {
       speed[i] = nSpeed[i] as number;
       finished[i] = nFinished[i] === true;
     }
+    resortOrder(prog, order, pos);
 
     tick += 1;
     const tNext = tick * dt;

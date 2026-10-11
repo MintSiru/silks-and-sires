@@ -212,7 +212,9 @@ export function staminaDrainPerSecond(
   going: Going,
   power01: number,
 ): number {
-  const speedTerm = (speed / cruiseSpeed) ** DRAIN_EXPONENT;
+  const ratio = speed / cruiseSpeed;
+  // DRAIN_EXPONENT 가 3 이면 곱셈으로 계산한다(** 보다 빠르다). 골든 8개 설정에서 결과는 비트 단위로 같았다.
+  const speedTerm = DRAIN_EXPONENT === 3 ? ratio * ratio * ratio : ratio ** DRAIN_EXPONENT;
   const uphill =
     1 + UPHILL_DRAIN_K * Math.max(0, gradient) * (1 - UPHILL_POWER_RELIEF * power01);
   return speedTerm * GOING_STAMINA_DRAIN[going] * uphill;
