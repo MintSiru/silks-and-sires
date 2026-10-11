@@ -1,0 +1,214 @@
+import { SAVE_SCHEMA_VERSION, WEEKS_PER_YEAR } from '../config/game';
+import { SAVE_FORMAT } from '../types';
+import type { GameState, LoadResult, SaveEnvelope, SaveErrorCode } from '../types';
+
+/** key n = 버전 n → n+1 변환 함수. 순수 함수여야 한다. */
+export type Migration = (state: Record<string, unknown>) => Record<string, unknown>;
+
+/** key n = 버전 n → n+1 변환. 현재는 비어 있음 */
+export const MIGRATIONS: Readonly<Record<number, Migration>> = {};
+
+/** 구조 상수(형식 규칙). 밸런스 수치가 아니므로 여기 둔다. */
+const MIN_SCHEMA_VERSION = 1;
+const RNG_WORD_COUNT = 4;
+const UINT32_MAX = 2 ** 32 - 1;
+const MIN_WEEK = 1;
+const MAX_PROBLEMS_IN_MESSAGE = 3;
+
+export type MigrationOutcome =
+  | { ok: true; state: Record<string, unknown> }
+  | { ok: false; missingFrom: number };
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isInteger(value: unknown): value is number {
+  return typeof value === 'number' && Number.isInteger(value);
+}
+
+function isUint32(value: unknown): value is number {
+  return isInteger(value) && value >= 0 && value <= UINT32_MAX;
+}
+
+function failure(code: SaveErrorCode, message: string): LoadResult {
+  return { ok: false, error: { code, message } };
+}
+
+/**
+ * from 에서 to 까지 migrations[v] 를 차례로 적용한다 (v = from .. to-1).
+ * 중간에 함수가 없으면 { ok: false, missingFrom: v } 를 반환한다. 예외는 던지지 않는다.
+ */
+export function applyMigrations(
+  state: Record<string, unknown>,
+  from: number,
+  to: number,
+  migrations: Readonly<Record<number, Migration>>,
+): MigrationOutcome {
+  let current = state;
+  for (let version = from; version < to; version += 1) {
+    const migrate = migrations[version];
+    if (typeof migrate !== 'function') {
+      return { ok: false, missingFrom: version };
+    }
+    current = migrate(current);
+  }
+  return { ok: true, state: current };
+}
+
+/** GameState 를 SaveEnvelope 로 감싸 JSON 문자열(들여쓰기 없음)로 만든다. */
+export function serializeGame(state: GameState, savedAtIso: string): string {
+  const envelope: SaveEnvelope = {
+    format: SAVE_FORMAT,
+    schemaVersion: SAVE_SCHEMA_VERSION,
+    savedAt: savedAtIso,
+    state,
+  };
+  return JSON.stringify(envelope);
+}
+
+/**
+ * JSON 문자열을 GameState 로 복원한다. 모든 실패는 LoadResult 로 반환하며 예외를 던지지 않는다.
+ * 순서: JSON 파싱 → format 확인 → schemaVersion 범위 확인 → 마이그레이션 → 상태 검증.
+ */
+export function deserializeGame(
+  json: string,
+  migrations: Readonly<Record<number, Migration>> = MIGRATIONS,
+): LoadResult {
+  try {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(json);
+    } catch {
+      return failure('invalid_json', '저장 데이터를 JSON 으로 읽을 수 없습니다.');
+    }
+
+    if (!isRecord(parsed) || parsed.format !== SAVE_FORMAT) {
+      return failure('wrong_format', '이 게임의 저장 파일 형식이 아닙니다.');
+    }
+
+    const version = parsed.schemaVersion;
+    if (!isInteger(version) || version < MIN_SCHEMA_VERSION || version > SAVE_SCHEMA_VERSION) {
+      return failure(
+        'unsupported_version',
+        `지원하지 않는 저장 버전입니다 (${String(version)}, 지원 범위 ${MIN_SCHEMA_VERSION}~${SAVE_SCHEMA_VERSION}).`,
+      );
+    }
+
+    let candidate: unknown = parsed.state;
+    if (version < SAVE_SCHEMA_VERSION && isRecord(candidate)) {
+      const outcome = applyMigrations(candidate, version, SAVE_SCHEMA_VERSION, migrations);
+      if (!outcome.ok) {
+        return failure(
+          'unsupported_version',
+          `버전 ${outcome.missingFrom} → ${outcome.missingFrom + 1} 마이그레이션이 없어 불러올 수 없습니다.`,
+        );
+      }
+      candidate = { ...outcome.state, schemaVersion: SAVE_SCHEMA_VERSION };
+    }
+
+    const problems = validateGameState(candidate);
+    if (problems.length > 0) {
+      return failure('invalid_state', problems.slice(0, MAX_PROBLEMS_IN_MESSAGE).join('; '));
+    }
+
+    return { ok: true, state: candidate as GameState };
+  } catch (error: unknown) {
+    const detail = error instanceof Error ? error.message : String(error);
+    return failure('invalid_state', `저장 데이터를 처리하지 못했습니다: ${detail}`);
+  }
+}
+
+function validateDate(value: unknown, label: string, problems: string[]): void {
+  if (!isRecord(value)) {
+    problems.push(`${label} 가 객체가 아닙니다`);
+    return;
+  }
+  if (!isInteger(value.year)) {
+    problems.push(`${label}.year 가 정수가 아닙니다`);
+  }
+  const week = value.week;
+  if (!isInteger(week) || week < MIN_WEEK || week > WEEKS_PER_YEAR) {
+    problems.push(`${label}.week 가 ${MIN_WEEK}~${WEEKS_PER_YEAR} 정수가 아닙니다`);
+  }
+}
+
+function validateRng(value: unknown, problems: string[]): void {
+  if (!isRecord(value)) {
+    problems.push('rng 가 객체가 아닙니다');
+    return;
+  }
+  if (value.algo !== 'sfc32') {
+    problems.push('rng.algo 가 sfc32 가 아닙니다');
+  }
+  const words = value.s;
+  if (!Array.isArray(words) || words.length !== RNG_WORD_COUNT || !words.every(isUint32)) {
+    problems.push(`rng.s 는 0~${UINT32_MAX} 정수 ${RNG_WORD_COUNT}개 배열이어야 합니다`);
+  }
+}
+
+function validateSeason(value: unknown, problems: string[]): void {
+  if (!isRecord(value)) {
+    problems.push('season 이 객체가 아닙니다');
+    return;
+  }
+  if (!isInteger(value.year)) {
+    problems.push('season.year 가 정수가 아닙니다');
+  }
+  if (!isRecord(value.phases)) {
+    problems.push('season.phases 가 객체가 아닙니다');
+  }
+}
+
+const OBJECT_COLLECTION_KEYS = ['horses', 'stallions', 'mares', 'owners', 'trainers', 'jockeys'] as const;
+const ARRAY_COLLECTION_KEYS = ['raceResults', 'eventLog'] as const;
+
+/**
+ * GameState 의 최소 구조를 검사한다. 문제 목록을 반환하며 빈 배열이면 정상.
+ * 예외를 던지지 않는다.
+ */
+export function validateGameState(value: unknown): string[] {
+  if (!isRecord(value)) {
+    return ['state 가 객체가 아닙니다'];
+  }
+
+  const problems: string[] = [];
+
+  if (typeof value.schemaVersion !== 'number') {
+    problems.push('schemaVersion 이 숫자가 아닙니다');
+  }
+  if (typeof value.initialSeed !== 'number') {
+    problems.push('initialSeed 가 숫자가 아닙니다');
+  }
+  validateRng(value.rng, problems);
+  validateDate(value.date, 'date', problems);
+  validateSeason(value.season, problems);
+
+  const playerOwnerId = value.playerOwnerId;
+  if (typeof playerOwnerId !== 'string') {
+    problems.push('playerOwnerId 가 문자열이 아닙니다');
+  }
+
+  for (const key of OBJECT_COLLECTION_KEYS) {
+    if (!isRecord(value[key])) {
+      problems.push(`${key} 가 배열이 아닌 객체가 아닙니다`);
+    }
+  }
+  for (const key of ARRAY_COLLECTION_KEYS) {
+    if (!Array.isArray(value[key])) {
+      problems.push(`${key} 가 배열이 아닙니다`);
+    }
+  }
+
+  const owners = value.owners;
+  if (typeof playerOwnerId === 'string' && isRecord(owners)) {
+    const playerOwner = Object.prototype.hasOwnProperty.call(owners, playerOwnerId)
+      ? owners[playerOwnerId]
+      : undefined;
+    if (!isRecord(playerOwner)) {
+      problems.push(`플레이어 owner(${playerOwnerId})가 owners 에 없습니다`);
+    }
+  }
+
+  return problems;
+}
