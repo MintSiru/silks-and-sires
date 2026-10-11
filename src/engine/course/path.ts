@@ -174,14 +174,22 @@ export function homeStraightLength(layout: TrackLayout): number {
   return total;
 }
 
-export function findCourseDistance(course: Racecourse, distance: number): CourseDistance | undefined {
-  return course.distances.find((d) => d.distance === distance);
+/** layoutId 를 주면 (거리, 레이아웃) 쌍으로, 생략하면 그 거리의 첫 항목을 찾는다 */
+export function findCourseDistance(
+  course: Racecourse,
+  distance: number,
+  layoutId?: string,
+): CourseDistance | undefined {
+  return course.distances.find(
+    (d) => d.distance === distance && (layoutId === undefined || d.layoutId === layoutId),
+  );
 }
 
-export function buildRacePath(course: Racecourse, distance: number): RacePath {
-  const cd = findCourseDistance(course, distance);
+export function buildRacePath(course: Racecourse, distance: number, layoutId?: string): RacePath {
+  const cd = findCourseDistance(course, distance, layoutId);
   if (cd === undefined) {
-    throw new Error(`경마장 ${course.id}: ${distance}m 는 열 수 있는 거리가 아님`);
+    const suffix = layoutId === undefined ? '' : ` (레이아웃 ${layoutId})`;
+    throw new Error(`경마장 ${course.id}: ${distance}m${suffix} 는 열 수 있는 거리가 아님`);
   }
   const layout = course.layouts.find((l) => l.id === cd.layoutId);
   if (layout === undefined) {

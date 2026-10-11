@@ -97,7 +97,7 @@ export function simulateRace(input: RaceSimInput): RaceSimOutput {
 
   // --- 준비 (rng 사용은 여기서만) ---
   const rng = createRng(seed).fork('sim');
-  const path = buildRacePath(course, distance);
+  const path = buildRacePath(course, distance, race.layoutId);
   const ctx: RaceContext = {
     distance,
     going,

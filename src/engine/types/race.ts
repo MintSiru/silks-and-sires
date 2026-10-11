@@ -34,6 +34,11 @@ export interface Race {
   racecourseId: RacecourseId;
   /** m. 해당 경마장 distances 목록에 있어야 한다 */
   distance: number;
+  /**
+   * 같은 거리를 여러 레이아웃에서 열 수 있는 경마장(직선 마일 / 라운드 마일 등)에서 레이아웃을 고른다.
+   * 생략 시 distances 목록에서 그 거리의 첫 항목.
+   */
+  layoutId?: string;
   kind: RaceKind;
   grade: RaceGrade | null;
   raceClass: RaceClass;

@@ -79,7 +79,7 @@ export function runRace(input: RunRaceInput): RunRaceOutput {
   const entries = buildEntries(createRng(seed).fork('draw'), field.requests);
 
   // 2. 경로와 레이스 컨텍스트
-  const path = buildRacePath(course, race.distance);
+  const path = buildRacePath(course, race.distance, race.layoutId);
   const ctx: RaceContext = {
     distance: race.distance,
     going,

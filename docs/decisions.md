@@ -129,3 +129,5 @@
 - 2026-10-11 | 승인 | M3-A2 캠버 — RacePathSample.camber, 레인 드리프트 −camber×0.25 m/s(레인 변경 한도 밖, 물리적 쏠림), camber 0 결과 비트 동일(골든 통과), 검증 4개 테스트. 성능 조사: M1(3dc9684) 24ms vs 현재 22~24ms, 단계별 차이 없음 → 이전 33ms 는 병렬 부하 잡음. 회귀 없음.
 - 2026-10-11 | 승인 | M3-B1 인물 이름 풀 — 10개국 이름·성(국가당 남64+/여48+/성124+), 실존 경마계 인물 차단 목록 171(차단 전용), 야드·목장·지역 가상 지명. 실제 지명과 우연히 겹치는 소수 지역명은 소재지 표시용이라 허용. 생성기(B2)에서 차단 조합 필터 필수.
 - 2026-10-11 | 기술(Opus) | M3-B 공용 타입: Jockey.abilities(start/pace/finish/strength)·preferredStyle·retired, Trainer.birthYear·staminaBias·juvenileFocus, Owner.tier·persona(commercial/prestige/patience)·namePrefix. 플레이어 마주는 small·중립 성향.
+- 2026-10-11 | 승인(Opus 보정) | M3-B2 인물 생성기 — 6개국 기수·조교사·마주(GB 40/45/70, IE 30/35/50, FR 35/40/60, DE·IT 12/14/22, US 30/30/50), 차단 목록 필터, 승부복 유일. 견습 18~21세·감량 3/5/7, 마주 자금(major 2천만~8천만€ 등)은 초기 추정 승인(M4 경제에서 재조정). Opus 보정: 목장 이름에서 Haras/Gestüt/Allevamento 류는 지명 앞(STUD_WORDS_BEFORE_NAME).
+- 2026-10-11 | 기술(Opus) | Race.layoutId(선택) 추가 + findCourseDistance/buildRacePath 레이아웃 지정 — 같은 거리를 직선/라운드 두 레이아웃에서 열 수 있게(Kingsmere 직선·라운드 마일, Marlow 여름 직선).
