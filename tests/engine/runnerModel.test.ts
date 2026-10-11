@@ -48,6 +48,7 @@ function avgAptitudes(distance: number): Aptitudes {
     goingPreference: 2,
     goingTolerance: 1.5,
     allWeather: 0,
+    dirt: 0,
     leftHanded: 0,
     rightHanded: 0,
     undulation: 0,

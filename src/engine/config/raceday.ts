@@ -35,6 +35,7 @@ export const SAMPLE_GOING_PREF_MAX = 3.5;
 export const SAMPLE_GOING_TOL_MIN = 1.5;
 export const SAMPLE_GOING_TOL_MAX = 3;
 export const SAMPLE_AW_APT_SD = 0.4;
+export const SAMPLE_DIRT_APT_SD = 0.4;
 export const SAMPLE_COURSE_APT_SD = 0.3;
 export const SAMPLE_STYLE_WEIGHTS: Record<RunningStyle, number> = { front: 0.15, prominent: 0.3, midfield: 0.35, held_up: 0.2 };
 export const SAMPLE_FITNESS_RANGE = [85, 100] as const;

@@ -24,6 +24,7 @@ import {
   SAMPLE_COURSE_APT_SD,
   SAMPLE_DEFAULT_LEVEL,
   SAMPLE_DEFAULT_LEVEL_SPREAD,
+  SAMPLE_DIRT_APT_SD,
   SAMPLE_DISTANCE_OPT_MAX,
   SAMPLE_DISTANCE_OPT_MIN,
   SAMPLE_DISTANCE_OPT_SD,
@@ -182,6 +183,11 @@ export function generateSampleField(rng: Rng, opts: SampleFieldOptions): SampleF
       -SAMPLE_APTITUDE_LIMIT,
       SAMPLE_APTITUDE_LIMIT,
     );
+    const dirt = clamp(
+      rng.normal(0, SAMPLE_DIRT_APT_SD),
+      -SAMPLE_APTITUDE_LIMIT,
+      SAMPLE_APTITUDE_LIMIT,
+    );
     const leftHanded = clamp(
       rng.normal(0, SAMPLE_COURSE_APT_SD),
       -SAMPLE_APTITUDE_LIMIT,
@@ -203,6 +209,7 @@ export function generateSampleField(rng: Rng, opts: SampleFieldOptions): SampleF
       goingPreference,
       goingTolerance,
       allWeather,
+      dirt,
       leftHanded,
       rightHanded,
       undulation,

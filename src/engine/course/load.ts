@@ -122,8 +122,8 @@ export function validateRacecourse(c: Racecourse): string[] {
 
   if (!isNonEmptyString(c.id)) problems.push('id 가 비어 있음');
   if (!isNonEmptyString(c.name)) problems.push('name 이 비어 있음');
-  if (c.surface !== 'turf' && c.surface !== 'aw') {
-    problems.push(`surface 는 turf 또는 aw 여야 함 (${String(c.surface)})`);
+  if (c.surface !== 'turf' && c.surface !== 'aw' && c.surface !== 'dirt') {
+    problems.push(`surface 는 turf, aw, dirt 중 하나여야 함 (${String(c.surface)})`);
   }
 
   if (!Array.isArray(c.layouts) || c.layouts.length === 0) {

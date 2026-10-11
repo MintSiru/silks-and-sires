@@ -46,6 +46,8 @@ export interface Aptitudes {
   goingTolerance: number;
   /** 올웨더 적성 */
   allWeather: AptitudeScore;
+  /** 더트 적성 */
+  dirt: AptitudeScore;
   /** 좌회전 코스 적성 */
   leftHanded: AptitudeScore;
   /** 우회전 코스 적성 */

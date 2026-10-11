@@ -1,6 +1,8 @@
 import {
   AW_APTITUDE_EFFECT,
   AW_GOING_WEIGHTS,
+  DIRT_APTITUDE_EFFECT,
+  DIRT_GOING_WEIGHTS,
   GOING_DAILY_SD,
   GOING_DRAINAGE_EFFECT,
   GOING_FIT_BONUS,
@@ -8,8 +10,8 @@ import {
   GOING_LABELS,
   GOING_MONTH_BASE,
 } from '../config/going';
-import type { Aptitudes, AwGoing, Going, Racecourse, Rng, Surface, TurfGoing } from '../types';
-import { AW_GOING_ORDER, TURF_GOING_ORDER } from '../types';
+import type { Aptitudes, AwGoing, DirtGoing, Going, Racecourse, Rng, Surface, TurfGoing } from '../types';
+import { AW_GOING_ORDER, DIRT_GOING_ORDER, TURF_GOING_ORDER } from '../types';
 
 /** 잔디 마장 인덱스의 최대값 (TURF_GOING_ORDER 마지막 칸) */
 const TURF_INDEX_MAX = TURF_GOING_ORDER.length - 1;
@@ -20,6 +22,10 @@ export function isTurfGoing(g: Going): g is TurfGoing {
 
 export function isAwGoing(g: Going): g is AwGoing {
   return (AW_GOING_ORDER as readonly string[]).includes(g);
+}
+
+export function isDirtGoing(g: Going): g is DirtGoing {
+  return (DIRT_GOING_ORDER as readonly string[]).includes(g);
 }
 
 /** 띠 뷰어·UI 표기 */
@@ -46,17 +52,23 @@ export function turfGoingFromIndex(i: number): TurfGoing {
 }
 
 export function isGoingValidForSurface(g: Going, surface: Surface): boolean {
-  return surface === 'turf' ? isTurfGoing(g) : isAwGoing(g);
+  if (surface === 'turf') {
+    return isTurfGoing(g);
+  }
+  if (surface === 'aw') {
+    return isAwGoing(g);
+  }
+  return isDirtGoing(g);
 }
 
 /**
  * 마장 적성 배수 (1 근처).
- * - 마장이 AW 면 allWeather 로 계산한다.
+ * - 마장이 AW 면 allWeather, 더트면 dirt 로 계산한다.
  * - 잔디면 선호 인덱스와의 거리로 가우시안 가중치 w 를 구해 보너스/감점을 준다.
- * goingTolerance <= 0 이면 RangeError (AW 에서도 동일하게 검사).
+ * goingTolerance <= 0 이면 RangeError (AW·더트에서도 동일하게 검사).
  */
 export function goingFit(
-  apt: Pick<Aptitudes, 'goingPreference' | 'goingTolerance' | 'allWeather'>,
+  apt: Pick<Aptitudes, 'goingPreference' | 'goingTolerance' | 'allWeather' | 'dirt'>,
   g: Going,
 ): number {
   if (!(apt.goingTolerance > 0)) {
@@ -65,26 +77,34 @@ export function goingFit(
   if (isAwGoing(g)) {
     return 1 + AW_APTITUDE_EFFECT * apt.allWeather;
   }
+  if (isDirtGoing(g)) {
+    return 1 + DIRT_APTITUDE_EFFECT * apt.dirt;
+  }
   const d = Math.abs(turfGoingIndex(g) - apt.goingPreference);
   const w = Math.exp(-((d / apt.goingTolerance) ** 2));
   return 1 + GOING_FIT_BONUS * w - GOING_FIT_MAX_PENALTY * (1 - w);
 }
 
-/** AW 누적 확률에서 마장 하나를 고른다. u 는 [0, 1) 균등 난수. */
-function pickAwGoing(u: number): AwGoing {
+/** 누적 확률에서 항목 하나를 고른다. u 는 [0, 1) 균등 난수. 마지막 항목은 잔여 확률을 모두 받는다. */
+function pickWeighted<T extends string>(
+  order: readonly T[],
+  weights: readonly number[],
+  u: number,
+): T {
   let acc = 0;
-  for (let i = 0; i < AW_GOING_ORDER.length; i++) {
-    acc += AW_GOING_WEIGHTS[i] ?? 0;
+  for (let i = 0; i < order.length; i++) {
+    acc += weights[i] ?? 0;
     if (u < acc) {
-      return AW_GOING_ORDER[i] as AwGoing;
+      return order[i] as T;
     }
   }
-  return AW_GOING_ORDER[AW_GOING_ORDER.length - 1] as AwGoing;
+  return order[order.length - 1] as T;
 }
 
 /**
  * 당일 마장 추첨. 같은 Rng 상태 = 같은 결과.
  * - AW 코스: rng.next() 한 번으로 AW_GOING_WEIGHTS 누적 확률에서 선택.
+ * - 더트 코스: rng.next() 한 번으로 DIRT_GOING_WEIGHTS 누적 확률에서 선택.
  * - 잔디 코스: 월 기준 인덱스 + 정규 잡음 + 배수 효과 → 잔디 마장.
  * month 가 1~12 정수가 아니면 RangeError.
  */
@@ -97,7 +117,10 @@ export function rollGoing(
     throw new RangeError(`rollGoing: month 는 1~${GOING_MONTH_BASE.length} 정수여야 한다 (${month})`);
   }
   if (course.surface === 'aw') {
-    return pickAwGoing(rng.next());
+    return pickWeighted(AW_GOING_ORDER, AW_GOING_WEIGHTS, rng.next());
+  }
+  if (course.surface === 'dirt') {
+    return pickWeighted(DIRT_GOING_ORDER, DIRT_GOING_WEIGHTS, rng.next());
   }
   const base = GOING_MONTH_BASE[month - 1] as number;
   const idx =

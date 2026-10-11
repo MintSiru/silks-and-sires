@@ -10,7 +10,7 @@ import { generateSampleField } from '../engine/race/sampleField';
 import type { SampleField } from '../engine/race/sampleField';
 import { createRng } from '../engine/rng';
 import { monthOfWeek } from '../engine/time/calendar';
-import { AW_GOING_ORDER, TURF_GOING_ORDER } from '../engine/types';
+import { AW_GOING_ORDER, DIRT_GOING_ORDER, TURF_GOING_ORDER } from '../engine/types';
 import type {
   GameDate,
   Going,
@@ -52,7 +52,7 @@ const AUTO = 'auto' as const;
 type GoingChoice = Going | typeof AUTO;
 
 const RACE_LIST: readonly Race[] = getRaces();
-const GOING_CANDIDATES: readonly Going[] = [...TURF_GOING_ORDER, ...AW_GOING_ORDER];
+const GOING_CANDIDATES: readonly Going[] = [...TURF_GOING_ORDER, ...AW_GOING_ORDER, ...DIRT_GOING_ORDER];
 
 const KIND_LABEL: Record<RaceKind, string> = {
   group: '그룹',

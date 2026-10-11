@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   AW_APTITUDE_EFFECT,
+  DIRT_APTITUDE_EFFECT,
+  DIRT_GOING_WEIGHTS,
   GOING_LABELS,
   GOING_MONTH_BASE,
   GOING_POWER_WEIGHT,
@@ -12,6 +14,7 @@ import {
   goingFit,
   goingLabel,
   isAwGoing,
+  isDirtGoing,
   isGoingValidForSurface,
   isTurfGoing,
   rollGoing,
@@ -19,10 +22,10 @@ import {
   turfGoingIndex,
 } from '../../src/engine/going/going';
 import { createRng } from '../../src/engine/rng';
-import { AW_GOING_ORDER, TURF_GOING_ORDER } from '../../src/engine/types';
+import { AW_GOING_ORDER, DIRT_GOING_ORDER, TURF_GOING_ORDER } from '../../src/engine/types';
 import type { Going, TurfGoing } from '../../src/engine/types';
 
-const ALL_GOINGS: Going[] = [...TURF_GOING_ORDER, ...AW_GOING_ORDER];
+const ALL_GOINGS: Going[] = [...TURF_GOING_ORDER, ...AW_GOING_ORDER, ...DIRT_GOING_ORDER];
 
 describe('수용 기준 1: 잔디 마장 인덱스 왕복', () => {
   it('7단계 전부 turfGoingIndex → turfGoingFromIndex 왕복이 일치한다', () => {
@@ -70,12 +73,12 @@ describe('마장 분류·표기', () => {
 
 describe('수용 기준 2: goingFit', () => {
   it('선호 마장(d=0)에서 1.005 를 준다', () => {
-    const fit = goingFit({ goingPreference: 2, goingTolerance: 1, allWeather: 0 }, 'good');
+    const fit = goingFit({ goingPreference: 2, goingTolerance: 1, allWeather: 0, dirt: 0 }, 'good');
     expect(fit).toBeCloseTo(1.005, 10);
   });
 
   it('d 가 커질수록 단조 감소한다', () => {
-    const apt = { goingPreference: 0, goingTolerance: 1, allWeather: 0 };
+    const apt = { goingPreference: 0, goingTolerance: 1, allWeather: 0, dirt: 0 };
     let prev = Number.POSITIVE_INFINITY;
     TURF_GOING_ORDER.forEach((g) => {
       const fit = goingFit(apt, g);
@@ -85,28 +88,72 @@ describe('수용 기준 2: goingFit', () => {
   });
 
   it('d=6, tolerance=1 에서 0.97 에 근접한다 (±0.001)', () => {
-    const fit = goingFit({ goingPreference: 0, goingTolerance: 1, allWeather: 0 }, 'heavy');
+    const fit = goingFit({ goingPreference: 0, goingTolerance: 1, allWeather: 0, dirt: 0 }, 'heavy');
     expect(Math.abs(fit - 0.97)).toBeLessThanOrEqual(0.001);
   });
 
   it('AW 마장에서 allWeather=1 → 1.02, -1 → 0.98', () => {
-    expect(goingFit({ goingPreference: 3, goingTolerance: 1, allWeather: 1 }, 'standard')).toBeCloseTo(
-      1 + AW_APTITUDE_EFFECT,
-      10,
-    );
-    expect(goingFit({ goingPreference: 3, goingTolerance: 1, allWeather: -1 }, 'standard')).toBeCloseTo(
-      0.98,
-      10,
-    );
+    expect(
+      goingFit({ goingPreference: 3, goingTolerance: 1, allWeather: 1, dirt: 0 }, 'standard'),
+    ).toBeCloseTo(1 + AW_APTITUDE_EFFECT, 10);
+    expect(
+      goingFit({ goingPreference: 3, goingTolerance: 1, allWeather: -1, dirt: 0 }, 'standard'),
+    ).toBeCloseTo(0.98, 10);
   });
 
   it('goingTolerance <= 0 이면 RangeError', () => {
-    expect(() => goingFit({ goingPreference: 0, goingTolerance: 0, allWeather: 0 }, 'firm')).toThrow(
-      RangeError,
-    );
-    expect(() => goingFit({ goingPreference: 0, goingTolerance: -1, allWeather: 0 }, 'firm')).toThrow(
-      RangeError,
-    );
+    expect(() =>
+      goingFit({ goingPreference: 0, goingTolerance: 0, allWeather: 0, dirt: 0 }, 'firm'),
+    ).toThrow(RangeError);
+    expect(() =>
+      goingFit({ goingPreference: 0, goingTolerance: -1, allWeather: 0, dirt: 0 }, 'firm'),
+    ).toThrow(RangeError);
+  });
+});
+
+describe('더트 마장 (M1-11)', () => {
+  it('더트 4단계 라벨은 FAST / GOOD / MUDDY / SLOPPY 이다', () => {
+    expect(goingLabel('dirt_fast')).toBe('FAST');
+    expect(goingLabel('dirt_good')).toBe('GOOD');
+    expect(goingLabel('dirt_muddy')).toBe('MUDDY');
+    expect(goingLabel('dirt_sloppy')).toBe('SLOPPY');
+  });
+
+  it('isDirtGoing 은 더트 마장만 true 이다', () => {
+    for (const g of DIRT_GOING_ORDER) {
+      expect(isDirtGoing(g)).toBe(true);
+    }
+    expect(isDirtGoing('firm')).toBe(false);
+    expect(isDirtGoing('standard')).toBe(false);
+  });
+
+  it('isGoingValidForSurface 는 dirt 표면에서 더트 마장만 허용한다', () => {
+    expect(isGoingValidForSurface('dirt_fast', 'dirt')).toBe(true);
+    expect(isGoingValidForSurface('firm', 'dirt')).toBe(false);
+    expect(isGoingValidForSurface('standard', 'dirt')).toBe(false);
+  });
+
+  it('goingFit: 더트 적성 +1 → 1.03, -1 → 0.97', () => {
+    expect(DIRT_APTITUDE_EFFECT).toBe(0.03);
+    const base = { goingPreference: 2, goingTolerance: 1, allWeather: 0 };
+    expect(goingFit({ ...base, dirt: 1 }, 'dirt_fast')).toBeCloseTo(1.03, 10);
+    expect(goingFit({ ...base, dirt: -1 }, 'dirt_muddy')).toBeCloseTo(0.97, 10);
+  });
+
+  it('더트 코스 rollGoing 1,000회는 모두 더트 마장이고 dirt_fast 비율이 0.65~0.75 이다', () => {
+    const rng = createRng('dirt-check');
+    const course = { surface: 'dirt' as const, drainage: 0.5 };
+    let fast = 0;
+    for (let i = 0; i < 1000; i++) {
+      const g = rollGoing(rng, course, 5);
+      expect(isDirtGoing(g)).toBe(true);
+      if (g === 'dirt_fast') {
+        fast++;
+      }
+    }
+    expect(fast / 1000).toBeGreaterThanOrEqual(0.65);
+    expect(fast / 1000).toBeLessThanOrEqual(0.75);
+    expect(DIRT_GOING_WEIGHTS.reduce((a, b) => a + b, 0)).toBeCloseTo(1, 10);
   });
 });
 

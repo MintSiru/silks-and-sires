@@ -1,6 +1,6 @@
 import type { CountryCode, RacecourseId } from './common';
 
-export type Surface = 'turf' | 'aw';
+export type Surface = 'turf' | 'aw' | 'dirt';
 
 /** 레이아웃 회전 방향. 직선 코스는 'straight'. */
 export type Handedness = 'left' | 'right' | 'straight';
