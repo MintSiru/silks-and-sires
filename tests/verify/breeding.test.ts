@@ -10,12 +10,18 @@ import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { breed, type BreedArgs } from '../../src/engine/breeding/genetics';
-import { dominantCrosses, findInbreeding, totalBloodPercent } from '../../src/engine/breeding/inbreeding';
+import {
+  dominantCrosses,
+  findInbreeding,
+  ownBloodPercent,
+  totalBloodPercent,
+} from '../../src/engine/breeding/inbreeding';
 import { nickValue } from '../../src/engine/breeding/nicks';
 import { buildMatingPedigree } from '../../src/engine/breeding/pedigree';
 import { IN_TRAINING_ABILITY_WEIGHT } from '../../src/engine/config/assessment';
 import {
   INBREED_EXCESS_FROM,
+  INBREED_EXCESS_POTENTIAL_PENALTY,
   INBREED_EXCESS_SOUNDNESS_PENALTY,
   NICK_EFFECT_MAX,
   SOUNDNESS_REGRESSION,
@@ -47,8 +53,11 @@ const FULL = !!process.env.VERIFY;
 const CYCLES = FULL ? 20 : 3;
 /** 수·암 각각의 두수. FULL: 100·100(집단 200), 기본: 30·30(집단 60). 매 세대 교배 쌍 수 = 2 × PER_SEX. */
 const PER_SEX = FULL ? 100 : 30;
-/** 닉스 효과 실험의 무작위 쌍 수 */
-const NICK_PAIRS = FULL ? 2000 : 200;
+/**
+ * 닉스 효과 실험의 무작위 쌍 수. 고닉스(≥ 0.5) 쌍은 무작위 쌍의 약 3.5% 뿐이라(2000쌍 → 70쌍),
+ * FULL 은 고닉스 200쌍 이상을 확보하도록 8000쌍으로 늘린다(M2-11 2차 재실행 요청).
+ */
+const NICK_PAIRS = FULL ? 8000 : 200;
 /** 단서 정확도 실험의 말 수 */
 const ASSESS_HORSES = FULL ? 1000 : 100;
 const TEST_TIMEOUT_MS = FULL ? 900_000 : 60_000;
@@ -349,6 +358,10 @@ function produceFoals(
       nicks: NICKS,
       // 진단 모드에서는 보정만 끈다(인브리드 탐지 결과는 통계에 그대로 남긴다). rng 소비 순서는 같다.
       inbreeding: ignoreInbreeding ? [] : crosses,
+      // M2-05c 1대 한정: 부·모의 과다 감점을 되돌려 유전 기준값을 만든다(season.ts 와 같은 방식).
+      // 감점 끔 진단은 저장된 잠재·건강도에 감점이 없으므로 되돌리지 않는다(0). 되돌리면 편향이 생긴다.
+      sireOwnBloodPercent: ignoreInbreeding ? 0 : ownBloodPercent(lookup, sire),
+      damOwnBloodPercent: ignoreInbreeding ? 0 : ownBloodPercent(lookup, dam),
       damFamilyScore: 0,
       id,
       name: id,
@@ -404,6 +417,8 @@ function runNickSection(): NickResult {
   const males = founders.filter((h) => h.sex === 'male');
   const females = founders.filter((h) => h.sex === 'female');
   const rng = createRng(SEED.nickPairs);
+  const byId = new Map<HorseId, Horse>(founders.map((h) => [h.id, h]));
+  const lookup = (id: HorseId): Horse | undefined => byId.get(id);
 
   const high: { avg: number; nick: number }[] = [];
   const low: { avg: number; nick: number }[] = [];
@@ -420,6 +435,8 @@ function runNickSection(): NickResult {
       dam,
       damsireLineId: dam.sireLineId,
       inbreeding: [],
+      sireOwnBloodPercent: ownBloodPercent(lookup, sire),
+      damOwnBloodPercent: ownBloodPercent(lookup, dam),
       damFamilyScore: 0,
       id: `N-${i}`,
       name: `N-${i}`,
@@ -658,10 +675,11 @@ function buildCauseLines(
     const y = last(rndNo);
     const firstHalfInbred = rnd.find((s) => (s.inbreedRate ?? 0) >= 0.5);
     lines.push(
-      `- 무작위 교배 이탈은 인브리드 감점 때문으로 보인다. 감점을 끄면 잠재 평균 ${fmt(b.potentialMean)} → ${fmt(y.potentialMean)}, ` +
-        `건강도 ${fmt(b.soundnessMean)} → ${fmt(y.soundnessMean)} 로 안정. 감점을 켜면 인브리드율 ` +
-        `${firstHalfInbred ? firstHalfInbred.generation + '세대에 50% 이상' : '50% 미만'}, ` +
-        `마지막 세대 잠재 평균 ${fmt(z.potentialMean)}, 건강도 ${fmt(z.soundnessMean)}.`,
+      `- 무작위 교배 잠재: 감점 끔 진단은 잠재 ${fmt(b.potentialMean)} → ${fmt(y.potentialMean)}, 건강도 ${fmt(b.soundnessMean)} → ${fmt(y.soundnessMean)} 로 평탄하다. ` +
+        `1대 한정 반영 후(감점 켬)는 인브리드율 ${firstHalfInbred ? firstHalfInbred.generation + '세대에 50% 이상' : '50% 미만'}, ` +
+        `마지막 세대 잠재 평균 ${fmt(z.potentialMean)}, 건강도 ${fmt(z.soundnessMean)}. ` +
+        `잠재 상승(C1 이탈)은 부·모 감점을 되돌려 기준값이 올라가는 효과와 근친 보너스(INBREED_BONUS_MAX, 자손에게 그대로 유전)가 섞인 결과로 보이나, ` +
+        `감점 끔 진단은 보너스도 함께 꺼지므로 이 실행만으로는 둘을 나눌 수 없다(가설, 미검증).`,
     );
     lines.push(
       `- 마지막 세대 감점구간(혈량 > ${INBREED_EXCESS_FROM}%) 교배 비율 ${fmt(z.excessRate === null ? null : z.excessRate * 100, 1)}%. ` +
@@ -675,11 +693,18 @@ function buildCauseLines(
       `- 선택 교배: 감점을 끄면 잠재 평균이 마지막 ${fmt(sn.potentialMean)} 까지 오르고 85 미만에서 완만해진다(포화 확인). ` +
         `감점을 켜면 마지막 ${fmt(sl.potentialMean)}. 선택 효과 자체보다 근친 감점이 결과를 지배한다.`,
     );
-    const sThreshold = SOUNDNESS_REGRESSION * (SOUNDNESS_MEAN - SOUNDNESS_FLOOR);
     lines.push(
-      `- 건강도 정상상태(산술, 판정 아님): 세대 평균 건강도 s 는 s ← (1−${SOUNDNESS_REGRESSION})·s + ${SOUNDNESS_REGRESSION}·${SOUNDNESS_MEAN} − E ` +
-        `로 움직이므로 평균 감점 E 가 있으면 s* = ${SOUNDNESS_MEAN} − E/${SOUNDNESS_REGRESSION}. ` +
-        `s* ≥ ${SOUNDNESS_FLOOR} 이려면 E ≤ ${fmt(sThreshold, 1)} 점이다. 선택 교배 마지막 세대의 평균 혈량 ${fmt(sl.meanBloodPercent)}% 는 이 한계를 크게 넘는다(혈량 1% 초과당 건강도 감점 ${INBREED_EXCESS_SOUNDNESS_PENALTY}).`,
+      `- 1대 한정 반영 후(M2-05c): 부·모의 과다 감점은 부·모 자신의 기준값으로 되돌려져 자손에게 전달되지 않는다. ` +
+        `선택 교배 마지막 세대의 건강도 ${fmt(sl.soundnessMean)}, 잠재 ${fmt(sl.potentialMean)}, 평균 혈량 ${fmt(sl.meanBloodPercent)}% 는 ` +
+        `감점 끔 진단(마지막 건강도 ${fmt(last(selNo).soundnessMean)}, 잠재 ${fmt(last(selNo).potentialMean)})과 비교해 읽는다. ` +
+        `남는 감점은 해당 말 자신의 건강도(혈량 1%p 초과당 ${INBREED_EXCESS_SOUNDNESS_PENALTY})와 잠재(1%p당 ${INBREED_EXCESS_POTENTIAL_PENALTY})뿐이다.`,
+    );
+    // 정상상태 산술(근사, 1대 한정 후): 부·모 건강도를 감점 전 값으로 되돌리므로 s̄ = 0.85(s̄ + Ē) + 0.15·SOUNDNESS_MEAN − Ē 에서 s̄ ≈ SOUNDNESS_MEAN − Ē.
+    lines.push(
+      `- 건강도 정상상태(근사, 1대 한정 후): 건강도 평균 ≈ ${SOUNDNESS_MEAN} − E (E = 세대 평균 자기 감점). ` +
+        `관측 역산 E = ${SOUNDNESS_MEAN} − 건강도: 무작위 마지막 ${rnd.length > 0 ? fmt(SOUNDNESS_MEAN - last(rnd).soundnessMean) : '—'}, 선택 마지막 ${fmt(SOUNDNESS_MEAN - sl.soundnessMean)}. ` +
+        `선택 교배 E 가 ${fmt(SOUNDNESS_MEAN - sl.soundnessMean, 0)} 근처인 것은 평균 혈량 ${fmt(sl.meanBloodPercent)}% 에서 ` +
+        `혈량 1%p 초과당 감점 ${INBREED_EXCESS_SOUNDNESS_PENALTY} 과 정합한다(근사, 정확한 E 는 미측정).`,
     );
   }
   if (nick) {
@@ -707,7 +732,7 @@ function buildReport(criteria: readonly Criterion[], timings: Record<string, num
 
   const out: string[] = [];
   out.push('# M2-11 배합·유전 검증 리포트', '');
-  out.push('M2-05b 반영 재실행 (개정 1~4 적용: 지배 교차 인브리드, 닉스 기준 1~3.5, 단계별 단서 진짜 값, 붕괴 판정 C9~C11)', '');
+  out.push('M2-05c(근친 약세 1대 한정) 반영 재실행', '');
   out.push('- 작성일: 2026-10-11');
   out.push('- 실행: `VERIFY=1 npx vitest run tests/verify/breeding.test.ts` (FULL 모드)');
   const sec = (key: string): string => fmt((timings[key] ?? 0) / 1000, 1);
@@ -806,6 +831,8 @@ function buildReport(criteria: readonly Criterion[], timings: Record<string, num
   out.push('- 모부 계통: 교배의 damsireLineId 는 어미의 sireLineId 를 쓴다(어미의 부 = 어미 계통, breed 가 그대로 물려주는 값).');
   out.push('- 표준편차: 모집단 SD(분모 n). 잠재 평균은 5개 능력 잠재치의 단순 평균.');
   out.push('- 모계 명성 점수는 0으로 고정(닫힌 집단에 명성 정보가 없음). 인브리드 보정은 교배마다 `dominantCrosses(root, findInbreeding(root))` 결과를 쓴다(season.ts·preview.ts 와 같은 방식).');
+  out.push('- 1대 한정(M2-05c): 부·모의 기준값은 `ownBloodPercent(lookup, 부·모)` 로 구한 자신의 혈량을 breed 에 넘겨 과다 감점을 되돌린다(season.ts 와 같은 방식). 감점 끔 진단은 저장값에 감점이 없으므로 이 값을 0 으로 넘긴다.');
+  out.push('- 닉스 실험은 고닉스 쌍 200개 이상을 확보하려고 FULL 8000쌍(기본 200쌍)을 쓴다.');
   out.push('- 단서 실험: 말은 2살(2024년생). 진짜 값은 개정 3에 따라 단계별로 정한다: foal·yearling·two_year_old 는 잠재 평균, in_training 은 현재 능력 0.6 + 잠재 0.4.');
   out.push('- 닉스 효과: 같은 시드로 닉스 유무만 바꾼 반사실 쌍을 함께 기록. 기전이 맞으면 잔차는 0에 가깝다(클램프 제외).');
   out.push('');
