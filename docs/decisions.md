@@ -80,3 +80,4 @@
 - 2026-10-11 | 기술 | GameEvent 'horse_status_changed', GameState.breeding{revealedNicks}, GameState.nextHorseNumber 추가. createNewGame·저장 테스트 픽스처 갱신.
 - 2026-10-11 | 승인(Opus 1줄 보정) | M2-06 주간 성장 — 9개 테스트. DEFAULT_SYSTEMS = [calendar, growth]. time.test 의 기본 시스템 단언은 명세 모순이라 Opus 가 갱신.
 - 2026-10-11 | 사용자 | 위키백과 조회 허용 규칙을 .claude/settings.json 에 추가(WebFetch en.wikipedia.org, curl en.wikipedia.org). 종마 혈통 확인(M2-01b) 용도.
+- 2026-10-11 | 승인 | M2-05 유전·닉스·미리보기 — 25개 테스트(닉스 +1 ≈ +4점, 인브리드 18.75%=+3, 회귀, 성장형 유전 비율, 미리보기 숫자 없음). 정신력 유전 기준은 부모 condition.mental 평균 유지(유전 기질 값 분리 여부는 M3 재검토).
