@@ -126,3 +126,4 @@
 - 2026-10-11 | 사용자 | M2-15 미확인 15두 거리·주로 확정(사용자 제공): Vino Rosso classic/dirt, Mandaloun classic/dirt, Maxfield speed/dirt, Golden Pal speed/turf, Constitution speed/dirt, Half Ours speed/dirt, Raise a Native·Mr. Prospector·Harlan speed/dirt, Vindication speed/dirt, Bold Reasoning speed/both, Giant's Causeway speed/turf, Danzig·Storm Cat·Sickle 현행 유지. M2-01e 완료 후 Opus 가 데이터 반영.
 - 2026-10-11 | 사용자 | M3 착수 승인.
 - 2026-10-11 | 기술(Opus) | M3-A1 공용 타입: types/season.ts(ScheduleSlot·RaceTemplate·RaceTag·SeriesDefinition·Declaration·ScheduledRace·Meeting·RatingChange·SeriesProgress·LeadingTables·SeasonState), TrackSegment.camber, Racecourse.features(CourseFeature). GameState.seasonState 연결은 A6 에서.
+- 2026-10-11 | 승인 | M3-A2 캠버 — RacePathSample.camber, 레인 드리프트 −camber×0.25 m/s(레인 변경 한도 밖, 물리적 쏠림), camber 0 결과 비트 동일(골든 통과), 검증 4개 테스트. 성능 조사: M1(3dc9684) 24ms vs 현재 22~24ms, 단계별 차이 없음 → 이전 33ms 는 병렬 부하 잡음. 회귀 없음.

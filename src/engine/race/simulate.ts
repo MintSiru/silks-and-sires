@@ -1,5 +1,6 @@
 import { LANE_MIN_M } from '../config/runner';
 import {
+  CAMBER_DRIFT_MPS as CAMBER_DRIFT_MPS_CFG,
   DECEL_MPS2 as DECEL_MPS2_CFG,
   DRAFT_DRAIN_FACTOR as DRAFT_DRAIN_FACTOR_CFG,
   EXTRAPOLATION_MIN_SPEED_MPS as EXTRAPOLATION_MIN_SPEED_MPS_CFG,
@@ -52,6 +53,7 @@ import {
  * 핫 경로 상수 사본. 테스트 실행기(vite SSR 변환)는 import 한 상수의 읽기를 모듈 객체 속성 접근으로 바꿔
  * 틱마다 비용이 크다. 모듈 최상위 const 로 한 번 읽어 두며 값은 config 와 같다.
  */
+const CAMBER_DRIFT_MPS = CAMBER_DRIFT_MPS_CFG;
 const DECEL_MPS2 = DECEL_MPS2_CFG;
 const DRAFT_DRAIN_FACTOR = DRAFT_DRAIN_FACTOR_CFG;
 const EXTRAPOLATION_MIN_SPEED_MPS = EXTRAPOLATION_MIN_SPEED_MPS_CFG;
@@ -306,9 +308,14 @@ export function simulateRace(input: RaceSimInput): RaceSimOutput {
         }
       }
 
-      // 8. 레인 이동 (틱당 최대 LANE_CHANGE_MPS × dt)
+      // 8. 레인 이동 (틱당 최대 LANE_CHANGE_MPS × dt) + 캠버 드리프트(M3-A2).
+      //    캠버 0 이면 더하지 않는다(결과 비트 동일). + 캠버는 레인 감소(안쪽), − 캠버는 증가(바깥쪽).
       const maxMove = LANE_CHANGE_MPS * dt;
-      const nl = clamp(ln + clamp(nextLaneTarget - ln, -maxMove, maxMove), laneMin, laneMax);
+      let laneMove = clamp(nextLaneTarget - ln, -maxMove, maxMove);
+      if (sample.camber !== 0) {
+        laneMove += -sample.camber * CAMBER_DRIFT_MPS * dt;
+      }
+      const nl = clamp(ln + laneMove, laneMin, laneMax);
 
       // 9. 속도 갱신
       const inStart = sp < r.cruiseSpeed * START_PHASE_SPEED_FRACTION && sample.s < earlyLimit;

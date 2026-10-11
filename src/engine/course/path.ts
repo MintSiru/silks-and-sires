@@ -29,6 +29,8 @@ interface SegGeom {
   gradient: number;
   curvature: number;
   turn: 'left' | 'right' | null;
+  /** 구간 캠버 (seg.camber ?? 0) */
+  camber: number;
 }
 
 interface LayoutGeom {
@@ -93,6 +95,7 @@ function buildGeometry(layout: TrackLayout): LayoutGeom {
       gradient: seg.rise / seg.length,
       curvature: isBend ? 1 / radius : 0,
       turn: isBend ? (seg.turn ?? null) : null,
+      camber: seg.camber ?? 0,
     });
     pose = advance(seg, pose, seg.length);
     u += seg.length;
@@ -124,6 +127,8 @@ interface LocalState {
   gradient: number;
   curvature: number;
   turn: 'left' | 'right' | null;
+  /** 구간 캠버(생략 = 0) */
+  camber: number;
   /** 해당 지점의 진행 방향 */
   h: number;
 }
@@ -136,11 +141,12 @@ function localInto(geom: LayoutGeom, u: number, out: LocalState): void {
   out.gradient = g.gradient;
   out.curvature = g.curvature;
   out.turn = g.turn;
+  out.camber = g.camber;
 }
 
 /** 레이아웃 좌표 u 의 국소 상태 (새 객체) */
 function localAt(geom: LayoutGeom, u: number): LocalState {
-  const out: LocalState = { x: 0, y: 0, gradient: 0, curvature: 0, turn: null, h: 0 };
+  const out: LocalState = { x: 0, y: 0, gradient: 0, curvature: 0, turn: null, camber: 0, h: 0 };
   localInto(geom, u, out);
   return out;
 }
@@ -195,11 +201,13 @@ export function buildRacePath(course: Racecourse, distance: number): RacePath {
   }
 
   const hs = homeStraightLength(layout);
+  // 결승 후 연장 구간에 쓰는 캠버: 마지막 구간의 값 (생략 = 0)
+  const lastCamber = geom.segs[geom.segs.length - 1]?.camber ?? 0;
   // 출발점 u0: closed 면 [0, L) 로 감싸고, open 이면 L - distance (>= 0 은 위에서 보장)
   const u0 = closed ? (((total - distance) % total) + total) % total : total - distance;
 
   /** 국소 상태 임시 버퍼 (sampleInto 전용, 호출 사이에 값을 남기지 않는다) */
-  const localBuf: LocalState = { x: 0, y: 0, gradient: 0, curvature: 0, turn: null, h: 0 };
+  const localBuf: LocalState = { x: 0, y: 0, gradient: 0, curvature: 0, turn: null, camber: 0, h: 0 };
 
   /** sample(s) 와 같은 값을 out 에 쓴다. out.point 객체를 재사용하며 새 객체를 만들지 않는다. */
   const fillSample = (s: number, out: RacePathSample): RacePathSample => {
@@ -221,6 +229,8 @@ export function buildRacePath(course: Racecourse, distance: number): RacePath {
       local.gradient = 0;
       local.curvature = 0;
       local.turn = null;
+      // 결승 후 연장 구간은 마지막 구간의 캠버를 그대로 이어받는다
+      local.camber = lastCamber;
     }
 
     out.s = sc;
@@ -228,6 +238,7 @@ export function buildRacePath(course: Racecourse, distance: number): RacePath {
     out.gradient = local.gradient;
     out.curvature = local.curvature;
     out.turn = local.turn;
+    out.camber = local.camber;
     // 결승선 기준 마지막 직선 위인가. 직선 시작점(toFinish === hs)은 직선 밖으로 본다.
     out.isHomeStraight = toFinish < 0 || toFinish < hs;
     out.point.x = local.x;
@@ -243,6 +254,7 @@ export function buildRacePath(course: Racecourse, distance: number): RacePath {
       curvature: 0,
       turn: null,
       isHomeStraight: false,
+      camber: 0,
       point: { x: 0, y: 0 },
     });
 

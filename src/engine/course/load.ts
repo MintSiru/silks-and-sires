@@ -61,6 +61,11 @@ function validateLayout(layout: TrackLayout, index: number, distances: readonly 
       structOk = false;
       return;
     }
+    if (seg.camber !== undefined && (!isFiniteNumber(seg.camber) || seg.camber < -1 || seg.camber > 1)) {
+      problems.push(`${at} camber 는 −1~+1 사이 숫자여야 함 (${String(seg.camber)})`);
+      structOk = false;
+      return;
+    }
     openTotal += seg.length;
     riseSum += seg.rise;
 

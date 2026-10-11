@@ -99,6 +99,8 @@ export interface RacePathSample {
   turn: 'left' | 'right' | null;
   /** 마지막 직선 구간 위인가 */
   isHomeStraight: boolean;
+  /** 현재 구간의 캠버(−1~+1, 구간 값 생략 시 0). + 는 안쪽 레일 쪽으로 기울어짐 */
+  camber: number;
   /** 미니맵 좌표 */
   point: PathPoint;
 }

@@ -80,6 +80,7 @@ function makePath(): RacePath {
         curvature: 0,
         turn: null,
         isHomeStraight: true,
+        camber: 0,
         point: { x: sc, y: 0 },
       };
     },

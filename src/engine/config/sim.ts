@@ -38,6 +38,11 @@ export const BLOCK_DISTANCE_M = 2.4;
 export const LANE_CLEARANCE_M = 3.0;
 export const LANE_CHANGE_MPS = 1.0;
 export const RAIL_DRIFT_MPS = 0.3;
+/**
+ * 캠버 드리프트(m/s, 캠버 1.0 기준). 틱 레인 변화에 −camber × CAMBER_DRIFT_MPS × dt 를 더한다.
+ * + 캠버(안쪽으로 기움)면 안쪽(레인 감소)으로, − 캠버면 바깥쪽으로 흘러간다. 캠버 0 이면 적용하지 않는다 (M3-A2).
+ */
+export const CAMBER_DRIFT_MPS = 0.25;
 
 /** 무리(페이스 추종) 동역학 (M1-07c). 선두 말 기준 간격 관리. */
 /** 선두와의 최대 허용 간격(m). 이보다 뒤처지면 따라붙는다 */
