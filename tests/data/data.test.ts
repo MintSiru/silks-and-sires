@@ -127,6 +127,8 @@ const PERIMETER_MAX_M = 3300;
 const OPEN_MAX_M = 4200;
 /** 둘레 상한 예외: 2차 반려에서 "바꾸지 않는다"로 지정된 기존 고리 (Kingsmere 4,374m, Ravensbridge 4,022m) */
 const PERIMETER_EXEMPT = ['kingsmere_triangle', 'ravensbridge_oval'];
+/** 형상·다양성·둘레 규칙 적용 국가 (AW 제외). A3c 에서 FR 추가 */
+const ROUND_SCOPE_COUNTRIES = ['GB', 'IE', 'DE', 'IT', 'FR'];
 
 interface ShapeEntry { ctx: string; shape: { pts: [number, number][]; closed: boolean } }
 
@@ -199,7 +201,7 @@ function shapeDistance(a: { pts: [number, number][]; closed: boolean }, b: { pts
 /** 주 레이아웃(커브 2개 이상) 실루엣 목록: GB·IE·DE·IT, AW 제외 */
 function mainRoundLayouts(): ShapeEntry[] {
   const out: ShapeEntry[] = [];
-  for (const course of racecourses.filter((c) => ['GB', 'IE', 'DE', 'IT'].includes(c.country) && c.surface !== 'aw')) {
+  for (const course of racecourses.filter((c) => ROUND_SCOPE_COUNTRIES.includes(c.country) && c.surface !== 'aw')) {
     for (const layout of course.layouts) {
       if (layout.segments.filter((s) => s.kind === 'bend').length < 2) continue;
       const cd = course.distances.find((d) => d.layoutId === layout.id);
@@ -212,11 +214,11 @@ function mainRoundLayouts(): ShapeEntry[] {
 }
 
 describe('racecourses.json', () => {
-  it('경마장 19곳(영국 9·프랑스 1·아일랜드 4(AW 1)·독일 3·이탈리아 2), 잔디 18·AW 1, id 중복 없음', () => {
-    expect(racecourses.length).toBe(19);
+  it('경마장 24곳(영국 9·프랑스 6·아일랜드 4(AW 1)·독일 3·이탈리아 2), 잔디 23·AW 1, id 중복 없음', () => {
+    expect(racecourses.length).toBe(24);
     const ids = racecourses.map((c) => c.id);
     expect(new Set(ids).size).toBe(ids.length);
-    expect(racecourses.filter((c) => c.surface === 'turf').length).toBe(18);
+    expect(racecourses.filter((c) => c.surface === 'turf').length).toBe(23);
     expect(racecourses.filter((c) => c.surface === 'aw').length).toBe(1);
   });
 
@@ -240,6 +242,12 @@ describe('racecourses.json', () => {
       lichtenau: { distances: [1207, 1408, 1609, 2012, 2414, 2816], features: ['undulating', 'downhill_run'] },
       torreverde: { distances: [1207, 1609, 2012, 2213, 2414], features: ['galloping'] },
       valmerano: { distances: [1207, 1609, 2012, 2213, 2414, 2816], features: ['long_straight', 'galloping'] },
+      saint_ourens: { distances: [1000, 1400, 1600, 1850, 2000, 2100, 2400, 3000, 3100, 4000], features: ['false_straight', 'undulating', 'downhill_run', 'straight_course', 'galloping'] },
+      vallenaire: { distances: [1200, 1400, 1600, 2000, 2100, 2400], features: ['galloping', 'uphill_finish'] },
+      port_aubray: { distances: [1000, 1200, 1300, 1400, 1500, 1600, 2000, 2500], features: ['straight_course', 'galloping'] },
+      clairval: { distances: [1400, 1600, 2000, 2100, 2400], features: ['galloping'] },
+      bellerive_le_bois: { distances: [1000, 1200, 1400, 1600, 2000, 2400], features: ['straight_course', 'long_straight'] },
+      montvigne: { distances: [1200, 1600, 2000, 2400], features: ['short_straight'] },
     };
     for (const [id, spec] of Object.entries(required)) {
       const course = racecourses.find((c) => c.id === id);
@@ -280,7 +288,7 @@ describe('racecourses.json', () => {
         .map((s) => Math.round(Math.round(((s.length / (s.radius as number)) * DEG) * 100) / 1000) * 10)
         .join(',');
     const sigs = racecourses
-      .filter((c) => ['GB', 'IE', 'DE', 'IT'].includes(c.country) && c.surface !== 'aw')
+      .filter((c) => ROUND_SCOPE_COUNTRIES.includes(c.country) && c.surface !== 'aw')
       .flatMap((c) =>
         c.layouts
           .filter((l) => l.segments.filter((s) => s.kind === 'bend').length >= 2)
@@ -309,7 +317,7 @@ describe('racecourses.json', () => {
   });
 
   it('둘레·크기 제한: 닫힌 고리 둘레 1,800~3,300m (예외: 기존 Kingsmere·Ravensbridge), 열린 말굽 총길이 ≤ 4,200m', () => {
-    for (const course of racecourses.filter((c) => ['GB', 'IE', 'DE', 'IT'].includes(c.country) && c.surface !== 'aw')) {
+    for (const course of racecourses.filter((c) => ROUND_SCOPE_COUNTRIES.includes(c.country) && c.surface !== 'aw')) {
       for (const layout of course.layouts) {
         if (layout.segments.filter((s) => s.kind === 'bend').length < 2) continue;
         const total = layout.segments.reduce((acc, s) => acc + s.length, 0);
@@ -324,8 +332,23 @@ describe('racecourses.json', () => {
     }
   });
 
+  it('결승 직선: 모든 레이아웃의 마지막 세그먼트는 직선이고, 라운드 레이아웃은 모든 거리에서 결승 직선 ≥ 250m 이다 (2차 반려 4)', () => {
+    for (const course of racecourses) {
+      for (const layout of course.layouts) {
+        const last = layout.segments[layout.segments.length - 1];
+        expect(last?.kind, `${course.id}/${layout.id} 마지막 세그먼트`).toBe('straight');
+        const bends = layout.segments.filter((s) => s.kind === 'bend').length;
+        if (bends < 2) continue;
+        for (const cd of course.distances.filter((d) => d.layoutId === layout.id)) {
+          const hs = buildRacePath(course, cd.distance, layout.id).homeStraightLength;
+          expect(hs, `${course.id}/${layout.id} ${cd.distance}m 결승 직선`).toBeGreaterThanOrEqual(250);
+        }
+      }
+    }
+  });
+
   it('닫힌 레이아웃(GB·IE·DE·IT)은 끝점이 시작점에서 0.5m 이내로 폐합된다', () => {
-    for (const course of racecourses.filter((c) => ['GB', 'IE', 'DE', 'IT'].includes(c.country) && c.surface !== 'aw')) {
+    for (const course of racecourses.filter((c) => ROUND_SCOPE_COUNTRIES.includes(c.country) && c.surface !== 'aw')) {
       for (const layout of course.layouts) {
         if (!layout.closed) continue;
         const end = layoutEnd(layout);
@@ -341,7 +364,7 @@ describe('racecourses.json', () => {
       const r = ((deg % 90) + 90) % 90;
       return Math.min(r, 90 - r) > 10;
     };
-    for (const course of racecourses.filter((c) => ['GB', 'IE', 'DE', 'IT'].includes(c.country) && c.surface !== 'aw')) {
+    for (const course of racecourses.filter((c) => ROUND_SCOPE_COUNTRIES.includes(c.country) && c.surface !== 'aw')) {
       for (const layout of course.layouts) {
         const bends = layout.segments.filter((s) => s.kind === 'bend');
         if (bends.length < 2) continue;

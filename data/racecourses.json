@@ -443,7 +443,7 @@
     "country": "FR",
     "surface": "turf",
     "handedness": "right",
-    "undulation": 0.1,
+    "undulation": 0.5,
     "drainage": 0.5,
     "layouts": [
       {
@@ -451,22 +451,43 @@
         "label": "Grande Piste",
         "handedness": "right",
         "closed": true,
-        "width": 30,
+        "width": 34,
         "segments": [
-          { "kind": "straight", "length": 150, "rise": 0 },
-          { "kind": "bend", "length": 691.15, "radius": 220, "turn": "right", "rise": 2 },
-          { "kind": "straight", "length": 750, "rise": 0 },
-          { "kind": "bend", "length": 691.15, "radius": 220, "turn": "right", "rise": -2 },
-          { "kind": "straight", "length": 600, "rise": 0 }
+          { "kind": "bend", "length": 279.29, "radius": 210, "turn": "right", "rise": 0 },
+          { "kind": "bend", "length": 329.5, "radius": 210, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 892.5, "rise": 10 },
+          { "kind": "bend", "length": 459.02, "radius": 250, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 64.6, "rise": -10 },
+          { "kind": "bend", "length": 219.86, "radius": 190, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 250, "rise": 0 },
+          { "kind": "bend", "length": 252.17, "radius": 645, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 530, "rise": 0 }
+        ]
+      },
+      {
+        "id": "saint_ourens_straight",
+        "label": "Sprint Straight",
+        "handedness": "straight",
+        "closed": false,
+        "width": 34,
+        "segments": [
+          { "kind": "straight", "length": 1100, "rise": 0 }
         ]
       }
     ],
     "distances": [
+      { "distance": 1000, "layoutId": "saint_ourens_straight" },
+      { "distance": 1400, "layoutId": "saint_ourens_grande" },
       { "distance": 1600, "layoutId": "saint_ourens_grande" },
+      { "distance": 1850, "layoutId": "saint_ourens_grande" },
       { "distance": 2000, "layoutId": "saint_ourens_grande" },
+      { "distance": 2100, "layoutId": "saint_ourens_grande" },
       { "distance": 2400, "layoutId": "saint_ourens_grande" },
-      { "distance": 3000, "layoutId": "saint_ourens_grande" }
-    ]
+      { "distance": 3000, "layoutId": "saint_ourens_grande" },
+      { "distance": 3100, "layoutId": "saint_ourens_grande" },
+      { "distance": 4000, "layoutId": "saint_ourens_grande" }
+    ],
+    "features": ["false_straight","undulating","downhill_run","straight_course","galloping"]
   },
   {
     "id": "ardvarrow_park",
@@ -534,7 +555,7 @@
           { "kind": "bend", "length": 257.44, "radius": 590, "turn": "right", "rise": 0 },
           { "kind": "straight", "length": 310, "rise": 4 },
           { "kind": "bend", "length": 477.7, "radius": 425, "turn": "right", "rise": 4 },
-          { "kind": "straight", "length": 315, "rise": -2 }
+          { "kind": "straight", "length": 800, "rise": -2 }
         ]
       }
     ],
@@ -806,5 +827,206 @@
       { "distance": 2816, "layoutId": "valmerano_main" }
     ],
     "features": ["long_straight","galloping"]
+  },
+  {
+    "id": "vallenaire",
+    "name": "Vallenaire",
+    "country": "FR",
+    "surface": "turf",
+    "handedness": "right",
+    "undulation": 0.3,
+    "drainage": 0.6,
+    "layouts": [
+      {
+        "id": "vallenaire_main",
+        "label": "Main Course",
+        "handedness": "right",
+        "closed": true,
+        "width": 30,
+        "segments": [
+          { "kind": "bend", "length": 385.65, "radius": 160, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 857.3, "rise": 0 },
+          { "kind": "bend", "length": 317.23, "radius": 160, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 521, "rise": -3 },
+          { "kind": "bend", "length": 261.69, "radius": 180, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 50, "rise": 0 },
+          { "kind": "bend", "length": 220.35, "radius": 505, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 600, "rise": 3 }
+        ]
+      }
+    ],
+    "distances": [
+      { "distance": 1200, "layoutId": "vallenaire_main" },
+      { "distance": 1400, "layoutId": "vallenaire_main" },
+      { "distance": 1600, "layoutId": "vallenaire_main" },
+      { "distance": 2000, "layoutId": "vallenaire_main" },
+      { "distance": 2100, "layoutId": "vallenaire_main" },
+      { "distance": 2400, "layoutId": "vallenaire_main" }
+    ],
+    "features": ["galloping","uphill_finish"]
+  },
+  {
+    "id": "port_aubray",
+    "name": "Port-Aubray",
+    "country": "FR",
+    "surface": "turf",
+    "handedness": "right",
+    "undulation": 0.1,
+    "drainage": 0.8,
+    "layouts": [
+      {
+        "id": "port_aubray_straight",
+        "label": "Straight Course",
+        "handedness": "straight",
+        "closed": false,
+        "width": 40,
+        "segments": [
+          { "kind": "straight", "length": 1600, "rise": 0 }
+        ]
+      },
+      {
+        "id": "port_aubray_round",
+        "label": "Round Course",
+        "handedness": "right",
+        "closed": true,
+        "width": 30,
+        "segments": [
+          { "kind": "bend", "length": 470.98, "radius": 150, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 685, "rise": 0 },
+          { "kind": "bend", "length": 324.84, "radius": 120, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 56.1, "rise": 0 },
+          { "kind": "bend", "length": 226.89, "radius": 520, "turn": "right", "rise": 0 },
+          { "kind": "straight", "length": 465, "rise": 0 }
+        ]
+      }
+    ],
+    "distances": [
+      { "distance": 1000, "layoutId": "port_aubray_straight" },
+      { "distance": 1200, "layoutId": "port_aubray_straight" },
+      { "distance": 1300, "layoutId": "port_aubray_straight" },
+      { "distance": 1400, "layoutId": "port_aubray_straight" },
+      { "distance": 1500, "layoutId": "port_aubray_straight" },
+      { "distance": 1600, "layoutId": "port_aubray_straight" },
+      { "distance": 2000, "layoutId": "port_aubray_round" },
+      { "distance": 2500, "layoutId": "port_aubray_round" }
+    ],
+    "features": ["straight_course","galloping"]
+  },
+  {
+    "id": "clairval",
+    "name": "Clairval",
+    "country": "FR",
+    "surface": "turf",
+    "handedness": "left",
+    "undulation": 0.2,
+    "drainage": 0.6,
+    "layouts": [
+      {
+        "id": "clairval_main",
+        "label": "Main Course",
+        "handedness": "left",
+        "closed": true,
+        "width": 30,
+        "segments": [
+          { "kind": "bend", "length": 213.8, "radius": 490, "turn": "left", "rise": 0 },
+          { "kind": "bend", "length": 295.41, "radius": 260, "turn": "left", "rise": 0 },
+          { "kind": "bend", "length": 353.55, "radius": 235, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 857, "rise": 0 },
+          { "kind": "bend", "length": 276.18, "radius": 160, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 97.5, "rise": 0 },
+          { "kind": "bend", "length": 488.41, "radius": 330, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 550, "rise": 0 }
+        ]
+      }
+    ],
+    "distances": [
+      { "distance": 1400, "layoutId": "clairval_main" },
+      { "distance": 1600, "layoutId": "clairval_main" },
+      { "distance": 2000, "layoutId": "clairval_main" },
+      { "distance": 2100, "layoutId": "clairval_main" },
+      { "distance": 2400, "layoutId": "clairval_main" }
+    ],
+    "features": ["galloping"]
+  },
+  {
+    "id": "bellerive_le_bois",
+    "name": "Bellerive-le-Bois",
+    "country": "FR",
+    "surface": "turf",
+    "handedness": "left",
+    "undulation": 0.2,
+    "drainage": 0.5,
+    "layouts": [
+      {
+        "id": "bellerive_straight",
+        "label": "Straight Course",
+        "handedness": "straight",
+        "closed": false,
+        "width": 40,
+        "segments": [
+          { "kind": "straight", "length": 2000, "rise": 0 }
+        ]
+      },
+      {
+        "id": "bellerive_round",
+        "label": "Round Course",
+        "handedness": "left",
+        "closed": true,
+        "width": 32,
+        "segments": [
+          { "kind": "bend", "length": 719.82, "radius": 225, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 1016.7, "rise": 0 },
+          { "kind": "bend", "length": 264.77, "radius": 100, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 360.6, "rise": 0 },
+          { "kind": "bend", "length": 224.71, "radius": 515, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 520, "rise": 0 }
+        ]
+      }
+    ],
+    "distances": [
+      { "distance": 1000, "layoutId": "bellerive_straight" },
+      { "distance": 1200, "layoutId": "bellerive_straight" },
+      { "distance": 1400, "layoutId": "bellerive_straight" },
+      { "distance": 1600, "layoutId": "bellerive_straight" },
+      { "distance": 2000, "layoutId": "bellerive_straight" },
+      { "distance": 2400, "layoutId": "bellerive_round" }
+    ],
+    "features": ["straight_course","long_straight"]
+  },
+  {
+    "id": "montvigne",
+    "name": "Montvigne",
+    "country": "FR",
+    "surface": "turf",
+    "handedness": "left",
+    "undulation": 0.4,
+    "drainage": 0.6,
+    "layouts": [
+      {
+        "id": "montvigne_main",
+        "label": "Main Course",
+        "handedness": "left",
+        "closed": true,
+        "width": 28,
+        "segments": [
+          { "kind": "bend", "length": 173.22, "radius": 125, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 334.9, "rise": 0 },
+          { "kind": "bend", "length": 312.05, "radius": 190, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 140, "rise": 0 },
+          { "kind": "bend", "length": 293.74, "radius": 220, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 187.4, "rise": 0 },
+          { "kind": "bend", "length": 222.53, "radius": 510, "turn": "left", "rise": 0 },
+          { "kind": "bend", "length": 215.11, "radius": 145, "turn": "left", "rise": 0 },
+          { "kind": "straight", "length": 300, "rise": 0 }
+        ]
+      }
+    ],
+    "distances": [
+      { "distance": 1200, "layoutId": "montvigne_main" },
+      { "distance": 1600, "layoutId": "montvigne_main" },
+      { "distance": 2000, "layoutId": "montvigne_main" },
+      { "distance": 2400, "layoutId": "montvigne_main" }
+    ],
+    "features": ["short_straight"]
   }
 ]
