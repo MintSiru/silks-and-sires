@@ -162,6 +162,22 @@ describe('거리 프로필 4단계 (M2-14)', () => {
   });
 });
 
+describe('거리 프로필 분포 (M2-15)', () => {
+  it('4개 프로필(speed/classic/middle/cup)이 각각 1두 이상', () => {
+    for (const p of DISTANCES) {
+      const n = stallions.filter((s) => s.distanceProfile === p).length;
+      expect(n, p).toBeGreaterThanOrEqual(1);
+    }
+  });
+
+  it('현역(active) 종마 중 classic 비율 ≥ 10%', () => {
+    const active = stallions.filter((s) => s.status === 'active');
+    const classic = active.filter((s) => s.distanceProfile === 'classic');
+    expect(active.length).toBeGreaterThan(0);
+    expect(classic.length / active.length).toBeGreaterThanOrEqual(0.1);
+  });
+});
+
 describe('계통표 sire_lines', () => {
   it('id 중복 없음, parentLineId·founderKey 존재, 계통 트리에 순환 없음', () => {
     expect(new Set(lines.map((l) => l.id)).size).toBe(lines.length);

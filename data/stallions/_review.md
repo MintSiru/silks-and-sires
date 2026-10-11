@@ -195,3 +195,190 @@ Deep Impact, Sunday Silence, Halo, Hail to Reason, Turn-to, Royal Charger, Scat 
 2. 명단 미포함 16두 처리(제외 유지 또는 다른 출처 확보).
 3. 미확인 고리 6건 수용 여부.
 4. 거리·성향 휴리스틱 값 검수는 M2-15 로 이관.
+
+## M2-15 실명 종마 거리 프로필 재분류 (haiku-data, 2026-10-11)
+
+- 방법: 종마별 위키백과 원문(action=raw)의 주요 우승 목록(race 필드)을 읽고, 각 우승 레이스 문서의 등급(class/grade)과 거리를 확인했다. 레이스명은 이 표에 적지 않았다. 판정은 명세 규칙(최고 등급 우승, 구간 경계 9f/11f/13.5f, 동률이면 짧은 쪽)을 따랐다.
+- 출처 구분: 인포박스 = 주요 우승 목록 기준(기본). 기록표 = 위키백과 성적표 기준. 본문 = 본문 서술 기준(1건, 확신 낮음). 사용자 = 사용자 제공 4두.
+- 확신도: high = 같은 구간 최고 등급 우승 2회 이상. medium = 1회. low = 구간 동률·혼재, 또는 본문 기준.
+- 거리 표기: 우승 거리를 100m 단위로 반올림(예: 2,414m → 2,400m). 구간 경계는 원 거리(m)로 판정.
+- 한계: 위키백과 주요 우승 목록에 없는 우승은 집계하지 않았다. 레이스 등급·거리는 해당 레이스 문서의 현재 값을 썼다. 성적표 등급 칸이 비어 있는 우승은 세지 않았다.
+- 결과: 바뀜 53두, 유지 104두, 미확인 15두 (총 172두). 전 종마 대상(현역·비현역·historical).
+- 동률 규칙 적용 예: Golden Horn 은 중거리(2,400m)·클래식(2,000m) 최고 등급 우승이 각 2회여서 짧은 쪽(classic)을 택했다. 검수 필요.
+- 사용자 제공 참고값 4두(Zarak, Erevann, Iffraaj, Camille Pissarro)는 사용자 정보를 그대로 적용했다. Camille Pissarro 는 명세 규칙의 동률 처리(1,400m 1회 vs 2,100m 1회 → speed)와 다르다. 사용자 판정(classic)을 따른 것이므로 확인이 필요하다.
+- 출생연도 불일치 3두(Polymelus, Seeking the Gold, Pulpit): 위키백과 연도와 데이터 foaled 가 다르다. 이번 티켓은 distanceProfile 만 수정하므로 foaled 는 바꾸지 않았다. Opus 확인 필요.
+
+| key | 종마 | 상태 | 이전 | 새 값 | 근거(등급·거리×우승 수) | 출처 | 확신도 | 비고 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| stl_auguste_rodin | Auguste Rodin | 현역 | `speed` | `middle` | G1 1,600m×1, 1,800m×1, 2,000m×2, 2,400m×3 | 인포박스 | low | 구간 혼재: `speed` 2, `middle` 3, `classic` 2 |
+| stl_australia | Australia | 현역 | `middle` | `middle` (유지) | G1 1,800m×1, 2,100m×1, 2,400m×2 | 인포박스 | low | 구간 혼재: `speed` 1, `middle` 2, `classic` 1 |
+| stl_blackbeard | Blackbeard | 현역 | `speed` | `speed` (유지) | G1 1,200m×2 | 인포박스 | high |  |
+| stl_blue_point | Blue Point | 현역 | `speed` | `speed` (유지) | G1 1,000m×2, 1,200m×2 | 인포박스 | high |  |
+| stl_bolt_d_oro | Bolt d'Oro | 현역 | `speed` | `speed` (유지) | G1 1,400m×1, 1,700m×1 | 인포박스 | high |  |
+| stl_camelot | Camelot | 현역 | `middle` | `middle` (유지) | G1 1,600m×1, 2,400m×3 | 인포박스 | low | 구간 혼재: `speed` 1, `middle` 3 |
+| stl_camille_pissarro | Camille Pissarro | 현역 | `middle` | `classic` | 사용자 제공 G1 1,400m·G1 2,100m | 사용자 | high |  |
+| stl_chaldean | Chaldean | 현역 | `speed` | `speed` (유지) | G1 1,400m×1 | 인포박스 | medium |  |
+| stl_charm_spirit | Charm Spirit | 현역 | `speed` | `speed` (유지) | G1 1,400m×1, 1,600m×2 | 인포박스 | high |  |
+| stl_churchill | Churchill | 현역 | `speed` | `speed` (유지) | G1 1,400m×2, 1,600m×1 | 인포박스 | high |  |
+| stl_citizen_bull | Citizen Bull | 현역 | `speed` | `speed` (유지) | G1 1,700m×2 | 인포박스 | high |  |
+| stl_city_of_troy | City of Troy | 현역 | `speed` | `classic` | G1 1,400m×1, 2,000m×1, 2,100m×1, 2,400m×1 | 인포박스 | low | 기록표 판정 speed 과 불일치. 구간 혼재: `speed` 1, `middle` 1, `classic` 2 |
+| stl_cloth_of_stars | Cloth of Stars | 현역 | `speed` | `classic` | G1 2,100m×1 | 인포박스 | medium |  |
+| stl_codys_wish | Cody's Wish | 현역 | `speed` | `speed` (유지) | G1 1,400m×2, 1,600m×3 | 인포박스 | high |  |
+| stl_corniche | Corniche | 현역 | `speed` | `speed` (유지) | G1 1,700m×2 | 인포박스 | high |  |
+| stl_cracksman | Cracksman | 현역 | `cup` | `classic` | G1 2,000m×2, 2,100m×1, 2,400m×1 | 인포박스 | low | 구간 혼재: `classic` 3, `middle` 1 |
+| stl_curlin | Curlin | 현역 | `middle` | `classic` | G1 1,800m×2, 1,900m×1, 2,000m×4 | 인포박스 | low | 구간 혼재: `speed` 2, `classic` 5 |
+| stl_daryz | Daryz | 현역 | `speed` | `cup` | G1 2,800m×1 | 본문 | low | 본문 기록 1건(기록표 없음). |
+| stl_delacroix | Delacroix | 현역 | `speed` | `classic` | G1 2,000m×2 | 기록표 | high |  |
+| stl_dubawi | Dubawi | 현역 | `middle` | `speed` | G1 1,400m×1, 1,600m×2 | 인포박스 | high |  |
+| stl_earthlight | Earthlight | 현역 | `speed` | `speed` (유지) | G1 1,200m×2 | 인포박스 | high |  |
+| stl_elite_power | Elite Power | 현역 | `speed` | `speed` (유지) | G1 1,200m×2 | 인포박스 | high |  |
+| stl_epicenter | Epicenter | 현역 | `speed` | `classic` | G1 2,000m×1 | 인포박스 | medium |  |
+| stl_erevann | Erevann | 현역 | `speed` | `speed` (유지) | 사용자 제공 G2 마일 | 사용자 | high |  |
+| stl_essential_quality | Essential Quality | 현역 | `speed` | `speed` (유지) | G1 1,700m×2, 1,800m×1, 2,000m×1, 2,400m×2 | 인포박스 | low | 구간 혼재: `speed` 3, `classic` 1, `middle` 2 |
+| stl_farhh | Farhh | 현역 | `middle` | `classic` | G1 1,600m×1, 2,000m×2 | 인포박스 | low | 구간 혼재: `speed` 1, `classic` 2 |
+| stl_fierceness | Fierceness | 현역 | `speed` | `speed` (유지) | G1 1,700m×1, 1,800m×1, 2,000m×2 | 인포박스 | low | 구간 혼재: `speed` 2, `classic` 2 |
+| stl_flightline | Flightline | 현역 | `speed` | `speed` (유지) | G1 1,400m×1, 1,600m×1, 2,000m×2 | 인포박스 | low | 구간 혼재: `speed` 2, `classic` 2 |
+| stl_footstepsinthesand | Footstepsinthesand | 현역 | `speed` | `speed` (유지) | G3 1,400m×1 | 인포박스 | medium |  |
+| stl_frankel | Frankel | 현역 | `speed` | `speed` (유지) | G1 1,400m×1, 1,600m×6, 2,000m×2, 2,100m×1 | 인포박스 | low | 구간 혼재: `speed` 7, `classic` 3 |
+| stl_frosted | Frosted | 현역 | `speed` | `speed` (유지) | G1 1,600m×1, 1,800m×2 | 인포박스 | high |  |
+| stl_ghaiyyath | Ghaiyyath | 현역 | `middle` | `classic` | G1 2,000m×1, 2,100m×1, 2,400m×2 | 인포박스 | low | 구간 혼재: `middle` 2, `classic` 2 |
+| stl_gleneagles | Gleneagles | 현역 | `middle` | `speed` | G1 1,400m×1, 1,600m×2 | 인포박스 | high |  |
+| stl_golden_horn | Golden Horn | 현역 | `middle` | `classic` | G1 2,000m×2, 2,400m×2 | 인포박스 | low | 구간 혼재: `middle` 2, `classic` 2 |
+| stl_golden_pal | Golden Pal | 현역 | `speed` | `speed` (유지) | 미확인 | - | - | 등급·거리 근거 부족 → 미확인(값 유지) |
+| stl_good_magic | Good Magic | 현역 | `speed` | `speed` (유지) | G1 1,700m×1, 1,800m×2 | 인포박스 | high |  |
+| stl_gunite | Gunite | 현역 | `speed` | `speed` (유지) | G1 1,400m×2 | 인포박스 | high |  |
+| stl_hard_spun | Hard Spun | 현역 | `speed` | `speed` (유지) | G1 1,400m×1 | 인포박스 | medium |  |
+| stl_harry_angel | Harry Angel | 현역 | `speed` | `speed` (유지) | G1 1,200m×2 | 인포박스 | high |  |
+| stl_holy_roman_emperor | Holy Roman Emperor | 현역 | `middle` | `speed` | G1 1,200m×1, 1,400m×1 | 인포박스 | high |  |
+| stl_iffraaj | Iffraaj | 현역 | `speed` | `speed` (유지) | 사용자 제공 G2 6~7f | 사용자 | high |  |
+| stl_into_mischief | Into Mischief | 현역 | `speed` | `speed` (유지) | G2 1,700m×1 | 인포박스 | medium |  |
+| stl_jack_christopher | Jack Christopher | 현역 | `speed` | `speed` (유지) | G1 1,400m×2, 1,600m×1 | 인포박스 | high |  |
+| stl_justify | Justify | 현역 | `speed` | `classic` | G1 1,900m×2, 2,000m×2, 2,400m×2 | 인포박스 | low | 구간 혼재: `classic` 4, `middle` 2 |
+| stl_kingman | Kingman | 현역 | `speed` | `speed` (유지) | G1 1,600m×4 | 인포박스 | high |  |
+| stl_life_is_good | Life Is Good | 현역 | `speed` | `speed` (유지) | G1 1,600m×1, 1,800m×2 | 인포박스 | high |  |
+| stl_little_big_bear | Little Big Bear | 현역 | `speed` | `speed` (유지) | G1 1,200m×1 | 인포박스 | medium |  |
+| stl_lope_de_vega | Lope de Vega | 현역 | `middle` | `speed` | G1 1,600m×1, 2,100m×1 | 인포박스 | low | 구간 혼재: `classic` 1, `speed` 1 |
+| stl_makfi | Makfi | 현역 | `speed` | `speed` (유지) | G1 1,600m×1 | 인포박스 | medium |  |
+| stl_mandaloun | Mandaloun | 현역 | `speed` | `speed` (유지) | 미확인 | - | - | 등급·거리 근거 부족 → 미확인(값 유지) |
+| stl_masar | Masar | 현역 | `speed` | `middle` | G1 2,400m×1 | 인포박스 | medium |  |
+| stl_maxfield | Maxfield | 현역 | `speed` | `speed` (유지) | 미확인 | - | - | 등급·거리 근거 부족 → 미확인(값 유지) |
+| stl_medaglia_d_oro | Medaglia d'Oro | 현역 | `speed` | `speed` (유지) | G1 1,800m×2, 2,000m×1 | 인포박스 | low | 구간 혼재: `classic` 1, `speed` 2 |
+| stl_midshipman | Midshipman | 현역 | `speed` | `speed` (유지) | G1 1,400m×1 | 인포박스 | medium |  |
+| stl_modern_games | Modern Games | 현역 | `speed` | `speed` (유지) | G1 1,600m×5 | 인포박스 | high |  |
+| stl_nathaniel | Nathaniel | 현역 | `middle` | `classic` | G1 2,000m×1, 2,400m×1 | 인포박스 | low | 구간 혼재: `middle` 1, `classic` 1 |
+| stl_native_trail | Native Trail | 현역 | `speed` | `speed` (유지) | G1 1,400m×2, 1,600m×1 | 인포박스 | high |  |
+| stl_naval_crown | Naval Crown | 현역 | `speed` | `speed` (유지) | G1 1,200m×1 | 인포박스 | medium |  |
+| stl_night_of_thunder | Night of Thunder | 현역 | `speed` | `speed` (유지) | G1 1,600m×1 | 인포박스 | medium |  |
+| stl_no_nay_never | No Nay Never | 현역 | `speed` | `speed` (유지) | G1 1,200m×1 | 인포박스 | medium |  |
+| stl_nyquist | Nyquist | 현역 | `speed` | `speed` (유지) | G1 1,800m×1 | 본문 | low | 본문 기록 1건(기록표 없음). |
+| stl_oasis_dream | Oasis Dream | 현역 | `speed` | `speed` (유지) | G1 1,000m×1, 1,200m×2 | 인포박스 | high |  |
+| stl_paddington | Paddington | 현역 | `speed` | `speed` (유지) | G1 1,600m×3, 2,000m×1 | 인포박스 | low | 구간 혼재: `speed` 3, `classic` 1 |
+| stl_palace_pier | Palace Pier | 현역 | `speed` | `speed` (유지) | G1 1,600m×5 | 인포박스 | high |  |
+| stl_perfect_power | Perfect Power | 현역 | `speed` | `speed` (유지) | G1 1,200m×3 | 인포박스 | high |  |
+| stl_persian_king | Persian King | 현역 | `speed` | `speed` (유지) | G1 1,600m×2, 1,800m×1 | 인포박스 | low | 구간 혼재: `speed` 2, `classic` 1 |
+| stl_pinatubo | Pinatubo | 현역 | `speed` | `speed` (유지) | G1 1,400m×3 | 인포박스 | high |  |
+| stl_practical_joke | Practical Joke | 현역 | `speed` | `speed` (유지) | G1 1,400m×2, 1,600m×1 | 인포박스 | high |  |
+| stl_ravens_pass | Raven's Pass | 현역 | `speed` | `classic` | G1 1,600m×1, 2,000m×2 | 인포박스 | low | 구간 혼재: `speed` 1, `classic` 2 |
+| stl_saxon_warrior | Saxon Warrior | 현역 | `speed` | `speed` (유지) | G1 1,600m×1 | 인포박스 | medium |  |
+| stl_sea_the_stars | Sea The Stars | 현역 | `middle` | `middle` (유지) | G1 2,000m×2, 2,100m×1, 2,400m×4 | 인포박스 | low | 구간 혼재: `middle` 4, `classic` 3 |
+| stl_shalaa | Shalaa | 현역 | `speed` | `speed` (유지) | G1 1,200m×2 | 인포박스 | high |  |
+| stl_sierra_leone | Sierra Leone | 현역 | `speed` | `speed` (유지) | G1 1,800m×2, 2,000m×1 | 인포박스 | low | 구간 혼재: `speed` 2, `classic` 1 |
+| stl_siyouni | Siyouni | 현역 | `middle` | `speed` | G1 1,400m×1 | 인포박스 | medium |  |
+| stl_space_blues | Space Blues | 현역 | `speed` | `speed` (유지) | G1 1,300m×1, 1,400m×2, 1,600m×1 | 인포박스 | high |  |
+| stl_st_marks_basilica | St Mark's Basilica | 현역 | `middle` | `classic` | G1 1,400m×1, 1,600m×1, 2,000m×2, 2,100m×1 | 인포박스 | low | 구간 혼재: `speed` 2, `classic` 3 |
+| stl_starspangledbanner | Starspangledbanner | 현역 | `speed` | `speed` (유지) | G1 1,100m×1, 1,200m×2, 1,600m×1 | 인포박스 | high |  |
+| stl_street_sense | Street Sense | 현역 | `speed` | `speed` (유지) | G1 1,700m×1, 2,000m×1 | 인포박스 | low | 구간 혼재: `speed` 1, `classic` 1 |
+| stl_tapit | Tapit | 현역 | `speed` | `speed` (유지) | G2 1,800m×1 | 인포박스 | medium |  |
+| stl_teofilo | Teofilo | 현역 | `middle` | `speed` | G1 1,400m×2 | 인포박스 | high |  |
+| stl_tiz_the_law | Tiz The Law | 현역 | `speed` | `speed` (유지) | G1 1,800m×1 | 본문 | low | 본문 기록 1건(기록표 없음). |
+| stl_too_darn_hot | Too Darn Hot | 현역 | `speed` | `speed` (유지) | G1 1,400m×2, 1,600m×1 | 인포박스 | high |  |
+| stl_ulysses | Ulysses | 현역 | `speed` | `classic` | G1 2,000m×1, 2,100m×1 | 인포박스 | high |  |
+| stl_vadeni | Vadeni | 현역 | `speed` | `classic` | G1 2,000m×1, 2,100m×1 | 인포박스 | high |  |
+| stl_victor_ludorum | Victor Ludorum | 현역 | `speed` | `speed` (유지) | G1 1,400m×1, 1,600m×1 | 인포박스 | high |  |
+| stl_vino_rosso | Vino Rosso | 현역 | `speed` | `speed` (유지) | 미확인 | - | - | 등급·거리 근거 부족 → 미확인(값 유지) |
+| stl_violence | Violence | 현역 | `speed` | `speed` (유지) | G2 1,700m×1 | 인포박스 | medium |  |
+| stl_zarak | Zarak | 현역 | `middle` | `middle` (유지) | 사용자 제공 G1 2,400m | 사용자 | high |  |
+| stl_bernardini | Bernardini | 비현역 | `speed` | `classic` | G1 1,900m×1, 2,000m×2 | 인포박스 | high |  |
+| stl_cacique | Cacique | 비현역 | `middle` | `classic` | G1 2,000m×1 | 인포박스 | medium |  |
+| stl_candy_ride | Candy Ride | 비현역 | `speed` | `speed` (유지) | G1 1,600m×2, 2,000m×1 | 인포박스 | low | 구간 혼재: `speed` 2, `classic` 1 |
+| stl_choisir | Choisir | 비현역 | `speed` | `speed` (유지) | G1 1,000m×2, 1,200m×1 | 인포박스 | high |  |
+| stl_city_of_light | City of Light | 비현역 | `speed` | `speed` (유지) | G1 1,400m×1, 1,600m×1, 1,800m×1 | 인포박스 | high |  |
+| stl_constitution | Constitution | 비현역 | `speed` | `speed` (유지) | 미확인 | - | - | 등급·거리 근거 부족 → 미확인(값 유지) |
+| stl_dark_angel | Dark Angel | 비현역 | `speed` | `speed` (유지) | G1 1,200m×1 | 인포박스 | medium |  |
+| stl_deep_impact | Deep Impact | 비현역 | `middle` | `middle` (유지) | G1 2,000m×1, 2,200m×1, 2,400m×2, 2,500m×1, 3,000m×1, 3,200m×1 | 인포박스 | low | 구간 혼재: `cup` 2, `classic` 2, `middle` 3 |
+| stl_dixieland_band | Dixieland Band | 비현역 | `speed` | `speed` (유지) | G1 1,800m×1 | 인포박스 | medium |  |
+| stl_empire_maker | Empire Maker | 비현역 | `speed` | `middle` | G1 1,800m×1, 2,400m×2 | 인포박스 | low | 구간 혼재: `speed` 1, `middle` 2 |
+| stl_fappiano | Fappiano | 비현역 | `speed` | `speed` (유지) | G1 1,400m×1, 1,600m×1 | 인포박스 | high |  |
+| stl_gun_runner | Gun Runner | 비현역 | `speed` | `speed` (유지) | G1 1,800m×3, 2,000m×2 | 인포박스 | low | 구간 혼재: `speed` 3, `classic` 2 |
+| stl_hail_to_reason | Hail to Reason | 비현역 | `speed` | `speed` (유지) | G1 1,400m×1 | 인포박스 | medium |  |
+| stl_half_ours | Half Ours | 비현역 | `speed` | `speed` (유지) | 미확인 | - | - | 등급·거리 근거 부족 → 미확인(값 유지) |
+| stl_halo | Halo | 비현역 | `speed` | `classic` | G2 2,200m×1 | 인포박스 | medium |  |
+| stl_indian_charlie | Indian Charlie | 비현역 | `speed` | `speed` (유지) | G1 1,800m×1 | 인포박스 | medium |  |
+| stl_invincible_spirit | Invincible Spirit | 비현역 | `speed` | `speed` (유지) | G1 1,200m×1 | 인포박스 | medium |  |
+| stl_johannesburg | Johannesburg | 비현역 | `speed` | `speed` (유지) | G1 1,200m×3, 1,700m×1 | 인포박스 | high |  |
+| stl_new_approach | New Approach | 비현역 | `speed` | `speed` (유지) | G1 1,400m×2, 2,000m×2, 2,400m×2 | 인포박스 | low | 구간 혼재: `speed` 2, `middle` 2, `classic` 2 |
+| stl_not_this_time | Not This Time | 비현역 | `speed` | `speed` (유지) | G3 1,600m×1 | 인포박스 | medium |  |
+| stl_pour_moi | Pour Moi | 비현역 | `middle` | `middle` (유지) | G1 2,400m×2 | 인포박스 | high |  |
+| stl_quality_road | Quality Road | 비현역 | `speed` | `speed` (유지) | G1 1,600m×1, 1,800m×2 | 인포박스 | high |  |
+| stl_royal_charger | Royal Charger | 비현역 | `speed` | `speed` (유지) | G1 1,600m×1 | 인포박스 | medium |  |
+| stl_stay_thirsty | Stay Thirsty | 비현역 | `speed` | `classic` | G1 2,000m×1 | 인포박스 | medium |  |
+| stl_sunday_silence | Sunday Silence | 비현역 | `middle` | `classic` | G1 1,800m×1, 1,900m×2, 2,000m×3 | 인포박스 | low | 구간 혼재: `speed` 1, `classic` 5 |
+| stl_turn_to | Turn-to | 비현역 | `speed` | `speed` (유지) | G2 1,200m×1 | 인포박스 | medium |  |
+| stl_unbridled | Unbridled | 비현역 | `speed` | `classic` | G1 1,800m×1, 2,000m×2 | 인포박스 | low | 구간 혼재: `speed` 1, `classic` 2 |
+| stl_unbridleds_song | Unbridled's Song | 비현역 | `speed` | `speed` (유지) | G1 1,700m×1, 1,800m×1 | 인포박스 | high |  |
+| stl_uncle_mo | Uncle Mo | 비현역 | `speed` | `speed` (유지) | G1 1,600m×1, 1,700m×1 | 인포박스 | high |  |
+| stl_ap_indy | A.P. Indy | historical | `middle` | `speed` | G1 1,800m×1, 2,000m×1, 2,400m×1 | 인포박스 | low | 구간 혼재: `speed` 1, `middle` 1, `classic` 1 |
+| stl_bold_reasoning | Bold Reasoning | historical | `speed` | `speed` (유지) | 미확인 | - | - | 등급·거리 근거 부족 → 미확인(값 유지) |
+| stl_bold_ruler | Bold Ruler | historical | `speed` | `classic` | G1 1,900m×1 | 인포박스 | medium |  |
+| stl_boldnesian | Boldnesian | historical | `speed` | `speed` (유지) | G1 1,800m×1 | 인포박스 | medium |  |
+| stl_cape_cross | Cape Cross | historical | `speed` | `speed` (유지) | G1 1,600m×2 | 인포박스 | high |  |
+| stl_caro | Caro | historical | `speed` | `classic` | G1 1,600m×1, 1,800m×1, 2,100m×1 | 인포박스 | low | 구간 혼재: `classic` 2, `speed` 1 |
+| stl_danehill | Danehill | historical | `middle` | `speed` | G1 1,200m×2 | 인포박스 | high |  |
+| stl_danehill_dancer | Danehill Dancer | historical | `speed` | `speed` (유지) | G1 1,200m×1, 1,400m×1 | 인포박스 | high |  |
+| stl_dansili | Dansili | historical | `middle` | `speed` | G2 1,600m×1 | 인포박스 | medium |  |
+| stl_danzig | Danzig | historical | `speed` | `speed` (유지) | 미확인 | - | - | 등급·거리 근거 부족 → 미확인(값 유지) |
+| stl_dubai_millennium | Dubai Millennium | historical | `speed` | `classic` | G1 1,600m×2, 1,900m×1, 2,000m×2 | 인포박스 | low | 구간 혼재: `speed` 2, `classic` 3 |
+| stl_el_prado | El Prado | historical | `middle` | `speed` | G1 1,400m×1 | 인포박스 | medium |  |
+| stl_elusive_quality | Elusive Quality | historical | `speed` | `speed` (유지) | G1 1,200m×1 | 인포박스 | medium |  |
+| stl_forestry | Forestry | historical | `speed` | `speed` (유지) | G1 1,400m×1 | 인포박스 | medium |  |
+| stl_galileo | Galileo | historical | `middle` | `middle` (유지) | G1 2,400m×4 | 인포박스 | high |  |
+| stl_giant_causeway | Giant's Causeway | historical | `speed` | `speed` (유지) | 미확인 | - | - | 등급·거리 근거 부족 → 미확인(값 유지) |
+| stl_gone_west | Gone West | historical | `speed` | `speed` (유지) | G3 1,600m×1 | 인포박스 | medium |  |
+| stl_green_desert | Green Desert | historical | `speed` | `speed` (유지) | G1 1,200m×2 | 인포박스 | high |  |
+| stl_harlan | Harlan | historical | `speed` | `speed` (유지) | 미확인 | - | - | 위키백과 페이지 확인 실패 |
+| stl_harlans_holiday | Harlan's Holiday | historical | `speed` | `speed` (유지) | G1 1,800m×4 | 인포박스 | high |  |
+| stl_in_excess | In Excess | historical | `speed` | `speed` (유지) | G1 1,600m×1, 1,800m×1 | 인포박스 | high |  |
+| stl_kingmambo | Kingmambo | historical | `speed` | `speed` (유지) | G1 1,600m×3 | 인포박스 | high |  |
+| stl_machiavellian | Machiavellian | historical | `speed` | `speed` (유지) | G1 1,200m×1, 1,400m×1 | 인포박스 | high |  |
+| stl_malibu_moon | Malibu Moon | historical | `speed` | `speed` (유지) | G1 1,600m×1 | 본문 | low | 본문 기록 1건(기록표 없음). |
+| stl_montjeu | Montjeu | historical | `cup` | `middle` | G1 2,100m×2, 2,400m×5 | 인포박스 | low | 구간 혼재: `classic` 2, `middle` 5 |
+| stl_mr_prospector | Mr. Prospector | historical | `speed` | `speed` (유지) | 미확인 | - | - | 등급·거리 근거 부족 → 미확인(값 유지) |
+| stl_nasrullah | Nasrullah | historical | `speed` | `classic` | G1 2,000m×1 | 인포박스 | medium |  |
+| stl_native_dancer | Native Dancer | historical | `speed` | `speed` (유지) | G1 1,400m×1, 1,600m×1, 1,900m×1, 2,000m×1, 2,400m×1 | 인포박스 | low | 구간 혼재: `speed` 2, `classic` 2, `middle` 1 |
+| stl_nearco | Nearco | historical | `middle` | `middle` (유지) | G1 2,400m×1 | 인포박스 | medium |  |
+| stl_nearctic | Nearctic | historical | `middle` | `speed` | G2 1,200m×1 | 인포박스 | medium |  |
+| stl_northern_dancer | Northern Dancer | historical | `speed` | `speed` (유지) | G1 1,600m×1, 1,800m×2, 1,900m×1, 2,000m×1 | 인포박스 | low | 구간 혼재: `speed` 3, `classic` 2 |
+| stl_nureyev | Nureyev | historical | `speed` | `speed` (유지) | G3 1,400m×2 | 인포박스 | high |  |
+| stl_phalaris | Phalaris | historical | `middle` | `speed` | G2 1,400m×2 | 인포박스 | high |  |
+| stl_pharos | Pharos | historical | `middle` | `classic` | G1 2,000m×1 | 인포박스 | medium |  |
+| stl_pivotal | Pivotal | historical | `middle` | `speed` | G1 1,000m×2 | 인포박스 | high |  |
+| stl_polar_falcon | Polar Falcon | historical | `speed` | `speed` (유지) | G1 1,200m×1, 1,600m×1 | 인포박스 | high |  |
+| stl_polymelus | Polymelus | historical | `middle` | `classic` | G1 2,000m×1 | 인포박스 | medium | 위키 출생연도 1902 ≠ 데이터 1907(미수정). |
+| stl_polynesian | Polynesian | historical | `speed` | `classic` | G1 1,900m×1 | 인포박스 | medium |  |
+| stl_pulpit | Pulpit | historical | `middle` | `speed` | G1 1,800m×1 | 인포박스 | medium | 위키 출생연도 1994 ≠ 데이터 1993(미수정). |
+| stl_raise_a_native | Raise a Native | historical | `speed` | `speed` (유지) | 미확인 | - | - | 등급·거리 근거 부족 → 미확인(값 유지) |
+| stl_sadlers_wells | Sadler's Wells | historical | `middle` | `classic` | G1 1,600m×1, 2,000m×2 | 인포박스 | low | 구간 혼재: `speed` 1, `classic` 2 |
+| stl_scat_daddy | Scat Daddy | historical | `speed` | `speed` (유지) | G1 1,600m×1, 1,800m×1 | 인포박스 | high |  |
+| stl_seattle_slew | Seattle Slew | historical | `middle` | `speed` | G1 1,600m×1, 1,800m×1, 1,900m×1, 2,000m×1, 2,400m×1 | 인포박스 | low | 구간 혼재: `speed` 2, `classic` 2, `middle` 1 |
+| stl_seeking_the_gold | Seeking the Gold | historical | `speed` | `speed` (유지) | G3 1,800m×1 | 인포박스 | medium | 위키 출생연도 1985 ≠ 데이터 1986(미수정). |
+| stl_shamardal | Shamardal | historical | `speed` | `speed` (유지) | G1 1,400m×1, 1,600m×2, 2,100m×1 | 인포박스 | low | 구간 혼재: `speed` 3, `classic` 1 |
+| stl_siberian_express | Siberian Express | historical | `speed` | `speed` (유지) | G1 1,200m×1, 1,600m×1 | 인포박스 | high |  |
+| stl_sickle | Sickle | historical | `middle` | `middle` (유지) | 미확인 | - | - | 등급·거리 근거 부족 → 미확인(값 유지) |
+| stl_smart_strike | Smart Strike | historical | `middle` | `speed` | G3 1,600m×1, 1,700m×1 | 인포박스 | high |  |
+| stl_storm_bird | Storm Bird | historical | `middle` | `speed` | G1 1,400m×2 | 인포박스 | high |  |
+| stl_storm_cat | Storm Cat | historical | `speed` | `speed` (유지) | 미확인 | - | - | 등급·거리 근거 부족 → 미확인(값 유지) |
+| stl_street_cry | Street Cry | historical | `speed` | `classic` | G1 1,800m×1, 1,900m×1, 2,000m×1 | 인포박스 | low | 구간 혼재: `classic` 2, `speed` 1 |
+| stl_unbreakable | Unbreakable | historical | `speed` | `speed` (유지) | G2 1,200m×1 | 인포박스 | medium |  |
+| stl_vindication | Vindication | historical | `speed` | `speed` (유지) | 미확인 | - | - | 등급·거리 근거 부족 → 미확인(값 유지) |
+| stl_wootton_bassett | Wootton Bassett | historical | `speed` | `speed` (유지) | G1 1,400m×1 | 인포박스 | medium |  |
+| stl_zafonic | Zafonic | historical | `speed` | `speed` (유지) | G1 1,200m×1, 1,400m×2, 1,600m×1 | 인포박스 | high |  |
