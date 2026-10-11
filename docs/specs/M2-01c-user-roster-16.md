@@ -41,6 +41,22 @@ Territories·Speaker's Corner 는 사용자 결정으로 2026 명단대로 현�
 - 그 밖에 표의 부가 파일에 없으면 같은 방식으로 추가.
 - 기존 Jack Christopher 의 sireKey 를 stl_munnings 로 연결(Munnings 가 확인·추가되면).
 
+
+## 부계 고리 5두 (사용자 제공 2026-10-11) — 끊긴 사슬 잇기
+| key | 이름 | 출생 | 출생국 | 부(sireKey) | 모부 | status / standsIn / tier | distance | surface | 잇는 대상 |
+|---|---|---|---|---|---|---|---|---|---|
+| stl_ardad | Ardad | 2014 | IE | Kodiac (확인 후 추가: Kodiac ← Danehill(기존)) | Red Clubs(파일에 있으면) | active / GB / 5 (사용자: 2026 현역, 1만 미만) | speed | turf | Perfect Power.sireKey |
+| stl_hennessy | Hennessy | 1993 | US | Storm Cat(기존) | null | 사망 확인되면 historical, 아니면 pensioned / null / 5 | speed | dirt | Johannesburg.sireKey |
+| stl_fortino_ii | Fortino II | 1959 | FR | Grey Sovereign (확인 후 추가: Grey Sovereign ← Nasrullah(기존)) | Relic(파일에 있으면) | historical(1980 사망, 사용자 제공) / null / 5 | speed | turf | Caro.sireKey |
+| stl_acclamation | Acclamation | 1999 | GB | Royal Applause (확인: 위키백과 Royal Applause 항목 자마 목록) → Waajib → Try My Best → Northern Dancer(기존) 순으로 확인되는 데까지 | null | historical(2024 은퇴 후 사망, 사용자 제공) / null / 5 | speed | turf | Dark Angel.sireKey |
+| stl_ride_the_rails | Ride the Rails | 1991 | US | Cryptoclearance (확인 후 추가: Cryptoclearance ← Fappiano(기존)) | Al Hattab(파일에 있으면) | pensioned / null / 5 | speed | dirt | Candy Ride.sireKey |
+
+주의:
+- 사용자 원문은 Hennessy 를 "Scat Daddy 의 아들" 이라 했으나 사실과 반대다(Scat Daddy 2004 ← Johannesburg ← Hennessy 1993). Opus 판단으로 부는 Storm Cat. _review 에 "사용자 원문 정정: 부 Storm Cat" 기록.
+- Acclamation 은 영국산(1999)이다. 2006년 미국산 동명 말과 혼동하지 않는다.
+- 사용자 원문의 목장·조교사·레이스 이름과 금액은 쓰지 않는다.
+- 이 5두가 이어지면 tests/data/stallions.test.ts 의 부계 깊이 예외 목록에서 해소된 종마를 뺀다.
+
 ## 생성·수정할 파일
 1. `data/stallions/stallions.json`, `data/stallions/names.json`, `data/stallions/sire_lines.json`(필요 시)
 2. `data/stallions/_review.md` (M2-01c 섹션)

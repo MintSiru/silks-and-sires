@@ -111,3 +111,4 @@
 - 2026-10-11 | 승인 | M2-16 스테이어 유전 — 거리 적성 부 0.45·외조부 0.30·모 0.25(외조부 없으면 재정규화), 보완형(부 speed/classic + 모계 스태미나 ≥ 0.6) 잠재 +8%·1대 한정(÷1.08 근사 복원), 미리보기 roles/complement(공개 정보만). 테스트 추가. 미리보기에 외조부를 넘기는 UI 연결은 M2-17. M2-11 은 damsire·own 보완형 전달로 재실행 필요.
 - 2026-10-11 | 사용자 | 명단 미포함 16두는 사용자 제공 정보로 추가(M2-01c). Territories·Speaker's Corner 는 해외 이적 기록과 무관하게 2026 명단대로 현역. Henri Matisse 부 Wootton Bassett·모부 Pivotal, Proxy 2018년생(사용자 제공).
 - 2026-10-11 | 승인 | M2-17 배합 화면 역할 힌트 — 미리보기에 외조부 전달, '역할'(부마/모계)·'보완형' 표시, matingRoleKo·complementKo + 테스트. 브라우저 확인은 M2 최종 점검에서.
+- 2026-10-11 | 사용자 | 끊긴 부계 고리 5두(Ardad, Hennessy, Fortino II, Acclamation, Ride the Rails) 사용자 제공 → M2-01c 에 추가. Hennessy 의 부는 사용자 원문('Scat Daddy 의 아들')이 사실과 반대라 Storm Cat 으로 정정(Opus).
