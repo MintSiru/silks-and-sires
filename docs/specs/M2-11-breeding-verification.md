@@ -38,3 +38,11 @@
 
 ## 테스트 명령
 `npm test && VERIFY=1 npx vitest run tests/verify/breeding.test.ts && npm run typecheck && npm run lint`
+
+---
+## 개정 (2026-10-11, M2-05b 반영) — 이 절이 위 내용보다 우선한다
+1. 교배 시 인브리드: `dominantCrosses(root, findInbreeding(root))` (src/engine/breeding/inbreeding.ts). `root = buildMatingPedigree(lookup, sire.id, dam.id)`. 게임 본체(season.ts, preview.ts)와 같은 방식.
+2. 닉스 효과 기준: **차이 1~3.5** (설계 기대 ≈ NICK_EFFECT_MAX × 평균 닉스 값 ≈ 2.2). "3~5" 는 명세 오류였다.
+3. 단서 정확도의 "진짜 값"은 단계별: foal·yearling·two_year_old = 잠재(potential) 5종 평균, in_training = 현재 능력 0.6 + 잠재 0.4 의 가중 평균. 기준: 단계가 진행될수록 상관이 커지고(단조 증가), in_training ρ ≥ 0.7.
+4. 닫힌 집단 붕괴 여부 판정(2절 선택 교배): 닫힌 집단에서 인브리드율(혈량 > 0 인 말 비율)이 100% 에 가까운 것은 정상이므로 기준이 아니다. 대신 마지막 세대의 **평균 혈량 ≤ 12.5%**, **건강도 평균 ≥ 40**, **잠재 평균이 1세대보다 낮지 않음**을 본다. 하나라도 어기면 "기준 이탈 지표"에 적는다. 1절·2절의 기존 기준(±5, +5 이상·85 미만)은 그대로다.
+5. 리포트 docs/reports/2026-10-11-m2-breeding.md 를 다시 생성한다(개정 후 수치로 덮어쓰기, 맨 위에 "M2-05b 반영 재실행" 한 줄).
