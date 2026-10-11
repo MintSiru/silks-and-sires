@@ -1,0 +1,116 @@
+[
+  {
+    "id": "sl_northern_dancer",
+    "label": "Northern Dancer line",
+    "parentLineId": "sl_phalaris",
+    "founderKey": "stl_northern_dancer"
+  },
+  {
+    "id": "sl_native_dancer",
+    "label": "Native Dancer line",
+    "parentLineId": "sl_phalaris",
+    "founderKey": "stl_native_dancer"
+  },
+  {
+    "id": "sl_seattle_slew",
+    "label": "Seattle Slew line",
+    "parentLineId": null,
+    "founderKey": "stl_seattle_slew"
+  },
+  {
+    "id": "sl_into_mischief",
+    "label": "Into Mischief line",
+    "parentLineId": "sl_storm_cat",
+    "founderKey": "stl_into_mischief"
+  },
+  {
+    "id": "sl_sadlers_wells",
+    "label": "Sadler's Wells line",
+    "parentLineId": "sl_northern_dancer",
+    "founderKey": "stl_sadlers_wells"
+  },
+  {
+    "id": "sl_montjeu",
+    "label": "Montjeu line",
+    "parentLineId": "sl_sadlers_wells",
+    "founderKey": "stl_montjeu"
+  },
+  {
+    "id": "sl_el_prado",
+    "label": "El Prado line",
+    "parentLineId": "sl_sadlers_wells",
+    "founderKey": "stl_el_prado"
+  },
+  {
+    "id": "sl_medaglia_d_oro",
+    "label": "Medaglia d'Oro line",
+    "parentLineId": "sl_el_prado",
+    "founderKey": "stl_medaglia_d_oro"
+  },
+  {
+    "id": "sl_danzig",
+    "label": "Danzig line",
+    "parentLineId": "sl_northern_dancer",
+    "founderKey": "stl_danzig"
+  },
+  {
+    "id": "sl_danehill",
+    "label": "Danehill line",
+    "parentLineId": "sl_danzig",
+    "founderKey": "stl_danehill"
+  },
+  {
+    "id": "sl_invincible_spirit",
+    "label": "Invincible Spirit line",
+    "parentLineId": "sl_danzig",
+    "founderKey": "stl_invincible_spirit"
+  },
+  {
+    "id": "sl_cape_cross",
+    "label": "Cape Cross line",
+    "parentLineId": "sl_danzig",
+    "founderKey": "stl_cape_cross"
+  },
+  {
+    "id": "sl_nureyev",
+    "label": "Nureyev line",
+    "parentLineId": "sl_northern_dancer",
+    "founderKey": "stl_nureyev"
+  },
+  {
+    "id": "sl_mr_prospector",
+    "label": "Mr. Prospector line",
+    "parentLineId": "sl_native_dancer",
+    "founderKey": "stl_mr_prospector"
+  },
+  {
+    "id": "sl_dubai_millennium",
+    "label": "Dubai Millennium line",
+    "parentLineId": "sl_mr_prospector",
+    "founderKey": "stl_dubai_millennium"
+  },
+  {
+    "id": "sl_dubawi",
+    "label": "Dubawi line",
+    "parentLineId": "sl_dubai_millennium",
+    "founderKey": "stl_dubawi"
+  },
+  {
+    "id": "sl_ap_indy",
+    "label": "A.P. Indy line",
+    "parentLineId": "sl_seattle_slew",
+    "founderKey": "stl_ap_indy"
+  },
+  {
+    "id": "sl_storm_cat",
+    "label": "Storm Cat line",
+    "parentLineId": "sl_northern_dancer",
+    "founderKey": "stl_storm_cat"
+  },
+  {
+    "id": "sl_phalaris",
+    "label": "Phalaris line",
+    "parentLineId": null,
+    "founderKey": "stl_phalaris"
+  }
+]
