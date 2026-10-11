@@ -172,8 +172,14 @@
 | 1 | Yarrabend (원정) | Yarrabend Cup (핸디캡) | 3,200 | 3+ | Melbourne Cup |
 | 2~4 | 각국 | G3·리스티드·핸디캡으로 시즌 마감 | | | |
 
-### 집계 (유럽 G1, 독·이 등급은 Q1 결정 전 전부 G1 가정)
-- 합계 89개: 영국 36 · 아일랜드 13 · 프랑스 27 · 독일 6 · 이탈리아 7 (실제 유럽 5개국 평지 G1 수와 비슷한 규모)
+### 등급 결정 (사용자 2026-10-11: 현실 반영)
+- 독일: Hohenmoor Derby·Wesselfeld Oaks 는 G1, Wesselfeld 2000/1000 Guineas 는 G2, Lichtenau St Leger 는 G3.
+- 이탈리아: Torreverde Derby·Valmerano Oaks 는 G2, Torreverde 2000/1000 Guineas·Valmerano St Leger 는 G3. Gran Premio di Valmerano·Premio Dama di Torreverde 는 G1 유지.
+- 비시즌(12~3월): 올웨더 리스티드 이하 경주만 개최.
+- 경마장: M3 에서 유럽 24곳 전부 구축, 원정 2곳은 M5.
+
+### 집계 (위 등급 결정 반영 전 원안 기준)
+- 원안 89개 → 등급 결정 반영 후 **80개**: 영국 36 · 아일랜드 13 · 프랑스 27 · 독일 2 · 이탈리아 2
 - **2세 G1 13개**: Kilcarrow Juvenile Sprint, Prix des Embruns, Kilcarrow Juvenile Stakes, Kilcarrow Fillies' Stakes, Marlow Juvenile Cup, Marlow Fillies' Sprint, Prix des Jeunes Espoirs, Prix des Demoiselles, Chalkpit Stakes, Bramblewood Fillies' Stakes, Dunholme Futurity, Critérium d'Automne, Critérium de Clairval
 - **빈마(암말) 한정 G1 24개**(2세 암말 G1 4개 별도): 3세 암말 클래식 10(5개국 1000 Guineas·Oaks) + Prix des Ormes, Bluebell, Meadowsweet, Linden, Downland, Prix de la Plage, Northern Oaks, Prix des Mouettes, Hollyhock, Prix des Glycines, Silverbirch, Prix de la Rotonde, Premio Dama di Torreverde, Kingsmere Ladies' Crown
 - **국가별 최고 위상**: 영국 Kingsmere Summer Crown · 아일랜드 Ballinvar Crown · 프랑스 Prix de l'Étoile d'Automne · 독일 Großer Preis von Lichtenau · 이탈리아 Gran Premio di Valmerano
