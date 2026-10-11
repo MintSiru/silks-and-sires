@@ -1,4 +1,5 @@
 import { EVENT_LOG_LIMIT, WEEKS_PER_YEAR } from '../config/game';
+import { growthSystem } from '../horse/growth';
 import { rngFromState } from '../rng';
 import type {
   AdvanceResult,
@@ -34,7 +35,7 @@ export const calendarSystem: WeeklySystem = {
   },
 };
 
-export const DEFAULT_SYSTEMS: readonly WeeklySystem[] = [calendarSystem];
+export const DEFAULT_SYSTEMS: readonly WeeklySystem[] = [calendarSystem, growthSystem];
 
 /**
  * 게임 시간을 1주 진행한다. 입력 state 는 변형하지 않고 새 state 를 돌려준다.

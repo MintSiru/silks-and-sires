@@ -170,11 +170,11 @@ describe('수용 기준 7: 커스텀 시스템과 rng', () => {
     expect(JSON.stringify(a.state)).toBe(JSON.stringify(b.state));
   });
 
-  it('기본 시스템(calendarSystem)은 난수를 쓰지 않는다', () => {
+  it('기본 시스템(calendar, growth)은 난수를 쓰지 않는다', () => {
     const state = newGame(3);
     const result = advanceWeek(state, DEFAULT_SYSTEMS);
     expect(result.state.rng).toEqual(state.rng);
-    expect(DEFAULT_SYSTEMS).toEqual([calendarSystem]);
+    expect(DEFAULT_SYSTEMS.map((s) => s.id)).toEqual(['calendar', 'growth']);
     expect(calendarSystem.id).toBe('calendar');
   });
 });

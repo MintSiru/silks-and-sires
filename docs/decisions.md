@@ -78,3 +78,4 @@
 - 2026-10-11 | 승인 | M2-07 단서 생성 — 18개 테스트. 거리 힌트의 경계(1000/3600m) 근처 폭 역전은 허용. 성장형 코멘트 어조 neutral. TRAIT_EXCEPTIONAL_DEVIATION 상수 추가 승인.
 - 2026-10-11 | 승인 | M2-04 배합 데이터 — 닉스 50쌍(시작 공개 16, 유명 5쌍 포함), 단어장 150/200, 한국어 코멘트 25키×3문장. 11개 테스트. Mercury·Titan 등 일반 어휘는 유지(단어 단위 검토로 충분).
 - 2026-10-11 | 기술 | GameEvent 'horse_status_changed', GameState.breeding{revealedNicks}, GameState.nextHorseNumber 추가. createNewGame·저장 테스트 픽스처 갱신.
+- 2026-10-11 | 승인(Opus 1줄 보정) | M2-06 주간 성장 — 9개 테스트. DEFAULT_SYSTEMS = [calendar, growth]. time.test 의 기본 시스템 단언은 명세 모순이라 Opus 가 갱신.
