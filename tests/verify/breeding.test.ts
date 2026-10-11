@@ -103,6 +103,8 @@ const NICK_DIFF_MAX = 3.5;
 const RHO_IN_TRAINING_MIN = 0.7;
 /** 개정 3 C9: 마지막 세대 평균 혈량 ≤ INBREED_EXCESS_FROM */
 const BLOOD_COLLAPSE_MAX = INBREED_EXCESS_FROM;
+/** 개정 5 C9: 평균 혈량은 이 세대 이후(포함)의 평균으로 판정한다 */
+const LATE_FROM_GEN = 11;
 const SOUNDNESS_FLOOR = 40;
 /** 개정 4 C12: 보완형 표본 쌍 수. 보완형 개수(200 이상)가 기준이며, FULL 은 보완형이 그 이상 나오도록 넉넉히 뽑는다. */
 const COMPLEMENT_PAIRS = FULL ? 8000 : 400;
@@ -202,6 +204,9 @@ interface NickResult {
   counterfactualHighMean: number;
   /** |(닉스 있음 − 없음) − NICK_EFFECT_MAX × 닉| 의 평균. 0 이면 기전이 정확히 맞는다 */
   counterfactualResidual: number;
+  /** 정보(개정 5): 그룹별 보완형 비율 */
+  highComplementShare: number;
+  lowComplementShare: number;
 }
 
 interface StageResult {
@@ -639,11 +644,15 @@ function runNickSection(): NickResult {
   let middle = 0;
   let residualSum = 0;
   let cfHighSum = 0;
+  let highComp = 0;
+  let lowComp = 0;
 
   for (let i = 0; i < NICK_PAIRS; i++) {
     const sire = rng.pick(males);
     const dam = rng.pick(females);
     const nick = nickValue(NICKS, sire.sireLineId, dam.sireLineId);
+    const damsire = damsireOf(horseLookup, dam);
+    const comp = isComplementary(sire, dam, damsire);
     const base: Omit<BreedArgs, 'nicks'> = {
       sire,
       dam,
@@ -651,7 +660,7 @@ function runNickSection(): NickResult {
       inbreeding: [],
       sireOwnBloodPercent: ownBloodPercent(lookup, sire),
       damOwnBloodPercent: ownBloodPercent(lookup, dam),
-      damsire: damsireOf(horseLookup, dam),
+      damsire,
       sireOwnComplement: ownComplement(horseLookup, sire),
       damOwnComplement: ownComplement(horseLookup, dam),
       damFamilyScore: 0,
@@ -672,8 +681,10 @@ function runNickSection(): NickResult {
     if (nick >= NICK_HIGH_MIN) {
       high.push({ avg: avg5(withNick), nick });
       cfHighSum += delta;
+      if (comp) highComp++;
     } else if (Math.abs(nick) < NICK_LOW_ABS_MAX) {
       low.push({ avg: avg5(withNick), nick });
+      if (comp) lowComp++;
     } else {
       middle++;
     }
@@ -698,6 +709,8 @@ function runNickSection(): NickResult {
     expected: NICK_EFFECT_MAX * (h.nickMean - l.nickMean),
     counterfactualHighMean: high.length === 0 ? Number.NaN : cfHighSum / high.length,
     counterfactualResidual: residualSum / NICK_PAIRS,
+    highComplementShare: high.length === 0 ? Number.NaN : highComp / high.length,
+    lowComplementShare: low.length === 0 ? Number.NaN : lowComp / low.length,
   };
 }
 
@@ -842,21 +855,87 @@ function runAssessSection(): AssessResult {
 /* 기준 판정                                                           */
 /* ------------------------------------------------------------------ */
 
+interface BaseStat {
+  generation: number;
+  /** 유전 기준값 평균·SD (개정 5) */
+  baseMean: number;
+  baseSd: number;
+  /** 표현형(저장값) 평균·SD (정보) */
+  phenMean: number;
+  phenSd: number;
+  /** 보완형으로 태어난 말 비율 */
+  complementShare: number;
+}
+
+/**
+ * 개정 5: 세대별 유전 기준값. 말이 보완형으로 태어났으면(ownComplement) 잠재 평균 ÷ (1 + COMPLEMENT_BONUS).
+ * 그 세대에서 새로 생긴 보완 보너스는 자손에게 누적되지 않으므로 기준값에서 뺀다. 세대 1(창시자)은 보완형이 없다.
+ */
+function geneticBaseStats(run: ScenarioRun): BaseStat[] {
+  const lookup: HorseLookup = (id) => run.registry.get(id);
+  const byGen = new Map<number, Horse[]>();
+  for (const h of run.registry.values()) {
+    const m = /^G(\d+)-/.exec(h.id);
+    let gen: number | null = null;
+    if (m !== null && m[1] !== undefined) gen = Number(m[1]);
+    else if (h.id.startsWith('F1-')) gen = 1;
+    if (gen === null) continue;
+    const list = byGen.get(gen) ?? [];
+    list.push(h);
+    byGen.set(gen, list);
+  }
+  return [...byGen.keys()]
+    .sort((a, b) => a - b)
+    .map((generation) => {
+      const horses = byGen.get(generation) ?? [];
+      const comp = horses.map((h) => ownComplement(lookup, h));
+      const base = horses.map((h, i) => (comp[i] ? avg5(h) / (1 + COMPLEMENT_BONUS) : avg5(h)));
+      const phen = horses.map(avg5);
+      return {
+        generation,
+        baseMean: mean(base),
+        baseSd: popSd(base),
+        phenMean: mean(phen),
+        phenSd: popSd(phen),
+        complementShare: comp.filter((c) => c).length / horses.length,
+      };
+    });
+}
+
 function buildCriteria(): { criteria: Criterion[]; info: InfoRow[] } {
   const rnd = results.random?.snapshots;
+  const rndRun = results.random;
   const bonusOff = results.randomBonusOff?.snapshots;
   const open = results.open?.snapshots;
   const selNoInbreed = results.selectionNoInbreed?.snapshots;
   const nick = results.nick;
   const assess = results.assess;
   const cx = results.complement;
-  if (!rnd || !bonusOff || !open || !nick || !assess || !cx) throw new Error('FULL 결과가 모두 없다');
+  if (!rnd || !rndRun || !bonusOff || !open || !nick || !assess || !cx) {
+    throw new Error('FULL 결과가 모두 없다');
+  }
 
   const r0 = first(rnd);
   const rndRest = rnd.slice(1);
+  // 개정 5: C2·I2 는 유전 기준값으로 잰다. 표현형 SD 비는 정보(I3).
+  const bases = geneticBaseStats(rndRun);
+  const b1 = first(bases);
+  const baseRatios = bases.slice(1).map((b) => b.baseSd / b1.baseSd);
+  const baseRatioMin = Math.min(...baseRatios);
+  const baseRatioMax = Math.max(...baseRatios);
   const ratios = rndRest.map((s) => s.potentialSd / r0.potentialSd);
   const ratioMin = Math.min(...ratios);
   const ratioMax = Math.max(...ratios);
+  const lastBase = last(bases);
+  const i2Delta = lastBase.baseMean - I1_REFERENCE_LAST;
+
+  // 개정 5 C9: 11~21세대 평균 혈량, 세대별 최대는 정보
+  const late = open.filter((s) => s.generation >= LATE_FROM_GEN);
+  const lateBloodMean = mean(late.map((s) => s.meanBloodPercent ?? 0));
+  const lateBloodMax = late.reduce(
+    (m, s) => (s.meanBloodPercent !== null && s.meanBloodPercent > m.v ? { v: s.meanBloodPercent, g: s.generation } : m),
+    { v: Number.NEGATIVE_INFINITY, g: 0 },
+  );
 
   // 개정 3 C1: 보너스만 끔 진단으로 판정. 보너스 유전 상태의 상승폭은 정보 행.
   const b0 = first(bonusOff);
@@ -898,9 +977,9 @@ function buildCriteria(): { criteria: Criterion[]; info: InfoRow[] } {
     },
     {
       id: 'C2',
-      text: `무작위 교배: 전 세대 SD 가 1세대의 ${SD_RATIO_MIN * 100}~${SD_RATIO_MAX * 100}%`,
-      observed: `SD 비 범위 ${fmt(ratioMin * 100, 1)}%~${fmt(ratioMax * 100, 1)}% (1세대 SD ${fmt(r0.potentialSd)})`,
-      pass: ratioMin >= SD_RATIO_MIN && ratioMax <= SD_RATIO_MAX,
+      text: `무작위 교배(유전 기준값, 개정 5): 전 세대 SD 가 1세대의 ${SD_RATIO_MIN * 100}~${SD_RATIO_MAX * 100}%`,
+      observed: `기준 SD 비 범위 ${fmt(baseRatioMin * 100, 1)}%~${fmt(baseRatioMax * 100, 1)}% (1세대 기준 SD ${fmt(b1.baseSd)})`,
+      pass: baseRatioMin >= SD_RATIO_MIN && baseRatioMax <= SD_RATIO_MAX,
     },
     {
       id: 'C3',
@@ -918,9 +997,11 @@ function buildCriteria(): { criteria: Criterion[]; info: InfoRow[] } {
     },
     {
       id: 'C5',
-      text: `닉스 효과: 닉스 ≥ ${NICK_HIGH_MIN} 조합 − |닉스| < ${NICK_LOW_ABS_MAX} 조합 평균 차이 ${NICK_DIFF_MIN}~${NICK_DIFF_MAX}`,
-      observed: `차이 ${fmt(nick.diff)} (SE ${fmt(nick.se)}), 기대 NICK_EFFECT_MAX×평균닉스차 = ${fmt(nick.expected)}`,
-      pass: nick.diff >= NICK_DIFF_MIN && nick.diff <= NICK_DIFF_MAX,
+      text: `닉스 효과(같은 쌍 반사실, 개정 5): 닉스 ≥ ${NICK_HIGH_MIN} 쌍의 닉스 유무 차이 ${NICK_DIFF_MIN}~${NICK_DIFF_MAX}`,
+      observed:
+        `반사실 차이 ${fmt(nick.counterfactualHighMean)} (잔차 ${fmt(nick.counterfactualResidual, 4)}), ` +
+        `기대 NICK_EFFECT_MAX×평균닉스차 = ${fmt(nick.expected)}`,
+      pass: nick.counterfactualHighMean >= NICK_DIFF_MIN && nick.counterfactualHighMean <= NICK_DIFF_MAX,
     },
     {
       id: 'C6',
@@ -942,9 +1023,9 @@ function buildCriteria(): { criteria: Criterion[]; info: InfoRow[] } {
     },
     {
       id: 'C9',
-      text: `열린 종마 풀 선택 붕괴: 마지막 세대 평균 혈량 ≤ ${BLOOD_COLLAPSE_MAX}% (교배 기준, 개정 3)`,
-      observed: `${fmt(sLast.meanBloodPercent)}% (인브리드율 ${fmt((sLast.inbreedRate ?? 0) * 100, 1)}%)`,
-      pass: (sLast.meanBloodPercent ?? Number.POSITIVE_INFINITY) <= BLOOD_COLLAPSE_MAX,
+      text: `열린 종마 풀 선택 붕괴: ${LATE_FROM_GEN}~${CYCLES + 1}세대 평균 혈량 ≤ ${BLOOD_COLLAPSE_MAX}% (교배 기준, 개정 5)`,
+      observed: `${LATE_FROM_GEN}~${CYCLES + 1}세대 평균 ${fmt(lateBloodMean)}% (${late.length}개 세대)`,
+      pass: lateBloodMean <= BLOOD_COLLAPSE_MAX,
     },
     {
       id: 'C10',
@@ -971,17 +1052,39 @@ function buildCriteria(): { criteria: Criterion[]; info: InfoRow[] } {
     },
     {
       id: 'I2',
-      text: `정보 I2: 무작위 교배 마지막 세대 잠재 평균(보완형 포함)이 I1 기준(${I1_REFERENCE_LAST}) 대비 +${I2_EXTRA_MAX} 이내`,
-      observed: `마지막 세대 ${fmt(last(rnd).potentialMean)}, I1 대비 ${last(rnd).potentialMean - I1_REFERENCE_LAST >= 0 ? '+' : ''}${fmt(last(rnd).potentialMean - I1_REFERENCE_LAST)}`,
-      pass: last(rnd).potentialMean - I1_REFERENCE_LAST <= I2_EXTRA_MAX,
+      text: `I2(개정 5, 유전 기준값): 무작위 교배 마지막 세대 기준 평균이 I1 기준(${I1_REFERENCE_LAST}) 대비 +${I2_EXTRA_MAX} 이내`,
+      observed: `마지막 세대 기준 평균 ${fmt(lastBase.baseMean)}, I1 대비 ${i2Delta >= 0 ? '+' : ''}${fmt(i2Delta)}`,
+      pass: i2Delta <= I2_EXTRA_MAX,
     },
   ];
 
   const info: InfoRow[] = [
     {
       id: 'I1',
-      text: '무작위 교배(보너스 유전 상태, 판정 아님): 전 세대 잠재 평균 최대 |Δ|',
+      text: '무작위 교배(보너스 유전 상태, 판정 아님): 전 세대 잠재 평균(표현형) 최대 |Δ|',
       observed: `${fmt(rndDev)} (${rndWorst.generation}세대, 1세대 ${fmt(r0.potentialMean)}, 마지막 ${fmt(last(rnd).potentialMean)})`,
+    },
+    {
+      id: 'I3',
+      text: '무작위 교배 표현형(저장값) SD 비 범위(개정 5 정보)',
+      observed: `${fmt(ratioMin * 100, 1)}%~${fmt(ratioMax * 100, 1)}% (1세대 SD ${fmt(r0.potentialSd)}, 마지막 ${fmt(last(rnd).potentialSd)})`,
+    },
+    {
+      id: 'I4',
+      text: `열린 종마 풀 ${LATE_FROM_GEN}세대 이후 세대별 평균 혈량 최대(개정 5 정보)`,
+      observed: `${fmt(lateBloodMax.v)}% (${lateBloodMax.g}세대), 기준 ${BLOOD_COLLAPSE_MAX}%`,
+    },
+    {
+      id: 'I5',
+      text: '닉스 그룹 차이(부모 구성 교란 포함, 개정 5 정보) 와 그룹별 보완형 비율',
+      observed:
+        `그룹 차이 ${fmt(nick.diff)} (SE ${fmt(nick.se)}), 고닉스 보완형 비율 ${fmt(nick.highComplementShare * 100, 1)}%, ` +
+        `저닉스 보완형 비율 ${fmt(nick.lowComplementShare * 100, 1)}%`,
+    },
+    {
+      id: 'I6',
+      text: '무작위 교배 세대별 보완형 말 비율(개정 5 정보)',
+      observed: `${fmt(mean(bases.slice(1).map((b) => b.complementShare)) * 100, 1)}% (2~${CYCLES + 1}세대 평균)`,
     },
   ];
   return { criteria, info };
@@ -1076,10 +1179,11 @@ function buildCauseLines(input: CauseInput): string[] {
     const s0 = first(open);
     const outsideLast = openOutside.length > 0 ? last(openOutside) : 0;
     const fbLast = openFallback.length > 0 ? last(openFallback) : 0;
-    const maxBloodLate = Math.max(...open.slice(8).map((s) => s.meanBloodPercent ?? 0));
+    const lateOpen = open.filter((s) => s.generation >= LATE_FROM_GEN);
+    const maxBloodLate = Math.max(...lateOpen.map((s) => s.meanBloodPercent ?? 0));
     lines.push(
-      `- 열린 종마 풀 선택(판정): 마지막 세대의 평균 혈량 ${fmt(sl.meanBloodPercent)}% 는 그 세대 바깥 종마 교배 비율(${fmt(outsideLast * 100, 1)}%)에 따라 0 또는 크게 달라진다. ` +
-        `10세대 이후 세대별 평균 혈량 최대 ${fmt(maxBloodLate)}%(기준 ${INBREED_EXCESS_FROM}% 이하). 마지막 세대 단일값 판정은 세대 간 흔들림에 민감하다. ` +
+      `- 열린 종마 풀 선택(판정): 마지막 세대의 평균 혈량 ${fmt(sl.meanBloodPercent)}% 는 그 세대 바깥 종마 교배 비율(${fmt(outsideLast * 100, 1)}%)에 따라 0 또는 크게 달라진다(개정 5 는 ${LATE_FROM_GEN}~${CYCLES + 1}세대 평균으로 판정). ` +
+        `${LATE_FROM_GEN}세대 이후 세대별 평균 혈량 최대 ${fmt(maxBloodLate)}%(기준 ${INBREED_EXCESS_FROM}% 이하). ` +
         `잠재 ${fmt(s0.potentialMean)} → ${fmt(sl.potentialMean)} (상승 ${fmt(sl.potentialMean - s0.potentialMean)}), ` +
         `건강도 마지막 ${fmt(sl.soundnessMean)}, 평균 혈량 마지막 ${fmt(sl.meanBloodPercent)}%. ` +
         `바깥 종마 교배 비율 마지막 ${fmt(outsideLast * 100, 1)}%, 허용 후보 없음(혈량 최저 대체) 비율 마지막 ${fmt(fbLast * 100, 1)}%` +
@@ -1158,7 +1262,7 @@ function buildReport(criteria: readonly Criterion[], info: readonly InfoRow[], t
 
   const out: string[] = [];
   out.push('# M2-11 배합·유전 검증 리포트', '');
-  out.push('개정 4(보완형 배합 반영) 재실행', '');
+  out.push('개정 5(측정 방식 정리) 재실행', '');
   out.push('- 작성일: 2026-10-11');
   out.push('- 실행: `VERIFY=1 npx vitest run tests/verify/breeding.test.ts` (FULL 모드)');
   const sec = (key: string): string => fmt((timings[key] ?? 0) / 1000, 1);
@@ -1217,8 +1321,18 @@ function buildReport(criteria: readonly Criterion[], info: readonly InfoRow[], t
   out.push(`| 쌍당 교배 | 매 세대 쌍 ${PER_SEX * 2}개, 모계 명성 0, 부·모 own 혈량 전달(1대 한정) |`);
   out.push('');
 
-  out.push('## 1. 닫힌 집단 무작위 교배 (보너스 유전 상태, C2 판정, C1 은 2절 아래 보너스 끔 진단)', '');
+  out.push('## 1. 닫힌 집단 무작위 교배 (보너스 유전 상태, C2·I2 는 유전 기준값으로 판정, C1 은 보너스 끔 진단)', '');
   out.push(...snapshotTable(rnd));
+  out.push('');
+  if (results.random) {
+    out.push('### 1-b. 유전 기준값 (개정 5: 보완형 말은 잠재 ÷ (1 + COMPLEMENT_BONUS), C2·I2 판정 대상)', '');
+    out.push('| 세대 | 기준 평균 | 기준 SD | 표현형 평균 | 표현형 SD | 보완형 말 비율 |', '|---|---|---|---|---|---|');
+    for (const b of geneticBaseStats(results.random)) {
+      out.push(
+        `| ${b.generation} | ${fmt(b.baseMean)} | ${fmt(b.baseSd)} | ${fmt(b.phenMean)} | ${fmt(b.phenSd)} | ${fmt(b.complementShare * 100, 1)}% |`,
+      );
+    }
+  }
   out.push('');
 
   out.push('## 2. 열린 종마 풀 선택 (판정 대상, 개정 3)', '');
