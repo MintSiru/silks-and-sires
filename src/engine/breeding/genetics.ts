@@ -75,6 +75,10 @@ export interface BreedArgs {
   countryOfBirth: CountryCode;
   ownerId: OwnerId | null;
   breederId: OwnerId | null;
+  /** 부 자신의 근친 혈량(%) — 부의 과다 감점을 되돌려 유전 기준값을 만든다. 생략 시 0 */
+  sireOwnBloodPercent?: number;
+  /** 모 자신의 근친 혈량(%). 생략 시 0 */
+  damOwnBloodPercent?: number;
 }
 
 /** 두 값의 단순 평균 */
@@ -91,6 +95,18 @@ function soundnessRegressed(mid: number): number {
   return mid + (SOUNDNESS_MEAN - mid) * SOUNDNESS_REGRESSION;
 }
 
+/** 근친 과다 감점(양수). 혈량이 INBREED_EXCESS_FROM 이하이면 0. 말 자신에게만 적용된다(1대 한정) */
+export function inbreedingPenalty(bloodPercent: number): { potential: number; soundness: number } {
+  if (bloodPercent <= INBREED_EXCESS_FROM) {
+    return { potential: 0, soundness: 0 };
+  }
+  const excess = bloodPercent - INBREED_EXCESS_FROM;
+  return {
+    potential: excess * INBREED_EXCESS_POTENTIAL_PENALTY,
+    soundness: excess * INBREED_EXCESS_SOUNDNESS_PENALTY,
+  };
+}
+
 /** 인브리드 혈량(bp %) 에 따른 잠재 보정과 건강도 감점(양수) */
 export function inbreedingEffect(bloodPercent: number): { potential: number; soundness: number } {
   let bonus = 0;
@@ -102,13 +118,26 @@ export function inbreedingEffect(bloodPercent: number): { potential: number; sou
     }
   }
 
-  if (bloodPercent <= INBREED_EXCESS_FROM) {
-    return { potential: bonus, soundness: 0 };
-  }
-  const excess = bloodPercent - INBREED_EXCESS_FROM;
+  const penalty = inbreedingPenalty(bloodPercent);
   return {
-    potential: bonus - excess * INBREED_EXCESS_POTENTIAL_PENALTY,
-    soundness: excess * INBREED_EXCESS_SOUNDNESS_PENALTY,
+    potential: bonus - penalty.potential,
+    soundness: penalty.soundness,
+  };
+}
+
+/** 부·모 한 쪽의 유전 기준값: 현재 값에 자신이 받은 과다 감점을 되돌려 더하고 ABILITY_MAX 로 상한 */
+function restoreOwnPenalty(value: number, penalty: number): number {
+  return Math.min(ABILITY_MAX, value + penalty);
+}
+
+/** 능력 전 항목의 유전 기준값(잠재) */
+function restoredPotential(potential: Abilities, penalty: number): Abilities {
+  return {
+    speed: restoreOwnPenalty(potential.speed, penalty),
+    stamina: restoreOwnPenalty(potential.stamina, penalty),
+    acceleration: restoreOwnPenalty(potential.acceleration, penalty),
+    guts: restoreOwnPenalty(potential.guts, penalty),
+    power: restoreOwnPenalty(potential.power, penalty),
   };
 }
 
@@ -118,9 +147,18 @@ function blendedPotential(sireValue: number, damValue: number): number {
   return mid + (POPULATION_MEAN - mid) * REGRESSION_TO_MEAN;
 }
 
-/** 능력 하나의 잠재 유전. 보정 adj 와 정규 편차를 더해 [ABILITY_MIN, ABILITY_MAX] 로 자른다 */
-function inheritAbility(rng: Rng, sire: Horse, dam: Horse, key: keyof Abilities, adj: number): number {
-  const mid = blendedPotential(sire.potential[key], dam.potential[key]);
+/**
+ * 능력 하나의 잠재 유전. 부·모 유전 기준값(sireBase, damBase)을 섞고 보정 adj 와 정규 편차를 더해
+ * [ABILITY_MIN, ABILITY_MAX] 로 자른다
+ */
+function inheritAbility(
+  rng: Rng,
+  sireBase: Abilities,
+  damBase: Abilities,
+  key: keyof Abilities,
+  adj: number,
+): number {
+  const mid = blendedPotential(sireBase[key], damBase[key]);
   return clamp(mid + adj + rng.normal(0, GENETIC_SD), ABILITY_MIN, ABILITY_MAX);
 }
 
@@ -189,13 +227,19 @@ export function breed(rng: Rng, args: BreedArgs): Horse {
   const adj =
     NICK_EFFECT_MAX * nick + inbreed.potential + FAMILY_BONUS_MAX * args.damFamilyScore;
 
+  // 부·모 자신의 근친 과다 감점을 되돌린 유전 기준값(1대 한정: 감점은 자손에게 안 간다). 생략 시 0
+  const sireOwn = inbreedingPenalty(args.sireOwnBloodPercent ?? 0);
+  const damOwn = inbreedingPenalty(args.damOwnBloodPercent ?? 0);
+  const sireBase = restoredPotential(sire.potential, sireOwn.potential);
+  const damBase = restoredPotential(dam.potential, damOwn.potential);
+
   // 3. 잠재 능력 (speed, stamina, acceleration, guts, power 순)
   const potential: Abilities = {
-    speed: inheritAbility(rng, sire, dam, 'speed', adj),
-    stamina: inheritAbility(rng, sire, dam, 'stamina', adj),
-    acceleration: inheritAbility(rng, sire, dam, 'acceleration', adj),
-    guts: inheritAbility(rng, sire, dam, 'guts', adj),
-    power: inheritAbility(rng, sire, dam, 'power', adj),
+    speed: inheritAbility(rng, sireBase, damBase, 'speed', adj),
+    stamina: inheritAbility(rng, sireBase, damBase, 'stamina', adj),
+    acceleration: inheritAbility(rng, sireBase, damBase, 'acceleration', adj),
+    guts: inheritAbility(rng, sireBase, damBase, 'guts', adj),
+    power: inheritAbility(rng, sireBase, damBase, 'power', adj),
   };
 
   // 4. 성장형
@@ -243,7 +287,12 @@ export function breed(rng: Rng, args: BreedArgs): Horse {
   const preferredStyle = inheritStyle(rng, sire, dam);
 
   // 7. 건강도, 정신
-  const soundnessMid = soundnessRegressed(average(sire.soundness, dam.soundness));
+  const soundnessMid = soundnessRegressed(
+    average(
+      restoreOwnPenalty(sire.soundness, sireOwn.soundness),
+      restoreOwnPenalty(dam.soundness, damOwn.soundness),
+    ),
+  );
   const soundness = clamp(
     soundnessMid + rng.normal(0, SOUNDNESS_INHERIT_SD) - inbreed.soundness,
     ABILITY_MIN,

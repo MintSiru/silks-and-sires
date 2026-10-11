@@ -24,7 +24,7 @@ import type {
   WeeklySystem,
 } from '../types';
 import { breed } from './genetics';
-import { dominantCrosses, findInbreeding } from './inbreeding';
+import { dominantCrosses, findInbreeding, ownBloodPercent } from './inbreeding';
 import { nickKey } from './nicks';
 import { buildMatingPedigree, type PedigreeLookup } from './pedigree';
 
@@ -288,6 +288,8 @@ function deliverFoals(
       countryOfBirth: dam.countryOfBirth,
       ownerId: dam.ownerId,
       breederId: dam.ownerId,
+      sireOwnBloodPercent: ownBloodPercent(lookup, sire),
+      damOwnBloodPercent: ownBloodPercent(lookup, dam),
     });
 
     state.horses[foal.id] = foal;

@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { createRng } from '../../src/engine/rng';
 import { generateHorse } from '../../src/engine/horse/generate';
-import { breed, inbreedingEffect, type BreedArgs } from '../../src/engine/breeding/genetics';
+import {
+  breed,
+  inbreedingEffect,
+  inbreedingPenalty,
+  type BreedArgs,
+} from '../../src/engine/breeding/genetics';
+import { ABILITY_MAX } from '../../src/engine/config/horse';
 import {
   initialRevealedNicks,
   nickKey,
@@ -419,5 +425,70 @@ describe('건강도 평균 회귀', () => {
     const high = makeHorse('SH95', { soundness: 95 });
     const mean = meanSoundness('sound-high', 1000, high, high);
     expect(mean).toBeLessThan(95);
+  });
+});
+
+describe('근친 과다 감점은 1대 한정 (M2-05c)', () => {
+  it('inbreedingPenalty: 25% 이하는 {0,0}, 35% 는 {4, 10}', () => {
+    expect(inbreedingPenalty(25)).toEqual({ potential: 0, soundness: 0 });
+    const p = inbreedingPenalty(35);
+    expect(p.potential).toBeCloseTo(4, 10);
+    expect(p.soundness).toBeCloseTo(10, 10);
+  });
+
+  it('inbreedingEffect 는 35% 에서 보너스 0 − 감점 4, 건강도 10', () => {
+    const e = inbreedingEffect(35);
+    expect(e.potential).toBeCloseTo(-4, 10);
+    expect(e.soundness).toBeCloseTo(10, 10);
+  });
+
+  it('부모의 자기 감점은 자손에게 가지 않는다: own 50% 부모(잠재 40, 건강도 60)는 잠재 50, 건강도 85 부모와 같은 망아지', () => {
+    const sireExcess = makeHorse('OS', { potential: flat(40), soundness: 60 });
+    const damExcess = makeHorse('OD', { potential: flat(40), soundness: 60 });
+    const sireClean = makeHorse('OS', { potential: flat(50), soundness: 85 });
+    const damClean = makeHorse('OD', { potential: flat(50), soundness: 85 });
+    for (let i = 0; i < 50; i++) {
+      const withOwn = breed(
+        createRng(`own-${i}`),
+        plainArgs(sireExcess, damExcess, { sireOwnBloodPercent: 50, damOwnBloodPercent: 50 }),
+      );
+      const withoutOwn = breed(createRng(`own-${i}`), plainArgs(sireClean, damClean));
+      expect(withOwn.potential).toEqual(withoutOwn.potential);
+      expect(withOwn.soundness).toEqual(withoutOwn.soundness);
+      expect(withOwn).toEqual(withoutOwn);
+    }
+  });
+
+  it('own 필드 0 또는 생략이면 결과가 같다', () => {
+    const sire = makeHorse('OZS', { potential: flat(58), soundness: 70 });
+    const dam = makeHorse('OZD', { potential: flat(52), soundness: 66 });
+    for (let i = 0; i < 20; i++) {
+      const omitted = breed(createRng(`zero-${i}`), plainArgs(sire, dam));
+      const zero = breed(
+        createRng(`zero-${i}`),
+        plainArgs(sire, dam, { sireOwnBloodPercent: 0, damOwnBloodPercent: 0 }),
+      );
+      const at25 = breed(
+        createRng(`zero-${i}`),
+        plainArgs(sire, dam, { sireOwnBloodPercent: 25, damOwnBloodPercent: 25 }),
+      );
+      expect(zero).toEqual(omitted);
+      expect(at25).toEqual(omitted);
+    }
+  });
+
+  it('유전 기준값 상한: 잠재 95·건강도 95, own 100% 부모의 망아지 능력·건강도는 ABILITY_MAX 를 넘지 않는다', () => {
+    const sire = makeHorse('CS', { potential: flat(95), soundness: 95 });
+    const dam = makeHorse('CD', { potential: flat(95), soundness: 95 });
+    for (let i = 0; i < 200; i++) {
+      const foal = breed(
+        createRng(`cap-${i}`),
+        plainArgs(sire, dam, { sireOwnBloodPercent: 100, damOwnBloodPercent: 100 }),
+      );
+      for (const key of Object.keys(foal.potential) as (keyof Abilities)[]) {
+        expect(foal.potential[key]).toBeLessThanOrEqual(ABILITY_MAX);
+      }
+      expect(foal.soundness).toBeLessThanOrEqual(ABILITY_MAX);
+    }
   });
 });

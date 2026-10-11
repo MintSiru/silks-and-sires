@@ -10,9 +10,12 @@ import {
   dominantCrosses,
   findInbreeding,
   inbreedingLabel,
+  ownBloodPercent,
   totalBloodPercent,
 } from '../../src/engine/breeding/inbreeding';
-import type { PedigreeNode } from '../../src/engine/types';
+import { createRng } from '../../src/engine/rng';
+import { generateHorse } from '../../src/engine/horse/generate';
+import type { Horse, PedigreeNode } from '../../src/engine/types';
 
 /**
  * 작은 가상 족보: id → [sireId, damId]. 테이블에 없는 말은 부·모 기록이 없는 말(시조)로 취급한다.
@@ -295,5 +298,53 @@ describe('dominantCrosses: 중복 합산 제거', () => {
     const root = buildPedigree(crossX34, 'R');
     const shuffled = [...findInbreeding(root)];
     expect(dominantCrosses(root, shuffled)).toEqual(findInbreeding(root));
+  });
+});
+
+describe('ownBloodPercent (M2-05c)', () => {
+  /** 필드 기준으로 만든 가상 말. 부·모 ID 만 바꿔 쓴다 */
+  const BASE_HORSE = generateHorse(createRng('pedigree-own-base'), {
+    id: 'base',
+    name: 'Base',
+    sex: 'male',
+    birthYear: 2022,
+    currentYear: 2026,
+    countryOfBirth: 'GB',
+    status: 'in_training',
+    level: 60,
+  });
+
+  function horseWithParents(id: string, sireId: string | null, damId: string | null): Horse {
+    return { ...BASE_HORSE, id, name: id, sireId, damId };
+  }
+
+  /** 전형제 S·D (같은 부 G, 같은 모 H) 의 족보. 조회되지 않는 말은 undefined */
+  const siblingTable: Record<string, readonly [string | null, string | null]> = {
+    S: ['G', 'H'],
+    D: ['G', 'H'],
+    G: [null, null],
+    H: [null, null],
+  };
+  const strictLookup: PedigreeLookup = (id) => {
+    const entry = siblingTable[id];
+    if (entry === undefined) return undefined;
+    return { id, sireId: entry[0], damId: entry[1] };
+  };
+
+  it('부 또는 모가 null 인 말은 0', () => {
+    expect(ownBloodPercent(strictLookup, horseWithParents('F1', null, 'D'))).toBe(0);
+    expect(ownBloodPercent(strictLookup, horseWithParents('F2', 'S', null))).toBe(0);
+    expect(ownBloodPercent(strictLookup, horseWithParents('F3', null, null))).toBe(0);
+  });
+
+  it('부모가 조회되지 않는 미상 말이면 0', () => {
+    expect(ownBloodPercent(strictLookup, horseWithParents('F4', 'UNKNOWN', 'D'))).toBe(0);
+    expect(ownBloodPercent(strictLookup, horseWithParents('F5', 'S', 'UNKNOWN'))).toBe(0);
+  });
+
+  it('전형제(같은 부·모) 사이의 자식은 25 이상', () => {
+    const child = horseWithParents('F6', 'S', 'D');
+    const blood = ownBloodPercent(strictLookup, child);
+    expect(blood).toBeGreaterThanOrEqual(25);
   });
 });
