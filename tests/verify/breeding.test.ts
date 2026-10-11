@@ -9,7 +9,13 @@ import { mkdirSync, writeFileSync, existsSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { breed, type BreedArgs } from '../../src/engine/breeding/genetics';
+import {
+  breed,
+  isComplementary,
+  ownComplement,
+  type BreedArgs,
+  type HorseLookup,
+} from '../../src/engine/breeding/genetics';
 import {
   dominantCrosses,
   findInbreeding,
@@ -20,13 +26,18 @@ import { nickValue } from '../../src/engine/breeding/nicks';
 import { buildMatingPedigree, type PedigreeLookup } from '../../src/engine/breeding/pedigree';
 import { IN_TRAINING_ABILITY_WEIGHT } from '../../src/engine/config/assessment';
 import {
+  COMPLEMENT_BONUS,
   INBREED_EXCESS_FROM,
   INBREED_EXCESS_POTENTIAL_PENALTY,
   INBREED_EXCESS_SOUNDNESS_PENALTY,
   INBREED_LOW,
   NICK_EFFECT_MAX,
+  POPULATION_MEAN,
+  REGRESSION_TO_MEAN,
+  SIRE_WEIGHT,
   SOUNDNESS_REGRESSION,
 } from '../../src/engine/config/genetics';
+import { PROFILE_DISTANCE } from '../../src/engine/config/world';
 import { SOUNDNESS_MEAN } from '../../src/engine/config/horse';
 import { getNicks, getSireLines } from '../../src/engine/data/staticData';
 import { assessHorse } from '../../src/engine/horse/assessment';
@@ -58,7 +69,7 @@ const PER_SEX = FULL ? 100 : 30;
  * 닉스 효과 실험의 무작위 쌍 수. 고닉스(≥ 0.5) 쌍은 무작위 쌍의 약 3.5% 뿐이라(2000쌍 → 70쌍),
  * FULL 은 고닉스 200쌍 이상을 확보하도록 8000쌍으로 늘린다.
  */
-const NICK_PAIRS = FULL ? 8000 : 200;
+const NICK_PAIRS = FULL ? 16000 : 200;
 /** 단서 정확도 실험의 말 수 */
 const ASSESS_HORSES = FULL ? 1000 : 100;
 const TEST_TIMEOUT_MS = FULL ? 900_000 : 60_000;
@@ -93,8 +104,21 @@ const RHO_IN_TRAINING_MIN = 0.7;
 /** 개정 3 C9: 마지막 세대 평균 혈량 ≤ INBREED_EXCESS_FROM */
 const BLOOD_COLLAPSE_MAX = INBREED_EXCESS_FROM;
 const SOUNDNESS_FLOOR = 40;
+/** 개정 4 C12: 보완형 표본 쌍 수. 보완형 개수(200 이상)가 기준이며, FULL 은 보완형이 그 이상 나오도록 넉넉히 뽑는다. */
+const COMPLEMENT_PAIRS = FULL ? 8000 : 400;
+/** 개정 4 C12: 보완형 표본 최소 쌍 수 */
+const COMPLEMENT_MIN_N = 200;
+/** 개정 4 C12: 관측/기대 허용 폭(±30%) */
+const COMPLEMENT_RATIO_TOL = 0.3;
+/**
+ * 개정 4 I2 기준: 개정 3 의 I1(무작위 교배 마지막 세대 잠재 59.41, M2-16 이전 값).
+ * I2 는 이 값 대비 +1 을 넘으면 이탈 지표에 적는다.
+ */
+const I1_REFERENCE_LAST = 59.41;
+const I2_EXTRA_MAX = 1;
 
 const SEED = {
+  complementPairs: 'm2-11-complement-pairs',
   founders: 'm2-11-founders',
   randomMating: 'm2-11-random-mating',
   openMating: 'm2-11-open-mating',
@@ -200,6 +224,27 @@ interface AssessResult {
   stages: StageResult[];
 }
 
+interface ComplementResult {
+  pairs: number;
+  compN: number;
+  nonN: number;
+  /** 그룹 평균 잠재(avg5) */
+  compMean: number;
+  nonMean: number;
+  /** 그룹 차이(보완형 − 비보완형). 명세 판정 대상 */
+  groupDiff: number;
+  groupSe: number;
+  /** 기대 = COMPLEMENT_BONUS × 보완형 쌍의 부모 중간값(조정된 블렌드 평균) */
+  parentMid: number;
+  expected: number;
+  /** 같은 쌍 반사실(부 거리 적성만 바꿔 보완형을 끔): 보완형 − 비보완형 평균. 잡음·표본 구성 차이 없음 */
+  counterfactualDiff: number;
+  /** |반사실 차이 − COMPLEMENT_BONUS × 쌍별 부모 중간값| 평균. 0 이면 기전이 정확히 맞는다 */
+  counterfactualResidual: number;
+  /** 반사실용 부 교체 후에도 보완형이 남은 쌍 수. 0 이어야 반사실이 성립한다 */
+  flipFailures: number;
+}
+
 interface Criterion {
   id: string;
   text: string;
@@ -224,6 +269,7 @@ const results: {
   randomNoInbreed?: ScenarioRun;
   selectionNoInbreed?: ScenarioRun;
   nick?: NickResult;
+  complement?: ComplementResult;
   assess?: AssessResult;
   timingsMs: Record<string, number>;
 } = { timingsMs: {} };
@@ -404,6 +450,12 @@ function topShare(horses: readonly Horse[]): Horse[] {
   return [...horses].sort((a, b) => avg5(b) - avg5(a) || byIdAsc(a, b)).slice(0, n);
 }
 
+/** 모의 부(외조부): dam.sireId 로 찾은 말. 없으면 null (season.ts damsireOf 와 같은 방식) */
+function damsireOf(horseLookup: HorseLookup, dam: Horse): Horse | null {
+  if (dam.sireId === null) return null;
+  return horseLookup(dam.sireId) ?? null;
+}
+
 /** 가상 교배의 예상 혈량(게임 본체와 같은 방식: 지배 교차 합). */
 function expectedBlood(lookup: PedigreeLookup, sire: Horse, dam: Horse): number {
   const root = buildMatingPedigree(lookup, sire.id, dam.id);
@@ -461,6 +513,7 @@ function produceFoals(
   options: ScenarioOptions,
 ): { foals: Horse[]; matings: Mating[] } {
   const lookup: PedigreeLookup = (id) => registry.get(id);
+  const horseLookup: HorseLookup = (id) => registry.get(id);
   const foals: Horse[] = [];
   const matings: Mating[] = [];
   pairs.forEach(([sire, dam], i) => {
@@ -484,6 +537,10 @@ function produceFoals(
       // 감점 끔 진단은 저장된 잠재·건강도에 감점이 없으므로 되돌리지 않는다(0). 되돌리면 편향이 생긴다.
       sireOwnBloodPercent: ignore ? 0 : ownBloodPercent(lookup, sire),
       damOwnBloodPercent: ignore ? 0 : ownBloodPercent(lookup, dam),
+      // 개정 4(M2-16): 모의 부(외조부)와 부·모 own 보완형. 감점 끔 진단은 own 보완형도 false
+      damsire: damsireOf(horseLookup, dam),
+      sireOwnComplement: ignore ? false : ownComplement(horseLookup, sire),
+      damOwnComplement: ignore ? false : ownComplement(horseLookup, dam),
       damFamilyScore: 0,
       id,
       name: id,
@@ -575,6 +632,7 @@ function runNickSection(): NickResult {
   const rng = createRng(SEED.nickPairs);
   const byId = new Map<HorseId, Horse>(founders.map((h) => [h.id, h]));
   const lookup: PedigreeLookup = (id) => byId.get(id);
+  const horseLookup: HorseLookup = (id) => byId.get(id);
 
   const high: { avg: number; nick: number }[] = [];
   const low: { avg: number; nick: number }[] = [];
@@ -593,6 +651,9 @@ function runNickSection(): NickResult {
       inbreeding: [],
       sireOwnBloodPercent: ownBloodPercent(lookup, sire),
       damOwnBloodPercent: ownBloodPercent(lookup, dam),
+      damsire: damsireOf(horseLookup, dam),
+      sireOwnComplement: ownComplement(horseLookup, sire),
+      damOwnComplement: ownComplement(horseLookup, dam),
       damFamilyScore: 0,
       id: `N-${i}`,
       name: `N-${i}`,
@@ -643,6 +704,98 @@ function runNickSection(): NickResult {
 /* ------------------------------------------------------------------ */
 /* 단서 정확도 실험                                                    */
 /* ------------------------------------------------------------------ */
+
+/** 보완형 기대값의 부모 중간값: 능력 5종 각각 조정된 블렌드(엔진 blendedPotential 과 같은 식)의 평균 */
+function parentMidOf(sire: Horse, dam: Horse): number {
+  const keys = ['speed', 'stamina', 'acceleration', 'guts', 'power'] as const;
+  const mids = keys.map((k) => {
+    const m = SIRE_WEIGHT * sire.potential[k] + (1 - SIRE_WEIGHT) * dam.potential[k];
+    return m + (POPULATION_MEAN - m) * REGRESSION_TO_MEAN;
+  });
+  return mean(mids);
+}
+
+/**
+ * 개정 4 C12: 보완형 효과. 창시자 무작위 쌍에서 보완형 망아지와 비보완형 망아지의 잠재 평균 차이(판정)와,
+ * 보완형 쌍마다 부의 거리 적성만 중간 거리로 바꿔 보완형을 끈 반사실 교배 차이(정확한 기전 점검)를 함께 잰다.
+ * 부의 거리 적성은 잠재 계산에 들어가지 않고(보완 판정과 거리 유전에만 쓰임), rng 소비도 같아서 반사실이 성립한다.
+ */
+function runComplementSection(): ComplementResult {
+  const founders = createFounders(SEED.founders, PER_SEX);
+  const males = founders.filter((h) => h.sex === 'male');
+  const females = founders.filter((h) => h.sex === 'female');
+  const byId = new Map<HorseId, Horse>(founders.map((h) => [h.id, h]));
+  const horseLookup: HorseLookup = (id) => byId.get(id);
+  const rng = createRng(SEED.complementPairs);
+  const nonComplementDistance = PROFILE_DISTANCE.middle;
+
+  const compAvg: number[] = [];
+  const nonAvg: number[] = [];
+  const parentMids: number[] = [];
+  const cfDiffs: number[] = [];
+  const cfResiduals: number[] = [];
+  let flipFailures = 0;
+
+  for (let i = 0; i < COMPLEMENT_PAIRS; i++) {
+    const sire = rng.pick(males);
+    const dam = rng.pick(females);
+    const damsire = damsireOf(horseLookup, dam);
+    const base: Omit<BreedArgs, 'nicks'> = {
+      sire,
+      dam,
+      damsire,
+      damsireLineId: dam.sireLineId,
+      inbreeding: [],
+      sireOwnBloodPercent: ownBloodPercent(horseLookup, sire),
+      damOwnBloodPercent: ownBloodPercent(horseLookup, dam),
+      sireOwnComplement: ownComplement(horseLookup, sire),
+      damOwnComplement: ownComplement(horseLookup, dam),
+      damFamilyScore: 0,
+      id: `C-${i}`,
+      name: `C-${i}`,
+      birthYear: BASE_YEAR,
+      currentYear: BASE_YEAR,
+      countryOfBirth: 'GB',
+      ownerId: null,
+      breederId: null,
+    };
+    const isComp = isComplementary(sire, dam, damsire);
+    const foal = breed(createRng(`comp-pair:${i}`), { ...base, nicks: NICKS });
+    if (!isComp) {
+      nonAvg.push(avg5(foal));
+      continue;
+    }
+    compAvg.push(avg5(foal));
+    const mid = parentMidOf(sire, dam);
+    parentMids.push(mid);
+    // 반사실: 부 거리 적성만 중간 거리로 바꿔 보완형을 끈다. 같은 시드, 같은 쌍.
+    const nonSire: Horse = { ...sire, aptitude: { ...sire.aptitude, distanceOptimum: nonComplementDistance } };
+    if (isComplementary(nonSire, dam, damsire)) flipFailures++;
+    const withoutFoal = breed(createRng(`comp-pair:${i}`), { ...base, sire: nonSire, nicks: NICKS });
+    const cfDiff = avg5(foal) - avg5(withoutFoal);
+    cfDiffs.push(cfDiff);
+    cfResiduals.push(Math.abs(cfDiff - COMPLEMENT_BONUS * mid));
+  }
+
+  const compMean = mean(compAvg);
+  const nonMean = mean(nonAvg);
+  const seOf = (xs: readonly number[]): number => (xs.length === 0 ? Number.NaN : popSd(xs) ** 2 / xs.length);
+  const parentMid = mean(parentMids);
+  return {
+    pairs: COMPLEMENT_PAIRS,
+    compN: compAvg.length,
+    nonN: nonAvg.length,
+    compMean,
+    nonMean,
+    groupDiff: compMean - nonMean,
+    groupSe: Math.sqrt(seOf(compAvg) + seOf(nonAvg)),
+    parentMid,
+    expected: COMPLEMENT_BONUS * parentMid,
+    counterfactualDiff: mean(cfDiffs),
+    counterfactualResidual: mean(cfResiduals),
+    flipFailures,
+  };
+}
 
 function runAssessSection(): AssessResult {
   const rng = createRng(SEED.assessHorses);
@@ -696,7 +849,8 @@ function buildCriteria(): { criteria: Criterion[]; info: InfoRow[] } {
   const selNoInbreed = results.selectionNoInbreed?.snapshots;
   const nick = results.nick;
   const assess = results.assess;
-  if (!rnd || !bonusOff || !open || !nick || !assess) throw new Error('FULL 결과가 모두 없다');
+  const cx = results.complement;
+  if (!rnd || !bonusOff || !open || !nick || !assess || !cx) throw new Error('FULL 결과가 모두 없다');
 
   const r0 = first(rnd);
   const rndRest = rnd.slice(1);
@@ -804,6 +958,23 @@ function buildCriteria(): { criteria: Criterion[]; info: InfoRow[] } {
       observed: `${fmt(sLast.potentialMean)} vs 1세대 ${fmt(s0.potentialMean)}`,
       pass: sLast.potentialMean >= s0.potentialMean,
     },
+    {
+      id: 'C12',
+      text: `보완형 효과: 보완형 − 비보완형 잠재 차이가 COMPLEMENT_BONUS(${COMPLEMENT_BONUS}) × 부모 중간값의 ±${COMPLEMENT_RATIO_TOL * 100}% 안 (보완형 ${COMPLEMENT_MIN_N}쌍 이상)`,
+      observed:
+        `그룹 차이 ${fmt(cx.groupDiff)} (SE ${fmt(cx.groupSe)}), 기대 ${fmt(cx.expected)} ` +
+        `(부모 중간값 ${fmt(cx.parentMid)}), 관측/기대 ${fmt(cx.groupDiff / cx.expected, 2)}, 보완형 ${cx.compN}쌍 / 비보완형 ${cx.nonN}쌍`,
+      pass:
+        cx.compN >= COMPLEMENT_MIN_N &&
+        cx.groupDiff / cx.expected >= 1 - COMPLEMENT_RATIO_TOL &&
+        cx.groupDiff / cx.expected <= 1 + COMPLEMENT_RATIO_TOL,
+    },
+    {
+      id: 'I2',
+      text: `정보 I2: 무작위 교배 마지막 세대 잠재 평균(보완형 포함)이 I1 기준(${I1_REFERENCE_LAST}) 대비 +${I2_EXTRA_MAX} 이내`,
+      observed: `마지막 세대 ${fmt(last(rnd).potentialMean)}, I1 대비 ${last(rnd).potentialMean - I1_REFERENCE_LAST >= 0 ? '+' : ''}${fmt(last(rnd).potentialMean - I1_REFERENCE_LAST)}`,
+      pass: last(rnd).potentialMean - I1_REFERENCE_LAST <= I2_EXTRA_MAX,
+    },
   ];
 
   const info: InfoRow[] = [
@@ -845,14 +1016,28 @@ interface CauseInput {
   avoidFallback: readonly number[];
   closed: readonly Snapshot[];
   closedNo: readonly Snapshot[];
+  complement: ComplementResult | null;
   nick: NickResult | null;
   assess: AssessResult | null;
 }
 
 /** 이탈의 원인을 진단 실행 결과로 요약한다(해석 문장은 숫자와 함께만 쓴다). */
 function buildCauseLines(input: CauseInput): string[] {
-  const { rnd, rndNo, rndBonusOff, open, openFallback, openOutside, avoid, avoidFallback, closed, closedNo, nick, assess } =
-    input;
+  const {
+    rnd,
+    rndNo,
+    rndBonusOff,
+    open,
+    openFallback,
+    openOutside,
+    avoid,
+    avoidFallback,
+    closed,
+    closedNo,
+    complement,
+    nick,
+    assess,
+  } = input;
   const lines: string[] = [];
 
   if (rnd.length > 0 && rndNo.length > 0) {
@@ -891,8 +1076,11 @@ function buildCauseLines(input: CauseInput): string[] {
     const s0 = first(open);
     const outsideLast = openOutside.length > 0 ? last(openOutside) : 0;
     const fbLast = openFallback.length > 0 ? last(openFallback) : 0;
+    const maxBloodLate = Math.max(...open.slice(8).map((s) => s.meanBloodPercent ?? 0));
     lines.push(
-      `- 열린 종마 풀 선택(판정): 잠재 ${fmt(s0.potentialMean)} → ${fmt(sl.potentialMean)} (상승 ${fmt(sl.potentialMean - s0.potentialMean)}), ` +
+      `- 열린 종마 풀 선택(판정): 마지막 세대의 평균 혈량 ${fmt(sl.meanBloodPercent)}% 는 그 세대 바깥 종마 교배 비율(${fmt(outsideLast * 100, 1)}%)에 따라 0 또는 크게 달라진다. ` +
+        `10세대 이후 세대별 평균 혈량 최대 ${fmt(maxBloodLate)}%(기준 ${INBREED_EXCESS_FROM}% 이하). 마지막 세대 단일값 판정은 세대 간 흔들림에 민감하다. ` +
+        `잠재 ${fmt(s0.potentialMean)} → ${fmt(sl.potentialMean)} (상승 ${fmt(sl.potentialMean - s0.potentialMean)}), ` +
         `건강도 마지막 ${fmt(sl.soundnessMean)}, 평균 혈량 마지막 ${fmt(sl.meanBloodPercent)}%. ` +
         `바깥 종마 교배 비율 마지막 ${fmt(outsideLast * 100, 1)}%, 허용 후보 없음(혈량 최저 대체) 비율 마지막 ${fmt(fbLast * 100, 1)}%` +
         (firstHalfGeneration(openFallback) === null
@@ -919,8 +1107,23 @@ function buildCauseLines(input: CauseInput): string[] {
     const sl = last(closed);
     const sn = last(closedNo);
     lines.push(
-      `- 닫힌 무회피 선택(진단): 감점을 끄면 잠재 평균이 마지막 ${fmt(sn.potentialMean)} 까지 오르고 85 미만에서 완만해진다(포화 확인). ` +
+      `- 닫힌 무회피 선택(진단): 감점을 끄면 잠재 평균이 마지막 ${fmt(sn.potentialMean)} 까지 오른다(${sn.potentialMean < SATURATION_CAP ? `${SATURATION_CAP} 미만` : `${SATURATION_CAP} 이상`}). ` +
         `감점을 켜면 마지막 ${fmt(sl.potentialMean)}, 건강도 ${fmt(sl.soundnessMean)}, 평균 혈량 ${fmt(sl.meanBloodPercent)}%. 근친 감점이 결과를 지배한다.`,
+    );
+  }
+  if (complement) {
+    const cf = complement;
+    lines.push(
+      `- 보완형 효과(C12): 그룹 차이 ${fmt(cf.groupDiff)} 대 기대 ${fmt(cf.expected)} (관측/기대 ${fmt(cf.groupDiff / cf.expected, 2)}). ` +
+        `같은 쌍 반사실 차이 ${fmt(cf.counterfactualDiff)} (잔차 ${fmt(cf.counterfactualResidual, 4)}, 부 교체 후 보완형 잔존 ${cf.flipFailures}쌍). ` +
+        `그룹 차이와 반사실 차이가 다르면 보완형 쌍과 비보완형 쌍의 부모 구성 차이가 섞인 것이다. 기전 자체는 반사실 쪽이 정확하다.`,
+    );
+  }
+  if (rnd.length > 0) {
+    const i2 = last(rnd).potentialMean - I1_REFERENCE_LAST;
+    lines.push(
+      `- 무작위 교배 I2: 마지막 세대 ${fmt(last(rnd).potentialMean)}, 개정 3 I1 기준 ${fmt(I1_REFERENCE_LAST)} 대비 ${i2 >= 0 ? '+' : ''}${fmt(i2)}. ` +
+        `보완형 1대 한정 효과와 거리 적성 유전 변경이 함께 들어간 값이므로 두 요인은 이 실행만으로 나눌 수 없다.`,
     );
   }
   if (nick) {
@@ -928,7 +1131,8 @@ function buildCauseLines(input: CauseInput): string[] {
     const tableHighMean = mean(tableHigh.map((e) => e.value));
     lines.push(
       `- 닉스: 닉스 표의 고닉스 항목 ${tableHigh.length}개 평균 ${fmt(tableHighMean, 3)} → NICK_EFFECT_MAX(${NICK_EFFECT_MAX}) × 평균 ≈ ${fmt(NICK_EFFECT_MAX * tableHighMean)} (개정 2 기준 1~${NICK_DIFF_MAX} 안). ` +
-        `관측 차이 ${fmt(nick.diff)}, 반사실 차이 ${fmt(nick.counterfactualHighMean)}, 잔차 ${fmt(nick.counterfactualResidual, 4)}.`,
+        `관측 차이 ${fmt(nick.diff)}, 반사실 차이 ${fmt(nick.counterfactualHighMean)}, 잔차 ${fmt(nick.counterfactualResidual, 4)}. ` +
+        `그룹 차이와 반사실 차이의 어긋남은 고닉스·저닉스 쌍의 부모 구성 차이(표본 교란)에서 온다. 기전 검증은 반사실 쪽이다.`,
     );
   }
   if (assess) {
@@ -954,7 +1158,7 @@ function buildReport(criteria: readonly Criterion[], info: readonly InfoRow[], t
 
   const out: string[] = [];
   out.push('# M2-11 배합·유전 검증 리포트', '');
-  out.push('개정 3(열린 종마 풀 선택) 반영 재실행', '');
+  out.push('개정 4(보완형 배합 반영) 재실행', '');
   out.push('- 작성일: 2026-10-11');
   out.push('- 실행: `VERIFY=1 npx vitest run tests/verify/breeding.test.ts` (FULL 모드)');
   const sec = (key: string): string => fmt((timings[key] ?? 0) / 1000, 1);
@@ -985,6 +1189,7 @@ function buildReport(criteria: readonly Criterion[], info: readonly InfoRow[], t
       avoidFallback: results.avoid?.fallbackRates ?? [],
       closed,
       closedNo: results.selectionNoInbreed?.snapshots ?? [],
+      complement: results.complement ?? null,
       nick: nick ?? null,
       assess: assess ?? null,
     }),
@@ -1042,6 +1247,21 @@ function buildReport(criteria: readonly Criterion[], info: readonly InfoRow[], t
 
   out.push('## 2-c. 닫힌 무회피 선택 (진단만, 판정 제외)', '');
   out.push(...snapshotTable(closed));
+  out.push('');
+
+  out.push('## 2-d. 보완형 효과 (C12, 개정 4)', '');
+  if (results.complement) {
+    const cx = results.complement;
+    out.push('| 항목 | 값 |', '|---|---|');
+    out.push(`| 쌍 수 | ${cx.pairs} (보완형 ${cx.compN}, 비보완형 ${cx.nonN}) |`);
+    out.push(`| 보완형 평균 잠재 | ${fmt(cx.compMean)} |`);
+    out.push(`| 비보완형 평균 잠재 | ${fmt(cx.nonMean)} |`);
+    out.push(`| 그룹 차이 (보완형 − 비보완형) | ${fmt(cx.groupDiff)} (SE ${fmt(cx.groupSe)}) |`);
+    out.push(`| 기대 COMPLEMENT_BONUS(${COMPLEMENT_BONUS}) × 보완형 쌍 부모 중간값(${fmt(cx.parentMid)}) | ${fmt(cx.expected)} |`);
+    out.push(`| 같은 쌍 반사실 차이 (부 거리 적성만 교체) | ${fmt(cx.counterfactualDiff)} |`);
+    out.push(`| 반사실 잔차 평균 \\|Δ − 0.08×부모 중간값\\| | ${fmt(cx.counterfactualResidual, 4)} |`);
+    out.push(`| 부 교체 후 보완형이 남은 쌍 | ${cx.flipFailures} |`);
+  }
   out.push('');
 
   out.push('## 3. 닉스 효과', '');
@@ -1293,6 +1513,27 @@ describe('M2-11 배합·유전 검증', () => {
       expect(run.snapshots).toHaveLength(CYCLES + 1);
       say(
         `[진단 닫힌 무회피·보정 끔] 1세대 평균 ${fmt(first(run.snapshots).potentialMean)} → 마지막 ${fmt(last(run.snapshots).potentialMean)}`,
+      );
+    },
+    TEST_TIMEOUT_MS,
+  );
+
+  it(
+    `보완형 효과 (무작위 쌍 ${COMPLEMENT_PAIRS}, 개정 4 C12)`,
+    () => {
+      const t0 = performance.now();
+      const cx = runComplementSection();
+      results.timingsMs.complement = performance.now() - t0;
+      results.complement = cx;
+
+      expect(cx.pairs).toBe(COMPLEMENT_PAIRS);
+      expect(cx.compN + cx.nonN).toBe(COMPLEMENT_PAIRS);
+      // 반사실 성립 조건: 부 교체 후 보완형이 남으면 안 된다
+      expect(cx.flipFailures).toBe(0);
+      if (cx.compN > 0) expect(cx.counterfactualResidual).toBeLessThan(0.5);
+      say(
+        `[보완형] 보완형 ${cx.compN}쌍 · 비보완형 ${cx.nonN}쌍 · 그룹 차이 ${fmt(cx.groupDiff)} · 기대 ${fmt(cx.expected)}` +
+          ` · 반사실 차이 ${fmt(cx.counterfactualDiff)} · 반사실 잔차 ${fmt(cx.counterfactualResidual, 4)}`,
       );
     },
     TEST_TIMEOUT_MS,
