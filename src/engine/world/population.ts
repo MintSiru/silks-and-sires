@@ -18,7 +18,7 @@ import {
 } from '../config/population';
 import { FOREIGN_OWNER_SHARE } from '../config/people';
 import { STARTER_COUNTRY, STARTER_FITNESS, STARTER_HORSES, STARTER_SIRE_TIER } from '../config/starter';
-import { MIN_SIRE_AGE_AT_COVER, PROFILE_DISTANCE, SIRE_BIRTH_MARGIN_YEARS } from '../config/world';
+import { PROFILE_DISTANCE } from '../config/world';
 import { generateHorse } from '../horse/generate';
 import { makeNameRegistry, namingContextFor, type MutableNameRegistry } from '../naming/context';
 import { nameForHorse } from '../naming/generate';
@@ -39,6 +39,7 @@ import type {
   TrainerId,
 } from '../types';
 import { initialOfficialRating } from './rating';
+import { coverYearForFoal, filterSiresForCover } from './sireWindow';
 
 /** 현역마 집단 생성·교체에 필요한 정적 데이터 */
 export interface RacingPopulationStaticData {
@@ -188,12 +189,19 @@ function pickOwner(rng: Rng, market: PopulationMarket, country: PopulationCountr
   return pool[pickWeightedIndex(rng, weights)] as Owner;
 }
 
-/** 출생 연도에 교배 가능했던 부(父) 후보: active·pensioned 이고 foaled ≤ birthYear − MIN_AGE − MARGIN */
+/**
+ * 출생 연도 말의 교배 가능한 부(父) 후보(M2-03b): active·pensioned 이고, 교배 연도(birthYear − 1)가
+ * 교배 가능 기간(sireWindow) 안이다. availableFromYear 가 있으면 그 이전 교배 연도는 제외한다(현역 생성 전용 규칙).
+ * 기간 안 후보가 없으면 교배 연도와 가장 가까운 기간의 종마로 완화한다(filterSiresForCover).
+ */
 function sireCandidates(records: readonly RealStallionRecord[], birthYear: number): RealStallionRecord[] {
-  const latestFoaled = birthYear - MIN_SIRE_AGE_AT_COVER - SIRE_BIRTH_MARGIN_YEARS;
-  return records.filter(
-    (r) => (r.status === 'active' || r.status === 'pensioned') && r.foaled <= latestFoaled,
+  const coverYear = coverYearForFoal(birthYear);
+  const pool = records.filter(
+    (r) =>
+      (r.status === 'active' || r.status === 'pensioned') &&
+      (r.availableFromYear === undefined || coverYear >= r.availableFromYear),
   );
+  return filterSiresForCover(pool, coverYear);
 }
 
 /**

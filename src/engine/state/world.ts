@@ -10,9 +10,7 @@ import {
   MARE_LEVEL,
   MARE_LEVEL_SPREAD,
   MARE_SIRE_TIER_WEIGHT,
-  MIN_SIRE_AGE_AT_COVER,
   PLAYER_START_MARES,
-  SIRE_BIRTH_MARGIN_YEARS,
   FOUNDER_SIRE_MIN_CHAIN,
 } from '../config/world';
 import { generateHorse } from '../horse/generate';
@@ -29,6 +27,7 @@ import type {
   Rng,
   StallionNameTable,
 } from '../types';
+import { coverYearForFoal, filterSiresForCover } from '../world/sireWindow';
 import { createRealStallionHorses, sortStallionRecords } from './stallionHorses';
 
 /** 새 게임 초기화에 필요한 정적 데이터 묶음 */
@@ -47,11 +46,6 @@ export function allocateHorseId(state: GameState): HorseId {
   const id = `${HORSE_ID_PREFIX}${String(state.nextHorseNumber).padStart(HORSE_ID_DIGITS, '0')}`;
   state.nextHorseNumber += 1;
   return id;
-}
-
-/** 교배 부(父) 후보의 가장 늦은 출생 연도 */
-function latestSireFoaledYear(foalYear: number): number {
-  return foalYear - SIRE_BIRTH_MARGIN_YEARS - MIN_SIRE_AGE_AT_COVER;
 }
 
 /**
@@ -133,19 +127,18 @@ export function bootstrapWorld(state: GameState, data: WorldStaticData, rng: Rng
     const country = rng.pick(MARE_COUNTRIES);
 
     // b. 암말의 부 (현역·은퇴 종마 중 가중 선택)
+    // (M2-03b) 교배 연도 = 자마 출생 연도 − 1, 교배 가능 기간 안의 종마만 후보
     const mareSireRec = pickWeightedSire(
       rng,
-      preferDocumented(
-        realRecords.filter((r) => isCoverSire(r) && r.foaled <= latestSireFoaledYear(birthYear)),
-      ),
+      preferDocumented(filterSiresForCover(realRecords.filter(isCoverSire), coverYearForFoal(birthYear))),
     );
 
-    // c. 어미(가상)와 어미의 부 (historical 포함 모든 종마)
+    // c. 어미(가상)와 어미의 부 (historical 포함 모든 종마, 단 교배 가능 기간 안)
     const gap = rng.int(DAM_AGE_GAP_MIN, DAM_AGE_GAP_MAX);
     const damBirth = birthYear - gap;
     const damSireRec = pickWeightedSire(
       rng,
-      realRecords.filter((r) => r.foaled <= latestSireFoaledYear(damBirth)),
+      filterSiresForCover(realRecords, coverYearForFoal(damBirth)),
     );
     const damId = allocateHorseId(next);
     const damNaming = namingContextFor(next, { ownerId: null, sireId: damSireRec.key, damId: null }, data);

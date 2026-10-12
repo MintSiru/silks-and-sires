@@ -35,6 +35,11 @@ export const DAM_AGE_GAP_MAX = 12;
 export const MIN_SIRE_AGE_AT_COVER = 4;
 /** 부(父) 후보 판정: foaled ≤ (말의 출생 연도) - 이 값 - MIN_SIRE_AGE_AT_COVER */
 export const SIRE_BIRTH_MARGIN_YEARS = 1;
+/**
+ * 마지막 교배 연도를 데이터에서 알 수 없는 비현역 종마(historical·pensioned)의 추정치.
+ * 마지막 교배 연도 = foaled + 이 값. lastCoverYear 가 있으면 그 값을 쓴다(M2-03b).
+ */
+export const MAX_STUD_AGE = 22;
 /** 암말의 부 선택 가중치(tier 별) — 기초 암말은 중하위권 혈통이 많다 */
 export const MARE_SIRE_TIER_WEIGHT = { 1: 1, 2: 2, 3: 3, 4: 4, 5: 4 } as const;
 /** 기초 암말 출생국 후보 */
