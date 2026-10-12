@@ -10,6 +10,8 @@ import peoplePoolsJson from '../../../data/people/name_pools.json';
 import peopleBlockedJson from '../../../data/people/blocked_names.json';
 import peoplePlacesJson from '../../../data/people/places.json';
 import raceTemplatesJson from '../../../data/calendar/g1.json';
+import patternGbIeJson from '../../../data/calendar/pattern_gb_ie.json';
+import patternFrDeItJson from '../../../data/calendar/pattern_fr_de_it.json';
 import seriesJson from '../../../data/calendar/series.json';
 import { getRacecourse as findRacecourse, loadRacecourses } from '../course/load';
 import { NAME_COUNTRIES, type CountryNamePool, type NameCountry, type NamePools } from '../people/names';
@@ -63,9 +65,18 @@ export function getRace(id: string): Race {
   return found;
 }
 
-/** 고정 일정 레이스 템플릿 (data/calendar/g1.json). A4a 가 채운다. 현재는 빈 배열일 수 있다. */
+/**
+ * 고정 일정 레이스 템플릿: G1(data/calendar/g1.json) + G2·G3·리스티드·헤리티지 핸디캡(pattern_*.json).
+ * cardOrder 는 같은 개최일 안의 정렬 키(G1 은 10 단위, 그 사이에 하위 등급을 끼운다).
+ */
+const RACE_TEMPLATES: RaceTemplate[] = [
+  ...(raceTemplatesJson as RaceTemplate[]),
+  ...(patternGbIeJson as RaceTemplate[]),
+  ...(patternFrDeItJson as RaceTemplate[]),
+];
+
 export function getRaceTemplates(): RaceTemplate[] {
-  return raceTemplatesJson as RaceTemplate[];
+  return RACE_TEMPLATES;
 }
 
 /** 시리즈 정의 (data/calendar/series.json). A4a 가 채운다. 현재는 빈 배열일 수 있다. */

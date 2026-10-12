@@ -153,8 +153,8 @@ describe('(3) 일정: 잔디 시즌 4월 1주 ~ 11월 4주, 올웨더 주 제외
   });
 });
 
-describe('(4) cardOrder: 같은 경마장·같은 주 안에서 1부터 겹치지 않음', () => {
-  it('그룹별 cardOrder 가 1..N 의 순열이다', () => {
+describe('(4) cardOrder: 같은 경마장·같은 주 안에서 겹치지 않는 정렬 키(G1 은 10 단위)', () => {
+  it('그룹별 cardOrder 가 10 의 배수이고 서로 다르다', () => {
     const groups = new Map<string, number[]>();
     for (const t of templates) {
       const key = `${t.racecourseId}|${t.schedule.month}|${t.schedule.weekOfMonth}`;
@@ -163,8 +163,8 @@ describe('(4) cardOrder: 같은 경마장·같은 주 안에서 1부터 겹치�
       groups.set(key, list);
     }
     for (const [key, orders] of groups) {
-      const sorted = [...orders].sort((a, b) => a - b);
-      expect(sorted, key).toEqual(sorted.map((_, i) => i + 1));
+      expect(new Set(orders).size, key).toBe(orders.length);
+      for (const o of orders) expect(o % 10, key).toBe(0);
     }
   });
 
@@ -175,7 +175,7 @@ describe('(4) cardOrder: 같은 경마장·같은 주 안에서 1부터 겹치�
         (x) => x.racecourseId === t.racecourseId &&
           x.schedule.month === t.schedule.month && x.schedule.weekOfMonth === t.schedule.weekOfMonth,
       );
-      expect(t.cardOrder, t.name).toBe(group.length);
+      expect(t.cardOrder, t.name).toBe(Math.max(...group.map((x) => x.cardOrder)));
     }
   });
 });

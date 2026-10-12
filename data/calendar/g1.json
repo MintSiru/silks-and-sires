@@ -30,7 +30,7 @@
       "month": 4,
       "weekOfMonth": 3
     },
-    "cardOrder": 2,
+    "cardOrder": 20,
     "tags": [
       "classic"
     ]
@@ -66,7 +66,7 @@
       "month": 4,
       "weekOfMonth": 3
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "classic",
       "fillies_mares"
@@ -103,7 +103,7 @@
       "month": 4,
       "weekOfMonth": 4
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": []
   },
   {
@@ -137,7 +137,7 @@
       "month": 5,
       "weekOfMonth": 1
     },
-    "cardOrder": 2,
+    "cardOrder": 20,
     "tags": [
       "classic"
     ]
@@ -173,7 +173,7 @@
       "month": 5,
       "weekOfMonth": 1
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "classic",
       "fillies_mares"
@@ -210,7 +210,7 @@
       "month": 5,
       "weekOfMonth": 2
     },
-    "cardOrder": 2,
+    "cardOrder": 20,
     "tags": [
       "classic"
     ]
@@ -246,7 +246,7 @@
       "month": 5,
       "weekOfMonth": 2
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "classic",
       "fillies_mares"
@@ -283,7 +283,7 @@
       "month": 5,
       "weekOfMonth": 3
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": []
   },
   {
@@ -317,7 +317,7 @@
       "month": 5,
       "weekOfMonth": 3
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "classic"
     ]
@@ -353,7 +353,7 @@
       "month": 5,
       "weekOfMonth": 4
     },
-    "cardOrder": 2,
+    "cardOrder": 20,
     "tags": [
       "classic"
     ]
@@ -389,7 +389,7 @@
       "month": 5,
       "weekOfMonth": 4
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "classic",
       "fillies_mares"
@@ -426,7 +426,7 @@
       "month": 5,
       "weekOfMonth": 4
     },
-    "cardOrder": 3,
+    "cardOrder": 30,
     "tags": []
   },
   {
@@ -460,7 +460,7 @@
       "month": 5,
       "weekOfMonth": 4
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "fillies_mares"
     ]
@@ -496,7 +496,7 @@
       "month": 5,
       "weekOfMonth": 4
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "classic"
     ]
@@ -532,7 +532,7 @@
       "month": 5,
       "weekOfMonth": 4
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "classic",
       "fillies_mares"
@@ -569,7 +569,7 @@
       "month": 6,
       "weekOfMonth": 1
     },
-    "cardOrder": 2,
+    "cardOrder": 20,
     "tags": [
       "classic"
     ]
@@ -605,7 +605,7 @@
       "month": 6,
       "weekOfMonth": 1
     },
-    "cardOrder": 3,
+    "cardOrder": 30,
     "tags": [
       "classic",
       "fillies_mares"
@@ -642,7 +642,7 @@
       "month": 6,
       "weekOfMonth": 1
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": []
   },
   {
@@ -676,7 +676,7 @@
       "month": 6,
       "weekOfMonth": 1
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "classic",
       "fillies_mares"
@@ -713,7 +713,7 @@
       "month": 6,
       "weekOfMonth": 2
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "classic"
     ]
@@ -749,7 +749,7 @@
       "month": 6,
       "weekOfMonth": 2
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": []
   },
   {
@@ -783,7 +783,7 @@
       "month": 6,
       "weekOfMonth": 2
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "national_flagship"
     ]
@@ -819,7 +819,7 @@
       "month": 6,
       "weekOfMonth": 3
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "classic",
       "fillies_mares"
@@ -856,7 +856,7 @@
       "month": 6,
       "weekOfMonth": 3
     },
-    "cardOrder": 6,
+    "cardOrder": 60,
     "tags": []
   },
   {
@@ -890,7 +890,7 @@
       "month": 6,
       "weekOfMonth": 3
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "sprint"
     ]
@@ -926,7 +926,7 @@
       "month": 6,
       "weekOfMonth": 3
     },
-    "cardOrder": 5,
+    "cardOrder": 50,
     "tags": []
   },
   {
@@ -960,7 +960,7 @@
       "month": 6,
       "weekOfMonth": 3
     },
-    "cardOrder": 7,
+    "cardOrder": 70,
     "tags": []
   },
   {
@@ -994,7 +994,7 @@
       "month": 6,
       "weekOfMonth": 3
     },
-    "cardOrder": 4,
+    "cardOrder": 40,
     "tags": [
       "fillies_mares"
     ]
@@ -1030,7 +1030,7 @@
       "month": 6,
       "weekOfMonth": 3
     },
-    "cardOrder": 8,
+    "cardOrder": 80,
     "tags": [
       "stayers"
     ]
@@ -1066,7 +1066,7 @@
       "month": 6,
       "weekOfMonth": 3
     },
-    "cardOrder": 2,
+    "cardOrder": 20,
     "tags": [
       "sprint"
     ]
@@ -1102,7 +1102,7 @@
       "month": 6,
       "weekOfMonth": 3
     },
-    "cardOrder": 3,
+    "cardOrder": 30,
     "tags": [
       "sprint"
     ]
@@ -1138,7 +1138,7 @@
       "month": 6,
       "weekOfMonth": 4
     },
-    "cardOrder": 2,
+    "cardOrder": 20,
     "tags": [
       "classic"
     ]
@@ -1174,7 +1174,7 @@
       "month": 6,
       "weekOfMonth": 4
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "fillies_mares"
     ]
@@ -1210,7 +1210,7 @@
       "month": 7,
       "weekOfMonth": 1
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": []
   },
   {
@@ -1244,7 +1244,7 @@
       "month": 7,
       "weekOfMonth": 1
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "classic"
     ]
@@ -1280,7 +1280,7 @@
       "month": 7,
       "weekOfMonth": 1
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": []
   },
   {
@@ -1314,7 +1314,7 @@
       "month": 7,
       "weekOfMonth": 2
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "sprint"
     ]
@@ -1350,7 +1350,7 @@
       "month": 7,
       "weekOfMonth": 2
     },
-    "cardOrder": 2,
+    "cardOrder": 20,
     "tags": [
       "fillies_mares"
     ]
@@ -1386,7 +1386,7 @@
       "month": 7,
       "weekOfMonth": 2
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": []
   },
   {
@@ -1420,7 +1420,7 @@
       "month": 7,
       "weekOfMonth": 2
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "classic",
       "fillies_mares"
@@ -1457,7 +1457,7 @@
       "month": 7,
       "weekOfMonth": 3
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": []
   },
   {
@@ -1491,7 +1491,7 @@
       "month": 7,
       "weekOfMonth": 4
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "national_flagship"
     ]
@@ -1527,7 +1527,7 @@
       "month": 8,
       "weekOfMonth": 1
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": []
   },
   {
@@ -1561,7 +1561,7 @@
       "month": 8,
       "weekOfMonth": 1
     },
-    "cardOrder": 3,
+    "cardOrder": 30,
     "tags": [
       "stayers"
     ]
@@ -1597,7 +1597,7 @@
       "month": 8,
       "weekOfMonth": 1
     },
-    "cardOrder": 2,
+    "cardOrder": 20,
     "tags": [
       "fillies_mares"
     ]
@@ -1633,7 +1633,7 @@
       "month": 8,
       "weekOfMonth": 1
     },
-    "cardOrder": 2,
+    "cardOrder": 20,
     "tags": [
       "fillies_mares"
     ]
@@ -1669,7 +1669,7 @@
       "month": 8,
       "weekOfMonth": 1
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": []
   },
   {
@@ -1703,7 +1703,7 @@
       "month": 8,
       "weekOfMonth": 1
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "classic",
       "fillies_mares"
@@ -1740,7 +1740,7 @@
       "month": 8,
       "weekOfMonth": 2
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": []
   },
   {
@@ -1774,7 +1774,7 @@
       "month": 8,
       "weekOfMonth": 2
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "two_year_old",
       "sprint"
@@ -1811,7 +1811,7 @@
       "month": 8,
       "weekOfMonth": 3
     },
-    "cardOrder": 2,
+    "cardOrder": 20,
     "tags": []
   },
   {
@@ -1845,7 +1845,7 @@
       "month": 8,
       "weekOfMonth": 3
     },
-    "cardOrder": 3,
+    "cardOrder": 30,
     "tags": [
       "fillies_mares"
     ]
@@ -1881,7 +1881,7 @@
       "month": 8,
       "weekOfMonth": 3
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "sprint"
     ]
@@ -1917,7 +1917,7 @@
       "month": 8,
       "weekOfMonth": 3
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "two_year_old",
       "sprint"
@@ -1954,7 +1954,7 @@
       "month": 8,
       "weekOfMonth": 3
     },
-    "cardOrder": 2,
+    "cardOrder": 20,
     "tags": [
       "fillies_mares"
     ]
@@ -1990,7 +1990,7 @@
       "month": 9,
       "weekOfMonth": 1
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "sprint"
     ]
@@ -2026,7 +2026,7 @@
       "month": 9,
       "weekOfMonth": 1
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": []
   },
   {
@@ -2060,7 +2060,7 @@
       "month": 9,
       "weekOfMonth": 1
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "national_flagship"
     ]
@@ -2096,7 +2096,7 @@
       "month": 9,
       "weekOfMonth": 2
     },
-    "cardOrder": 2,
+    "cardOrder": 20,
     "tags": [
       "national_flagship"
     ]
@@ -2132,7 +2132,7 @@
       "month": 9,
       "weekOfMonth": 2
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "fillies_mares"
     ]
@@ -2168,7 +2168,7 @@
       "month": 9,
       "weekOfMonth": 2
     },
-    "cardOrder": 3,
+    "cardOrder": 30,
     "tags": [
       "classic",
       "stayers"
@@ -2205,7 +2205,7 @@
       "month": 9,
       "weekOfMonth": 2
     },
-    "cardOrder": 2,
+    "cardOrder": 20,
     "tags": [
       "two_year_old"
     ]
@@ -2241,7 +2241,7 @@
       "month": 9,
       "weekOfMonth": 2
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "two_year_old",
       "fillies_mares"
@@ -2278,7 +2278,7 @@
       "month": 9,
       "weekOfMonth": 2
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "classic",
       "stayers"
@@ -2315,7 +2315,7 @@
       "month": 9,
       "weekOfMonth": 3
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "fillies_mares"
     ]
@@ -2351,7 +2351,7 @@
       "month": 9,
       "weekOfMonth": 3
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "classic",
       "stayers"
@@ -2388,7 +2388,7 @@
       "month": 9,
       "weekOfMonth": 4
     },
-    "cardOrder": 2,
+    "cardOrder": 20,
     "tags": [
       "two_year_old",
       "sprint"
@@ -2425,7 +2425,7 @@
       "month": 9,
       "weekOfMonth": 4
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "two_year_old",
       "fillies_mares",
@@ -2463,7 +2463,7 @@
       "month": 9,
       "weekOfMonth": 4
     },
-    "cardOrder": 3,
+    "cardOrder": 30,
     "tags": [
       "fillies_mares"
     ]
@@ -2499,7 +2499,7 @@
       "month": 9,
       "weekOfMonth": 4
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "classic",
       "stayers"
@@ -2536,7 +2536,7 @@
       "month": 10,
       "weekOfMonth": 1
     },
-    "cardOrder": 7,
+    "cardOrder": 70,
     "tags": [
       "national_flagship"
     ]
@@ -2572,7 +2572,7 @@
       "month": 10,
       "weekOfMonth": 1
     },
-    "cardOrder": 5,
+    "cardOrder": 50,
     "tags": [
       "fillies_mares"
     ]
@@ -2608,7 +2608,7 @@
       "month": 10,
       "weekOfMonth": 1
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "sprint"
     ]
@@ -2644,7 +2644,7 @@
       "month": 10,
       "weekOfMonth": 1
     },
-    "cardOrder": 2,
+    "cardOrder": 20,
     "tags": [
       "two_year_old"
     ]
@@ -2680,7 +2680,7 @@
       "month": 10,
       "weekOfMonth": 1
     },
-    "cardOrder": 4,
+    "cardOrder": 40,
     "tags": [
       "two_year_old",
       "fillies_mares"
@@ -2717,7 +2717,7 @@
       "month": 10,
       "weekOfMonth": 1
     },
-    "cardOrder": 3,
+    "cardOrder": 30,
     "tags": []
   },
   {
@@ -2751,7 +2751,7 @@
       "month": 10,
       "weekOfMonth": 1
     },
-    "cardOrder": 6,
+    "cardOrder": 60,
     "tags": [
       "stayers"
     ]
@@ -2787,7 +2787,7 @@
       "month": 10,
       "weekOfMonth": 2
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "two_year_old"
     ]
@@ -2823,7 +2823,7 @@
       "month": 10,
       "weekOfMonth": 2
     },
-    "cardOrder": 2,
+    "cardOrder": 20,
     "tags": [
       "two_year_old",
       "fillies_mares"
@@ -2860,7 +2860,7 @@
       "month": 10,
       "weekOfMonth": 2
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "fillies_mares"
     ]
@@ -2896,7 +2896,7 @@
       "month": 10,
       "weekOfMonth": 3
     },
-    "cardOrder": 3,
+    "cardOrder": 30,
     "tags": [
       "champions_day"
     ]
@@ -2932,7 +2932,7 @@
       "month": 10,
       "weekOfMonth": 3
     },
-    "cardOrder": 2,
+    "cardOrder": 20,
     "tags": [
       "champions_day"
     ]
@@ -2968,7 +2968,7 @@
       "month": 10,
       "weekOfMonth": 3
     },
-    "cardOrder": 4,
+    "cardOrder": 40,
     "tags": [
       "fillies_mares",
       "champions_day"
@@ -3005,7 +3005,7 @@
       "month": 10,
       "weekOfMonth": 3
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "sprint",
       "champions_day"
@@ -3042,7 +3042,7 @@
       "month": 10,
       "weekOfMonth": 4
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "two_year_old"
     ]
@@ -3078,7 +3078,7 @@
       "month": 10,
       "weekOfMonth": 4
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "two_year_old"
     ]
@@ -3114,7 +3114,7 @@
       "month": 10,
       "weekOfMonth": 4
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "classic",
       "stayers"
@@ -3151,7 +3151,7 @@
       "month": 11,
       "weekOfMonth": 1
     },
-    "cardOrder": 1,
+    "cardOrder": 10,
     "tags": [
       "two_year_old"
     ]
