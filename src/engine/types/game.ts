@@ -6,7 +6,7 @@ import type { Rng, RngState } from './rng';
 import type { SeasonAwards, SeasonState, SeriesId } from './season';
 import type { CalendarPhaseId, GameDate, Season } from './time';
 import type { EconomyState, RelationsState } from './economy';
-import type { SalesState } from './sales';
+import type { SaleEventId, SaleLotResult, SalesState } from './sales';
 
 /** 주 진행 중 발생한 사건. M3 이후 종류가 늘어난다(판별 유니온에 추가). */
 export type GameEvent =
@@ -50,6 +50,22 @@ export type GameEvent =
       personId: string;
       change: 'signed' | 'renewed' | 'declined' | 'lapsed' | 'terminated';
       fee: Money;
+      date: GameDate;
+    }
+  /** 세일 카탈로그 발표(M4-C2b). lots = 로트 수 */
+  | { type: 'sale_catalogue_published'; saleId: SaleEventId; year: number; lots: number; date: GameDate }
+  /**
+   * 플레이어가 관련된 로트 결과(M4-C4). role: buyer = 플레이어가 낙찰 / vendor = 플레이어 위탁 로트
+   * / underbidder = 플레이어가 입찰했으나 낙찰 못 함
+   */
+  | {
+      type: 'sale_lot_result';
+      saleId: SaleEventId;
+      year: number;
+      lotNo: number;
+      horseId: HorseId;
+      role: 'buyer' | 'vendor' | 'underbidder';
+      result: SaleLotResult;
       date: GameDate;
     };
 

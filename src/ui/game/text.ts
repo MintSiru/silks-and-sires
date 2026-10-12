@@ -31,6 +31,7 @@ import {
   type NickLabel,
   type Race,
   type RaceKind,
+  type SaleLotResult,
   type Sex,
 } from '../../engine/types';
 
@@ -336,6 +337,15 @@ const RETAINER_CHANGE_KO: Record<'signed' | 'renewed' | 'declined' | 'lapsed' | 
   terminated: '해지',
 };
 
+/** 세일 로트 결과 한 줄(플레이어 관점) */
+function saleLotResultKo(role: 'buyer' | 'vendor' | 'underbidder', r: SaleLotResult): string {
+  if (r.kind === 'withdrawn') return '출품 철회';
+  if (r.kind === 'bought_back') return role === 'vendor' ? `유보가 미달 바이백 (최고 호가 ${feeKo(r.lastBid)})` : '유찰';
+  if (role === 'buyer') return `낙찰 ${feeKo(r.price)}`;
+  if (role === 'vendor') return `판매 ${feeKo(r.price)}`;
+  return `다른 구매자에게 낙찰 ${feeKo(r.price)}`;
+}
+
 /** 이벤트 한 줄 요약. 말 이름은 nameOf 로 바꿔 넣는다. */
 export function eventKo(e: GameEvent, nameOf: (id: HorseId) => string): string {
   switch (e.type) {
@@ -375,6 +385,10 @@ export function eventKo(e: GameEvent, nameOf: (id: HorseId) => string): string {
       return `${formatDateKo(e.date)} · 파산했습니다`;
     case 'horse_sold':
       return `${formatDateKo(e.date)} · 매각: ${nameOf(e.horseId)} (${feeKo(e.price)})`;
+    case 'sale_catalogue_published':
+      return `${formatDateKo(e.date)} · 세일 카탈로그 발표 (${e.lots}개 로트)`;
+    case 'sale_lot_result':
+      return `${formatDateKo(e.date)} · 세일 결과: ${nameOf(e.horseId)} — ${saleLotResultKo(e.role, e.result)}`;
     case 'retainer_changed':
       return `${formatDateKo(e.date)} · 전속 ${e.kind === 'trainer' ? '조교사' : '기수'} 계약 ${RETAINER_CHANGE_KO[e.change]}${e.fee > 0 ? ` (${feeKo(e.fee)})` : ''}`;
     default:
