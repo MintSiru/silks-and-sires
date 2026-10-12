@@ -28,6 +28,7 @@
 | `possessive` | 소유격·전치사구 | Giant's Causeway, Rock of Gibraltar | `{noun}'s {noun}` / `{noun} of {place}` |
 | `phrase` | 문장·구절 | Sea The Stars, So You Think, I'll Have Another | `{verb} The {noun}` / `Born to {noun}` |
 | `prefix` | 접두어 + 단어 | 기타산 블랙 | `{ownerPrefix} {noun}` |
+| `joined` | 3~4단어 구절을 띄어쓰기 없이 붙임(긴 이름 전용) | 붙여 쓰기 예: Ridetheopensea (가상 예시) | `{phrase}` 의 공백을 제거. 등록 규칙 18자 이내 검사 후 통과한 것만 쓴다 |
 
 ## 4. 등록 규칙 (검증기 기준)
 

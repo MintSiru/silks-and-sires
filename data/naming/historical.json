@@ -1,0 +1,1630 @@
+{
+  "version": 1,
+  "people": [
+    {
+      "name": "Vincent Van Gogh",
+      "field": "artist",
+      "deathYear": 1890
+    },
+    {
+      "name": "Claude Monet",
+      "field": "artist",
+      "deathYear": 1926
+    },
+    {
+      "name": "Auguste Renoir",
+      "field": "artist",
+      "deathYear": 1919
+    },
+    {
+      "name": "Paul Cezanne",
+      "field": "artist",
+      "deathYear": 1906
+    },
+    {
+      "name": "Albrecht Durer",
+      "field": "artist",
+      "deathYear": 1528
+    },
+    {
+      "name": "Rembrandt",
+      "field": "artist",
+      "deathYear": 1669
+    },
+    {
+      "name": "Francisco Goya",
+      "field": "artist",
+      "deathYear": 1828
+    },
+    {
+      "name": "Edgar Degas",
+      "field": "artist",
+      "deathYear": 1917
+    },
+    {
+      "name": "Pierre Bonnard",
+      "field": "artist",
+      "deathYear": 1947
+    },
+    {
+      "name": "Edvard Munch",
+      "field": "artist",
+      "deathYear": 1944
+    },
+    {
+      "name": "Gustav Klimt",
+      "field": "artist",
+      "deathYear": 1918
+    },
+    {
+      "name": "Egon Schiele",
+      "field": "artist",
+      "deathYear": 1918
+    },
+    {
+      "name": "Amedeo Modigliani",
+      "field": "artist",
+      "deathYear": 1920
+    },
+    {
+      "name": "Paul Gauguin",
+      "field": "artist",
+      "deathYear": 1903
+    },
+    {
+      "name": "Georges Seurat",
+      "field": "artist",
+      "deathYear": 1891
+    },
+    {
+      "name": "Edouard Manet",
+      "field": "artist",
+      "deathYear": 1883
+    },
+    {
+      "name": "Berthe Morisot",
+      "field": "artist",
+      "deathYear": 1895
+    },
+    {
+      "name": "Mary Cassatt",
+      "field": "artist",
+      "deathYear": 1926
+    },
+    {
+      "name": "Gustave Courbet",
+      "field": "artist",
+      "deathYear": 1877
+    },
+    {
+      "name": "Caspar Friedrich",
+      "field": "artist",
+      "deathYear": 1840
+    },
+    {
+      "name": "Wassily Kandinsky",
+      "field": "artist",
+      "deathYear": 1944
+    },
+    {
+      "name": "Paul Klee",
+      "field": "artist",
+      "deathYear": 1940
+    },
+    {
+      "name": "Winslow Homer",
+      "field": "artist",
+      "deathYear": 1910
+    },
+    {
+      "name": "John Sargent",
+      "field": "artist",
+      "deathYear": 1925
+    },
+    {
+      "name": "Gainsborough",
+      "field": "artist",
+      "deathYear": 1788
+    },
+    {
+      "name": "John Constable",
+      "field": "artist",
+      "deathYear": 1837
+    },
+    {
+      "name": "Hieronymus Bosch",
+      "field": "artist",
+      "deathYear": 1516
+    },
+    {
+      "name": "Pieter Bruegel",
+      "field": "artist",
+      "deathYear": 1569
+    },
+    {
+      "name": "Titian",
+      "field": "artist",
+      "deathYear": 1576
+    },
+    {
+      "name": "Hans Holbein",
+      "field": "artist",
+      "deathYear": 1543
+    },
+    {
+      "name": "Lucas Cranach",
+      "field": "artist",
+      "deathYear": 1553
+    },
+    {
+      "name": "Peter Paul Rubens",
+      "field": "artist",
+      "deathYear": 1640
+    },
+    {
+      "name": "Anthony Van Dyck",
+      "field": "artist",
+      "deathYear": 1641
+    },
+    {
+      "name": "Nicolas Poussin",
+      "field": "artist",
+      "deathYear": 1665
+    },
+    {
+      "name": "Antoine Watteau",
+      "field": "artist",
+      "deathYear": 1721
+    },
+    {
+      "name": "Honore Fragonard",
+      "field": "artist",
+      "deathYear": 1806
+    },
+    {
+      "name": "Francois Boucher",
+      "field": "artist",
+      "deathYear": 1770
+    },
+    {
+      "name": "Louis David",
+      "field": "artist",
+      "deathYear": 1825
+    },
+    {
+      "name": "Eugene Boudin",
+      "field": "artist",
+      "deathYear": 1898
+    },
+    {
+      "name": "Alfred Sisley",
+      "field": "artist",
+      "deathYear": 1899
+    },
+    {
+      "name": "Edouard Vuillard",
+      "field": "artist",
+      "deathYear": 1940
+    },
+    {
+      "name": "Odilon Redon",
+      "field": "artist",
+      "deathYear": 1916
+    },
+    {
+      "name": "Gustave Moreau",
+      "field": "artist",
+      "deathYear": 1898
+    },
+    {
+      "name": "Ferdinand Hodler",
+      "field": "artist",
+      "deathYear": 1918
+    },
+    {
+      "name": "Franz Marc",
+      "field": "artist",
+      "deathYear": 1916
+    },
+    {
+      "name": "Emil Nolde",
+      "field": "artist",
+      "deathYear": 1956
+    },
+    {
+      "name": "Anders Zorn",
+      "field": "artist",
+      "deathYear": 1920
+    },
+    {
+      "name": "Hokusai",
+      "field": "artist",
+      "deathYear": 1849
+    },
+    {
+      "name": "Hiroshige",
+      "field": "artist",
+      "deathYear": 1858
+    },
+    {
+      "name": "Ilya Repin",
+      "field": "artist",
+      "deathYear": 1930
+    },
+    {
+      "name": "Kazimir Malevich",
+      "field": "artist",
+      "deathYear": 1935
+    },
+    {
+      "name": "Umberto Boccioni",
+      "field": "artist",
+      "deathYear": 1916
+    },
+    {
+      "name": "Giovanni Segantini",
+      "field": "artist",
+      "deathYear": 1899
+    },
+    {
+      "name": "Antonio Canova",
+      "field": "artist",
+      "deathYear": 1822
+    },
+    {
+      "name": "Donatello",
+      "field": "artist",
+      "deathYear": 1466
+    },
+    {
+      "name": "Andrea Mantegna",
+      "field": "artist",
+      "deathYear": 1506
+    },
+    {
+      "name": "Jan Van Eyck",
+      "field": "artist",
+      "deathYear": 1441
+    },
+    {
+      "name": "Frans Hals",
+      "field": "artist",
+      "deathYear": 1666
+    },
+    {
+      "name": "Jacob Ruisdael",
+      "field": "artist",
+      "deathYear": 1682
+    },
+    {
+      "name": "Thomas Eakins",
+      "field": "artist",
+      "deathYear": 1916
+    },
+    {
+      "name": "Frederic Remington",
+      "field": "artist",
+      "deathYear": 1909
+    },
+    {
+      "name": "Albert Bierstadt",
+      "field": "artist",
+      "deathYear": 1902
+    },
+    {
+      "name": "Dante Rossetti",
+      "field": "artist",
+      "deathYear": 1882
+    },
+    {
+      "name": "Edward Burne Jones",
+      "field": "artist",
+      "deathYear": 1898
+    },
+    {
+      "name": "Lorenzo Bernini",
+      "field": "artist",
+      "deathYear": 1680
+    },
+    {
+      "name": "Botticelli",
+      "field": "artist",
+      "deathYear": 1510
+    },
+    {
+      "name": "Leonardo da Vinci",
+      "field": "artist",
+      "deathYear": 1519
+    },
+    {
+      "name": "Michelangelo",
+      "field": "artist",
+      "deathYear": 1564
+    },
+    {
+      "name": "Raphael",
+      "field": "artist",
+      "deathYear": 1520
+    },
+    {
+      "name": "Toulouse Lautrec",
+      "field": "artist",
+      "deathYear": 1901
+    },
+    {
+      "name": "Antoine Bourdelle",
+      "field": "artist",
+      "deathYear": 1929
+    },
+    {
+      "name": "Ernst Kirchner",
+      "field": "artist",
+      "deathYear": 1938
+    },
+    {
+      "name": "Max Liebermann",
+      "field": "artist",
+      "deathYear": 1935
+    },
+    {
+      "name": "Lovis Corinth",
+      "field": "artist",
+      "deathYear": 1925
+    },
+    {
+      "name": "Giotto",
+      "field": "artist",
+      "deathYear": 1337
+    },
+    {
+      "name": "Jane Austen",
+      "field": "writer",
+      "deathYear": 1817
+    },
+    {
+      "name": "Charles Dickens",
+      "field": "writer",
+      "deathYear": 1870
+    },
+    {
+      "name": "Victor Hugo",
+      "field": "writer",
+      "deathYear": 1885
+    },
+    {
+      "name": "Leo Tolstoy",
+      "field": "writer",
+      "deathYear": 1910
+    },
+    {
+      "name": "Fyodor Dostoevsky",
+      "field": "writer",
+      "deathYear": 1881
+    },
+    {
+      "name": "Anton Chekhov",
+      "field": "writer",
+      "deathYear": 1904
+    },
+    {
+      "name": "Henrik Ibsen",
+      "field": "writer",
+      "deathYear": 1906
+    },
+    {
+      "name": "Oscar Wilde",
+      "field": "writer",
+      "deathYear": 1900
+    },
+    {
+      "name": "Mark Twain",
+      "field": "writer",
+      "deathYear": 1910
+    },
+    {
+      "name": "Edgar Allan Poe",
+      "field": "writer",
+      "deathYear": 1849
+    },
+    {
+      "name": "Herman Melville",
+      "field": "writer",
+      "deathYear": 1891
+    },
+    {
+      "name": "Emily Dickinson",
+      "field": "writer",
+      "deathYear": 1886
+    },
+    {
+      "name": "Walt Whitman",
+      "field": "writer",
+      "deathYear": 1892
+    },
+    {
+      "name": "Henry Thoreau",
+      "field": "writer",
+      "deathYear": 1862
+    },
+    {
+      "name": "Ralph Emerson",
+      "field": "writer",
+      "deathYear": 1882
+    },
+    {
+      "name": "Louis Stevenson",
+      "field": "writer",
+      "deathYear": 1894
+    },
+    {
+      "name": "Rudyard Kipling",
+      "field": "writer",
+      "deathYear": 1936
+    },
+    {
+      "name": "Thomas Hardy",
+      "field": "writer",
+      "deathYear": 1928
+    },
+    {
+      "name": "Joseph Conrad",
+      "field": "writer",
+      "deathYear": 1924
+    },
+    {
+      "name": "Conan Doyle",
+      "field": "writer",
+      "deathYear": 1930
+    },
+    {
+      "name": "Bram Stoker",
+      "field": "writer",
+      "deathYear": 1912
+    },
+    {
+      "name": "Lewis Carroll",
+      "field": "writer",
+      "deathYear": 1898
+    },
+    {
+      "name": "Alexandre Dumas",
+      "field": "writer",
+      "deathYear": 1870
+    },
+    {
+      "name": "Gustave Flaubert",
+      "field": "writer",
+      "deathYear": 1880
+    },
+    {
+      "name": "Honore Balzac",
+      "field": "writer",
+      "deathYear": 1850
+    },
+    {
+      "name": "Emile Zola",
+      "field": "writer",
+      "deathYear": 1902
+    },
+    {
+      "name": "Jules Verne",
+      "field": "writer",
+      "deathYear": 1905
+    },
+    {
+      "name": "Guy Maupassant",
+      "field": "writer",
+      "deathYear": 1893
+    },
+    {
+      "name": "Marcel Proust",
+      "field": "writer",
+      "deathYear": 1922
+    },
+    {
+      "name": "Paul Verlaine",
+      "field": "writer",
+      "deathYear": 1896
+    },
+    {
+      "name": "Charles Baudelaire",
+      "field": "writer",
+      "deathYear": 1867
+    },
+    {
+      "name": "Arthur Rimbaud",
+      "field": "writer",
+      "deathYear": 1891
+    },
+    {
+      "name": "Stephane Mallarme",
+      "field": "writer",
+      "deathYear": 1898
+    },
+    {
+      "name": "Rainer Rilke",
+      "field": "writer",
+      "deathYear": 1926
+    },
+    {
+      "name": "Franz Kafka",
+      "field": "writer",
+      "deathYear": 1924
+    },
+    {
+      "name": "Thomas Mann",
+      "field": "writer",
+      "deathYear": 1955
+    },
+    {
+      "name": "Goethe",
+      "field": "writer",
+      "deathYear": 1832
+    },
+    {
+      "name": "Friedrich Schiller",
+      "field": "writer",
+      "deathYear": 1805
+    },
+    {
+      "name": "Heinrich Heine",
+      "field": "writer",
+      "deathYear": 1856
+    },
+    {
+      "name": "Theodor Fontane",
+      "field": "writer",
+      "deathYear": 1898
+    },
+    {
+      "name": "Byron",
+      "field": "writer",
+      "deathYear": 1824
+    },
+    {
+      "name": "Percy Shelley",
+      "field": "writer",
+      "deathYear": 1822
+    },
+    {
+      "name": "John Keats",
+      "field": "writer",
+      "deathYear": 1821
+    },
+    {
+      "name": "William Wordsworth",
+      "field": "writer",
+      "deathYear": 1850
+    },
+    {
+      "name": "Samuel Coleridge",
+      "field": "writer",
+      "deathYear": 1834
+    },
+    {
+      "name": "Alfred Tennyson",
+      "field": "writer",
+      "deathYear": 1892
+    },
+    {
+      "name": "Robert Browning",
+      "field": "writer",
+      "deathYear": 1889
+    },
+    {
+      "name": "Ivan Turgenev",
+      "field": "writer",
+      "deathYear": 1883
+    },
+    {
+      "name": "Nikolai Gogol",
+      "field": "writer",
+      "deathYear": 1852
+    },
+    {
+      "name": "Alexander Pushkin",
+      "field": "writer",
+      "deathYear": 1837
+    },
+    {
+      "name": "Mikhail Lermontov",
+      "field": "writer",
+      "deathYear": 1841
+    },
+    {
+      "name": "Miguel Cervantes",
+      "field": "writer",
+      "deathYear": 1616
+    },
+    {
+      "name": "Dante Alighieri",
+      "field": "writer",
+      "deathYear": 1321
+    },
+    {
+      "name": "Boccaccio",
+      "field": "writer",
+      "deathYear": 1375
+    },
+    {
+      "name": "Jonathan Swift",
+      "field": "writer",
+      "deathYear": 1745
+    },
+    {
+      "name": "Daniel Defoe",
+      "field": "writer",
+      "deathYear": 1731
+    },
+    {
+      "name": "Henry Fielding",
+      "field": "writer",
+      "deathYear": 1754
+    },
+    {
+      "name": "Laurence Sterne",
+      "field": "writer",
+      "deathYear": 1768
+    },
+    {
+      "name": "Walter Scott",
+      "field": "writer",
+      "deathYear": 1832
+    },
+    {
+      "name": "Hans Andersen",
+      "field": "writer",
+      "deathYear": 1875
+    },
+    {
+      "name": "Selma Lagerlof",
+      "field": "writer",
+      "deathYear": 1940
+    },
+    {
+      "name": "August Strindberg",
+      "field": "writer",
+      "deathYear": 1912
+    },
+    {
+      "name": "Maxim Gorky",
+      "field": "writer",
+      "deathYear": 1936
+    },
+    {
+      "name": "Edith Wharton",
+      "field": "writer",
+      "deathYear": 1937
+    },
+    {
+      "name": "Henry James",
+      "field": "writer",
+      "deathYear": 1916
+    },
+    {
+      "name": "Stephen Crane",
+      "field": "writer",
+      "deathYear": 1900
+    },
+    {
+      "name": "Jack London",
+      "field": "writer",
+      "deathYear": 1916
+    },
+    {
+      "name": "Scott Fitzgerald",
+      "field": "writer",
+      "deathYear": 1940
+    },
+    {
+      "name": "Sinclair Lewis",
+      "field": "writer",
+      "deathYear": 1951
+    },
+    {
+      "name": "Willa Cather",
+      "field": "writer",
+      "deathYear": 1947
+    },
+    {
+      "name": "Mozart",
+      "field": "composer",
+      "deathYear": 1791
+    },
+    {
+      "name": "Beethoven",
+      "field": "composer",
+      "deathYear": 1827
+    },
+    {
+      "name": "Haydn",
+      "field": "composer",
+      "deathYear": 1809
+    },
+    {
+      "name": "Handel",
+      "field": "composer",
+      "deathYear": 1759
+    },
+    {
+      "name": "Vivaldi",
+      "field": "composer",
+      "deathYear": 1741
+    },
+    {
+      "name": "Purcell",
+      "field": "composer",
+      "deathYear": 1695
+    },
+    {
+      "name": "Monteverdi",
+      "field": "composer",
+      "deathYear": 1643
+    },
+    {
+      "name": "Scarlatti",
+      "field": "composer",
+      "deathYear": 1757
+    },
+    {
+      "name": "Couperin",
+      "field": "composer",
+      "deathYear": 1733
+    },
+    {
+      "name": "Rameau",
+      "field": "composer",
+      "deathYear": 1764
+    },
+    {
+      "name": "Gluck",
+      "field": "composer",
+      "deathYear": 1787
+    },
+    {
+      "name": "Schubert",
+      "field": "composer",
+      "deathYear": 1828
+    },
+    {
+      "name": "Schumann",
+      "field": "composer",
+      "deathYear": 1856
+    },
+    {
+      "name": "Chopin",
+      "field": "composer",
+      "deathYear": 1849
+    },
+    {
+      "name": "Liszt",
+      "field": "composer",
+      "deathYear": 1886
+    },
+    {
+      "name": "Berlioz",
+      "field": "composer",
+      "deathYear": 1869
+    },
+    {
+      "name": "Wagner",
+      "field": "composer",
+      "deathYear": 1883
+    },
+    {
+      "name": "Verdi",
+      "field": "composer",
+      "deathYear": 1901
+    },
+    {
+      "name": "Rossini",
+      "field": "composer",
+      "deathYear": 1868
+    },
+    {
+      "name": "Bellini",
+      "field": "composer",
+      "deathYear": 1835
+    },
+    {
+      "name": "Donizetti",
+      "field": "composer",
+      "deathYear": 1848
+    },
+    {
+      "name": "Puccini",
+      "field": "composer",
+      "deathYear": 1924
+    },
+    {
+      "name": "Mahler",
+      "field": "composer",
+      "deathYear": 1911
+    },
+    {
+      "name": "Brahms",
+      "field": "composer",
+      "deathYear": 1897
+    },
+    {
+      "name": "Bruckner",
+      "field": "composer",
+      "deathYear": 1896
+    },
+    {
+      "name": "Dvorak",
+      "field": "composer",
+      "deathYear": 1904
+    },
+    {
+      "name": "Smetana",
+      "field": "composer",
+      "deathYear": 1884
+    },
+    {
+      "name": "Tchaikovsky",
+      "field": "composer",
+      "deathYear": 1893
+    },
+    {
+      "name": "Mussorgsky",
+      "field": "composer",
+      "deathYear": 1881
+    },
+    {
+      "name": "Rimsky Korsakov",
+      "field": "composer",
+      "deathYear": 1908
+    },
+    {
+      "name": "Borodin",
+      "field": "composer",
+      "deathYear": 1887
+    },
+    {
+      "name": "Grieg",
+      "field": "composer",
+      "deathYear": 1907
+    },
+    {
+      "name": "Debussy",
+      "field": "composer",
+      "deathYear": 1918
+    },
+    {
+      "name": "Ravel",
+      "field": "composer",
+      "deathYear": 1937
+    },
+    {
+      "name": "Faure",
+      "field": "composer",
+      "deathYear": 1924
+    },
+    {
+      "name": "Satie",
+      "field": "composer",
+      "deathYear": 1925
+    },
+    {
+      "name": "Bizet",
+      "field": "composer",
+      "deathYear": 1875
+    },
+    {
+      "name": "Gounod",
+      "field": "composer",
+      "deathYear": 1893
+    },
+    {
+      "name": "Massenet",
+      "field": "composer",
+      "deathYear": 1912
+    },
+    {
+      "name": "Saint Saens",
+      "field": "composer",
+      "deathYear": 1921
+    },
+    {
+      "name": "Offenbach",
+      "field": "composer",
+      "deathYear": 1880
+    },
+    {
+      "name": "Delibes",
+      "field": "composer",
+      "deathYear": 1891
+    },
+    {
+      "name": "Cesar Franck",
+      "field": "composer",
+      "deathYear": 1890
+    },
+    {
+      "name": "Elgar",
+      "field": "composer",
+      "deathYear": 1934
+    },
+    {
+      "name": "Holst",
+      "field": "composer",
+      "deathYear": 1934
+    },
+    {
+      "name": "Delius",
+      "field": "composer",
+      "deathYear": 1934
+    },
+    {
+      "name": "Arthur Sullivan",
+      "field": "composer",
+      "deathYear": 1900
+    },
+    {
+      "name": "Franz Lehar",
+      "field": "composer",
+      "deathYear": 1948
+    },
+    {
+      "name": "Mascagni",
+      "field": "composer",
+      "deathYear": 1945
+    },
+    {
+      "name": "Respighi",
+      "field": "composer",
+      "deathYear": 1936
+    },
+    {
+      "name": "Janacek",
+      "field": "composer",
+      "deathYear": 1928
+    },
+    {
+      "name": "Bartok",
+      "field": "composer",
+      "deathYear": 1945
+    },
+    {
+      "name": "Prokofiev",
+      "field": "composer",
+      "deathYear": 1953
+    },
+    {
+      "name": "Scriabin",
+      "field": "composer",
+      "deathYear": 1915
+    },
+    {
+      "name": "Rachmaninoff",
+      "field": "composer",
+      "deathYear": 1943
+    },
+    {
+      "name": "Glinka",
+      "field": "composer",
+      "deathYear": 1857
+    },
+    {
+      "name": "Albeniz",
+      "field": "composer",
+      "deathYear": 1909
+    },
+    {
+      "name": "Granados",
+      "field": "composer",
+      "deathYear": 1916
+    },
+    {
+      "name": "Manuel Falla",
+      "field": "composer",
+      "deathYear": 1946
+    },
+    {
+      "name": "Sarasate",
+      "field": "composer",
+      "deathYear": 1908
+    },
+    {
+      "name": "Paganini",
+      "field": "composer",
+      "deathYear": 1840
+    },
+    {
+      "name": "Gershwin",
+      "field": "composer",
+      "deathYear": 1937
+    },
+    {
+      "name": "Stephen Foster",
+      "field": "composer",
+      "deathYear": 1864
+    },
+    {
+      "name": "Sousa",
+      "field": "composer",
+      "deathYear": 1932
+    },
+    {
+      "name": "Scott Joplin",
+      "field": "composer",
+      "deathYear": 1917
+    },
+    {
+      "name": "George Enescu",
+      "field": "composer",
+      "deathYear": 1955
+    },
+    {
+      "name": "Leoncavallo",
+      "field": "composer",
+      "deathYear": 1919
+    },
+    {
+      "name": "Cilea",
+      "field": "composer",
+      "deathYear": 1950
+    },
+    {
+      "name": "Dukas",
+      "field": "composer",
+      "deathYear": 1935
+    },
+    {
+      "name": "Chausson",
+      "field": "composer",
+      "deathYear": 1899
+    },
+    {
+      "name": "Lully",
+      "field": "composer",
+      "deathYear": 1687
+    },
+    {
+      "name": "Corelli",
+      "field": "composer",
+      "deathYear": 1713
+    },
+    {
+      "name": "Telemann",
+      "field": "composer",
+      "deathYear": 1767
+    },
+    {
+      "name": "Albinoni",
+      "field": "composer",
+      "deathYear": 1751
+    },
+    {
+      "name": "Boccherini",
+      "field": "composer",
+      "deathYear": 1805
+    },
+    {
+      "name": "Cherubini",
+      "field": "composer",
+      "deathYear": 1842
+    },
+    {
+      "name": "Mendelssohn",
+      "field": "composer",
+      "deathYear": 1847
+    },
+    {
+      "name": "Meyerbeer",
+      "field": "composer",
+      "deathYear": 1864
+    },
+    {
+      "name": "Bach",
+      "field": "composer",
+      "deathYear": 1750
+    },
+    {
+      "name": "Palestrina",
+      "field": "composer",
+      "deathYear": 1594
+    },
+    {
+      "name": "Gesualdo",
+      "field": "composer",
+      "deathYear": 1613
+    },
+    {
+      "name": "Dowland",
+      "field": "composer",
+      "deathYear": 1626
+    },
+    {
+      "name": "William Byrd",
+      "field": "composer",
+      "deathYear": 1623
+    },
+    {
+      "name": "Thomas Tallis",
+      "field": "composer",
+      "deathYear": 1585
+    },
+    {
+      "name": "Weber",
+      "field": "composer",
+      "deathYear": 1826
+    },
+    {
+      "name": "Lalo",
+      "field": "composer",
+      "deathYear": 1892
+    },
+    {
+      "name": "Johann Strauss",
+      "field": "composer",
+      "deathYear": 1899
+    },
+    {
+      "name": "Ferdinand Magellan",
+      "field": "explorer",
+      "deathYear": 1521
+    },
+    {
+      "name": "Vasco da Gama",
+      "field": "explorer",
+      "deathYear": 1524
+    },
+    {
+      "name": "Columbus",
+      "field": "explorer",
+      "deathYear": 1506
+    },
+    {
+      "name": "James Cook",
+      "field": "explorer",
+      "deathYear": 1779
+    },
+    {
+      "name": "Abel Tasman",
+      "field": "explorer",
+      "deathYear": 1659
+    },
+    {
+      "name": "Marco Polo",
+      "field": "explorer",
+      "deathYear": 1324
+    },
+    {
+      "name": "Francisco Pizarro",
+      "field": "explorer",
+      "deathYear": 1541
+    },
+    {
+      "name": "Hernando Cortes",
+      "field": "explorer",
+      "deathYear": 1547
+    },
+    {
+      "name": "Robert Scott",
+      "field": "explorer",
+      "deathYear": 1912
+    },
+    {
+      "name": "Ernest Shackleton",
+      "field": "explorer",
+      "deathYear": 1922
+    },
+    {
+      "name": "Fridtjof Nansen",
+      "field": "explorer",
+      "deathYear": 1930
+    },
+    {
+      "name": "Robert Peary",
+      "field": "explorer",
+      "deathYear": 1920
+    },
+    {
+      "name": "Jacques Cartier",
+      "field": "explorer",
+      "deathYear": 1557
+    },
+    {
+      "name": "Samuel Champlain",
+      "field": "explorer",
+      "deathYear": 1635
+    },
+    {
+      "name": "Meriwether Lewis",
+      "field": "explorer",
+      "deathYear": 1809
+    },
+    {
+      "name": "William Clark",
+      "field": "explorer",
+      "deathYear": 1838
+    },
+    {
+      "name": "David Livingstone",
+      "field": "explorer",
+      "deathYear": 1873
+    },
+    {
+      "name": "Henry Stanley",
+      "field": "explorer",
+      "deathYear": 1904
+    },
+    {
+      "name": "John Speke",
+      "field": "explorer",
+      "deathYear": 1864
+    },
+    {
+      "name": "Mungo Park",
+      "field": "explorer",
+      "deathYear": 1806
+    },
+    {
+      "name": "Sven Hedin",
+      "field": "explorer",
+      "deathYear": 1952
+    },
+    {
+      "name": "Otto Sverdrup",
+      "field": "explorer",
+      "deathYear": 1930
+    },
+    {
+      "name": "Lincoln Ellsworth",
+      "field": "explorer",
+      "deathYear": 1951
+    },
+    {
+      "name": "William Dampier",
+      "field": "explorer",
+      "deathYear": 1715
+    },
+    {
+      "name": "Bartolomeu Dias",
+      "field": "explorer",
+      "deathYear": 1500
+    },
+    {
+      "name": "Hernando de Soto",
+      "field": "explorer",
+      "deathYear": 1542
+    },
+    {
+      "name": "Juan Ponce de Leon",
+      "field": "explorer",
+      "deathYear": 1521
+    },
+    {
+      "name": "Alexander Humboldt",
+      "field": "explorer",
+      "deathYear": 1859
+    },
+    {
+      "name": "Walter Raleigh",
+      "field": "explorer",
+      "deathYear": 1618
+    },
+    {
+      "name": "Francis Drake",
+      "field": "explorer",
+      "deathYear": 1596
+    },
+    {
+      "name": "John Franklin",
+      "field": "explorer",
+      "deathYear": 1847
+    },
+    {
+      "name": "Matthew Flinders",
+      "field": "explorer",
+      "deathYear": 1814
+    },
+    {
+      "name": "George Vancouver",
+      "field": "explorer",
+      "deathYear": 1798
+    },
+    {
+      "name": "Louis Bougainville",
+      "field": "explorer",
+      "deathYear": 1811
+    },
+    {
+      "name": "Frederick Cook",
+      "field": "explorer",
+      "deathYear": 1940
+    },
+    {
+      "name": "Isaac Newton",
+      "field": "scientist",
+      "deathYear": 1727
+    },
+    {
+      "name": "Johannes Kepler",
+      "field": "scientist",
+      "deathYear": 1630
+    },
+    {
+      "name": "Copernicus",
+      "field": "scientist",
+      "deathYear": 1543
+    },
+    {
+      "name": "Tycho Brahe",
+      "field": "scientist",
+      "deathYear": 1601
+    },
+    {
+      "name": "Robert Hooke",
+      "field": "scientist",
+      "deathYear": 1703
+    },
+    {
+      "name": "Robert Boyle",
+      "field": "scientist",
+      "deathYear": 1691
+    },
+    {
+      "name": "Antoine Lavoisier",
+      "field": "scientist",
+      "deathYear": 1794
+    },
+    {
+      "name": "Michael Faraday",
+      "field": "scientist",
+      "deathYear": 1867
+    },
+    {
+      "name": "James Maxwell",
+      "field": "scientist",
+      "deathYear": 1879
+    },
+    {
+      "name": "Charles Darwin",
+      "field": "scientist",
+      "deathYear": 1882
+    },
+    {
+      "name": "Gregor Mendel",
+      "field": "scientist",
+      "deathYear": 1884
+    },
+    {
+      "name": "Louis Pasteur",
+      "field": "scientist",
+      "deathYear": 1895
+    },
+    {
+      "name": "Marie Curie",
+      "field": "scientist",
+      "deathYear": 1934
+    },
+    {
+      "name": "Pierre Curie",
+      "field": "scientist",
+      "deathYear": 1906
+    },
+    {
+      "name": "Albert Einstein",
+      "field": "scientist",
+      "deathYear": 1955
+    },
+    {
+      "name": "Max Planck",
+      "field": "scientist",
+      "deathYear": 1947
+    },
+    {
+      "name": "Ernest Rutherford",
+      "field": "scientist",
+      "deathYear": 1937
+    },
+    {
+      "name": "Ivan Pavlov",
+      "field": "scientist",
+      "deathYear": 1936
+    },
+    {
+      "name": "Dmitri Mendeleev",
+      "field": "scientist",
+      "deathYear": 1907
+    },
+    {
+      "name": "Alfred Nobel",
+      "field": "scientist",
+      "deathYear": 1896
+    },
+    {
+      "name": "Joseph Lister",
+      "field": "scientist",
+      "deathYear": 1912
+    },
+    {
+      "name": "Robert Koch",
+      "field": "scientist",
+      "deathYear": 1910
+    },
+    {
+      "name": "Joseph Priestley",
+      "field": "scientist",
+      "deathYear": 1804
+    },
+    {
+      "name": "Henry Cavendish",
+      "field": "scientist",
+      "deathYear": 1810
+    },
+    {
+      "name": "Carl Linnaeus",
+      "field": "scientist",
+      "deathYear": 1778
+    },
+    {
+      "name": "Georges Cuvier",
+      "field": "scientist",
+      "deathYear": 1832
+    },
+    {
+      "name": "Jean Lamarck",
+      "field": "scientist",
+      "deathYear": 1829
+    },
+    {
+      "name": "Alessandro Volta",
+      "field": "scientist",
+      "deathYear": 1827
+    },
+    {
+      "name": "Andre Ampere",
+      "field": "scientist",
+      "deathYear": 1836
+    },
+    {
+      "name": "Hermann Helmholtz",
+      "field": "scientist",
+      "deathYear": 1894
+    },
+    {
+      "name": "Rudolf Virchow",
+      "field": "scientist",
+      "deathYear": 1902
+    },
+    {
+      "name": "Wilhelm Roentgen",
+      "field": "scientist",
+      "deathYear": 1923
+    },
+    {
+      "name": "Heinrich Hertz",
+      "field": "scientist",
+      "deathYear": 1894
+    },
+    {
+      "name": "Ludwig Boltzmann",
+      "field": "scientist",
+      "deathYear": 1906
+    },
+    {
+      "name": "Svante Arrhenius",
+      "field": "scientist",
+      "deathYear": 1927
+    },
+    {
+      "name": "Hendrik Lorentz",
+      "field": "scientist",
+      "deathYear": 1928
+    },
+    {
+      "name": "Nikola Tesla",
+      "field": "scientist",
+      "deathYear": 1943
+    },
+    {
+      "name": "Thomas Edison",
+      "field": "scientist",
+      "deathYear": 1931
+    },
+    {
+      "name": "Guglielmo Marconi",
+      "field": "scientist",
+      "deathYear": 1937
+    },
+    {
+      "name": "Hans Oersted",
+      "field": "scientist",
+      "deathYear": 1851
+    },
+    {
+      "name": "Carl Gauss",
+      "field": "scientist",
+      "deathYear": 1855
+    },
+    {
+      "name": "Bernhard Riemann",
+      "field": "scientist",
+      "deathYear": 1866
+    },
+    {
+      "name": "Leonhard Euler",
+      "field": "scientist",
+      "deathYear": 1783
+    },
+    {
+      "name": "Pierre Laplace",
+      "field": "scientist",
+      "deathYear": 1827
+    },
+    {
+      "name": "Joseph Fourier",
+      "field": "scientist",
+      "deathYear": 1830
+    },
+    {
+      "name": "Blaise Pascal",
+      "field": "scientist",
+      "deathYear": 1662
+    },
+    {
+      "name": "Rene Descartes",
+      "field": "scientist",
+      "deathYear": 1650
+    },
+    {
+      "name": "Christiaan Huygens",
+      "field": "scientist",
+      "deathYear": 1695
+    },
+    {
+      "name": "Anders Celsius",
+      "field": "scientist",
+      "deathYear": 1744
+    },
+    {
+      "name": "Daniel Fahrenheit",
+      "field": "scientist",
+      "deathYear": 1736
+    },
+    {
+      "name": "Edward Jenner",
+      "field": "scientist",
+      "deathYear": 1823
+    },
+    {
+      "name": "William Harvey",
+      "field": "scientist",
+      "deathYear": 1657
+    },
+    {
+      "name": "John Dalton",
+      "field": "scientist",
+      "deathYear": 1844
+    },
+    {
+      "name": "Humphry Davy",
+      "field": "scientist",
+      "deathYear": 1829
+    },
+    {
+      "name": "Ernst Haeckel",
+      "field": "scientist",
+      "deathYear": 1919
+    },
+    {
+      "name": "Paul Ehrlich",
+      "field": "scientist",
+      "deathYear": 1915
+    },
+    {
+      "name": "Sigmund Freud",
+      "field": "scientist",
+      "deathYear": 1939
+    },
+    {
+      "name": "Emil Fischer",
+      "field": "scientist",
+      "deathYear": 1919
+    }
+  ]
+}

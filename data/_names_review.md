@@ -194,3 +194,387 @@ Opus 검수용. 근거는 모델 지식 기준의 판단이며 실존 여부를 
 - 확신 낮은 이름(Juvenile Trophy·Ladies Plate·Autumn Plate·Ladies Cup·Cup·Sprint Trophy 등 일반어 조합 24개, Harvest·Opening·Hill 등 흔한 영단어 조합 7개)은 data/calendar/_review.md 6-4장에 정리했다. Opus 가 실존 여부를 확인해 달라.
 - 경마장 이름은 기존 가상 경마장(data/racecourses.json)만 쓴다. 새 경마장 이름 없음.
 - 사람 이름 없음.
+
+## M3-C7a 이름 생성 어휘 (가상 지명 · 접두어 · 역사 인물)
+
+- 생성 파일: data/naming/lexicon.en.json, owner-styles.json, protected.json, historical.json (스크립트는 저장소 밖 /tmp/naming-gen/build.py).
+- 검증: tests/data/naming.test.ts 24개 통과.
+- 템플릿 키 `joined` 추가(2026-10-12 보충): owner-styles templateWeights 는 single·modifierNoun·possessive·phrase·verb·prefix·joined 7개. 붙여 쓰기 애호가형(joined-lover) 0.35, 구절 이야기형(phrase-storyteller) 0.35, 나머지 0.05~0.15.
+- 실명 제거 기록: 실존 경주마·종마와 같은 단어 Winter, Oxbow, Halo, Orb, Lure, Exultant, Oratorio, Champion 은 어휘에서 뺐다. 기구·브랜드 단어 Coral, Mustang, Bronco, Pinto, Jaguar, Cougar, Valkyrie, Orion, Insignia, Harrier, Mercury, Corsair, Lynx, Merlin 도 뺐다. 명세 예시 Enable·Justify·Authentic·Workforce·Treve·Orfevre 는 실존 경주마이므로 어휘에 넣지 않았다.
+- 제외 인물: Henry Hudson(사망 연도 추정), Roald Amundsen(실종 후 추정), Thomas Gainsborough(19자 초과, Gainsborough 로 축약), Vitus Bering·Galileo·Churchill·Matisse·Rodin·Pissarro·Velazquez·Longfellow·Dylan Thomas·Bernstein·Stradivarius(종마 이름과 같은 사람), Sibelius·Brancusi·Richard Byrd(1957년 사망), Hemingway(1961년 사망).
+
+### 수량 요약
+
+| 배열 | 개수 | 비고 |
+|---|---|---|
+| modifiers | 301 | horse_words 형용사 재사용 + 추가 |
+| nouns | 544 | horse_words 명사 재사용(브랜드 제외) + 추가 |
+| verbs | 166 | 동사 원형 |
+| abstract | 216 | 추상어 |
+| places | 162 | 일반 지형어 79 + 가상 지명 83 |
+| foreign.fr / it / de | 138 / 139 / 123 | |
+| culture | 94 | 일반 음악·문학 용어 |
+| phrases | 81 | 3~4단어 붙여 쓰기 틀 69개 |
+| associations 키 | 215 | 키마다 연상어 3~4개 |
+| syllables onsets / vowels / codas | 24 / 15 / 17 | |
+| owner styles | 17 | prefix 7개(아래), joined 2개 0.3 이상 |
+| protected | 313 | 1970~2020년대 유명마, 기억 기반 목록 |
+| historical | 325 | 분야별 화가·조각가 75, 작가·시인 70, 작곡가 87, 탐험가 35, 과학자 58 |
+
+### 가상 지명 (places 중 가상, 83개) — 전부 확인 필요
+
+가상 조합이지만 실존 소규모 마을명과 겹칠 수 있다. Ashcombe 은 명세·CLAUDE.md 예시이며 data/racecourses.json 에도 경마장으로 있어 확인 필요. 나머지는 경마장·목장·회사명과 같지 않은지 Opus 확인 필요.
+
+Ashcombe, Fallowmere, Brackenholt, Wrenhaven, Mirkwell, Ravensholt, Harrowmere, Kestrelby, Veldmoor, Corrinmoor, Lanthorne, Brindwell, Quenmoor, Tallowby, Glasswell, Mossgrave, Fennick, Hartsmere, Oldwick, Stanmoor, Ashmere, Callowby, Greywick, Ellenmoor, Thornage, Sedgwold, Marrowby, Cressholm, Larkwell, Coppicewell, Rookmere, Elderwick, Pennholt, Saltcombe, Hollinmere, Yarrowby, Osmere, Brackmoor, Corrowmere, Fenlake, Thrushby, Wyndmere, Eskholme, Ivyholme, Garrowmere, Dovecombe, Holmcastle, Redmarrow, Ardcarrow, Kilmarrow, Balcorrin, Tullavan, Corrigmore, Dunaghy, Carrowmere, Clonaveen, Glenaveen, Ardtullah, Montavelle, Brisemont, Sorvillac, Mirevaux, Lescaude, Vignelle, Corbessac, Thiellac, Aubrevert, Ferrancourt, Lauzevaux, Falkenmoor, Lindenmoor, Rabenfeld, Steinhagel, Morgenhof, Eichenmoos, Wittelsund, Valcalda, Montegrano, Vallemonte, Colleverde, Castelmare, Sanfiore, Valmontina
+
+### 가상 접두어 (owner-styles prefix)
+
+| 접두어 | 스타일 id | 근거 |
+|---|---|---|
+| Halvorn | gallery-patron | 가상 조합. 실존 목장·마주 이름으로 알려진 바 없음. 확인 필요 |
+| Fenmora | north-estate | 가상 조합. 실존 목장·마주 이름으로 알려진 바 없음. 확인 필요 |
+| Corvane | syllable-brand | 가상 조합. 실존 목장·마주 이름으로 알려진 바 없음. 확인 필요 |
+| Mirelle | foreign-romantic | 가상 조합. 실존 목장·마주 이름으로 알려진 바 없음. 확인 필요 |
+| Hanaori | prefix-classic | 가상 조합. 실존 목장·마주 이름으로 알려진 바 없음. 확인 필요 |
+| Kazeura | prefix-modern | 가상 조합. 실존 목장·마주 이름으로 알려진 바 없음. 확인 필요 |
+| Sorrelle | nautical-heritage | 가상 조합. 실존 목장·마주 이름으로 알려진 바 없음. 확인 필요 |
+
+### 역사 인물 (historical.json, 사망 연도 1956 이하)
+
+| 이름 | 분야 | 사망 연도 |
+|---|---|---|
+| Vincent Van Gogh | 화가·조각가 | 1890 |
+| Claude Monet | 화가·조각가 | 1926 |
+| Auguste Renoir | 화가·조각가 | 1919 |
+| Paul Cezanne | 화가·조각가 | 1906 |
+| Albrecht Durer | 화가·조각가 | 1528 |
+| Rembrandt | 화가·조각가 | 1669 |
+| Francisco Goya | 화가·조각가 | 1828 |
+| Edgar Degas | 화가·조각가 | 1917 |
+| Pierre Bonnard | 화가·조각가 | 1947 |
+| Edvard Munch | 화가·조각가 | 1944 |
+| Gustav Klimt | 화가·조각가 | 1918 |
+| Egon Schiele | 화가·조각가 | 1918 |
+| Amedeo Modigliani | 화가·조각가 | 1920 |
+| Paul Gauguin | 화가·조각가 | 1903 |
+| Georges Seurat | 화가·조각가 | 1891 |
+| Edouard Manet | 화가·조각가 | 1883 |
+| Berthe Morisot | 화가·조각가 | 1895 |
+| Mary Cassatt | 화가·조각가 | 1926 |
+| Gustave Courbet | 화가·조각가 | 1877 |
+| Caspar Friedrich | 화가·조각가 | 1840 |
+| Wassily Kandinsky | 화가·조각가 | 1944 |
+| Paul Klee | 화가·조각가 | 1940 |
+| Winslow Homer | 화가·조각가 | 1910 |
+| John Sargent | 화가·조각가 | 1925 |
+| Gainsborough | 화가·조각가 | 1788 |
+| John Constable | 화가·조각가 | 1837 |
+| Hieronymus Bosch | 화가·조각가 | 1516 |
+| Pieter Bruegel | 화가·조각가 | 1569 |
+| Titian | 화가·조각가 | 1576 |
+| Hans Holbein | 화가·조각가 | 1543 |
+| Lucas Cranach | 화가·조각가 | 1553 |
+| Peter Paul Rubens | 화가·조각가 | 1640 |
+| Anthony Van Dyck | 화가·조각가 | 1641 |
+| Nicolas Poussin | 화가·조각가 | 1665 |
+| Antoine Watteau | 화가·조각가 | 1721 |
+| Honore Fragonard | 화가·조각가 | 1806 |
+| Francois Boucher | 화가·조각가 | 1770 |
+| Louis David | 화가·조각가 | 1825 |
+| Eugene Boudin | 화가·조각가 | 1898 |
+| Alfred Sisley | 화가·조각가 | 1899 |
+| Edouard Vuillard | 화가·조각가 | 1940 |
+| Odilon Redon | 화가·조각가 | 1916 |
+| Gustave Moreau | 화가·조각가 | 1898 |
+| Ferdinand Hodler | 화가·조각가 | 1918 |
+| Franz Marc | 화가·조각가 | 1916 |
+| Emil Nolde | 화가·조각가 | 1956 |
+| Anders Zorn | 화가·조각가 | 1920 |
+| Hokusai | 화가·조각가 | 1849 |
+| Hiroshige | 화가·조각가 | 1858 |
+| Ilya Repin | 화가·조각가 | 1930 |
+| Kazimir Malevich | 화가·조각가 | 1935 |
+| Umberto Boccioni | 화가·조각가 | 1916 |
+| Giovanni Segantini | 화가·조각가 | 1899 |
+| Antonio Canova | 화가·조각가 | 1822 |
+| Donatello | 화가·조각가 | 1466 |
+| Andrea Mantegna | 화가·조각가 | 1506 |
+| Jan Van Eyck | 화가·조각가 | 1441 |
+| Frans Hals | 화가·조각가 | 1666 |
+| Jacob Ruisdael | 화가·조각가 | 1682 |
+| Thomas Eakins | 화가·조각가 | 1916 |
+| Frederic Remington | 화가·조각가 | 1909 |
+| Albert Bierstadt | 화가·조각가 | 1902 |
+| Dante Rossetti | 화가·조각가 | 1882 |
+| Edward Burne Jones | 화가·조각가 | 1898 |
+| Lorenzo Bernini | 화가·조각가 | 1680 |
+| Botticelli | 화가·조각가 | 1510 |
+| Leonardo da Vinci | 화가·조각가 | 1519 |
+| Michelangelo | 화가·조각가 | 1564 |
+| Raphael | 화가·조각가 | 1520 |
+| Toulouse Lautrec | 화가·조각가 | 1901 |
+| Antoine Bourdelle | 화가·조각가 | 1929 |
+| Ernst Kirchner | 화가·조각가 | 1938 |
+| Max Liebermann | 화가·조각가 | 1935 |
+| Lovis Corinth | 화가·조각가 | 1925 |
+| Giotto | 화가·조각가 | 1337 |
+| Jane Austen | 작가·시인 | 1817 |
+| Charles Dickens | 작가·시인 | 1870 |
+| Victor Hugo | 작가·시인 | 1885 |
+| Leo Tolstoy | 작가·시인 | 1910 |
+| Fyodor Dostoevsky | 작가·시인 | 1881 |
+| Anton Chekhov | 작가·시인 | 1904 |
+| Henrik Ibsen | 작가·시인 | 1906 |
+| Oscar Wilde | 작가·시인 | 1900 |
+| Mark Twain | 작가·시인 | 1910 |
+| Edgar Allan Poe | 작가·시인 | 1849 |
+| Herman Melville | 작가·시인 | 1891 |
+| Emily Dickinson | 작가·시인 | 1886 |
+| Walt Whitman | 작가·시인 | 1892 |
+| Henry Thoreau | 작가·시인 | 1862 |
+| Ralph Emerson | 작가·시인 | 1882 |
+| Louis Stevenson | 작가·시인 | 1894 |
+| Rudyard Kipling | 작가·시인 | 1936 |
+| Thomas Hardy | 작가·시인 | 1928 |
+| Joseph Conrad | 작가·시인 | 1924 |
+| Conan Doyle | 작가·시인 | 1930 |
+| Bram Stoker | 작가·시인 | 1912 |
+| Lewis Carroll | 작가·시인 | 1898 |
+| Alexandre Dumas | 작가·시인 | 1870 |
+| Gustave Flaubert | 작가·시인 | 1880 |
+| Honore Balzac | 작가·시인 | 1850 |
+| Emile Zola | 작가·시인 | 1902 |
+| Jules Verne | 작가·시인 | 1905 |
+| Guy Maupassant | 작가·시인 | 1893 |
+| Marcel Proust | 작가·시인 | 1922 |
+| Paul Verlaine | 작가·시인 | 1896 |
+| Charles Baudelaire | 작가·시인 | 1867 |
+| Arthur Rimbaud | 작가·시인 | 1891 |
+| Stephane Mallarme | 작가·시인 | 1898 |
+| Rainer Rilke | 작가·시인 | 1926 |
+| Franz Kafka | 작가·시인 | 1924 |
+| Thomas Mann | 작가·시인 | 1955 |
+| Goethe | 작가·시인 | 1832 |
+| Friedrich Schiller | 작가·시인 | 1805 |
+| Heinrich Heine | 작가·시인 | 1856 |
+| Theodor Fontane | 작가·시인 | 1898 |
+| Byron | 작가·시인 | 1824 |
+| Percy Shelley | 작가·시인 | 1822 |
+| John Keats | 작가·시인 | 1821 |
+| William Wordsworth | 작가·시인 | 1850 |
+| Samuel Coleridge | 작가·시인 | 1834 |
+| Alfred Tennyson | 작가·시인 | 1892 |
+| Robert Browning | 작가·시인 | 1889 |
+| Ivan Turgenev | 작가·시인 | 1883 |
+| Nikolai Gogol | 작가·시인 | 1852 |
+| Alexander Pushkin | 작가·시인 | 1837 |
+| Mikhail Lermontov | 작가·시인 | 1841 |
+| Miguel Cervantes | 작가·시인 | 1616 |
+| Dante Alighieri | 작가·시인 | 1321 |
+| Boccaccio | 작가·시인 | 1375 |
+| Jonathan Swift | 작가·시인 | 1745 |
+| Daniel Defoe | 작가·시인 | 1731 |
+| Henry Fielding | 작가·시인 | 1754 |
+| Laurence Sterne | 작가·시인 | 1768 |
+| Walter Scott | 작가·시인 | 1832 |
+| Hans Andersen | 작가·시인 | 1875 |
+| Selma Lagerlof | 작가·시인 | 1940 |
+| August Strindberg | 작가·시인 | 1912 |
+| Maxim Gorky | 작가·시인 | 1936 |
+| Edith Wharton | 작가·시인 | 1937 |
+| Henry James | 작가·시인 | 1916 |
+| Stephen Crane | 작가·시인 | 1900 |
+| Jack London | 작가·시인 | 1916 |
+| Scott Fitzgerald | 작가·시인 | 1940 |
+| Sinclair Lewis | 작가·시인 | 1951 |
+| Willa Cather | 작가·시인 | 1947 |
+| Mozart | 작곡가 | 1791 |
+| Beethoven | 작곡가 | 1827 |
+| Haydn | 작곡가 | 1809 |
+| Handel | 작곡가 | 1759 |
+| Vivaldi | 작곡가 | 1741 |
+| Purcell | 작곡가 | 1695 |
+| Monteverdi | 작곡가 | 1643 |
+| Scarlatti | 작곡가 | 1757 |
+| Couperin | 작곡가 | 1733 |
+| Rameau | 작곡가 | 1764 |
+| Gluck | 작곡가 | 1787 |
+| Schubert | 작곡가 | 1828 |
+| Schumann | 작곡가 | 1856 |
+| Chopin | 작곡가 | 1849 |
+| Liszt | 작곡가 | 1886 |
+| Berlioz | 작곡가 | 1869 |
+| Wagner | 작곡가 | 1883 |
+| Verdi | 작곡가 | 1901 |
+| Rossini | 작곡가 | 1868 |
+| Bellini | 작곡가 | 1835 |
+| Donizetti | 작곡가 | 1848 |
+| Puccini | 작곡가 | 1924 |
+| Mahler | 작곡가 | 1911 |
+| Brahms | 작곡가 | 1897 |
+| Bruckner | 작곡가 | 1896 |
+| Dvorak | 작곡가 | 1904 |
+| Smetana | 작곡가 | 1884 |
+| Tchaikovsky | 작곡가 | 1893 |
+| Mussorgsky | 작곡가 | 1881 |
+| Rimsky Korsakov | 작곡가 | 1908 |
+| Borodin | 작곡가 | 1887 |
+| Grieg | 작곡가 | 1907 |
+| Debussy | 작곡가 | 1918 |
+| Ravel | 작곡가 | 1937 |
+| Faure | 작곡가 | 1924 |
+| Satie | 작곡가 | 1925 |
+| Bizet | 작곡가 | 1875 |
+| Gounod | 작곡가 | 1893 |
+| Massenet | 작곡가 | 1912 |
+| Saint Saens | 작곡가 | 1921 |
+| Offenbach | 작곡가 | 1880 |
+| Delibes | 작곡가 | 1891 |
+| Cesar Franck | 작곡가 | 1890 |
+| Elgar | 작곡가 | 1934 |
+| Holst | 작곡가 | 1934 |
+| Delius | 작곡가 | 1934 |
+| Arthur Sullivan | 작곡가 | 1900 |
+| Franz Lehar | 작곡가 | 1948 |
+| Mascagni | 작곡가 | 1945 |
+| Respighi | 작곡가 | 1936 |
+| Janacek | 작곡가 | 1928 |
+| Bartok | 작곡가 | 1945 |
+| Prokofiev | 작곡가 | 1953 |
+| Scriabin | 작곡가 | 1915 |
+| Rachmaninoff | 작곡가 | 1943 |
+| Glinka | 작곡가 | 1857 |
+| Albeniz | 작곡가 | 1909 |
+| Granados | 작곡가 | 1916 |
+| Manuel Falla | 작곡가 | 1946 |
+| Sarasate | 작곡가 | 1908 |
+| Paganini | 작곡가 | 1840 |
+| Gershwin | 작곡가 | 1937 |
+| Stephen Foster | 작곡가 | 1864 |
+| Sousa | 작곡가 | 1932 |
+| Scott Joplin | 작곡가 | 1917 |
+| George Enescu | 작곡가 | 1955 |
+| Leoncavallo | 작곡가 | 1919 |
+| Cilea | 작곡가 | 1950 |
+| Dukas | 작곡가 | 1935 |
+| Chausson | 작곡가 | 1899 |
+| Lully | 작곡가 | 1687 |
+| Corelli | 작곡가 | 1713 |
+| Telemann | 작곡가 | 1767 |
+| Albinoni | 작곡가 | 1751 |
+| Boccherini | 작곡가 | 1805 |
+| Cherubini | 작곡가 | 1842 |
+| Mendelssohn | 작곡가 | 1847 |
+| Meyerbeer | 작곡가 | 1864 |
+| Bach | 작곡가 | 1750 |
+| Palestrina | 작곡가 | 1594 |
+| Gesualdo | 작곡가 | 1613 |
+| Dowland | 작곡가 | 1626 |
+| William Byrd | 작곡가 | 1623 |
+| Thomas Tallis | 작곡가 | 1585 |
+| Weber | 작곡가 | 1826 |
+| Lalo | 작곡가 | 1892 |
+| Johann Strauss | 작곡가 | 1899 |
+| Ferdinand Magellan | 탐험가 | 1521 |
+| Vasco da Gama | 탐험가 | 1524 |
+| Columbus | 탐험가 | 1506 |
+| James Cook | 탐험가 | 1779 |
+| Abel Tasman | 탐험가 | 1659 |
+| Marco Polo | 탐험가 | 1324 |
+| Francisco Pizarro | 탐험가 | 1541 |
+| Hernando Cortes | 탐험가 | 1547 |
+| Robert Scott | 탐험가 | 1912 |
+| Ernest Shackleton | 탐험가 | 1922 |
+| Fridtjof Nansen | 탐험가 | 1930 |
+| Robert Peary | 탐험가 | 1920 |
+| Jacques Cartier | 탐험가 | 1557 |
+| Samuel Champlain | 탐험가 | 1635 |
+| Meriwether Lewis | 탐험가 | 1809 |
+| William Clark | 탐험가 | 1838 |
+| David Livingstone | 탐험가 | 1873 |
+| Henry Stanley | 탐험가 | 1904 |
+| John Speke | 탐험가 | 1864 |
+| Mungo Park | 탐험가 | 1806 |
+| Sven Hedin | 탐험가 | 1952 |
+| Otto Sverdrup | 탐험가 | 1930 |
+| Lincoln Ellsworth | 탐험가 | 1951 |
+| William Dampier | 탐험가 | 1715 |
+| Bartolomeu Dias | 탐험가 | 1500 |
+| Hernando de Soto | 탐험가 | 1542 |
+| Juan Ponce de Leon | 탐험가 | 1521 |
+| Alexander Humboldt | 탐험가 | 1859 |
+| Walter Raleigh | 탐험가 | 1618 |
+| Francis Drake | 탐험가 | 1596 |
+| John Franklin | 탐험가 | 1847 |
+| Matthew Flinders | 탐험가 | 1814 |
+| George Vancouver | 탐험가 | 1798 |
+| Louis Bougainville | 탐험가 | 1811 |
+| Frederick Cook | 탐험가 | 1940 |
+| Isaac Newton | 과학자 | 1727 |
+| Johannes Kepler | 과학자 | 1630 |
+| Copernicus | 과학자 | 1543 |
+| Tycho Brahe | 과학자 | 1601 |
+| Robert Hooke | 과학자 | 1703 |
+| Robert Boyle | 과학자 | 1691 |
+| Antoine Lavoisier | 과학자 | 1794 |
+| Michael Faraday | 과학자 | 1867 |
+| James Maxwell | 과학자 | 1879 |
+| Charles Darwin | 과학자 | 1882 |
+| Gregor Mendel | 과학자 | 1884 |
+| Louis Pasteur | 과학자 | 1895 |
+| Marie Curie | 과학자 | 1934 |
+| Pierre Curie | 과학자 | 1906 |
+| Albert Einstein | 과학자 | 1955 |
+| Max Planck | 과학자 | 1947 |
+| Ernest Rutherford | 과학자 | 1937 |
+| Ivan Pavlov | 과학자 | 1936 |
+| Dmitri Mendeleev | 과학자 | 1907 |
+| Alfred Nobel | 과학자 | 1896 |
+| Joseph Lister | 과학자 | 1912 |
+| Robert Koch | 과학자 | 1910 |
+| Joseph Priestley | 과학자 | 1804 |
+| Henry Cavendish | 과학자 | 1810 |
+| Carl Linnaeus | 과학자 | 1778 |
+| Georges Cuvier | 과학자 | 1832 |
+| Jean Lamarck | 과학자 | 1829 |
+| Alessandro Volta | 과학자 | 1827 |
+| Andre Ampere | 과학자 | 1836 |
+| Hermann Helmholtz | 과학자 | 1894 |
+| Rudolf Virchow | 과학자 | 1902 |
+| Wilhelm Roentgen | 과학자 | 1923 |
+| Heinrich Hertz | 과학자 | 1894 |
+| Ludwig Boltzmann | 과학자 | 1906 |
+| Svante Arrhenius | 과학자 | 1927 |
+| Hendrik Lorentz | 과학자 | 1928 |
+| Nikola Tesla | 과학자 | 1943 |
+| Thomas Edison | 과학자 | 1931 |
+| Guglielmo Marconi | 과학자 | 1937 |
+| Hans Oersted | 과학자 | 1851 |
+| Carl Gauss | 과학자 | 1855 |
+| Bernhard Riemann | 과학자 | 1866 |
+| Leonhard Euler | 과학자 | 1783 |
+| Pierre Laplace | 과학자 | 1827 |
+| Joseph Fourier | 과학자 | 1830 |
+| Blaise Pascal | 과학자 | 1662 |
+| Rene Descartes | 과학자 | 1650 |
+| Christiaan Huygens | 과학자 | 1695 |
+| Anders Celsius | 과학자 | 1744 |
+| Daniel Fahrenheit | 과학자 | 1736 |
+| Edward Jenner | 과학자 | 1823 |
+| William Harvey | 과학자 | 1657 |
+| John Dalton | 과학자 | 1844 |
+| Humphry Davy | 과학자 | 1829 |
+| Ernst Haeckel | 과학자 | 1919 |
+| Paul Ehrlich | 과학자 | 1915 |
+| Sigmund Freud | 과학자 | 1939 |
+| Emil Fischer | 과학자 | 1919 |
+
+### 확신 낮은 항목 (Opus 확인 요청)
+
+- 사망 연도 중세·고대 근접: Dante Alighieri 1321, Marco Polo 1324, Giotto 1337, Boccaccio 1375, Donatello 1466, Bartolomeu Dias 1500, Raphael 1520, Leonardo da Vinci 1519, Columbus 1506.
+- 1956 기준선 근처: Emil Nolde 1956, Albert Einstein 1955, Thomas Mann 1955, George Enescu 1955, Sven Hedin 1952, Sinclair Lewis 1951, Lincoln Ellsworth 1951.
+- 축약·별칭 이름(동일 인물이나 표기 확인 필요): Louis David, Caspar Friedrich, Honore Fragonard, Louis Stevenson, Ralph Emerson, Conan Doyle, James Maxwell, Hans Oersted, Hans Andersen, Scott Fitzgerald, Mark Twain(필명), Byron, Boccaccio, Johann Strauss, Weber, Bach, Sousa, Robert Scott, Fridtjof Nansen.
+- 보호 명단은 모델 지식에서 옮긴 목록이라 실존 여부를 하나씩 대조하지 않았다. 특히 확인 필요: Redoute's Choice, Trempolino, Honest Pleasure, Bold Forbes, Foolish Pleasure, Genuine Risk, Dixieland Band, Shadeed, Desert Crown, Hukum, Kingsbarns, Muhaarar, Dr Devious, Benny The Dip, Ka Ying Rising, Sacred Kingdom, Able Friend, Sakura Laurel, Nice Nature, Fine Motion, Deep Brillante, Lys Gracieux, Contrail, Hartnell, Pinfire, Silent Witness, Golden Sixty, Beauty Generation, Better Than Ready, Sepoy, Sunline, Pierro, Redzel, Efficient, Think Big, Ezzoud, Marju.
+- 어휘 확인 필요: horse_words 에서 가져온 Herald, Monarch, Titan, Atlas(기존 확인 필요 항목), Native(종마 Native Dancer·Native Trail 과 어휘 공유), Sovereign, Sterling, Phoenix, Vesper, Lionheart(경주마 이름으로 쓰인 사례 가능성).
+- 파생 연상어(associations)는 키와 값이 모두 일반 영어 단어다. 연상어 값이 경주마 실명이 아닌지 Opus 가 확인해 달라.
+

@@ -1,0 +1,403 @@
+{
+  "version": 1,
+  "styles": [
+    {
+      "id": "classic-patron",
+      "label": "고전 예술 애호가형: 화가·조각가 이름으로 헌정하는 마주",
+      "sourceWeights": {
+        "pedigree": 2,
+        "tribute": 2,
+        "historical": 9,
+        "place": 2,
+        "culture": 2,
+        "foreign": 3,
+        "abstract": 2,
+        "ownerStyle": 1
+      },
+      "templateWeights": {
+        "single": 3,
+        "modifierNoun": 2,
+        "possessive": 3,
+        "phrase": 1,
+        "verb": 1,
+        "prefix": 0,
+        "joined": 0.1
+      }
+    },
+    {
+      "id": "gallery-patron",
+      "label": "고전 예술 애호가형(미술관 후원): 역사 화가 이름과 회화 용어를 쓰는 마주",
+      "sourceWeights": {
+        "pedigree": 1,
+        "tribute": 2,
+        "historical": 8,
+        "place": 2,
+        "culture": 2,
+        "foreign": 4,
+        "abstract": 1,
+        "ownerStyle": 1
+      },
+      "templateWeights": {
+        "single": 2,
+        "modifierNoun": 3,
+        "possessive": 3,
+        "phrase": 1,
+        "verb": 0.5,
+        "prefix": 0.5,
+        "joined": 0.1
+      },
+      "prefix": "Halvorn"
+    },
+    {
+      "id": "literary-salon",
+      "label": "문학 살롱형: 작가·시인 이름과 문학 용어를 즐겨 쓰는 마주",
+      "sourceWeights": {
+        "pedigree": 1,
+        "tribute": 1,
+        "historical": 8,
+        "place": 1,
+        "culture": 6,
+        "foreign": 2,
+        "abstract": 2,
+        "ownerStyle": 1
+      },
+      "templateWeights": {
+        "single": 2,
+        "modifierNoun": 2,
+        "possessive": 2,
+        "phrase": 3,
+        "verb": 2,
+        "prefix": 0,
+        "joined": 0.15
+      }
+    },
+    {
+      "id": "pedigree-breeder",
+      "label": "혈통 중시 브리더형: 부모 이름에서 단어를 이어받는 마주",
+      "sourceWeights": {
+        "pedigree": 9,
+        "tribute": 1,
+        "historical": 1,
+        "place": 2,
+        "culture": 1,
+        "foreign": 1,
+        "abstract": 2,
+        "ownerStyle": 1
+      },
+      "templateWeights": {
+        "single": 2,
+        "modifierNoun": 3,
+        "possessive": 2,
+        "phrase": 2,
+        "verb": 1,
+        "prefix": 0,
+        "joined": 0.12
+      }
+    },
+    {
+      "id": "north-estate",
+      "label": "지방 명가형: 고장과 지형 이름을 쓰는 오래된 목장 마주",
+      "sourceWeights": {
+        "pedigree": 2,
+        "tribute": 1,
+        "historical": 1,
+        "place": 9,
+        "culture": 1,
+        "foreign": 1,
+        "abstract": 2,
+        "ownerStyle": 1
+      },
+      "templateWeights": {
+        "single": 2,
+        "modifierNoun": 3,
+        "possessive": 3,
+        "phrase": 1,
+        "verb": 1,
+        "prefix": 2,
+        "joined": 0.08
+      },
+      "prefix": "Fenmora"
+    },
+    {
+      "id": "coined-syllable",
+      "label": "신조어 창작형: 음절 조합으로 독특한 어감을 만드는 마주",
+      "sourceWeights": {
+        "pedigree": 1,
+        "tribute": 1,
+        "historical": 1,
+        "place": 1,
+        "culture": 1,
+        "foreign": 1,
+        "abstract": 1,
+        "ownerStyle": 9
+      },
+      "templateWeights": {
+        "single": 6,
+        "modifierNoun": 1,
+        "possessive": 1,
+        "phrase": 1,
+        "verb": 1,
+        "prefix": 0,
+        "joined": 0.08
+      }
+    },
+    {
+      "id": "syllable-brand",
+      "label": "음절 상표형: 짧은 조합형 이름을 마주의 상표처럼 쓰는 마주",
+      "sourceWeights": {
+        "pedigree": 2,
+        "tribute": 1,
+        "historical": 1,
+        "place": 1,
+        "culture": 1,
+        "foreign": 2,
+        "abstract": 1,
+        "ownerStyle": 8
+      },
+      "templateWeights": {
+        "single": 5,
+        "modifierNoun": 1,
+        "possessive": 1,
+        "phrase": 1,
+        "verb": 1,
+        "prefix": 1,
+        "joined": 0.1
+      },
+      "prefix": "Corvane"
+    },
+    {
+      "id": "foreign-romantic",
+      "label": "외국어 애호가형: 프랑스·이탈리아·독일어 단어로 어감을 세우는 마주",
+      "sourceWeights": {
+        "pedigree": 1,
+        "tribute": 1,
+        "historical": 2,
+        "place": 1,
+        "culture": 3,
+        "foreign": 9,
+        "abstract": 2,
+        "ownerStyle": 1
+      },
+      "templateWeights": {
+        "single": 3,
+        "modifierNoun": 2,
+        "possessive": 2,
+        "phrase": 2,
+        "verb": 1,
+        "prefix": 1,
+        "joined": 0.1
+      },
+      "prefix": "Mirelle"
+    },
+    {
+      "id": "abstract-achiever",
+      "label": "목표 추구형: 덕목과 동사형 구절로 이름을 짓는 마주",
+      "sourceWeights": {
+        "pedigree": 1,
+        "tribute": 1,
+        "historical": 1,
+        "place": 1,
+        "culture": 1,
+        "foreign": 1,
+        "abstract": 8,
+        "ownerStyle": 1
+      },
+      "templateWeights": {
+        "single": 2,
+        "modifierNoun": 2,
+        "possessive": 1,
+        "phrase": 4,
+        "verb": 3,
+        "prefix": 0,
+        "joined": 0.12
+      }
+    },
+    {
+      "id": "music-patron",
+      "label": "음악 애호가형: 음악 용어와 가곡 이름 틀을 쓰는 마주",
+      "sourceWeights": {
+        "pedigree": 1,
+        "tribute": 2,
+        "historical": 2,
+        "place": 1,
+        "culture": 8,
+        "foreign": 2,
+        "abstract": 1,
+        "ownerStyle": 1
+      },
+      "templateWeights": {
+        "single": 2,
+        "modifierNoun": 2,
+        "possessive": 2,
+        "phrase": 3,
+        "verb": 1,
+        "prefix": 0,
+        "joined": 0.12
+      }
+    },
+    {
+      "id": "prefix-classic",
+      "label": "관명형: 고정 접두어 아래 짧은 명사를 붙이는 마주",
+      "sourceWeights": {
+        "pedigree": 1,
+        "tribute": 1,
+        "historical": 1,
+        "place": 1,
+        "culture": 1,
+        "foreign": 1,
+        "abstract": 1,
+        "ownerStyle": 1
+      },
+      "templateWeights": {
+        "single": 1,
+        "modifierNoun": 1,
+        "possessive": 1,
+        "phrase": 1,
+        "verb": 0.5,
+        "prefix": 9,
+        "joined": 0.05
+      },
+      "prefix": "Hanaori"
+    },
+    {
+      "id": "prefix-modern",
+      "label": "관명 현대형: 접두어에 수식어를 더한 현대적 이름을 쓰는 마주",
+      "sourceWeights": {
+        "pedigree": 2,
+        "tribute": 1,
+        "historical": 1,
+        "place": 1,
+        "culture": 2,
+        "foreign": 1,
+        "abstract": 2,
+        "ownerStyle": 2
+      },
+      "templateWeights": {
+        "single": 1,
+        "modifierNoun": 4,
+        "possessive": 1,
+        "phrase": 1,
+        "verb": 1,
+        "prefix": 7,
+        "joined": 0.08
+      },
+      "prefix": "Kazeura"
+    },
+    {
+      "id": "terse-single",
+      "label": "단어 하나형: 한 단어 이름을 선호하는 마주",
+      "sourceWeights": {
+        "pedigree": 1,
+        "tribute": 1,
+        "historical": 1,
+        "place": 1,
+        "culture": 1,
+        "foreign": 1,
+        "abstract": 3,
+        "ownerStyle": 2
+      },
+      "templateWeights": {
+        "single": 8,
+        "modifierNoun": 1,
+        "possessive": 0.5,
+        "phrase": 0.3,
+        "verb": 0.5,
+        "prefix": 0,
+        "joined": 0.05
+      }
+    },
+    {
+      "id": "sky-romantic",
+      "label": "하늘·빛형: 자연 현상 어휘를 쓰는 마주",
+      "sourceWeights": {
+        "pedigree": 1,
+        "tribute": 1,
+        "historical": 1,
+        "place": 4,
+        "culture": 2,
+        "foreign": 1,
+        "abstract": 3,
+        "ownerStyle": 1
+      },
+      "templateWeights": {
+        "single": 2,
+        "modifierNoun": 3,
+        "possessive": 2,
+        "phrase": 2,
+        "verb": 1,
+        "prefix": 0,
+        "joined": 0.12
+      }
+    },
+    {
+      "id": "nautical-heritage",
+      "label": "항해 전통형: 바다와 항구 연상을 쓰는 마주",
+      "sourceWeights": {
+        "pedigree": 3,
+        "tribute": 1,
+        "historical": 1,
+        "place": 5,
+        "culture": 1,
+        "foreign": 1,
+        "abstract": 1,
+        "ownerStyle": 1
+      },
+      "templateWeights": {
+        "single": 2,
+        "modifierNoun": 3,
+        "possessive": 2,
+        "phrase": 2,
+        "verb": 1,
+        "prefix": 1,
+        "joined": 0.15
+      },
+      "prefix": "Sorrelle"
+    },
+    {
+      "id": "joined-lover",
+      "label": "붙여 쓰기 애호가형: 띄어쓰기 없이 긴 구절을 붙여 쓰는 마주",
+      "sourceWeights": {
+        "pedigree": 1,
+        "tribute": 1,
+        "historical": 1,
+        "place": 1,
+        "culture": 2,
+        "foreign": 1,
+        "abstract": 2,
+        "ownerStyle": 1
+      },
+      "templateWeights": {
+        "single": 1,
+        "modifierNoun": 1,
+        "possessive": 2,
+        "phrase": 4,
+        "verb": 3,
+        "prefix": 0,
+        "joined": 0.35
+      }
+    },
+    {
+      "id": "phrase-storyteller",
+      "label": "구절 이야기형: 3~4단어 문장형 이름을 즐겨 짓는 마주",
+      "sourceWeights": {
+        "pedigree": 1,
+        "tribute": 1,
+        "historical": 1,
+        "place": 1,
+        "culture": 3,
+        "foreign": 1,
+        "abstract": 2,
+        "ownerStyle": 1
+      },
+      "templateWeights": {
+        "single": 1,
+        "modifierNoun": 1,
+        "possessive": 1,
+        "phrase": 6,
+        "verb": 2,
+        "prefix": 0,
+        "joined": 0.35
+      }
+    }
+  ]
+}
