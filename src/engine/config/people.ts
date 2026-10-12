@@ -1,8 +1,9 @@
 /** 인물(기수·조교사·마주) 생성·초기화 밸런스 상수. 초기값이며 Opus 가 조정한다. */
 import type { OwnerTier, SilksPattern } from '../types';
+import type { PopulationCountry } from './population';
 
-/** 인원 설정이 있는 국가 */
-export type PeopleCountry = 'GB' | 'IE' | 'FR' | 'DE' | 'IT' | 'US';
+/** 인원 설정이 있는 국가. AE 는 마주만 둔다(아랍 계열 마주, M3-C7e1). */
+export type PeopleCountry = 'GB' | 'IE' | 'FR' | 'DE' | 'IT' | 'US' | 'AE';
 
 export interface PeopleCount {
   jockeys: number;
@@ -18,10 +19,13 @@ export const PEOPLE_PER_COUNTRY: Readonly<Record<PeopleCountry, PeopleCount>> = 
   DE: { jockeys: 12, trainers: 14, owners: 22 },
   IT: { jockeys: 12, trainers: 14, owners: 22 },
   US: { jockeys: 30, trainers: 30, owners: 50 },
+  AE: { jockeys: 0, trainers: 0, owners: 30 },
 };
 
-/** 초기화 순서(결정적 생성을 위해 고정) */
-export const PEOPLE_COUNTRY_ORDER: readonly PeopleCountry[] = ['GB', 'IE', 'FR', 'DE', 'IT', 'US'];
+/**
+ * 초기화 순서(결정적 생성을 위해 고정). AE 는 맨 끝이어야 앞 나라들의 생성 결과가 바뀌지 않는다.
+ */
+export const PEOPLE_COUNTRY_ORDER: readonly PeopleCountry[] = ['GB', 'IE', 'FR', 'DE', 'IT', 'US', 'AE'];
 
 /** ID 형식: 접두어 + 0 패딩 일련번호 (예: jk-000001) */
 export const JOCKEY_ID_PREFIX = 'jk-';
@@ -81,6 +85,19 @@ export const TRAINER_PATIENT_CHANCE = 0.5;
 /** 마주 */
 export const OWNER_TIER_ORDER: readonly OwnerTier[] = ['major', 'mid', 'small'];
 export const OWNER_TIER_WEIGHTS: Readonly<Record<OwnerTier, number>> = { major: 0.08, mid: 0.3, small: 0.62 };
+/** 나라별 마주 규모 가중치. 없는 나라는 OWNER_TIER_WEIGHTS 를 쓴다. */
+export const OWNER_TIER_WEIGHTS_BY_COUNTRY: Partial<Record<PeopleCountry, Readonly<Record<OwnerTier, number>>>> = {
+  AE: { major: 0.3, mid: 0.5, small: 0.2 },
+};
+/**
+ * 외국 마주 배정 비율: 말이 뛰는 나라(PopulationCountry) 마다, 그 말의 마주를 이 나라 마주 풀에서
+ * share 확률로 뽑는다(말이 뛰는 나라 자체는 그대로, 마주만 외국). 나머지는 자국 마주.
+ */
+export const FOREIGN_OWNER_SHARE: Partial<Record<PopulationCountry, { country: PeopleCountry; share: number }>> = {
+  GB: { country: 'AE', share: 0.12 },
+  IE: { country: 'AE', share: 0.08 },
+  FR: { country: 'AE', share: 0.1 },
+};
 /** 자금 범위(€, 정수) */
 export const OWNER_FUNDS_RANGE: Readonly<Record<OwnerTier, { min: number; max: number }>> = {
   major: { min: 20_000_000, max: 80_000_000 },

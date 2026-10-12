@@ -184,3 +184,4 @@
 - 2026-10-12 | 데이터(사용자 제공, Opus 직접) | Man o' War 계통 신설: Intentionally←Intent←War Relic←Man o' War, sl_intentionally 를 하위 계통으로. 하위 계통 상한 30→35. breedingSeason 재현성 테스트 제한 시간 60s(병렬 부하 시 5s 초과). CLAUDE.md 7장: 소규모 외부 사실은 사용자에게 요청.
 - 2026-10-12 | 승인 | M3-D3b 시즌 탭 다시보기(replayView·ReplayPanel). 저장 결과가 정리된 과거 레이스는 대조 없이 재생, OR 변동은 raceId+날짜로 매칭.
 - 2026-10-12 | 승인 | M3-D3c '순위·시상' 탭(시리즈·리딩·지난 시상·산구 성적). 최우수 레이스 레이팅 숫자는 PR 기반 레이스 레이팅이라 표시 허용(공식 OR 아님). 'Laurel' 은 일반어(월계관)로 유지 — 'laurel park' 만 차단. 표 스타일은 UI 다듬기 때.
+- 2026-10-12 | 승인 | M3-C7e1 AE(아랍 계열) 마주 30명(tier major .3/mid .5/small .2), 현역마 마주 외국 배정 GB .12·IE .08·FR .10(시드 20261011: GB .114·IE .087·FR .122). AE 를 인물 생성 순서 맨 끝에 두어 기존 인물 불변. 외국 판정 난수 1회 추가로 GB·IE·FR 현역마 집단 값은 바뀜(허용).

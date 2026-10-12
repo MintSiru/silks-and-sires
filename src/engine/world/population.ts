@@ -16,6 +16,7 @@ import {
   POPULATION_TRAINER_SKILL_FLOOR,
   type PopulationCountry,
 } from '../config/population';
+import { FOREIGN_OWNER_SHARE } from '../config/people';
 import { STARTER_COUNTRY, STARTER_FITNESS, STARTER_HORSES, STARTER_SIRE_TIER } from '../config/starter';
 import { MIN_SIRE_AGE_AT_COVER, PROFILE_DISTANCE, SIRE_BIRTH_MARGIN_YEARS } from '../config/world';
 import { generateHorse, generateHorseName, type HorseWords } from '../horse/generate';
@@ -109,6 +110,8 @@ export function pickWeightedIndex(rng: Rng, weights: readonly number[]): number 
 /** 나라별 배정 상대(마주·조교사). 객체 참조는 state 의 레코드와 같다. */
 export interface PopulationMarket {
   owners: Record<PopulationCountry, Owner[]>;
+  /** FOREIGN_OWNER_SHARE 가 있는 나라만: 외국(마주 국적국) 마주 풀. 말이 뛰는 나라 기준 키 */
+  foreignOwners: Partial<Record<PopulationCountry, Owner[]>>;
   trainers: Record<PopulationCountry, Trainer[]>;
   /** 조교사별 현재 현역마 두수 */
   load: Map<TrainerId, number>;
@@ -117,6 +120,7 @@ export interface PopulationMarket {
 /** 나라별 AI 마주·조교사 목록(ID 오름차순)과 현재 조교사 부하를 만든다. 없는 나라면 Error. */
 export function buildMarket(state: GameState): PopulationMarket {
   const owners = {} as Record<PopulationCountry, Owner[]>;
+  const foreignOwners: Partial<Record<PopulationCountry, Owner[]>> = {};
   const trainers = {} as Record<PopulationCountry, Trainer[]>;
   const allOwners = Object.values(state.owners).sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   const allTrainers = Object.values(state.trainers).sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
@@ -132,6 +136,15 @@ export function buildMarket(state: GameState): PopulationMarket {
     }
     owners[country] = countryOwners;
     trainers[country] = countryTrainers;
+
+    const foreign = FOREIGN_OWNER_SHARE[country];
+    if (foreign !== undefined) {
+      const foreignPool = allOwners.filter((o) => !o.isPlayer && o.country === foreign.country);
+      if (foreignPool.length === 0) {
+        throw new Error(`현역마 집단: ${foreign.country} 마주가 없다(외국 마주 배정 불가, 인물 초기화 필요)`);
+      }
+      foreignOwners[country] = foreignPool;
+    }
   }
 
   const load = new Map<TrainerId, number>();
@@ -141,7 +154,7 @@ export function buildMarket(state: GameState): PopulationMarket {
       load.set(horse.trainerId, (load.get(horse.trainerId) ?? 0) + 1);
     }
   }
-  return { owners, trainers, load };
+  return { owners, foreignOwners, trainers, load };
 }
 
 /** 같은 나라 조교사 중 수용 여유가 남은 사람을 skill 가중으로 고르고 부하를 1 올린다. */
@@ -158,9 +171,14 @@ function pickTrainer(rng: Rng, market: PopulationMarket, country: PopulationCoun
   return trainer;
 }
 
-/** 같은 나라 마주를 tier 가중으로 고른다. */
+/**
+ * 마주를 tier 가중으로 고른다. FOREIGN_OWNER_SHARE 가 있는 나라는 그 확률로 외국 마주 풀에서 고르고,
+ * 나머지는 같은 나라 마주 풀에서 고른다. 외국 여부 판정에 rng.next() 를 1회 더 쓴다.
+ */
 function pickOwner(rng: Rng, market: PopulationMarket, country: PopulationCountry): Owner {
-  const pool = market.owners[country];
+  const foreign = FOREIGN_OWNER_SHARE[country];
+  const useForeign = foreign !== undefined && rng.chance(foreign.share);
+  const pool = (useForeign ? market.foreignOwners[country] : undefined) ?? market.owners[country];
   const weights = pool.map((o) => POPULATION_OWNER_TIER_WEIGHT[o.tier]);
   return pool[pickWeightedIndex(rng, weights)] as Owner;
 }

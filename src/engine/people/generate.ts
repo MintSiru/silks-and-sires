@@ -19,6 +19,7 @@ import {
   OWNER_STUD_CHANCE,
   OWNER_TIER_ORDER,
   OWNER_TIER_WEIGHTS,
+  OWNER_TIER_WEIGHTS_BY_COUNTRY,
   PERSON_ABILITY_MAX,
   PERSON_ABILITY_MIN,
   PERSON_FEMALE_CHANCE,
@@ -234,12 +235,19 @@ export function generateTrainer(rng: Rng, ctx: PeopleContext, id: TrainerId, cou
   };
 }
 
-/** 마주 규모 확률표(OWNER_TIER_WEIGHTS)로 한 번 뽑는다. rng.next() 를 정확히 1회 쓴다. */
-function pickOwnerTier(rng: Rng): OwnerTier {
+/** 나라별 마주 규모 확률표. 나라별 가중치가 없으면 OWNER_TIER_WEIGHTS. */
+function ownerTierWeights(country: CountryCode): Readonly<Record<OwnerTier, number>> {
+  const byCountry: Partial<Record<CountryCode, Readonly<Record<OwnerTier, number>>>> = OWNER_TIER_WEIGHTS_BY_COUNTRY;
+  return byCountry[country] ?? OWNER_TIER_WEIGHTS;
+}
+
+/** 마주 규모 확률표(나라별 또는 OWNER_TIER_WEIGHTS)로 한 번 뽑는다. rng.next() 를 정확히 1회 쓴다. */
+function pickOwnerTier(rng: Rng, country: CountryCode): OwnerTier {
+  const weights = ownerTierWeights(country);
   const u = rng.next();
   let cumulative = 0;
   for (const tier of OWNER_TIER_ORDER) {
-    cumulative += OWNER_TIER_WEIGHTS[tier];
+    cumulative += weights[tier];
     if (u < cumulative) return tier;
   }
   return OWNER_TIER_ORDER[OWNER_TIER_ORDER.length - 1] as OwnerTier;
@@ -284,7 +292,7 @@ function makeStudName(rng: Rng, ctx: PeopleContext, home: NameCountry): string {
 export function generateOwner(rng: Rng, ctx: PeopleContext, id: OwnerId, country: CountryCode): Owner {
   const home = requireNameCountry(country);
 
-  const tier = pickOwnerTier(rng);
+  const tier = pickOwnerTier(rng, country);
   const name = generatePersonName(rng, ctx.pools, home, pickSex(rng), ctx.usedNames.owner, ctx.blocked);
   const silks = sampleSilks(rng, ctx);
 

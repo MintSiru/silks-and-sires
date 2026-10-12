@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { FOREIGN_OWNER_SHARE } from '../../src/engine/config/people';
 import {
   POPULATION_AGE_SHARES,
   POPULATION_COUNTRY_ORDER,
@@ -110,7 +111,10 @@ describe('현역마 집단 초기화 (bootstrapRacingPopulation)', () => {
       expect(owner, `마주 없음 ${h.id}`).toBeDefined();
       expect(trainer, `조교사 없음 ${h.id}`).toBeDefined();
       expect(owner?.isPlayer).toBe(false);
-      expect(owner?.country).toBe(h.countryOfBirth);
+      // 마주는 말이 뛰는 나라 마주, 또는 FOREIGN_OWNER_SHARE 의 외국 마주(M3-C7e1)
+      const foreignByHome: Partial<Record<string, { country: string }>> = FOREIGN_OWNER_SHARE;
+      const allowedOwnerCountries = [h.countryOfBirth, foreignByHome[h.countryOfBirth]?.country];
+      expect(allowedOwnerCountries).toContain(owner?.country);
       expect(trainer?.country).toBe(h.countryOfBirth);
       expect(owner?.horseIds).toContain(h.id);
       expect(h.breederId).toBe(h.ownerId);
