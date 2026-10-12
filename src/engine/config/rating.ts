@@ -31,8 +31,8 @@ export const RACE_STANDARD = {
     6: HANDICAP_OR_RANGE[6].max - 3,
     7: 50,
   },
-  /** 메이든 2세 */
-  maidenTwoYo: 70,
+  /** 메이든 2세 (M3-F2c: 70 → 80. 2세 연말 OR 이 능력 환산보다 약 15~17 낮아 올림) */
+  maidenTwoYo: 80,
   /** 메이든 3세 이상 */
   maidenOlder: 66,
   /** 노비스 */
@@ -43,8 +43,12 @@ export const RACE_STANDARD = {
 export const UP_RATE_WIN = 0.7;
 /** 1착이 아닌 말의 상승률(d > 0) */
 export const UP_RATE = 0.5;
-/** 하락률(d < 0) */
-export const DOWN_RATE = 0.25;
+/**
+ * 하락률(d < 0). M3-F2c: 0.25 → 0.13.
+ * 0.25 에서는 4세 이상 평균 OR 이 연간 −2.9 ~ −4.5 내려갔다(PR 이 OR 보다 낮은 구조적 편향). 0.13 에서 연간 +0.6 ~ +1.2.
+ * 0.14 이상이면 4세 OR 이 능력 환산보다 과하게 낮고(연말 최저 −7.5), 0.10 이하이면 5세가 과하게 높다(평균 +8.7).
+ */
+export const DOWN_RATE = 0.13;
 
 /** 한 번에 오를 수 있는 최대 폭 */
 export const MAX_RISE = 12;

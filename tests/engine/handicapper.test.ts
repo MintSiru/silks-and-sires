@@ -6,6 +6,7 @@ import { WEEKS_PER_YEAR } from '../../src/engine/config/game';
 import { RATING_MAX, RATING_MIN } from '../../src/engine/config/population';
 import {
   ANCHOR_MAX_BEATEN_L,
+  DOWN_RATE,
   FIRST_OR_RUNS,
   HANDICAP_WIN_MIN_RISE,
   MAX_DROP,
@@ -282,7 +283,7 @@ describe('config/rating 상수', () => {
     expect(RACE_STANDARD.handicap[2]).toBe(102);
     expect(RACE_STANDARD.handicap[3]).toBe(92);
     expect(RACE_STANDARD.handicap[7]).toBe(50);
-    expect(RACE_STANDARD.maidenTwoYo).toBe(70);
+    expect(RACE_STANDARD.maidenTwoYo).toBe(80);
     expect(RACE_STANDARD.maidenOlder).toBe(66);
     expect(RACE_STANDARD.novice).toBe(74);
     expect(RATING_HISTORY_MAX).toBe(12);
@@ -373,9 +374,10 @@ describe('수용 기준 3: 핸디캡 우승·하락 규칙', () => {
   it('20마신 초과로 진 말은 내려가지 않고, 크게 부진해도 한 번에 −5 까지만 내려간다', () => {
     const race = conditionsRace();
     expect(nextRating(80, 60, 2, 21, race)).toBe(80);
-    expect(nextRating(80, 60, 2, 20, race)).toBe(80 - MAX_DROP);
+    // 20마신 이하 패배: d × DOWN_RATE 만큼 내리되 −MAX_DROP 까지만 내린다(기대값은 상수에서 계산)
+    expect(nextRating(80, 60, 2, 20, race)).toBe(80 + Math.max(Math.round(-20 * DOWN_RATE), -MAX_DROP));
     expect(nextRating(80, 40, 3, 15, race)).toBe(80 - MAX_DROP);
-    expect(nextRating(80, 72, 2, 5, race)).toBe(78);
+    expect(nextRating(80, 72, 2, 5, race)).toBe(80 + Math.max(Math.round(-8 * DOWN_RATE), -MAX_DROP));
     expect(MAX_DROP).toBe(5);
     expect(ANCHOR_MAX_BEATEN_L).toBe(10);
   });
@@ -432,7 +434,7 @@ describe('수용 기준 4: OR 없는 말의 첫 OR', () => {
 });
 
 describe('수용 기준 5: 기준마 0두(2세 메이든)', () => {
-  it('L = RACE_STANDARD 메이든 2세 = 70, 3세 이상 메이든 = 66', () => {
+  it('L = RACE_STANDARD 메이든 2세 = 80, 3세 이상 메이든 = 66', () => {
     const { state, ids } = freshState(2);
     const [a, b] = ids as [HorseId, HorseId];
     const twoYo = raceOf('maiden', null, 5, 2);
@@ -441,9 +443,10 @@ describe('수용 기준 5: 기준마 0두(2세 메이든)', () => {
     const { ratings, ages } = mapsOf(state, result);
     ratings.set(a, null);
     ratings.set(b, null);
-    expect(raceLevel(twoYo, result, ratings, ages)).toBe(70);
+    expect(raceLevel(twoYo, result, ratings, ages)).toBe(80);
     expect(raceLevel(older, result, ratings, ages)).toBe(66);
-    expect(performanceRatings(twoYo, result, ratings, ages).get(b)).toBe(66);
+    // PR = L(80) + 패배 PF(−4) = 76
+    expect(performanceRatings(twoYo, result, ratings, ages).get(b)).toBe(76);
   });
 
   it('2세 그룹 레이스는 2세 표준(G1 105), 3세 이상 그룹은 115', () => {
