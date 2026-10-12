@@ -2,6 +2,9 @@ import commentsJson from '../../../data/text/comments.ko.json';
 import { cyrb128 } from '../../engine/rng/hash';
 import { formatDateKo } from '../../engine/time/calendar';
 import type { BookingError } from '../../engine/breeding/season';
+import type { TrainerReportKey } from '../../engine/horse/conditioning';
+import type { PersonalityClueKey } from '../../engine/horse/personality';
+import type { AssignTrainerError, DeclareError, WithdrawError } from '../../engine/season/player';
 import {
   type AssessmentComment,
   type AssessmentStage,
@@ -20,6 +23,8 @@ import {
   type MatingRole,
   type Money,
   type NickLabel,
+  type Race,
+  type RaceKind,
   type Sex,
 } from '../../engine/types';
 
@@ -316,4 +321,157 @@ export function injuryKo(kind: InjuryKind): string {
     default:
       return assertNever(kind);
   }
+}
+
+// ── 시즌 화면(M3-D3a) ───────────────────────────────────────────
+
+/** 조교사 코멘트(조교사가 말하는 말투). 상태 단서 키 → 문구 */
+const TRAINER_REPORT_KO: Record<TrainerReportKey, string> = {
+  injured: '다리를 다쳐서 조교를 쉬고 있습니다. 회복을 지켜보겠습니다.',
+  tired: '피로가 많이 쌓였습니다. 당분간 가볍게 풀어 주는 편이 좋겠습니다.',
+  flat: '요즘 기운이 없어 보입니다. 마음을 다잡아 줄 시간이 필요합니다.',
+  backward: '아직 많이 늦된 편입니다. 조교를 좀 더 쌓아야 합니다.',
+  needs_run: '한 번 뛰어 봐야 감이 올 것 같습니다.',
+  nearly_ready: '거의 준비가 됐습니다. 실전 한두 번이면 충분할 것 같습니다.',
+  peak: '컨디션이 최고입니다. 언제 나가도 좋습니다.',
+};
+
+/** 조교사 코멘트 문구. 예: 'needs_run' → "한 번 뛰어 봐야 감이 올 것 같습니다." */
+export function trainerReportKo(key: TrainerReportKey): string {
+  return TRAINER_REPORT_KO[key];
+}
+
+const PERSONALITY_CLUE_KO: Record<PersonalityClueKey, string> = {
+  gate_nervous: '게이트에서 예민합니다',
+  keen_going: '출발하면 앞으로 나가려는 기세가 강합니다',
+  genuine: '경합이 붙으면 끝까지 버팁니다',
+  quirky: '고집이 있어 지시를 따르지 않을 때가 있습니다',
+  laid_back: '여유가 있고 침착합니다',
+};
+
+/** 성격 단서 문구(조교사·기수 코멘트). 예: 'gate_nervous' → "게이트에서 예민합니다" */
+export function personalityClueKo(key: PersonalityClueKey): string {
+  return PERSONALITY_CLUE_KO[key];
+}
+
+/**
+ * OR → 레이팅 수준 문구(플레이어에게 OR 숫자를 보이지 않는다). 값이 below 미만인 첫 칸의 문구를 쓴다.
+ * 표는 오름차순이며, 마지막 칸 이상은 G1 수준이다.
+ */
+const RATING_HINT_BANDS: readonly { below: number; label: string }[] = [
+  { below: 60, label: '하위 핸디캡 수준' },
+  { below: 80, label: '중위 핸디캡 수준' },
+  { below: 95, label: '상위 핸디캡 수준' },
+  { below: 105, label: '리스티드 수준' },
+  { below: 115, label: '그룹 수준' },
+];
+const RATING_HINT_TOP = 'G1 수준';
+const RATING_HINT_NONE = '아직 평가 전';
+
+/** OR 을 숫자 없이 보이는 레이팅 수준 문구. null 은 '아직 평가 전'. */
+export function ratingHintKo(or: number | null): string {
+  if (or === null || !Number.isFinite(or)) return RATING_HINT_NONE;
+  for (const band of RATING_HINT_BANDS) {
+    if (or < band.below) return band.label;
+  }
+  return RATING_HINT_TOP;
+}
+
+const RACE_KIND_KO: Record<RaceKind, string> = {
+  maiden: '메이든',
+  novice: '노비스',
+  handicap: '핸디캡',
+  conditions: '조건',
+  listed: '리스티드',
+  group: '그룹',
+};
+
+/** 레이스 등급 표시. G1·G2·G3·리스티드, 등급 없는 레이스는 '종류 · 클래스 N'. 예: "핸디캡 · 클래스 4" */
+export function raceGradeKo(race: Race): string {
+  if (race.grade === 'L') return '리스티드';
+  if (race.grade !== null) return race.grade;
+  return `${RACE_KIND_KO[race.kind]} · 클래스 ${race.raceClass}`;
+}
+
+/** 레이스 거리 표시. 예: 1600 → "1,600m (8f)" */
+export function raceDistanceKo(meters: number): string {
+  if (!Number.isFinite(meters) || meters <= 0) {
+    throw new RangeError(`raceDistanceKo: 잘못된 거리: ${meters}`);
+  }
+  return `${groupThousands(meters)}m (${furlongLabel(meters)})`;
+}
+
+const SEX_CONDITION_KO: Record<Race['conditions']['sex'], string> = {
+  open: '암수 혼합',
+  fillies_mares: '암말',
+  colts_geldings: '수말·거세마',
+};
+
+const WEIGHT_SYSTEM_KO: Record<Race['conditions']['weightSystem'], string> = {
+  wfa: 'WFA',
+  handicap: '핸디캡',
+  level: '동일 중량',
+};
+
+/** 핸디캡 OR 범위를 레이팅 수준 문구로 바꾼다(숫자 금지). */
+function weightConditionKo(race: Race): string {
+  const { ratingMin, ratingMax, weightSystem } = race.conditions;
+  if (ratingMin !== null && ratingMax !== null) {
+    return `핸디캡 · ${ratingHintKo(ratingMin)} ~ ${ratingHintKo(ratingMax)}`;
+  }
+  if (ratingMin !== null) return `핸디캡 · ${ratingHintKo(ratingMin)} 이상`;
+  if (ratingMax !== null) return `핸디캡 · ${ratingHintKo(ratingMax)} 이하`;
+  return WEIGHT_SYSTEM_KO[weightSystem];
+}
+
+/** 출주 조건 요약. 예: "3세 · 암말 · WFA", "2세 이상 · 암수 혼합 · 핸디캡 · 중위 핸디캡 수준 ~ 상위 핸디캡 수준" */
+export function raceConditionsKo(race: Race): string {
+  const c = race.conditions;
+  let ageKo: string;
+  if (c.maxAge === null) {
+    ageKo = `${c.minAge}세 이상`;
+  } else if (c.minAge === c.maxAge) {
+    ageKo = `${c.minAge}세`;
+  } else {
+    ageKo = `${c.minAge}~${c.maxAge}세`;
+  }
+  return `${ageKo} · ${SEX_CONDITION_KO[c.sex]} · ${weightConditionKo(race)}`;
+}
+
+/** 출주 접수 실패 사유 → 한국어 */
+const DECLARE_ERROR_KO: Record<DeclareError, string> = {
+  not_found: '개최 또는 레이스를 찾을 수 없습니다.',
+  not_player_horse: '내 말이 아니라서 출주를 접수할 수 없습니다.',
+  no_trainer: '조교사를 먼저 정해야 출주할 수 있습니다.',
+  not_eligible: '이 레이스의 출주 조건에 맞지 않습니다.',
+  race_closed: '출주 접수가 마감된 레이스입니다.',
+  already_declared: '이번 주 다른 레이스에 이미 출주를 접수한 말입니다.',
+  field_full: '출주 두수가 가득 찼습니다.',
+};
+
+export function declareErrorKo(e: DeclareError): string {
+  return DECLARE_ERROR_KO[e];
+}
+
+const WITHDRAW_ERROR_KO: Record<WithdrawError, string> = {
+  not_found: '개최 또는 레이스를 찾을 수 없습니다.',
+  race_closed: '출주 접수가 마감되어 취소할 수 없습니다.',
+  not_declared: '출주 접수된 말이 아닙니다.',
+};
+
+export function withdrawErrorKo(e: WithdrawError): string {
+  return WITHDRAW_ERROR_KO[e];
+}
+
+const ASSIGN_TRAINER_ERROR_KO: Record<AssignTrainerError, string> = {
+  not_found: '말을 찾을 수 없습니다.',
+  not_player_horse: '내 말이 아니라서 조교사를 정할 수 없습니다.',
+  trainer_not_found: '조교사를 찾을 수 없습니다.',
+  invalid_status: '지금은 조교사를 정할 수 없는 상태입니다.',
+  trainer_full: '이 조교사는 수용 두수가 가득 찼습니다.',
+};
+
+/** 조교사 배정 실패 사유 → 한국어 */
+export function assignTrainerErrorKo(e: AssignTrainerError): string {
+  return ASSIGN_TRAINER_ERROR_KO[e];
 }

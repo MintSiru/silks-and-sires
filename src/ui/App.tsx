@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import BreedingScreen from './breeding/BreedingScreen';
 import RaceDemo from './RaceDemo';
+import SeasonScreen from './season/SeasonScreen';
 import { useGame } from './game/useGame';
 
-type TabId = 'breeding' | 'race';
+type TabId = 'season' | 'breeding' | 'race';
 
 const TABS: readonly { id: TabId; label: string }[] = [
+  { id: 'season', label: '시즌' },
   { id: 'breeding', label: '목장·배합' },
   { id: 'race', label: '레이스 데모' },
 ];
@@ -32,7 +34,9 @@ export default function App() {
           </button>
         ))}
       </nav>
-      {tab === 'breeding' ? <BreedingScreen game={game} /> : <RaceDemo />}
+      {tab === 'season' && <SeasonScreen game={game} />}
+      {tab === 'breeding' && <BreedingScreen game={game} />}
+      {tab === 'race' && <RaceDemo />}
     </main>
   );
 }
