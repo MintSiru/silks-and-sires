@@ -4114,7 +4114,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 5,
-    "confidence": "low"
+    "confidence": "high"
   },
   {
     "key": "stl_selkirk",
