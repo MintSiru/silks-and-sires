@@ -491,7 +491,7 @@ describe('세일 일정 화면용 목록 upcomingSales', () => {
     const draft = fresh();
     draft.sales.catalogues = [{ saleId: first.id, year: YEAR, status: 'closed', lots: [] }];
     const list = upcomingSales(draft, SALES_DATA);
-    expect(list.find((u) => u.event.id === first.id)).toBeUndefined();
+    expect(list.find((u) => u.event.id === first.id && u.year === YEAR)).toBeUndefined();
     expect(list[0]?.event.id).toBe(sorted[1]?.id);
     expect(list[0]?.status).toBe('upcoming');
   });

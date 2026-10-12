@@ -26,12 +26,22 @@ import {
   type PlayerResult,
   type WithdrawError,
 } from '../../engine/season/player';
+import {
+  signRetainer,
+  terminateRetainer,
+  type RetainerKind,
+  type RetainerRefusal,
+} from '../../engine/economy/contracts';
+import { clearMaxBid, setMaxBid, type BidError } from '../../engine/sales/bidding';
+import { consignToSale, withdrawConsignment, type ConsignError } from '../../engine/sales/player';
+import type { SalesStaticData } from '../../engine/sales/system';
 import type {
   CalendarPhaseId,
   EconomyMode,
   GameEvent,
   GameState,
   HorseId,
+  Money,
   RaceId,
   Silks,
   TrainerId,
@@ -56,6 +66,18 @@ export interface GameApi {
   withdrawPlayerHorse(meetingId: string, raceId: RaceId, horseId: HorseId): PlayerResult<WithdrawError>;
   /** 플레이어 말을 조교사에게 맡긴다(성공 시 state 갱신) */
   assignTrainer(horseId: HorseId, trainerId: TrainerId): PlayerResult<AssignTrainerError>;
+  /** 플레이어 말을 올해 세일에 위탁한다(성공 시 state 갱신). reserve: null 이면 유보 없음 */
+  consignToSale(horseId: HorseId, saleId: string, reserve: Money | null): PlayerResult<ConsignError>;
+  /** 발표 전 위탁을 취소한다(성공 시 state 갱신) */
+  withdrawConsignment(horseId: HorseId): PlayerResult<'not_consigned'>;
+  /** 로트에 플레이어 입찰 상한을 건다(같은 로트는 덮어쓴다). year 는 카탈로그 연도 */
+  setMaxBid(saleId: string, year: number, lotNo: number, maxBid: Money): PlayerResult<BidError>;
+  /** 플레이어 입찰 상한을 지운다 */
+  clearMaxBid(saleId: string, year: number, lotNo: number): PlayerResult<'bid_not_found'>;
+  /** 조교사·기수와 전속 계약을 맺는다(성공 시 state 갱신) */
+  signRetainer(kind: RetainerKind, personId: string): PlayerResult<RetainerRefusal | 'insufficient_funds'>;
+  /** 전속 계약을 해지한다(위약금 포함, 성공 시 state 갱신) */
+  terminateRetainer(kind: RetainerKind, personId: string): PlayerResult<'not_contracted'>;
   save(): Promise<void>;            // createIndexedDbSaveStore, 슬롯 id 'autosave'
   load(): Promise<boolean>;
 }
@@ -85,6 +107,11 @@ function bootstrapData(): BootstrapData {
     ...gameStaticData(),
     ...getPeopleData(),
   };
+}
+
+/** 세일 API 가 쓰는 정적 데이터(gameStaticData 의 sales) */
+function salesStaticData(): SalesStaticData {
+  return { sales: gameStaticData().sales };
 }
 
 function gameSystems(): WeeklySystem[] {
@@ -238,6 +265,42 @@ export function useGame(): GameApi {
     [requireState, applyPlayerResult],
   );
 
+  const consignHorse = useCallback(
+    (horseId: HorseId, saleId: string, reserve: Money | null): PlayerResult<ConsignError> =>
+      applyPlayerResult(consignToSale(requireState(), horseId, saleId, reserve, salesStaticData())),
+    [requireState, applyPlayerResult],
+  );
+
+  const withdrawConsign = useCallback(
+    (horseId: HorseId): PlayerResult<'not_consigned'> =>
+      applyPlayerResult(withdrawConsignment(requireState(), horseId)),
+    [requireState, applyPlayerResult],
+  );
+
+  const setBid = useCallback(
+    (saleId: string, year: number, lotNo: number, maxBid: Money): PlayerResult<BidError> =>
+      applyPlayerResult(setMaxBid(requireState(), saleId, year, lotNo, maxBid, salesStaticData())),
+    [requireState, applyPlayerResult],
+  );
+
+  const clearBid = useCallback(
+    (saleId: string, year: number, lotNo: number): PlayerResult<'bid_not_found'> =>
+      applyPlayerResult(clearMaxBid(requireState(), saleId, year, lotNo)),
+    [requireState, applyPlayerResult],
+  );
+
+  const signRetainerWith = useCallback(
+    (kind: RetainerKind, personId: string): PlayerResult<RetainerRefusal | 'insufficient_funds'> =>
+      applyPlayerResult(signRetainer(requireState(), kind, personId)),
+    [requireState, applyPlayerResult],
+  );
+
+  const terminateRetainerWith = useCallback(
+    (kind: RetainerKind, personId: string): PlayerResult<'not_contracted'> =>
+      applyPlayerResult(terminateRetainer(requireState(), kind, personId)),
+    [requireState, applyPlayerResult],
+  );
+
   const save = useCallback(async (): Promise<void> => {
     const current = requireState();
     const savedAt = new Date().toISOString();
@@ -275,6 +338,12 @@ export function useGame(): GameApi {
     declarePlayerHorse: declarePlayer,
     withdrawPlayerHorse: withdrawPlayer,
     assignTrainer: assignTrainerTo,
+    consignToSale: consignHorse,
+    withdrawConsignment: withdrawConsign,
+    setMaxBid: setBid,
+    clearMaxBid: clearBid,
+    signRetainer: signRetainerWith,
+    terminateRetainer: terminateRetainerWith,
     save,
     load,
   };

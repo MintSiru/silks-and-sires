@@ -137,7 +137,7 @@ export const SALE_CATALOGUE_KEEP_WEEKS = 8;
 /** 세일 결과 요약(history) 보존 기간(년). 세일 연도 기준 이 년보다 오래된 요약은 지운다 */
 export const SALE_HISTORY_YEARS = 3;
 /** 화면용 세일 일정 목록 최대 개수 */
-export const SALE_UPCOMING_LIMIT = 12;
+export const SALE_UPCOMING_LIMIT = 20;
 
 // ── AI 입찰·경매·낙찰 후 처리(M4-C4) ─────────────────────────
 

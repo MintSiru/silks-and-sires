@@ -3,6 +3,9 @@ import { cyrb128 } from '../../engine/rng/hash';
 import { relationTier, type RelationTier } from '../../engine/economy/relations';
 import { formatDateKo } from '../../engine/time/calendar';
 import type { BookingError } from '../../engine/breeding/season';
+import type { RetainerRefusal } from '../../engine/economy/contracts';
+import type { BidError } from '../../engine/sales/bidding';
+import type { ConsignError, UpcomingSale } from '../../engine/sales/player';
 import type { TrainerReportKey } from '../../engine/horse/conditioning';
 import type { PersonalityClueKey } from '../../engine/horse/personality';
 import type { AssignTrainerError, DeclareError, WithdrawError } from '../../engine/season/player';
@@ -31,6 +34,7 @@ import {
   type NickLabel,
   type Race,
   type RaceKind,
+  type SaleKind,
   type SaleLotResult,
   type Sex,
 } from '../../engine/types';
@@ -645,4 +649,80 @@ const RELATION_TIER_KO: Record<RelationTier, string> = {
 /** 관계값(−100 ~ 100) 등급 한국어. 예: 45 → '친밀' */
 export function relationTierKo(value: number): string {
   return RELATION_TIER_KO[relationTier(value)];
+}
+
+// ── 세일·인맥 화면(M4-C10a) ─────────────────────────────────────
+
+const SALE_KIND_KO: Record<SaleKind, string> = {
+  foal: '이유마 세일',
+  yearling: '1세마 세일',
+  breeze_up: '2세 브리즈업 세일',
+  horses_in_training: '현역마 세일',
+  breeding_stock: '번식마 세일',
+};
+
+/** 세일 종류 한국어. 예: 'yearling' → '1세마 세일' */
+export function saleKindKo(kind: SaleKind): string {
+  return SALE_KIND_KO[kind];
+}
+
+const CONSIGN_ERROR_KO: Record<ConsignError, string> = {
+  sale_not_found: '세일을 찾을 수 없습니다.',
+  not_found: '말을 찾을 수 없습니다.',
+  not_player_horse: '내 말이 아니라서 위탁할 수 없습니다.',
+  wrong_kind: '이 세일의 출품 조건(나이·상태)에 맞지 않는 말입니다.',
+  too_late: '카탈로그 발표 주가 지나 위탁을 받지 않습니다.',
+  already_consigned: '이미 위탁했거나 카탈로그에 올라간 말입니다.',
+  invalid_reserve: '유보가는 0 이상의 정수여야 합니다.',
+};
+
+/** 위탁 실패 사유 → 한국어 */
+export function consignErrorKo(e: ConsignError): string {
+  return CONSIGN_ERROR_KO[e];
+}
+
+const BID_ERROR_KO: Record<BidError, string> = {
+  catalogue_not_found: '카탈로그가 아직 발표되지 않았습니다.',
+  lot_not_found: '로트를 찾을 수 없습니다.',
+  lot_closed: '이미 마감된 로트입니다.',
+  own_lot: '내 위탁 로트에는 입찰할 수 없습니다.',
+  invalid_amount: '입찰 상한이 최저 호가보다 낮거나 올바른 금액이 아닙니다.',
+  insufficient_funds: '자금이 부족해 이 상한으로 입찰할 수 없습니다.',
+  too_late: '판매 주가 지나 입찰할 수 없습니다.',
+};
+
+/** 입찰 상한 실패 사유 → 한국어 */
+export function bidErrorKo(e: BidError): string {
+  return BID_ERROR_KO[e];
+}
+
+/** 전속 제의·체결·해지 실패 사유(해지의 not_contracted 포함) */
+export type RetainerActionError = RetainerRefusal | 'insufficient_funds' | 'not_contracted';
+
+const RETAINER_REFUSAL_KO: Record<RetainerActionError, string> = {
+  not_found: '사람을 찾을 수 없습니다.',
+  retired: '은퇴한 사람은 전속으로 둘 수 없습니다.',
+  already_contracted: '이미 전속 계약 중입니다.',
+  slot_full: '이 종류의 전속 자리가 가득 찼습니다.',
+  retained_elsewhere: '다른 마주와 전속 계약 중인 기수입니다.',
+  relation_too_low: '관계가 부족해 전속을 제의할 수 없습니다.',
+  standing_too_low: '내 위상이 부족해 이 사람이 응하지 않습니다.',
+  insufficient_funds: '자금이 부족해 계약금을 낼 수 없습니다.',
+  not_contracted: '전속 계약 중인 사람이 아닙니다.',
+};
+
+/** 전속 계약 제의 거절·체결 실패·해지 실패 사유 → 한국어 */
+export function retainerRefusalKo(e: RetainerActionError): string {
+  return RETAINER_REFUSAL_KO[e];
+}
+
+const SALE_STATUS_KO: Record<UpcomingSale['status'], string> = {
+  upcoming: '발표 전',
+  catalogued: '카탈로그 발표',
+  closed: '마감',
+};
+
+/** 세일 일정 상태 한국어. 예: 'catalogued' → '카탈로그 발표' */
+export function saleStatusKo(s: UpcomingSale['status']): string {
+  return SALE_STATUS_KO[s];
 }
