@@ -24,7 +24,7 @@
 - Giant's Causeway: data/stallions/names.json 에 종마로 있음 (제외). protected.json 정규화 비교로는 걸리지 않으므로 명세의 "보호 명단" 표기와 다르다.
 - Rock of Gibraltar: protected.json 에 있음 (제외).
 - Matterhorn: real_places.json 의 cities 에 있음 → 명세 규칙("real_places 와 겹치는 항목은 넣지 않는다")에 따라 제외. 명세 예시와 충돌하므로 Opus 확인 필요.
-- Save the Last Dance: 19자 (18자 초과) → 제외.
+- Save the Last Dance: 공백 포함 19자지만 공백 제거 16자 → joinedOnly 로 포함(6절).
 - Paddington: 상표 보호 캐릭터 → 제외.
 - Ponte Vecchio, Swan Lake, Hamlet 등 명세 예시 나머지는 포함.
 
@@ -41,7 +41,7 @@
   - 작품(작가 1956년 이후 사망인데 고유명 제목): Rashomon, Citizen Kane, Shane, Doctor Zhivago, Howards End, Dr No, Strangelove, Petrushka
   - 명목상 전쟁·학살 연관으로 뺀 것: Blenheim Palace (블레넘 전투 명칭), Lion Monument (1792 튈르리 학살 추모 기념물)
   - 기타: Venus de Milo, Winged Victory, Discobolus (기원전 연도라 정수 연도 형식에 맞지 않음), Finlandia (1956년 이후 사망 작곡가·고유명 제목), Biltmore 는 포함했으나 브랜드 혼동 여부 확인 필요
-  - 18자 초과 제목: Pride and Prejudice, Crime and Punishment, Measure for Measure, A Tale of Two Cities, Lucia di Lammermoor, Impression, Sunrise (쉼표 포함), Waiting for Godot(검토 후 제외)
+  - 18자 초과 제목 중 joinedOnly 로도 못 넣은 것: Impression, Sunrise (쉼표 포함), Waiting for Godot(검토 후 제외). Pride and Prejudice, Crime and Punishment, Measure for Measure, A Tale of Two Cities, Lucia di Lammermoor 는 6절에서 joinedOnly 로 포함.
 
 ## 3. 사실 확인이 필요한 항목 (기억 기반, 50개 이하)
 
@@ -86,3 +86,25 @@
 - Matterhorn 은 real_places.json 에 이미 있어 장소 출처로 쓰인다 — 제외 그대로.
 - Hanging Gardens 유지(일반 어구 성격). 확인 필요 목록(§3)은 연도·분류 표기 수준이라 70년 규칙 판정에 영향 없음 — 사용자 확인 생략.
 - 실명 항목이라 data/_names_review.md(가상 이름 목록)에는 올리지 않는다.
+
+## 6. joinedOnly 추가 (사용자 결정 2026-10-12, 18자 초과 제목)
+
+규칙: 공백 포함 길이가 18자를 넘고 공백을 뺀 길이가 18자 이하인 제목은 `"joinedOnly": true` 와 함께 넣는다. 저장 이름은 공백을 그대로 둔다(생성기는 붙여 쓴다, 예: Save the Last Dance → Savethelastdance). 보호 명단·종마·real_places·blockedTokens 검사는 정규화 기준으로 그대로 적용했고 모두 통과했다.
+
+### 5-1. 새로 추가한 joinedOnly 항목 (작품 31, 명승고적 2)
+- 작품 (작품 31개): Save the Last Dance (film 2001, phrase), Pride and Prejudice (book 1813, phrase), Crime and Punishment (book 1866, phrase), Measure for Measure (play 1604, phrase), A Tale of Two Cities (book 1859, phrase), The Old Man and the Sea (book 1952, phrase), The Pickwick Papers (book 1837, proper, 작가 사망 1870), The Mill on the Floss (book 1860, phrase), The War of the Worlds (book 1898, phrase), Tender Is the Night (book 1934, phrase), The Grapes of Wrath (book 1939, phrase), Death of a Salesman (play 1949, phrase), Cat on a Hot Tin Roof (play 1955, phrase), A Raisin in the Sun (play 1959, phrase), The Threepenny Opera (opera 1928, phrase), To Kill a Mockingbird (book 1960, phrase), Strangers on a Train (film 1951, phrase), The Hidden Fortress (film 1958, phrase), Singin' in the Rain (film 1952, phrase), It's a Wonderful Life (film 1946, phrase), A Night at the Opera (film 1935, phrase), Girl Before a Mirror (painting 1932, phrase), Cafe Terrace at Night (painting 1888, phrase), Lucia di Lammermoor (opera 1835, proper, 작곡가 사망 1848), La Forza del Destino (opera 1862, phrase), Un Ballo in Maschera (opera 1859, phrase), Rock Around the Clock (song 1954, phrase), The Return of the King (book 1955, phrase), The Way We Live Now (book 1875, phrase), The Sign of the Four (book 1890, phrase), The Eustace Diamonds (book 1873, proper, 작가 사망 1882)
+- 명승고적 (2개): Tiger Leaping Gorge (natural, CN), Mammoth Hot Springs (natural, US)
+
+### 5-2. 축약 제목 원제 복구
+- Jungle Book → The Jungle Book (공백 포함 15자, joinedOnly 없음)
+- Three Musketeers → The Three Musketeers (joinedOnly, 공백 제거 17자)
+- Lady of Shalott → The Lady of Shalott (joinedOnly, 공백 제거 16자, proper, 작가 사망 1892)
+- Glass Menagerie → The Glass Menagerie (joinedOnly, 공백 제거 17자)
+- Ancient Mariner, Thirty-Nine Steps 은 원제를 붙여 써도 18자 이하가 안 되어(The Rime of the Ancient Mariner 26자, The Thirty-Nine Steps 공백 제거 19자 — 하이픈 포함) 축약 상태로 둔다.
+
+### 5-3. 검토 후 넣지 않은 후보
+- Porgy and Bess: Opus 가 제외함(재추가 안 함).
+- Waiting for Godot: 캐릭터명 포함 제목이라 제외 유지.
+- The Brothers Karamazov, The Picture of Dorian Gray, Sense and Sensibility, Much Ado About Nothing 등: 공백 제거 19자 이상이라 불가.
+- A Midsummer Night's Dream, The Last of the Mohicans, The Wind in the Willows, Smells Like Teen Spirit 등: 공백 제거 19자 이상이라 불가.
+- Opus 검수(보강분): The Return of the King 제거 — 제목은 일반 어구지만 현역 상표·프랜차이즈(작가 1973 사망) 연상이 강함.

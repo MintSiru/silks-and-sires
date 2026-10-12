@@ -190,3 +190,4 @@
 - 2026-10-12 | 승인 | M3-C7f1 명승고적 481(자연 260·건축 221)·작품 255(일반 어구 178·고유명 77) 데이터(landmarks.json). Opus 수정: Porgy and Bess 제거(공동 작사가 1983 사망). 예시 중 Golden Horn(보호 명단)·Giant's Causeway(종마)·Matterhorn(real_places)·Save the Last Dance(19자)·Paddington(상표 캐릭터)은 제외. 생성기 연결은 C7f2.
 - 2026-10-12 | 승인 | M3-C7e2 이름 생성기 게임 연결(세계·현역마·지급마·망아지 → nameForHorse, horse_words.json·generateHorseName 삭제). 1차 반려(시간 +184%, populationSystem 누락) 후 NamingData 파생값 WeakMap 캐시로 +24%. FR 마주 프랑스어 0.65, AE 아랍어 0.79. 후속(M6 다듬기): 음절 조합 이름의 어색한 철자(Kerouthshazz·Lorienbaeea), 소유격+형용사('Oasis' Wondrous'), 성 하나만인 이름('Jones').
 - 2026-10-12 | 결정(사용자) | 공백 포함 18자를 넘는 명승고적·작품 제목도 공백을 뺀 길이가 18자 이하면 허용 — 생성기에서는 항상 붙여 쓰기(예: Savethelastdance).
+- 2026-10-12 | 승인 | M3-C7f1 보강: 공백 제거 18자 이하 긴 제목 joinedOnly 36개(Save the Last Dance·Pride and Prejudice 등), 축약 제목 4개 원제 복구. Opus 제거: The Return of the King(현역 프랜차이즈 연상).

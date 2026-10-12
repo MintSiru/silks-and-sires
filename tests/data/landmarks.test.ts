@@ -13,6 +13,8 @@ interface Landmark {
   name: string;
   kind: LandmarkKind;
   country: string;
+  /** 공백 포함 18자 초과, 공백 제거 18자 이하일 때만 true. 생성기는 공백을 뺀 형태로 쓴다. */
+  joinedOnly?: true;
 }
 
 interface Work {
@@ -21,6 +23,8 @@ interface Work {
   year: number;
   titleType: 'phrase' | 'proper';
   creatorDeathYear?: number;
+  /** 공백 포함 18자 초과, 공백 제거 18자 이하일 때만 true. 생성기는 공백을 뺀 형태로 쓴다. */
+  joinedOnly?: true;
 }
 
 interface LandmarksFile {
@@ -72,6 +76,11 @@ function wordsOf(text: string): string[] {
     .filter((w) => w !== '');
 }
 
+/** 공백을 뺀 길이. 18자 제한은 이 길이로 본다(joinedOnly 항목은 공백 포함 길이가 18을 넘을 수 있다). */
+function joinedLength(name: string): number {
+  return name.replace(/ /g, '').length;
+}
+
 /** 단어열 seq 가 words 안에 연속으로 나타나는지 본다. */
 function containsSequence(words: string[], seq: string[]): boolean {
   for (let i = 0; i + seq.length <= words.length; i++) {
@@ -98,18 +107,23 @@ describe('스키마: 최상위 키와 항목 키 집합', () => {
     expect(data.version).toBe(1);
   });
 
-  it('landmark 항목 키는 name, kind, country 만 있다', () => {
+  it('landmark 항목 키는 name, kind, country 와 (해당할 때만) joinedOnly 이다', () => {
     for (const l of data.landmarks) {
-      expect(Object.keys(l).sort(), l.name).toEqual(['country', 'kind', 'name']);
+      const expected = l.joinedOnly === undefined
+        ? ['country', 'kind', 'name']
+        : ['country', 'joinedOnly', 'kind', 'name'];
+      expect(Object.keys(l).sort(), l.name).toEqual(expected);
     }
   });
 
-  it('work 항목 키는 name, kind, year, titleType 과 (proper 일 때만) creatorDeathYear 이다', () => {
+  it('work 항목 키는 name, kind, year, titleType, (proper 일 때만) creatorDeathYear, (해당할 때만) joinedOnly 이다', () => {
     for (const w of data.works) {
       const keys = Object.keys(w).sort();
-      const expected = w.titleType === 'proper'
-        ? ['creatorDeathYear', 'kind', 'name', 'titleType', 'year']
-        : ['kind', 'name', 'titleType', 'year'];
+      const expected = [
+        ...(w.titleType === 'proper' ? ['creatorDeathYear'] : []),
+        'kind', 'name', 'titleType', 'year',
+        ...(w.joinedOnly === undefined ? [] : ['joinedOnly']),
+      ].sort();
       expect(keys, w.name).toEqual(expected);
     }
   });
@@ -136,9 +150,9 @@ describe('개수 (명세 개수 기준)', () => {
 });
 
 describe('형식: 이름 18자·문자 집합', () => {
-  it('landmark 이름: 공백 포함 18자 이하, 영문자·공백·아포스트로피·하이픈·마침표만, 단어 빈칸 없음', () => {
+  it('landmark 이름: 공백을 뺀 길이 18자 이하, 영문자·공백·아포스트로피·하이픈·마침표만, 단어 빈칸 없음', () => {
     for (const l of data.landmarks) {
-      expect(l.name.length, l.name).toBeLessThanOrEqual(18);
+      expect(joinedLength(l.name), l.name).toBeLessThanOrEqual(18);
       expect(NAME_CHAR_RE.test(l.name), l.name).toBe(true);
       expect(/[A-Za-z]/.test(l.name), l.name).toBe(true);
       expect(l.name, l.name).toBe(l.name.trim());
@@ -146,13 +160,27 @@ describe('형식: 이름 18자·문자 집합', () => {
     }
   });
 
-  it('work 이름: 공백 포함 18자 이하, 영문자·공백·아포스트로피·하이픈·마침표만, 단어 빈칸 없음', () => {
+  it('work 이름: 공백을 뺀 길이 18자 이하, 영문자·공백·아포스트로피·하이픈·마침표만, 단어 빈칸 없음', () => {
     for (const w of data.works) {
-      expect(w.name.length, w.name).toBeLessThanOrEqual(18);
+      expect(joinedLength(w.name), w.name).toBeLessThanOrEqual(18);
       expect(NAME_CHAR_RE.test(w.name), w.name).toBe(true);
       expect(/[A-Za-z]/.test(w.name), w.name).toBe(true);
       expect(w.name, w.name).toBe(w.name.trim());
       expect(/ {2}/.test(w.name), w.name).toBe(false);
+    }
+  });
+
+  it('joinedOnly: 공백 포함 길이가 18 초과인 항목에만 있고, 값은 true 다(그 밖의 항목은 공백 포함 18자 이하)', () => {
+    for (const { label, name, joinedOnly } of [
+      ...data.landmarks.map((l) => ({ label: `landmark ${l.name}`, name: l.name, joinedOnly: l.joinedOnly })),
+      ...data.works.map((w) => ({ label: `work ${w.name}`, name: w.name, joinedOnly: w.joinedOnly })),
+    ]) {
+      if (joinedOnly === undefined) {
+        expect(name.length, label).toBeLessThanOrEqual(18);
+      } else {
+        expect(joinedOnly, label).toBe(true);
+        expect(name.length, label).toBeGreaterThan(18);
+      }
     }
   });
 
