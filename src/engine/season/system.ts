@@ -21,6 +21,7 @@ import type {
   WeekContext,
   WeeklySystem,
 } from '../types';
+import { closeEconomyYear, prunePlayerLedger, recordMoney } from '../economy/ledger';
 import { computeSeasonAwards, hadRacesIn } from './awards';
 import { declareAiRunners } from './declarations';
 import type { CourseCountryLookup } from './eligibility';
@@ -76,15 +77,16 @@ function closePointsSeries(
     progress.champion = champion;
     const ownerId = draft.horses[champion]?.ownerId ?? null;
     const owner = ownerId === null ? undefined : draft.owners[ownerId];
-    if (owner !== undefined) {
-      owner.funds += def.bonus;
+    if (ownerId !== null && owner !== undefined) {
+      recordMoney(draft, ownerId, 'series_bonus', def.bonus, date, champion);
     }
     events.push({ type: 'series_completed', seriesId: def.id, horseId: champion, date: { ...date } });
   }
 }
 
 /**
- * (a) 연도 전환: 시리즈 챔피언 확정 → 지난해 시상 확정(레이스가 있었을 때만) → 리딩·올해 기록 비우기 → 연도 갱신 → 오래된 결과 정리.
+ * (a) 연도 전환: 시리즈 챔피언 확정 → 지난해 시상 확정(레이스가 있었을 때만) → 리딩·올해 기록 비우기 → 연도 갱신 → 오래된 결과 정리
+ * → 지난해 경제 요약 확정·오래된 플레이어 장부 정리(M4-A2a).
  * awardsRng 는 호출자가 rng.fork('awards') 로 넘긴다.
  */
 function startNewSeason(
@@ -107,6 +109,9 @@ function startNewSeason(
   draft.seasonState.year = date.year;
   const oldest = date.year - RESULTS_KEEP_SEASONS;
   draft.raceResults = draft.raceResults.filter((r) => r.date.year >= oldest);
+  // 연말 경제 요약(M4-A2a): 시리즈 보너스까지 지난해 합계에 들어간 뒤에 닫는다
+  closeEconomyYear(draft, prevYear);
+  prunePlayerLedger(draft, date);
 }
 
 /**

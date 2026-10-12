@@ -15,6 +15,7 @@ import { damsireLineOf, revealNick } from '../breeding/season';
 import { emptyOffspringStats, recordOffspringRun } from '../breeding/offspring';
 import { nickValue } from '../breeding/nicks';
 import type { SampleField } from '../race/sampleField';
+import { recordMoney } from '../economy/ledger';
 import { applyRatingsInPlace } from './handicapper';
 import { emptyLeadingTables } from './state';
 import type {
@@ -213,7 +214,7 @@ export function applyRaceResultInPlace(state: GameState, args: ApplyRaceResultAr
     horse.condition.fatigue = clampCondition(horse.condition.fatigue + gain);
     horse.condition.fitness = clampCondition(horse.condition.fitness - FITNESS_LOSS_PER_RUN);
 
-    owner.funds += prize;
+    recordMoney(next, decl.ownerId, 'prize', prize, date, horse.id);
     next.seasonState.lastRun[horse.id] = { ...date };
 
     const delta = { won, placed, groupWin, prize };
@@ -326,7 +327,7 @@ export function applyRaceResultInPlace(state: GameState, args: ApplyRaceResultAr
           const winnerDecl = requireDeclaration(scheduled, winner.horseId);
           const owner = next.owners[winnerDecl.ownerId];
           if (owner === undefined) throw new Error(`applyRaceResult: 마주 ${winnerDecl.ownerId} 없음`);
-          owner.funds += def.bonus;
+          recordMoney(next, winnerDecl.ownerId, 'series_bonus', def.bonus, date, winner.horseId);
           events.push({ type: 'series_completed', seriesId: def.id, horseId: winner.horseId, date: { ...date } });
         }
       } else {

@@ -8,6 +8,7 @@ import {
   MARE_MIN_BREEDING_AGE,
 } from '../config/breedingSeason';
 import { WEEKS_PER_YEAR } from '../config/game';
+import { recordMoney } from '../economy/ledger';
 import { makeNameRegistry, namingContextFor, type MutableNameRegistry } from '../naming/context';
 import { nameForHorse } from '../naming/generate';
 import type { NamingData } from '../naming/types';
@@ -64,16 +65,6 @@ function dateOf(d: GameDate): GameDate {
 /** 출산 예정 키: 연도 × 100 + 주 (예: 2027년 7주 → 202707) */
 function weekKey(d: GameDate): number {
   return d.year * DUE_WEEK_KEY_YEAR_SCALE + d.week;
-}
-
-/** 마주에게 금액을 더한다. ownerId 가 null 이면 무시한다. */
-function creditOwner(state: GameState, ownerId: OwnerId | null, amount: number): void {
-  if (ownerId === null) return;
-  const owner = state.owners[ownerId];
-  if (owner === undefined) {
-    throw new Error(`creditOwner: 마주가 없음: ${ownerId}`);
-  }
-  owner.funds += amount;
 }
 
 /** 이번 주에 예약된 암말 id 집합. Mare.coveredWeek 가 이번 주 키와 같은 암말이다. */
@@ -169,7 +160,7 @@ export function bookCovering(
     throw new Error('bookCovering: 복제 상태에 필요한 레코드가 없다');
   }
 
-  nextPayer.funds -= stallion.fee;
+  recordMoney(next, ownerId, 'stud_fee_paid', -stallion.fee, dateOf(state.date), mareId);
   nextMare.coveredBy = stallionId;
   nextMare.coveredWeek = weekKey(state.date);
   nextStallion.bookedThisSeason += 1;
@@ -239,7 +230,9 @@ function judgeConceptions(
       mare.pregnant = true;
       mare.dueWeek = weekKey(addWeeks(ctx.date, GESTATION_WEEKS));
     } else {
-      creditOwner(state, horse.ownerId, stallion.fee);
+      if (horse.ownerId !== null) {
+        recordMoney(state, horse.ownerId, 'stud_fee_paid', stallion.fee, dateOf(ctx.date), mareId);
+      }
       stallion.bookedThisSeason -= 1;
       mare.coveredBy = null;
     }

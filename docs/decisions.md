@@ -217,3 +217,4 @@
 - 2026-10-12 | M3 완료 | 시즌 시스템·현역마·연출·시상·검증 완료(2a4f196). 사용자 승인 후 M4.
 - 2026-10-12 | 결정(사용자) | M4 방향: 경제 모드 둘(캐주얼 무파산·레거시 파산), 경매는 최대 입찰가 자동 입찰 + 원하는 로트만 실시간 호가, 관계는 개별 관계값 + 전체 명성, 종마는 직접 계류와 판매 모두 가능. M4 계획 docs/m4-plan.md.
 - 2026-10-12 | 기술 | M4-A1 공용 타입(Opus): types/economy.ts(EconomyMode, LedgerCategory·Entry·Totals, EconomyYearSummary, EconomyState, RelationKey, RelationsState), GameState.economy·relations, NewGameOptions.economyMode, economy/state.ts 빈 상태, config/economy.ts, 저장 v7 이주(이전 저장 = 캐주얼). 장부는 플레이어만 항목별, AI 는 연도 합계·연말 요약만(저장 크기). 세일·종마·시설 타입은 해당 단계 시작 때 추가.
+- 2026-10-12 | 승인 | M4-A2a 장부(economy/ledger.ts recordMoney·prunePlayerLedger·closeEconomyYear). 상금·시리즈 보너스·종부료·불수태 환불이 장부를 거친다. 연말 요약은 startNewSeason 끝에서. 자금 값·난수 불변.
