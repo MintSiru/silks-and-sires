@@ -199,6 +199,7 @@ describe('generatePersonName', () => {
     JP: { givenMale: ['Ken'], givenFemale: ['Yui'], surnames: ['Sato'] },
     BR: { givenMale: ['Joao'], givenFemale: ['Ana'], surnames: ['Silva'] },
     ZA: { givenMale: ['Pieter'], givenFemale: ['Liza'], surnames: ['Botha'] },
+    AE: { givenMale: ['Faris'], givenFemale: ['Noor'], surnames: ['Al Rimal'] },
   };
 
   it('차단 조합만 남으면 Error(무한 재시도 금지)', () => {
@@ -228,10 +229,10 @@ describe('generateJockey 문맥', () => {
 });
 
 describe('getPeopleData / parsePeopleData', () => {
-  it('정적 데이터는 열 개 국가 풀과 차단 목록, 야드 단어를 가진다', () => {
+  it('정적 데이터는 열한 개 국가 풀(AE 포함, M3-C7c)과 차단 목록, 야드 단어를 가진다', () => {
     const data = getPeopleData();
     expect(Object.keys(data.pools).sort()).toEqual(
-      ['AU', 'BR', 'DE', 'FR', 'GB', 'IE', 'IT', 'JP', 'US', 'ZA'].sort(),
+      ['AE', 'AU', 'BR', 'DE', 'FR', 'GB', 'IE', 'IT', 'JP', 'US', 'ZA'].sort(),
     );
     expect(data.blockedNames.length).toBeGreaterThanOrEqual(150);
     expect(data.places.yardWords.length).toBeGreaterThanOrEqual(60);

@@ -133,6 +133,11 @@
       "Stud",
       "Farm",
       "Boerdery"
+    ],
+    "AE": [
+      "Stud",
+      "Farm",
+      "Stables"
     ]
   },
   "region_names": {
@@ -417,6 +422,28 @@
       "Rooivlei",
       "Ysterkloof",
       "Doornrand"
+    ],
+    "AE": [
+      "Wadi Sahran",
+      "Rimal Aswad",
+      "Jabal Nouran",
+      "Qasr Hilal",
+      "Ras Zahran",
+      "Bayt Ghaith",
+      "Wahat Safa",
+      "Tilal Dhahab",
+      "Bahr Raml",
+      "Nakhla Bay",
+      "Sahil Noor",
+      "Jazirat Qamar",
+      "Burj Shams",
+      "Wadi Fayruz",
+      "Rawdat Nadi",
+      "Qarn Sadeem",
+      "Hilal Ridge",
+      "Zahrat Wadi",
+      "Ain Barid",
+      "Dhahab Dunes"
     ]
   }
 }

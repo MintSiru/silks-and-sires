@@ -3,7 +3,7 @@ import poolsJson from '../../data/people/name_pools.json';
 import blockedJson from '../../data/people/blocked_names.json';
 import placesJson from '../../data/people/places.json';
 
-type CountryKey = 'GB' | 'IE' | 'FR' | 'DE' | 'IT' | 'US' | 'AU' | 'JP' | 'BR' | 'ZA';
+type CountryKey = 'GB' | 'IE' | 'FR' | 'DE' | 'IT' | 'US' | 'AU' | 'JP' | 'BR' | 'ZA' | 'AE';
 
 interface CountryPool {
   given_male: string[];
@@ -18,6 +18,16 @@ interface PlacesData {
 }
 
 const COUNTRIES: readonly CountryKey[] = ['GB', 'IE', 'FR', 'DE', 'IT', 'US', 'AU', 'JP', 'BR', 'ZA'];
+/**
+ * 인명 풀 국가(M3-C7c: AE 추가). places.json 에는 아직 AE 지명 풀이 없어
+ * 지명 검사(stud_suffixes·region_names)는 COUNTRIES(열 개)만 대상으로 한다.
+ */
+const POOL_COUNTRIES: readonly CountryKey[] = [...COUNTRIES, 'AE'];
+/** M3-C7c: 실존 왕가·마주 가문 단어. AE 성에 단어 단위로 들어가면 안 된다. */
+const BLOCKED_FAMILY_WORDS = [
+  'Maktoum', 'Thani', 'Nahyan', 'Qasimi', 'Qassimi', 'Khalifa', 'Saud', 'Mualla', 'Nuaimi', 'Sharqi',
+  'Futtaim', 'Ghurair', 'Habtoor', 'Zarooni', 'Suroor', 'Rashid', 'Sabah', 'Mannai', 'Kuwari', 'Attiyah',
+];
 
 const pools = poolsJson as unknown as Record<string, CountryPool>;
 const blockedFullNames = (blockedJson as unknown as { full_names: string[] }).full_names;
@@ -49,11 +59,11 @@ function invalidNames(list: string[], pattern: RegExp): string[] {
 }
 
 describe('name_pools.json', () => {
-  it('국가 키는 GB IE FR DE IT US AU JP BR ZA 열 개이다', () => {
-    expect(Object.keys(pools).sort()).toEqual([...COUNTRIES].sort());
+  it('국가 키는 GB IE FR DE IT US AU JP BR ZA AE 열한 개이다', () => {
+    expect(Object.keys(pools).sort()).toEqual([...POOL_COUNTRIES].sort());
   });
 
-  it.each(COUNTRIES)('%s: 남성 이름 ≥ 60, 여성 이름 ≥ 40, 성 ≥ 120', (c) => {
+  it.each(POOL_COUNTRIES)('%s: 남성 이름 ≥ 60, 여성 이름 ≥ 40, 성 ≥ 120', (c) => {
     const p = pools[c];
     expect(p).toBeDefined();
     expect(p!.given_male.length).toBeGreaterThanOrEqual(60);
@@ -61,14 +71,14 @@ describe('name_pools.json', () => {
     expect(p!.surnames.length).toBeGreaterThanOrEqual(120);
   });
 
-  it.each(COUNTRIES)('%s: 각 목록 안에서 중복이 없다(대소문자 무시)', (c) => {
+  it.each(POOL_COUNTRIES)('%s: 각 목록 안에서 중복이 없다(대소문자 무시)', (c) => {
     const p = pools[c]!;
     expect(isUniqueCaseInsensitive(p.given_male)).toBe(true);
     expect(isUniqueCaseInsensitive(p.given_female)).toBe(true);
     expect(isUniqueCaseInsensitive(p.surnames)).toBe(true);
   });
 
-  it.each(COUNTRIES)('%s: 모든 이름은 2~14자이고 영문자·아포스트로피·하이픈·공백만 쓴다', (c) => {
+  it.each(POOL_COUNTRIES)('%s: 모든 이름은 2~14자이고 영문자·아포스트로피·하이픈·공백만 쓴다', (c) => {
     const p = pools[c]!;
     const bad = [
       ...invalidNames(p.given_male, NAME_PATTERN),
@@ -81,7 +91,7 @@ describe('name_pools.json', () => {
   it('차단 목록과 같은 조합(given × surname)이 생길 수 있다 — B2 생성기 필터가 필요한 이유', () => {
     const blocked = new Set(blockedFullNames);
     const collisions: string[] = [];
-    for (const c of COUNTRIES) {
+    for (const c of POOL_COUNTRIES) {
       const p = pools[c]!;
       const givens = [...p.given_male, ...p.given_female];
       for (const g of givens) {
@@ -109,6 +119,37 @@ describe('blocked_names.json', () => {
 
   it('항목에 중복이 없다(대소문자 무시)', () => {
     expect(isUniqueCaseInsensitive(blockedFullNames)).toBe(true);
+  });
+
+  it('M3-C7c: 실존 왕가·마주 가문 이름(Al Maktoum, Al Thani 등)이 들어 있다', () => {
+    for (const fam of ['Al Maktoum', 'Al Thani', 'Al Nahyan', 'Al Saud', 'Al Qasimi', 'Al Khalifa']) {
+      expect(blockedFullNames.some((n) => n.endsWith(fam)), fam).toBe(true);
+    }
+  });
+});
+
+describe('AE 인명 풀 (M3-C7c)', () => {
+  const ae = pools.AE!;
+
+  it('성에 차단 가문명(실존 왕가·마주 가문)이 단어 단위로 없다', () => {
+    const bad = ae.surnames.filter((s) => s.split(' ').some((w) => BLOCKED_FAMILY_WORDS.includes(w)));
+    expect(bad).toEqual([]);
+  });
+
+  it('성은 "Al " 형식의 가상 가문명 위주(90% 이상)', () => {
+    const alForm = ae.surnames.filter((s) => s.startsWith('Al ')).length;
+    expect(alForm / ae.surnames.length).toBeGreaterThanOrEqual(0.9);
+  });
+
+  it('생성 가능한 이름+성 조합이 차단 목록과 같지 않다', () => {
+    const blocked = new Set(blockedFullNames);
+    const hits: string[] = [];
+    for (const g of [...ae.given_male, ...ae.given_female]) {
+      for (const s of ae.surnames) {
+        if (blocked.has(`${g} ${s}`)) hits.push(`${g} ${s}`);
+      }
+    }
+    expect(hits).toEqual([]);
   });
 });
 

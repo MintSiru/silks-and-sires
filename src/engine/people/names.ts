@@ -2,7 +2,7 @@ import { NAME_MAX_ATTEMPTS } from '../config/people';
 import type { Rng } from '../types';
 
 /** 이름 풀이 있는 국가 키(data/people/name_pools.json). BR·ZA 는 CountryCode 가 아니므로 이 타입을 쓴다. */
-export const NAME_COUNTRIES = ['GB', 'IE', 'FR', 'DE', 'IT', 'US', 'AU', 'JP', 'BR', 'ZA'] as const;
+export const NAME_COUNTRIES = ['GB', 'IE', 'FR', 'DE', 'IT', 'US', 'AU', 'JP', 'BR', 'ZA', 'AE'] as const;
 export type NameCountry = (typeof NAME_COUNTRIES)[number];
 
 export type PersonSex = 'male' | 'female';

@@ -5,6 +5,7 @@ import protectedJson from '../../data/naming/protected.json';
 import historicalJson from '../../data/naming/historical.json';
 import stallionNamesJson from '../../data/stallions/names.json';
 import racecoursesJson from '../../data/racecourses.json';
+import realPlacesJson from '../../data/naming/real_places.json';
 
 /** M3-C7a 이름 생성 어휘 데이터 검증 (data/naming/*.json). 스키마는 docs/specs/M3-C7a-naming-data.md 를 따른다. */
 
@@ -15,7 +16,7 @@ interface NamingLexicon {
   verbs: string[];
   abstract: string[];
   places: string[];
-  foreign: { fr: string[]; it: string[]; de: string[] };
+  foreign: { fr: string[]; it: string[]; de: string[]; ar: string[] };
   culture: string[];
   phrases: string[];
   associations: Record<string, string[]>;
@@ -84,6 +85,7 @@ function allLexiconWords(): string[] {
     ...lex.foreign.fr,
     ...lex.foreign.it,
     ...lex.foreign.de,
+    ...lex.foreign.ar,
   ];
 }
 
@@ -100,7 +102,7 @@ describe('스키마: 키 집합이 명세와 정확히 일치', () => {
         'phrases', 'associations', 'syllables', 'stopwords',
       ].sort(),
     );
-    expect(Object.keys(lex.foreign).sort()).toEqual(['de', 'fr', 'it']);
+    expect(Object.keys(lex.foreign).sort()).toEqual(['ar', 'de', 'fr', 'it']);
     expect(Object.keys(lex.syllables).sort()).toEqual(['codas', 'onsets', 'vowels']);
     expect(lex.version).toBe(1);
   });
@@ -134,6 +136,7 @@ describe('어휘 수량 (수용 기준 2)', () => {
     expect(lex.foreign.fr.length).toBeGreaterThanOrEqual(100);
     expect(lex.foreign.it.length).toBeGreaterThanOrEqual(100);
     expect(lex.foreign.de.length).toBeGreaterThanOrEqual(100);
+    expect(lex.foreign.ar.length).toBeGreaterThanOrEqual(180);
     expect(lex.culture.length).toBeGreaterThanOrEqual(80);
     expect(lex.phrases.length).toBeGreaterThanOrEqual(60);
     expect(Object.keys(lex.associations).length).toBeGreaterThanOrEqual(150);
@@ -169,6 +172,7 @@ describe('어휘 형식 (수용 기준 3)', () => {
       'foreign.fr': lex.foreign.fr,
       'foreign.it': lex.foreign.it,
       'foreign.de': lex.foreign.de,
+      'foreign.ar': lex.foreign.ar,
     };
     for (const [name, arr] of Object.entries(arrays)) {
       for (const w of arr) {
@@ -315,7 +319,14 @@ describe('실명 차단 (수용 기준 7)', () => {
     for (const w of allLexiconWords()) {
       expect(blocked.has(w.toLowerCase()), w).toBe(false);
     }
-    for (const w of [...lex.foreign.fr, ...lex.foreign.it, ...lex.foreign.de]) {
+    for (const w of [...lex.foreign.fr, ...lex.foreign.it, ...lex.foreign.de, ...lex.foreign.ar]) {
+      expect(blocked.has(w.toLowerCase()), w).toBe(false);
+    }
+  });
+
+  it('아랍어(ar) 단어는 보호 명단·종마 이름과 대소문자 무시로 같지 않다(M3-C7c)', () => {
+    const blocked = new Set([...protectedNames, ...stallionNames].map((n) => n.toLowerCase()));
+    for (const w of lex.foreign.ar) {
       expect(blocked.has(w.toLowerCase()), w).toBe(false);
     }
   });
@@ -343,5 +354,84 @@ describe('실명 차단 (수용 기준 7)', () => {
       if (p === 'Ashcombe') continue;
       expect(rcTokens.has(p.toLowerCase()), p).toBe(false);
     }
+  });
+});
+
+/** M3-C7c 실제 지명 real_places.json 검증 (수용 기준: 수량·형식·차단 토큰). */
+interface RealPlacesFile {
+  version: 1;
+  countries: string[];
+  regions: string[];
+  cities: string[];
+  blockedTokens: string[];
+}
+
+const realPlaces = realPlacesJson as unknown as RealPlacesFile;
+const PLACE_CHAR_RE = /^[A-Za-z' ]+$/;
+
+/** 지명(공백으로 나눈 단어열)이 토큰(단어열)을 단어 단위로 포함하면 그 토큰을 돌려준다. */
+function findBlockedToken(name: string, tokens: string[]): string | undefined {
+  const words = name.toLowerCase().split(' ');
+  return tokens.find((t) => {
+    const tw = t.split(' ');
+    for (let i = 0; i + tw.length <= words.length; i++) {
+      if (tw.every((x, j) => words[i + j] === x)) return true;
+    }
+    return false;
+  });
+}
+
+describe('실제 지명 real_places.json (M3-C7c)', () => {
+  it('수량: 국가 120 이상, 주·도 120 이상, 도시 150 이상, 차단 토큰 150 이상', () => {
+    expect(realPlaces.version).toBe(1);
+    expect(realPlaces.countries.length).toBeGreaterThanOrEqual(120);
+    expect(realPlaces.regions.length).toBeGreaterThanOrEqual(120);
+    expect(realPlaces.cities.length).toBeGreaterThanOrEqual(150);
+    expect(realPlaces.blockedTokens.length).toBeGreaterThanOrEqual(150);
+  });
+
+  it('형식: 18자 이하, 영문자·공백·아포스트로피만, 배열 안 중복 없음(대소문자 무시)', () => {
+    const lists = {
+      countries: realPlaces.countries,
+      regions: realPlaces.regions,
+      cities: realPlaces.cities,
+    };
+    for (const [name, arr] of Object.entries(lists)) {
+      for (const p of arr) {
+        expect(PLACE_CHAR_RE.test(p), `${name}: ${p}`).toBe(true);
+        expect(p.length, `${name}: ${p}`).toBeLessThanOrEqual(18);
+      }
+      expect(noCaseDuplicates(arr), `${name} 중복`).toBe(true);
+    }
+  });
+
+  it('차단 토큰: 소문자, 18자 이하, 영문자·공백·아포스트로피만, 중복 없음', () => {
+    for (const t of realPlaces.blockedTokens) {
+      expect(t, t).toBe(t.toLowerCase());
+      expect(PLACE_CHAR_RE.test(t), t).toBe(true);
+      expect(t.length, t).toBeLessThanOrEqual(18);
+    }
+    expect(noCaseDuplicates(realPlaces.blockedTokens)).toBe(true);
+  });
+
+  it('국가·주·도시 어느 항목도 차단 토큰을 단어 단위로 포함하지 않는다(원칙 1)', () => {
+    const hits: string[] = [];
+    for (const [name, arr] of Object.entries({
+      countries: realPlaces.countries,
+      regions: realPlaces.regions,
+      cities: realPlaces.cities,
+    })) {
+      for (const p of arr) {
+        const t = findBlockedToken(p, realPlaces.blockedTokens);
+        if (t !== undefined) hits.push(`${name}: ${p} ~ ${t}`);
+      }
+    }
+    expect(hits).toEqual([]);
+  });
+
+  it('실제 지명은 가상 경마장 이름(racecourses.json)과 같지 않다', () => {
+    const virtual = new Set(racecourseNames.map((n) => n.toLowerCase()));
+    const all = [...realPlaces.countries, ...realPlaces.regions, ...realPlaces.cities];
+    expect(all.filter((p) => virtual.has(p.toLowerCase()))).toEqual([]);
   });
 });
