@@ -3820,11 +3820,11 @@
     "distanceProfile": "classic",
     "surfaceProfile": "turf",
     "marketTier": 5,
-    "confidence": "medium"
+    "confidence": "high"
   },
   {
     "key": "stl_avenue_of_flags",
-    "foaled": 1990,
+    "foaled": 1988,
     "countryOfBirth": "US",
     "sireKey": "stl_seattle_slew",
     "damsireKey": null,
@@ -3834,7 +3834,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 5,
-    "confidence": "low"
+    "confidence": "high"
   },
   {
     "key": "stl_bailjumper",
