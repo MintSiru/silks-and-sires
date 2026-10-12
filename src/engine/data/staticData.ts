@@ -17,6 +17,7 @@ import namingRealPlacesJson from '../../../data/naming/real_places.json';
 import raceTemplatesJson from '../../../data/calendar/g1.json';
 import patternGbIeJson from '../../../data/calendar/pattern_gb_ie.json';
 import patternFrDeItJson from '../../../data/calendar/pattern_fr_de_it.json';
+import g1ExtraJson from '../../../data/calendar/g1_extra.json';
 import seriesJson from '../../../data/calendar/series.json';
 import { getRacecourse as findRacecourse, loadRacecourses } from '../course/load';
 import { NAME_COUNTRIES, type CountryNamePool, type NameCountry, type NamePools } from '../people/names';
@@ -82,13 +83,14 @@ export function getRace(id: string): Race {
 }
 
 /**
- * 고정 일정 레이스 템플릿: G1(data/calendar/g1.json) + G2·G3·리스티드·헤리티지 핸디캡(pattern_*.json).
+ * 고정 일정 레이스 템플릿: G1(data/calendar/g1.json, 추가 G1 g1_extra.json) + G2·G3·리스티드·헤리티지 핸디캡(pattern_*.json).
  * cardOrder 는 같은 개최일 안의 정렬 키(G1 은 10 단위, 그 사이에 하위 등급을 끼운다).
  */
 const RACE_TEMPLATES: RaceTemplate[] = [
   ...(raceTemplatesJson as RaceTemplate[]),
   ...(patternGbIeJson as RaceTemplate[]),
   ...(patternFrDeItJson as RaceTemplate[]),
+  ...(g1ExtraJson as RaceTemplate[]),
 ];
 
 export function getRaceTemplates(): RaceTemplate[] {
