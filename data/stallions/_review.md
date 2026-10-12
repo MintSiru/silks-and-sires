@@ -943,3 +943,152 @@ Opus 확인 요청:
 | Collected | City Zip | Johannesburg | 2013 | ch | Classic → classic, dirt |
 | 조상 | Lion Heart(2001, Tale of the Cat, ch) · Flatter(1999, A.P. Indy, b) · City Zip(1998, Carson City, ch) · Tale of the Cat(1994, Storm Cat, dkb → brown) · Carson City(1987, Mr. Prospector, ch) — status pensioned(계류·생존 미확인), 외조부 null |
 - 미수록 외조부는 null(외조부만을 위한 레코드는 만들지 않음).
+
+## M2-03 종마 마지막 교배 연도 lastCoverYear (haiku-data, 2026-10-12)
+
+출처: 영어 위키백과 action=raw 원문. 인포박스 foaled·death_date(명세의 died 에 해당, 이 인포박스 템플릿의 필드명은 death_date), 본문 은퇴 문장(pensioned·retired from stud duty), 카테고리 "YYYY racehorse deaths", 리드 "(출생–사망)". 조회 간격 3.2초 이상, 429 는 30초 대기 후 재시도(429 30회 발생, 전부 재시도로 해소). 원문·스크립트·로그는 /tmp/m2_03 에만 두었고 저장소에는 넣지 않았다. 조회된 185두의 위키백과 출생연도는 데이터 foaled 와 모두 일치(불일치 0)하여 동명마가 아님을 확인했다. "retired to stud"(교배 시작) 문장은 은퇴로 보지 않았다.
+
+### 채운 수
+
+- 비현역 185두 중 136두 채움 (73.5%). 미채움 49두는 아래 확인 필요 표.
+- historical 원본 124두 중 101두 채움 (81.5%): 위키백과 사망 연도.
+- pensioned 원본 61두 중 35두 채움 (57.4%): 32두는 사망이 확인되어 status 를 historical 로 정정하고 연도를 기입, 3두는 사망 없이 은퇴 연도만 확인되어 pensioned 유지.
+- 정정 후 status 분포: historical 156, pensioned 29, active 150 (active 변경 없음).
+
+### 값 규칙 (명세 적용)
+
+- historical: 사망 연도 (인포박스 death_date. 없으면 카테고리와 본문/리드가 같은 연도일 때만 채택, 출처 표시).
+- pensioned + 사망 확인: status historical 로 정정. 값은 명세 pensioned 규칙에 따라 은퇴 연도가 있으면 은퇴 연도, 없으면 사망 연도 (7두, 아래 검토 1).
+- pensioned + 사망 없음 + 은퇴 연도 있음: 은퇴 연도 (3두). "retired from breeding" 은 "retired from stud" 와 같은 뜻으로 채택.
+- 둘 다 없으면 생략, 확인 필요 표에 올림.
+
+### status 정정 목록 (pensioned → historical, 32두)
+
+| key | 이름 | 출생 | lastCoverYear | 근거 |
+| --- | --- | --- | --- | --- |
+| stl_alydar | Alydar | 1975 | 1990 | 리드 범위+카테고리 |
+| stl_arctic_tern | Arctic Tern | 1973 | 1998 | 본문+카테고리 |
+| stl_bering | Bering | 1983 | 2009 | 은퇴 문장(사망 2011, 은퇴 우선) |
+| stl_bernardini | Bernardini | 2003 | 2021 | infobox |
+| stl_cadeaux_genereux | Cadeaux Genereux | 1985 | 2010 | 본문+카테고리 |
+| stl_choisir | Choisir | 1999 | 2020 | 은퇴 문장(사망 2021, 은퇴 우선) |
+| stl_coronado_s_quest | Coronado's Quest | 1995 | 2006 | 본문+카테고리 |
+| stl_darshaan | Darshaan | 1981 | 2001 | 본문+카테고리 |
+| stl_deep_impact | Deep Impact | 2002 | 2019 | infobox |
+| stl_distant_view | Distant View | 1991 | 2006 | 은퇴 문장(사망 2018, 은퇴 우선) |
+| stl_dixieland_band | Dixieland Band | 1980 | 2008 | 은퇴 문장(사망 2010, 은퇴 우선) |
+| stl_empire_maker | Empire Maker | 2000 | 2020 | 리드 범위+카테고리 |
+| stl_fappiano | Fappiano | 1977 | 1990 | 본문+카테고리 |
+| stl_hail_to_reason | Hail to Reason | 1958 | 1976 | infobox |
+| stl_halo | Halo | 1969 | 1997 | 은퇴 문장(사망 2000, 은퇴 우선) |
+| stl_indian_charlie | Indian Charlie | 1995 | 2011 | 본문+카테고리 |
+| stl_lando | Lando | 1990 | 2013 | 본문+카테고리 |
+| stl_miswaki | Miswaki | 1978 | 2004 | 은퇴 문장(사망 2004, 은퇴 우선) |
+| stl_monsun | Monsun | 1990 | 2012 | 본문+카테고리 |
+| stl_noverre | Noverre | 1998 | 2012 | 본문+카테고리 |
+| stl_observatory | Observatory | 1997 | 2019 | 본문+카테고리 |
+| stl_rahy | Rahy | 1985 | 2009 | 은퇴 문장(사망 2011, 은퇴 우선) |
+| stl_red_clubs | Red Clubs | 2003 | 2010 | 본문+카테고리 |
+| stl_red_ransom | Red Ransom | 1987 | 2009 | 본문+카테고리 |
+| stl_roberto | Roberto | 1969 | 1988 | 본문+카테고리 |
+| stl_royal_charger | Royal Charger | 1942 | 1961 | infobox |
+| stl_so_you_think | So You Think | 2006 | 2025 | infobox |
+| stl_sunday_silence | Sunday Silence | 1986 | 2002 | infobox |
+| stl_surumu | Surumu | 1974 | 1999 | 본문+카테고리 |
+| stl_turn_to | Turn-to | 1951 | 1973 | infobox |
+| stl_unbridled | Unbridled | 1987 | 2001 | infobox |
+| stl_unbridleds_song | Unbridled's Song | 1993 | 2013 | infobox |
+
+### 확인 필요 (미채움 49두)
+
+| key | 이름 | 원래 status | 출생 | 사유 |
+| --- | --- | --- | --- | --- |
+| stl_acclamation | Acclamation | historical | 1999 | 위키백과 문서 없음 (후보 제목 전부 404 또는 종마 인포박스 없음) |
+| stl_anabaa_blue | Anabaa Blue | pensioned | 1998 | 문서 있음. 사망·은퇴 연도 기재 없음 (retired to stud 문장만) |
+| stl_archipenko | Archipenko | historical | 2004 | 위키백과 문서 없음 (후보 제목 전부 404 또는 종마 인포박스 없음) |
+| stl_avenue_of_flags | Avenue of Flags | historical | 1988 | 위키백과 문서 없음 (후보 제목 전부 404 또는 종마 인포박스 없음) |
+| stl_bailjumper | Bailjumper | historical | 1974 | 위키백과 문서 없음 (후보 제목 전부 404 또는 종마 인포박스 없음) |
+| stl_bernstein | Bernstein | historical | 1997 | 위키백과 문서 없음 (후보 제목 전부 404 또는 종마 인포박스 없음) |
+| stl_born_to_sea | Born To Sea | pensioned | 2009 | 위키백과 문서 없음 (후보 제목 전부 404 또는 종마 인포박스 없음) |
+| stl_cacique | Cacique | pensioned | 2001 | 문서 있음. 사망·은퇴 연도 기재 없음 (retired to stud 문장만) |
+| stl_carson_city | Carson City | pensioned | 1987 | 위키백과 문서 없음 (후보 제목 전부 404 또는 종마 인포박스 없음) |
+| stl_city_zip | City Zip | pensioned | 1998 | 위키백과 문서 없음 (후보 제목 전부 404 또는 종마 인포박스 없음) |
+| stl_cowboy_cal | Cowboy Cal | historical | 2005 | 위키백과 문서 없음 (후보 제목 전부 404 또는 종마 인포박스 없음) |
+| stl_dark_angel | Dark Angel | pensioned | 2005 | 문서 있음. 사망·은퇴 연도 기재 없음 (retired to stud 문장만) |
+| stl_deploy | Deploy | historical | 1987 | 위키백과 문서 없음 (후보 제목 전부 404 또는 종마 인포박스 없음) |
+| stl_dubai_destination | Dubai Destination | pensioned | 1999 | 문서 있음. 사망·은퇴 연도 기재 없음 (retired to stud 문장만) |
+| stl_dutch_art | Dutch Art | pensioned | 2004 | 문서 있음. 사망·은퇴 연도 기재 없음 (retired to stud 문장만) |
+| stl_dylan_thomas | Dylan Thomas | pensioned | 2003 | 문서 있음. 사망·은퇴 연도 기재 없음 (retired to stud 문장만) |
+| stl_elusive_quality | Elusive Quality | historical | 1993 | 위키백과 문서 없음 (후보 제목 전부 404 또는 종마 인포박스 없음) |
+| stl_flatter | Flatter | pensioned | 1999 | 위키백과 문서 없음 (후보 제목 전부 404 또는 종마 인포박스 없음) |
+| stl_fortino_ii | Fortino II | historical | 1959 | 위키백과 문서 없음 (후보 제목 전부 404 또는 종마 인포박스 없음) |
+| stl_frozen_power | Frozen Power | pensioned | 2007 | 위키백과 문서 없음 (후보 제목 전부 404 또는 종마 인포박스 없음) |
+| stl_ghostzapper | Ghostzapper | pensioned | 2000 | 문서 있음. 사망·은퇴 연도 기재 없음 (retired to stud 문장만) |
+| stl_half_ours | Half Ours | pensioned | 2003 | 문서 있음. 사망·은퇴 연도 기재 없음 (retired to stud 문장만) |
+| stl_hallowed_crown | Hallowed Crown | pensioned | 2011 | 위키백과 문서 없음 (후보 제목 전부 404 또는 종마 인포박스 없음) |
+| stl_harlan | Harlan | historical | 1989 | 위키백과 문서 없음 (후보 제목 전부 404 또는 종마 인포박스 없음) |
+| stl_hennessy | Hennessy | pensioned | 1993 | 위키백과 문서 없음 (후보 제목 전부 404 또는 종마 인포박스 없음) |
+| stl_include | Include | historical | 1997 | 사망 기재 없음. 본문: 2021 교배 시즌 후 pensioned, 2022 종부료 표기. status historical 과 충돌, Opus 확인 |
+| stl_intent | Intent | historical | 1948 | 위키백과 문서 없음 (후보 제목 전부 404 또는 종마 인포박스 없음) |
+| stl_kaldounevees | Kaldounevees | historical | 1991 | 위키백과 문서 없음 (후보 제목 전부 404 또는 종마 인포박스 없음) |
+| stl_kendargent | Kendargent | historical | 2003 | 위키백과 문서 없음 (후보 제목 전부 404 또는 종마 인포박스 없음) |
+| stl_lawman | Lawman | pensioned | 2004 | 문서 있음. 사망·은퇴 연도 기재 없음 (retired to stud 문장만) |
+| stl_lion_heart | Lion Heart | pensioned | 2001 | 위키백과 문서 없음 (후보 제목 전부 404 또는 종마 인포박스 없음) |
+| stl_lord_at_war | Lord At War | historical | 1980 | 위키백과 문서 없음 (후보 제목 전부 404 또는 종마 인포박스 없음) |
+| stl_made_of_gold | Made Of Gold | historical | 1989 | 위키백과 문서 없음 (후보 제목 전부 404 또는 종마 인포박스 없음) |
+| stl_medaglia_d_oro | Medaglia d'Oro | pensioned | 1999 | 문서 있음. 사망·은퇴 연도 기재 없음 (retired to stud 문장만) |
+| stl_mineshaft | Mineshaft | historical | 1999 | 사망 기재 없음. 본문: 2025 교배 시즌 후 종마 은퇴. status historical 과 충돌, Opus 확인 |
+| stl_najran | Najran | historical | 1999 | 위키백과 문서 없음 (후보 제목 전부 404 또는 종마 인포박스 없음) |
+| stl_nayef | Nayef | pensioned | 1998 | 문서 있음. 사망·은퇴 연도 기재 없음 (retired to stud 문장만) |
+| stl_new_approach | New Approach | pensioned | 2005 | 문서 있음. 사망·은퇴 연도 기재 없음 (retired to stud 문장만) |
+| stl_pour_moi | Pour Moi | pensioned | 2008 | 문서 있음. 사망·은퇴 연도 기재 없음 (retired to stud 문장만) |
+| stl_ride_the_rails | Ride the Rails | pensioned | 1991 | 위키백과 문서 없음 (후보 제목 전부 404 또는 종마 인포박스 없음) |
+| stl_silver_hawk | Silver Hawk | historical | 1979 | 위키백과 문서 없음 (후보 제목 전부 404 또는 종마 인포박스 없음) |
+| stl_stay_thirsty | Stay Thirsty | pensioned | 2008 | 문서 있음. 사망·은퇴 연도 기재 없음 (retired to stud 문장만) |
+| stl_tale_of_the_cat | Tale of the Cat | pensioned | 1994 | 위키백과 문서 없음 (후보 제목 전부 404 또는 종마 인포박스 없음) |
+| stl_tasleet | Tasleet | pensioned | 2013 | 위키백과 문서 없음 (후보 제목 전부 404 또는 종마 인포박스 없음) |
+| stl_tricky_creek | Tricky Creek | historical | 1986 | 위키백과 문서 없음 (후보 제목 전부 404 또는 종마 인포박스 없음) |
+| stl_vettori | Vettori | historical | 1992 | 위키백과 문서 없음 (후보 제목 전부 404 또는 종마 인포박스 없음) |
+| stl_waajib | Waajib | historical | 1982 | 위키백과 문서 없음 (후보 제목 전부 404 또는 종마 인포박스 없음) |
+| stl_war_front | War Front | pensioned | 2002 | 문서 있음. 사망·은퇴 연도 기재 없음 (retired to stud 문장만) |
+| stl_zamindar | Zamindar | historical | 1994 | 위키백과 문서 없음 (후보 제목 전부 404 또는 종마 인포박스 없음) |
+
+### 검토 메모 (Opus 확인 권장)
+
+1. pensioned 였다가 사망으로 historical 정정된 7두는 명세 pensioned 규칙(은퇴 연도 우선)을 적용했다. 사망 연도를 택하면 값이 달라진다: Dixieland Band 2008 (사망 2010), Choisir 2020 (사망 2021), Halo 1997 (사망 2000), Rahy 2009 (사망 2011), Distant View 2006 (사망 2018), Bering 2009 (사망 2011), Miswaki 2004 (사망 2004, 같음).
+2. historical 원본 중 은퇴 문장 연도가 사망 연도와 다른 레코드는 명세 historical 규칙에 따라 사망 연도를 썼다. 은퇴 후 사망 전까지 교배 가능한 것으로 엔진에 남는 문제가 있다. 은퇴 문장 연도 목록 (은퇴 문장 자동 추출, 일부는 다른 맥락 문장일 수 있음):
+
+| key | 이름 | 채택(사망) | 은퇴 문장 연도 |
+| --- | --- | --- | --- |
+| stl_acatenango | Acatenango | 2005 | 2004 |
+| stl_ap_indy | A.P. Indy | 2020 | 2011 / 2017 |
+| stl_awesome_again | Awesome Again | 2020 | 2019 |
+| stl_dalakhani | Dalakhani | 2021 | 2016 |
+| stl_danehill_dancer | Danehill Dancer | 2017 | 2014 |
+| stl_dansili | Dansili | 2021 | 2018 |
+| stl_danzig | Danzig | 2006 | 2004 |
+| stl_diktat | Diktat | 2017 | 2007 / 2008 / 2010 / 2015 |
+| stl_distorted_humor | Distorted Humor | 2026 | 2021 |
+| stl_fastnet_rock | Fastnet Rock | 2025 | 2024 |
+| stl_forty_niner | Forty Niner | 2020 | 1995 / 2007 |
+| stl_green_desert | Green Desert | 2015 | 2011 |
+| stl_grey_sovereign | Grey Sovereign | 1976 | 1972 |
+| stl_holy_bull | Holy Bull | 2017 | 2012 |
+| stl_in_excess | In Excess | 2013 | 2011 |
+| stl_kingmambo | Kingmambo | 2016 | 2010 |
+| stl_lyphard | Lyphard | 2005 | 1996 |
+| stl_man_o_war | Man o' War | 1947 | 1943 |
+| stl_mark_of_esteem | Mark of Esteem | 2014 | 2007 |
+| stl_medicean | Medicean | 2018 | 2017 |
+| stl_northern_dancer | Northern Dancer | 1990 | 1987 |
+| stl_royal_applause | Royal Applause | 2022 | 2017 |
+| stl_seeking_the_gold | Seeking the Gold | 2016 | 2005 / 2008 |
+| stl_storm_bird | Storm Bird | 2004 | 1999 |
+
+3. 카테고리만 근거: stl_cryptoclearance (사망 2009). 본문에 사망 문장 없음. 카테고리 "2009 racehorse deaths" 로 채택.
+4. Tiznow: 2020년 10월 21일 발표 문장("retired from stud duty")의 연도 2020 을 은퇴 연도로 채택. 본문의 "death in October 2015" 는 부(Cee's Tizzy)의 사망이므로 Tiznow 와 무관.
+5. Johannesburg: "retired from breeding in 2019" 를 은퇴 문장으로 채택 (2019).
+6. Frosted (사망 2026-04-15), Distorted Humor (사망 2026-01-10): 인포박스 사망 연도 2026 채택. 2026 은 상한과 같다.
+7. Seeking the Gold: 인포박스 died 필드 없이 death_date 템플릿(2016-07-28)에서 채택.
+8. 카테고리 근거(인포박스 사망 필드 없음) 기입 레코드는 본문 또는 리드 "(출생–사망)" 과 같은 연도인 것만 채택했다. 해당 목록은 근거 열에 "본문+카테고리" / "리드 범위+카테고리" 로 표시.
+

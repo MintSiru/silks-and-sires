@@ -12,7 +12,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "bay",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 1924
   },
   {
     "key": "stl_phalaris",
@@ -27,7 +28,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "brown",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 1931
   },
   {
     "key": "stl_pharos",
@@ -42,7 +44,8 @@
     "surfaceProfile": "turf",
     "marketTier": 4,
     "coatColour": "brown",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 1937
   },
   {
     "key": "stl_nearco",
@@ -57,7 +60,8 @@
     "surfaceProfile": "turf",
     "marketTier": 4,
     "coatColour": "brown",
-    "confidence": "medium"
+    "confidence": "medium",
+    "lastCoverYear": 1957
   },
   {
     "key": "stl_nearctic",
@@ -72,7 +76,8 @@
     "surfaceProfile": "turf",
     "marketTier": 4,
     "coatColour": "brown",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 1973
   },
   {
     "key": "stl_northern_dancer",
@@ -87,7 +92,8 @@
     "surfaceProfile": "turf",
     "marketTier": 3,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 1987
   },
   {
     "key": "stl_native_dancer",
@@ -102,7 +108,8 @@
     "surfaceProfile": "both",
     "marketTier": 3,
     "coatColour": "grey",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 1967
   },
   {
     "key": "stl_polynesian",
@@ -117,7 +124,8 @@
     "surfaceProfile": "both",
     "marketTier": 4,
     "coatColour": "brown",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 1959
   },
   {
     "key": "stl_raise_a_native",
@@ -132,7 +140,8 @@
     "surfaceProfile": "dirt",
     "marketTier": 4,
     "coatColour": "chestnut",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 1988
   },
   {
     "key": "stl_mr_prospector",
@@ -147,7 +156,8 @@
     "surfaceProfile": "dirt",
     "marketTier": 2,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 1999
   },
   {
     "key": "stl_gone_west",
@@ -162,7 +172,8 @@
     "surfaceProfile": "dirt",
     "marketTier": 3,
     "coatColour": "brown",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2009
   },
   {
     "key": "stl_seeking_the_gold",
@@ -177,7 +188,8 @@
     "surfaceProfile": "both",
     "marketTier": 3,
     "coatColour": "bay",
-    "confidence": "medium"
+    "confidence": "medium",
+    "lastCoverYear": 2008
   },
   {
     "key": "stl_dubai_millennium",
@@ -192,7 +204,8 @@
     "surfaceProfile": "turf",
     "marketTier": 2,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2001
   },
   {
     "key": "stl_dubawi",
@@ -237,7 +250,8 @@
     "surfaceProfile": "turf",
     "marketTier": 3,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2011
   },
   {
     "key": "stl_galileo",
@@ -252,7 +266,8 @@
     "surfaceProfile": "turf",
     "marketTier": 3,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2021
   },
   {
     "key": "stl_frankel",
@@ -342,7 +357,8 @@
     "surfaceProfile": "turf",
     "marketTier": 3,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2012
   },
   {
     "key": "stl_pour_moi",
@@ -387,7 +403,8 @@
     "surfaceProfile": "turf",
     "marketTier": 3,
     "coatColour": "grey",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2009
   },
   {
     "key": "stl_medaglia_d_oro",
@@ -432,7 +449,8 @@
     "surfaceProfile": "both",
     "marketTier": 3,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2004
   },
   {
     "key": "stl_green_desert",
@@ -447,7 +465,8 @@
     "surfaceProfile": "turf",
     "marketTier": 3,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2011
   },
   {
     "key": "stl_danehill",
@@ -462,7 +481,8 @@
     "surfaceProfile": "turf",
     "marketTier": 3,
     "coatColour": "bay",
-    "confidence": "medium"
+    "confidence": "medium",
+    "lastCoverYear": 2003
   },
   {
     "key": "stl_dansili",
@@ -477,7 +497,8 @@
     "surfaceProfile": "turf",
     "marketTier": 3,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2018
   },
   {
     "key": "stl_holy_roman_emperor",
@@ -522,7 +543,8 @@
     "surfaceProfile": "turf",
     "marketTier": 3,
     "coatColour": "bay",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 2024
   },
   {
     "key": "stl_kingman",
@@ -567,7 +589,8 @@
     "surfaceProfile": "turf",
     "marketTier": 3,
     "coatColour": "bay",
-    "confidence": "medium"
+    "confidence": "medium",
+    "lastCoverYear": 2017
   },
   {
     "key": "stl_sea_the_stars",
@@ -612,7 +635,8 @@
     "surfaceProfile": "turf",
     "marketTier": 3,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2001
   },
   {
     "key": "stl_polar_falcon",
@@ -627,7 +651,8 @@
     "surfaceProfile": "turf",
     "marketTier": 4,
     "coatColour": "brown",
-    "confidence": "medium"
+    "confidence": "medium",
+    "lastCoverYear": 2001
   },
   {
     "key": "stl_pivotal",
@@ -642,7 +667,8 @@
     "surfaceProfile": "turf",
     "marketTier": 3,
     "coatColour": "chestnut",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2021
   },
   {
     "key": "stl_siyouni",
@@ -672,7 +698,8 @@
     "surfaceProfile": "dirt",
     "marketTier": 3,
     "coatColour": "bay",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 2002
   },
   {
     "key": "stl_ap_indy",
@@ -687,7 +714,8 @@
     "surfaceProfile": "dirt",
     "marketTier": 3,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2011
   },
   {
     "key": "stl_into_mischief",
@@ -732,7 +760,8 @@
     "surfaceProfile": "turf",
     "marketTier": 4,
     "coatColour": "bay",
-    "confidence": "medium"
+    "confidence": "medium",
+    "lastCoverYear": 1999
   },
   {
     "key": "stl_storm_cat",
@@ -747,7 +776,8 @@
     "surfaceProfile": "both",
     "marketTier": 2,
     "coatColour": "brown",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2013
   },
   {
     "key": "stl_giant_causeway",
@@ -762,7 +792,8 @@
     "surfaceProfile": "turf",
     "marketTier": 3,
     "coatColour": "chestnut",
-    "confidence": "medium"
+    "confidence": "medium",
+    "lastCoverYear": 2018
   },
   {
     "key": "stl_shamardal",
@@ -777,7 +808,8 @@
     "surfaceProfile": "turf",
     "marketTier": 3,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2020
   },
   {
     "key": "stl_lope_de_vega",
@@ -807,7 +839,8 @@
     "surfaceProfile": "dirt",
     "marketTier": 4,
     "coatColour": "bay",
-    "confidence": "medium"
+    "confidence": "medium",
+    "lastCoverYear": 2013
   },
   {
     "key": "stl_curlin",
@@ -837,7 +870,8 @@
     "surfaceProfile": "turf",
     "marketTier": 4,
     "coatColour": "bay",
-    "confidence": "medium"
+    "confidence": "medium",
+    "lastCoverYear": 2015
   },
   {
     "key": "stl_good_magic",
@@ -882,7 +916,8 @@
     "surfaceProfile": "dirt",
     "marketTier": 4,
     "coatColour": "bay",
-    "confidence": "medium"
+    "confidence": "medium",
+    "lastCoverYear": 2012
   },
   {
     "key": "stl_tapit",
@@ -1077,7 +1112,8 @@
     "surfaceProfile": "turf",
     "marketTier": 4,
     "coatColour": "brown",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 1943
   },
   {
     "key": "stl_unbreakable",
@@ -1092,7 +1128,8 @@
     "surfaceProfile": "both",
     "marketTier": 4,
     "coatColour": "black",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 1952
   },
   {
     "key": "stl_harlan",
@@ -1407,7 +1444,8 @@
     "surfaceProfile": "dirt",
     "marketTier": 4,
     "coatColour": "grey",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2026
   },
   {
     "key": "stl_hard_spun",
@@ -1522,13 +1560,14 @@
     "sireKey": "stl_nearco",
     "damsireKey": null,
     "sireLineId": "sl_phalaris",
-    "status": "pensioned",
+    "status": "historical",
     "standsIn": null,
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "coatColour": "chestnut",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 1961
   },
   {
     "key": "stl_johannesburg",
@@ -1543,7 +1582,8 @@
     "surfaceProfile": "turf",
     "marketTier": 4,
     "coatColour": "bay",
-    "confidence": "medium"
+    "confidence": "medium",
+    "lastCoverYear": 2019
   },
   {
     "key": "stl_elusive_quality",
@@ -1589,7 +1629,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "grey",
-    "confidence": "medium"
+    "confidence": "medium",
+    "lastCoverYear": 1989
   },
   {
     "key": "stl_dark_angel",
@@ -1619,7 +1660,8 @@
     "surfaceProfile": "both",
     "marketTier": 4,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2004
   },
   {
     "key": "stl_fappiano",
@@ -1628,13 +1670,14 @@
     "sireKey": "stl_mr_prospector",
     "damsireKey": null,
     "sireLineId": "sl_mr_prospector",
-    "status": "pensioned",
+    "status": "historical",
     "standsIn": null,
     "distanceProfile": "speed",
     "surfaceProfile": "both",
     "marketTier": 4,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 1990
   },
   {
     "key": "stl_danehill_dancer",
@@ -1649,7 +1692,8 @@
     "surfaceProfile": "turf",
     "marketTier": 4,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2014
   },
   {
     "key": "stl_constitution",
@@ -1711,7 +1755,8 @@
     "surfaceProfile": "turf",
     "marketTier": 2,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2010
   },
   {
     "key": "stl_vindication",
@@ -1726,7 +1771,8 @@
     "surfaceProfile": "dirt",
     "marketTier": 4,
     "coatColour": "brown",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2008
   },
   {
     "key": "stl_forestry",
@@ -1741,7 +1787,8 @@
     "surfaceProfile": "both",
     "marketTier": 4,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2023
   },
   {
     "key": "stl_bernardini",
@@ -1750,13 +1797,14 @@
     "sireKey": "stl_ap_indy",
     "damsireKey": null,
     "sireLineId": "sl_ap_indy",
-    "status": "pensioned",
+    "status": "historical",
     "standsIn": null,
     "distanceProfile": "classic",
     "surfaceProfile": "dirt",
     "marketTier": 3,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2021
   },
   {
     "key": "stl_malibu_moon",
@@ -1771,7 +1819,8 @@
     "surfaceProfile": "turf",
     "marketTier": 4,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2021
   },
   {
     "key": "stl_dixieland_band",
@@ -1780,13 +1829,14 @@
     "sireKey": "stl_northern_dancer",
     "damsireKey": null,
     "sireLineId": "sl_northern_dancer",
-    "status": "pensioned",
+    "status": "historical",
     "standsIn": null,
     "distanceProfile": "speed",
     "surfaceProfile": "both",
     "marketTier": 4,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2008
   },
   {
     "key": "stl_stay_thirsty",
@@ -1930,13 +1980,14 @@
     "sireKey": "stl_royal_charger",
     "damsireKey": null,
     "sireLineId": "sl_phalaris",
-    "status": "pensioned",
+    "status": "historical",
     "standsIn": null,
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 1973
   },
   {
     "key": "stl_scat_daddy",
@@ -1951,7 +2002,8 @@
     "surfaceProfile": "both",
     "marketTier": 2,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2015
   },
   {
     "key": "stl_quality_road",
@@ -1998,7 +2050,8 @@
     "surfaceProfile": "both",
     "marketTier": 5,
     "coatColour": "grey",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 1996
   },
   {
     "key": "stl_street_cry",
@@ -2013,7 +2066,8 @@
     "surfaceProfile": "turf",
     "marketTier": 3,
     "coatColour": "brown",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2014
   },
   {
     "key": "stl_unbridled",
@@ -2022,13 +2076,14 @@
     "sireKey": "stl_fappiano",
     "damsireKey": null,
     "sireLineId": "sl_mr_prospector",
-    "status": "pensioned",
+    "status": "historical",
     "standsIn": null,
     "distanceProfile": "classic",
     "surfaceProfile": "both",
     "marketTier": 4,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2001
   },
   {
     "key": "stl_choisir",
@@ -2037,13 +2092,14 @@
     "sireKey": "stl_danehill_dancer",
     "damsireKey": null,
     "sireLineId": "sl_danehill",
-    "status": "pensioned",
+    "status": "historical",
     "standsIn": null,
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "coatColour": "chestnut",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2020
   },
   {
     "key": "stl_empire_maker",
@@ -2052,13 +2108,14 @@
     "sireKey": "stl_unbridled",
     "damsireKey": null,
     "sireLineId": "sl_mr_prospector",
-    "status": "pensioned",
+    "status": "historical",
     "standsIn": null,
     "distanceProfile": "middle",
     "surfaceProfile": "both",
     "marketTier": 3,
     "coatColour": "brown",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2020
   },
   {
     "key": "stl_no_nay_never",
@@ -2157,13 +2214,14 @@
     "sireKey": "stl_turn_to",
     "damsireKey": null,
     "sireLineId": "sl_phalaris",
-    "status": "pensioned",
+    "status": "historical",
     "standsIn": null,
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "coatColour": "brown",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 1976
   },
   {
     "key": "stl_in_excess",
@@ -2178,7 +2236,8 @@
     "surfaceProfile": "dirt",
     "marketTier": 4,
     "coatColour": "brown",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2011
   },
   {
     "key": "stl_unbridleds_song",
@@ -2187,13 +2246,14 @@
     "sireKey": "stl_unbridled",
     "damsireKey": "stl_caro",
     "sireLineId": "sl_mr_prospector",
-    "status": "pensioned",
+    "status": "historical",
     "standsIn": null,
     "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 4,
     "coatColour": "grey",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2013
   },
   {
     "key": "stl_half_ours",
@@ -2292,13 +2352,14 @@
     "sireKey": "stl_hail_to_reason",
     "damsireKey": null,
     "sireLineId": "sl_phalaris",
-    "status": "pensioned",
+    "status": "historical",
     "standsIn": null,
     "distanceProfile": "classic",
     "surfaceProfile": "turf",
     "marketTier": 4,
     "coatColour": "black",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 1997
   },
   {
     "key": "stl_indian_charlie",
@@ -2307,13 +2368,14 @@
     "sireKey": "stl_in_excess",
     "damsireKey": null,
     "sireLineId": "sl_caro",
-    "status": "pensioned",
+    "status": "historical",
     "standsIn": null,
     "distanceProfile": "speed",
     "surfaceProfile": "both",
     "marketTier": 4,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2011
   },
   {
     "key": "stl_sunday_silence",
@@ -2322,13 +2384,14 @@
     "sireKey": "stl_halo",
     "damsireKey": null,
     "sireLineId": "sl_sunday_silence",
-    "status": "pensioned",
+    "status": "historical",
     "standsIn": null,
     "distanceProfile": "classic",
     "surfaceProfile": "both",
     "marketTier": 2,
     "coatColour": "brown",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2002
   },
   {
     "key": "stl_uncle_mo",
@@ -2343,7 +2406,8 @@
     "surfaceProfile": "dirt",
     "marketTier": 3,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2024
   },
   {
     "key": "stl_golden_pal",
@@ -2382,13 +2446,14 @@
     "sireKey": "stl_sunday_silence",
     "damsireKey": null,
     "sireLineId": "sl_deep_impact",
-    "status": "pensioned",
+    "status": "historical",
     "standsIn": null,
     "distanceProfile": "middle",
     "surfaceProfile": "turf",
     "marketTier": 2,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2019
   },
   {
     "key": "stl_auguste_rodin",
@@ -2433,7 +2498,8 @@
     "surfaceProfile": "both",
     "marketTier": 5,
     "coatColour": "brown",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 1975
   },
   {
     "key": "stl_boldnesian",
@@ -2448,7 +2514,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 1975
   },
   {
     "key": "stl_bold_ruler",
@@ -2463,7 +2530,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "brown",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 1971
   },
   {
     "key": "stl_nasrullah",
@@ -2478,7 +2546,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 1959
   },
   {
     "key": "stl_zafonic",
@@ -2493,7 +2562,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "brown",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2002
   },
   {
     "key": "stl_wootton_bassett",
@@ -2508,7 +2578,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2025
   },
   {
     "key": "stl_candy_ride",
@@ -2599,7 +2670,8 @@
     "surfaceProfile": "turf",
     "marketTier": 4,
     "coatColour": "grey",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 1972
   },
   {
     "key": "stl_cryptoclearance",
@@ -2614,7 +2686,8 @@
     "surfaceProfile": "dirt",
     "marketTier": 3,
     "coatColour": "brown",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 2009
   },
   {
     "key": "stl_royal_applause",
@@ -2629,7 +2702,8 @@
     "surfaceProfile": "turf",
     "marketTier": 3,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2017
   },
   {
     "key": "stl_waajib",
@@ -2659,7 +2733,8 @@
     "surfaceProfile": "turf",
     "marketTier": 4,
     "coatColour": "bay",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 1993
   },
   {
     "key": "stl_speightstown",
@@ -2674,7 +2749,8 @@
     "surfaceProfile": "dirt",
     "marketTier": 2,
     "coatColour": "chestnut",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2023
   },
   {
     "key": "stl_ghostzapper",
@@ -2704,7 +2780,8 @@
     "surfaceProfile": "dirt",
     "marketTier": 2,
     "coatColour": "bay",
-    "confidence": "medium"
+    "confidence": "medium",
+    "lastCoverYear": 2019
   },
   {
     "key": "stl_deputy_minister",
@@ -2719,7 +2796,8 @@
     "surfaceProfile": "dirt",
     "marketTier": 2,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2004
   },
   {
     "key": "stl_vice_regent",
@@ -2734,7 +2812,8 @@
     "surfaceProfile": "both",
     "marketTier": 3,
     "coatColour": "chestnut",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 1995
   },
   {
     "key": "stl_ardad",
@@ -3288,7 +3367,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "brown",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2017
   },
   {
     "key": "stl_warning",
@@ -3303,7 +3383,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "brown",
-    "confidence": "medium"
+    "confidence": "medium",
+    "lastCoverYear": 2000
   },
   {
     "key": "stl_known_fact",
@@ -3318,7 +3399,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "black",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2000
   },
   {
     "key": "stl_in_reality",
@@ -3333,7 +3415,8 @@
     "surfaceProfile": "dirt",
     "marketTier": 5,
     "coatColour": "bay",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 1989
   },
   {
     "key": "stl_intentionally",
@@ -3348,7 +3431,8 @@
     "surfaceProfile": "dirt",
     "marketTier": 5,
     "coatColour": "black",
-    "confidence": "medium"
+    "confidence": "medium",
+    "lastCoverYear": 1970
   },
   {
     "key": "stl_intent",
@@ -3363,7 +3447,8 @@
     "surfaceProfile": "dirt",
     "marketTier": 5,
     "coatColour": "chestnut",
-    "confidence": "medium"
+    "confidence": "medium",
+    "lastCoverYear": 1968
   },
   {
     "key": "stl_war_relic",
@@ -3378,7 +3463,8 @@
     "surfaceProfile": "dirt",
     "marketTier": 5,
     "coatColour": "chestnut",
-    "confidence": "medium"
+    "confidence": "medium",
+    "lastCoverYear": 1963
   },
   {
     "key": "stl_man_o_war",
@@ -3393,7 +3479,8 @@
     "surfaceProfile": "dirt",
     "marketTier": 5,
     "coatColour": "chestnut",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 1943
   },
   {
     "key": "stl_secretariat",
@@ -3408,7 +3495,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "chestnut",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 1989
   },
   {
     "key": "stl_dylan_thomas",
@@ -3432,13 +3520,14 @@
     "sireKey": "stl_mr_prospector",
     "damsireKey": null,
     "sireLineId": "sl_mr_prospector",
-    "status": "pensioned",
+    "status": "historical",
     "standsIn": null,
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "chestnut",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 2004
   },
   {
     "key": "stl_dubai_destination",
@@ -3468,7 +3557,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "chestnut",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 2021
   },
   {
     "key": "stl_forty_niner",
@@ -3483,7 +3573,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "chestnut",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 2020
   },
   {
     "key": "stl_war_chant",
@@ -3498,7 +3589,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "bay",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 2024
   },
   {
     "key": "stl_rainbow_quest",
@@ -3513,7 +3605,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "bay",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 2007
   },
   {
     "key": "stl_blushing_groom",
@@ -3528,7 +3621,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "chestnut",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 1992
   },
   {
     "key": "stl_lando",
@@ -3537,13 +3631,14 @@
     "sireKey": "stl_acatenango",
     "damsireKey": null,
     "sireLineId": "sl_nureyev",
-    "status": "pensioned",
+    "status": "historical",
     "standsIn": null,
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "bay",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 2013
   },
   {
     "key": "stl_acatenango",
@@ -3558,7 +3653,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "chestnut",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 2004
   },
   {
     "key": "stl_surumu",
@@ -3567,13 +3663,14 @@
     "sireKey": null,
     "damsireKey": null,
     "sireLineId": "sl_nureyev",
-    "status": "pensioned",
+    "status": "historical",
     "standsIn": null,
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "chestnut",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 1999
   },
   {
     "key": "stl_nayef",
@@ -3603,7 +3700,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "brown",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 2016
   },
   {
     "key": "stl_fastnet_rock",
@@ -3618,7 +3716,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "bay",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 2024
   },
   {
     "key": "stl_dalakhani",
@@ -3633,7 +3732,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "grey",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 2016
   },
   {
     "key": "stl_darshaan",
@@ -3642,13 +3742,14 @@
     "sireKey": "stl_shirley_heights",
     "damsireKey": null,
     "sireLineId": "sl_phalaris",
-    "status": "pensioned",
+    "status": "historical",
     "standsIn": null,
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "bay",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 2001
   },
   {
     "key": "stl_shirley_heights",
@@ -3663,7 +3764,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "bay",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 1997
   },
   {
     "key": "stl_mill_reef",
@@ -3678,7 +3780,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "bay",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 1986
   },
   {
     "key": "stl_never_bend",
@@ -3693,7 +3796,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "brown",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 1977
   },
   {
     "key": "stl_noverre",
@@ -3702,13 +3806,14 @@
     "sireKey": "stl_rahy",
     "damsireKey": null,
     "sireLineId": "sl_storm_cat",
-    "status": "pensioned",
+    "status": "historical",
     "standsIn": null,
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "bay",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 2012
   },
   {
     "key": "stl_rahy",
@@ -3717,13 +3822,14 @@
     "sireKey": "stl_blushing_groom",
     "damsireKey": null,
     "sireLineId": "sl_storm_cat",
-    "status": "pensioned",
+    "status": "historical",
     "standsIn": null,
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "chestnut",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 2009
   },
   {
     "key": "stl_turkoman",
@@ -3738,7 +3844,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "brown",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 2016
   },
   {
     "key": "stl_alydar",
@@ -3747,13 +3854,14 @@
     "sireKey": "stl_raise_a_native",
     "damsireKey": null,
     "sireLineId": "sl_native_dancer",
-    "status": "pensioned",
+    "status": "historical",
     "standsIn": null,
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "chestnut",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 1990
   },
   {
     "key": "stl_dutch_art",
@@ -3783,7 +3891,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "chestnut",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 2017
   },
   {
     "key": "stl_dancing_brave",
@@ -3798,7 +3907,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "bay",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 1999
   },
   {
     "key": "stl_lyphard",
@@ -3813,7 +3923,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "bay",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 1996
   },
   {
     "key": "stl_monsun",
@@ -3822,13 +3933,14 @@
     "sireKey": "stl_konigsstuhl",
     "damsireKey": null,
     "sireLineId": "sl_sadlers_wells",
-    "status": "pensioned",
+    "status": "historical",
     "standsIn": null,
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "bay",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 2012
   },
   {
     "key": "stl_konigsstuhl",
@@ -3843,7 +3955,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "black",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 1995
   },
   {
     "key": "stl_tiznow",
@@ -3858,7 +3971,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "bay",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 2020
   },
   {
     "key": "stl_cadeaux_genereux",
@@ -3867,13 +3981,14 @@
     "sireKey": null,
     "damsireKey": null,
     "sireLineId": "sl_dark_angel",
-    "status": "pensioned",
+    "status": "historical",
     "standsIn": null,
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "chestnut",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 2010
   },
   {
     "key": "stl_observatory",
@@ -3882,13 +3997,14 @@
     "sireKey": "stl_distant_view",
     "damsireKey": null,
     "sireLineId": "sl_mr_prospector",
-    "status": "pensioned",
+    "status": "historical",
     "standsIn": null,
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "chestnut",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 2019
   },
   {
     "key": "stl_distant_view",
@@ -3897,13 +4013,14 @@
     "sireKey": "stl_mr_prospector",
     "damsireKey": null,
     "sireLineId": "sl_mr_prospector",
-    "status": "pensioned",
+    "status": "historical",
     "standsIn": null,
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "chestnut",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 2006
   },
   {
     "key": "stl_bering",
@@ -3912,13 +4029,14 @@
     "sireKey": "stl_arctic_tern",
     "damsireKey": null,
     "sireLineId": "sl_scat_daddy",
-    "status": "pensioned",
+    "status": "historical",
     "standsIn": null,
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "chestnut",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 2009
   },
   {
     "key": "stl_arctic_tern",
@@ -3927,13 +4045,14 @@
     "sireKey": "stl_sea_bird",
     "damsireKey": null,
     "sireLineId": "sl_scat_daddy",
-    "status": "pensioned",
+    "status": "historical",
     "standsIn": null,
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "chestnut",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 1998
   },
   {
     "key": "stl_sea_bird",
@@ -3948,7 +4067,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "chestnut",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 1973
   },
   {
     "key": "stl_coronado_s_quest",
@@ -3957,13 +4077,14 @@
     "sireKey": "stl_forty_niner",
     "damsireKey": null,
     "sireLineId": "sl_mr_prospector",
-    "status": "pensioned",
+    "status": "historical",
     "standsIn": null,
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "chestnut",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 2006
   },
   {
     "key": "stl_red_clubs",
@@ -3972,13 +4093,14 @@
     "sireKey": "stl_red_ransom",
     "damsireKey": null,
     "sireLineId": "sl_phalaris",
-    "status": "pensioned",
+    "status": "historical",
     "standsIn": null,
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "brown",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 2010
   },
   {
     "key": "stl_red_ransom",
@@ -3987,13 +4109,14 @@
     "sireKey": "stl_roberto",
     "damsireKey": null,
     "sireLineId": "sl_phalaris",
-    "status": "pensioned",
+    "status": "historical",
     "standsIn": null,
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "bay",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 2009
   },
   {
     "key": "stl_roberto",
@@ -4002,13 +4125,14 @@
     "sireKey": "stl_hail_to_reason",
     "damsireKey": null,
     "sireLineId": "sl_phalaris",
-    "status": "pensioned",
+    "status": "historical",
     "standsIn": null,
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "bay",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 1988
   },
   {
     "key": "stl_paynter",
@@ -4023,7 +4147,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "bay",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 2023
   },
   {
     "key": "stl_anabaa_blue",
@@ -4053,7 +4178,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "bay",
-    "confidence": "low"
+    "confidence": "low",
+    "lastCoverYear": 2009
   },
   {
     "key": "stl_galiway",
@@ -4248,7 +4374,8 @@
     "surfaceProfile": "both",
     "marketTier": 5,
     "coatColour": "brown",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2012
   },
   {
     "key": "stl_frozen_power",
@@ -4293,7 +4420,8 @@
     "surfaceProfile": "dirt",
     "marketTier": 5,
     "coatColour": "grey",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2012
   },
   {
     "key": "stl_include",
@@ -4302,13 +4430,14 @@
     "sireKey": null,
     "damsireKey": null,
     "sireLineId": "sl_phalaris",
-    "status": "historical",
+    "status": "pensioned",
     "standsIn": null,
     "distanceProfile": "classic",
     "surfaceProfile": "dirt",
     "marketTier": 5,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2021
   },
   {
     "key": "stl_kaldounevees",
@@ -4353,7 +4482,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "chestnut",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2004
   },
   {
     "key": "stl_lawman",
@@ -4413,7 +4543,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2007
   },
   {
     "key": "stl_menifee",
@@ -4428,7 +4559,8 @@
     "surfaceProfile": "dirt",
     "marketTier": 5,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2019
   },
   {
     "key": "stl_mineshaft",
@@ -4437,13 +4569,14 @@
     "sireKey": "stl_ap_indy",
     "damsireKey": null,
     "sireLineId": "sl_ap_indy",
-    "status": "historical",
+    "status": "pensioned",
     "standsIn": null,
     "distanceProfile": "classic",
     "surfaceProfile": "dirt",
     "marketTier": 5,
     "coatColour": "brown",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2025
   },
   {
     "key": "stl_najran",
@@ -4473,7 +4606,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "chestnut",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2013
   },
   {
     "key": "stl_silver_hawk",
@@ -4503,7 +4637,8 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2010
   },
   {
     "key": "stl_so_you_think",
@@ -4512,13 +4647,14 @@
     "sireKey": null,
     "damsireKey": null,
     "sireLineId": "sl_sadlers_wells",
-    "status": "pensioned",
+    "status": "historical",
     "standsIn": null,
     "distanceProfile": "classic",
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "brown",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2025
   },
   {
     "key": "stl_tricky_creek",
@@ -4595,7 +4731,8 @@
     "marketTier": 5,
     "studRole": "flat",
     "coatColour": "chestnut",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2022
   },
   {
     "key": "stl_eskendereya",
@@ -4611,7 +4748,8 @@
     "marketTier": 5,
     "studRole": "flat",
     "coatColour": "chestnut",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2024
   },
   {
     "key": "stl_pioneerof_the_nile",
@@ -4627,7 +4765,8 @@
     "marketTier": 5,
     "studRole": "flat",
     "coatColour": "brown",
-    "confidence": "high"
+    "confidence": "high",
+    "lastCoverYear": 2019
   },
   {
     "key": "stl_liams_map",

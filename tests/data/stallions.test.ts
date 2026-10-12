@@ -350,3 +350,19 @@ describe('M2-02 미국 종마 추가 (위키백과 확인분)', () => {
     expect(withYear[0]?.availableFromYear).toBe(2027);
   });
 });
+
+describe('마지막 교배 연도 lastCoverYear (M2-03)', () => {
+  it('lastCoverYear 가 있으면 foaled + 3 이상 2026 이하의 정수', () => {
+    for (const s of stallions) {
+      if (s.lastCoverYear === undefined) continue;
+      expect(Number.isInteger(s.lastCoverYear), s.key).toBe(true);
+      expect(s.lastCoverYear, `${s.key} 범위`).toBeGreaterThanOrEqual(s.foaled + 3);
+      expect(s.lastCoverYear, `${s.key} 범위`).toBeLessThanOrEqual(2026);
+    }
+  });
+
+  it('active 종마에는 lastCoverYear 가 없다', () => {
+    const withYear = stallions.filter((s) => s.status === 'active' && s.lastCoverYear !== undefined);
+    expect(withYear.map((s) => s.key)).toEqual([]);
+  });
+});
