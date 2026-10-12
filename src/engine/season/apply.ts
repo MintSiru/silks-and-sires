@@ -5,12 +5,17 @@ import {
   FATIGUE_GAIN_LONG,
   FITNESS_LOSS_PER_RUN,
   PLACED_MAX_POSITION,
+  PERFORMANCE_RECORD_MIN_PR,
+  RACE_RATING_DECIMALS,
+  RACE_RATING_TOP_N,
   REPLAYABLE_MAX,
 } from '../config/season';
 import type { SampleField } from '../race/sampleField';
 import { applyRatingsInPlace } from './handicapper';
+import { emptyLeadingTables } from './state';
 import type {
   CareerRecord,
+  CountryCode,
   Declaration,
   GameEvent,
   GameState,
@@ -20,7 +25,9 @@ import type {
   LeadingEntry,
   LeadingTables,
   Meeting,
+  PerformanceEntry,
   Race,
+  RaceRatingEntry,
   RaceResult,
   ReplayableRace,
   RunnerResult,
@@ -38,6 +45,8 @@ export interface ApplyRaceResultArgs {
   /** runRace·summarizeRace 에 넣은 필드(다시보기 재생 입력) */
   field: SampleField;
   series: readonly SeriesDefinition[];
+  /** 레이스 개최국(나라별 리딩·퍼포먼스 기록에 쓴다) */
+  country: CountryCode;
 }
 
 export interface ApplyRaceResultOutput {
@@ -135,8 +144,9 @@ function ensureProgress(state: GameState, seriesId: string, year: number): Serie
  * 상금·말 성적·컨디션·리딩·시리즈·결과 보존·다시보기·race_run / series_completed 이벤트를 처리하고 이벤트를 돌려준다.
  */
 export function applyRaceResultInPlace(state: GameState, args: ApplyRaceResultArgs): GameEvent[] {
-  const { meeting, scheduled, result, field, series } = args;
+  const { meeting, scheduled, result, field, series, country } = args;
   const race = scheduled.race;
+  const templateId = scheduled.templateId;
 
   if (field.requests.length !== result.runners.length) {
     throw new Error(
@@ -152,8 +162,10 @@ export function applyRaceResultInPlace(state: GameState, args: ApplyRaceResultAr
   const events: GameEvent[] = [];
   const gain = fatigueGainFor(race.distance);
   const date = { year: meeting.date.year, week: meeting.date.week };
+  // 개최국 리딩 표(없으면 빈 표로 만든다). 유럽 합산 leading 과 같은 규칙으로 함께 쓴다
+  const countryTables = (next.seasonState.leadingByCountry[country] ??= emptyLeadingTables());
 
-  // 1. 주자별: 상금·성적·컨디션·마주 자금·최근 출주일·리딩
+  // 1. 주자별: 상금·성적·컨디션·마주 자금·최근 출주일·리딩(유럽 합산 + 개최국)
   const payouts = payoutsOf(race, result.runners);
   for (const [idx, runner] of result.runners.entries()) {
     const horse = requireHorse(next, runner.horseId);
@@ -183,31 +195,78 @@ export function applyRaceResultInPlace(state: GameState, args: ApplyRaceResultAr
     owner.funds += prize;
     next.seasonState.lastRun[horse.id] = { ...date };
 
+    const delta = { won, placed, groupWin, prize };
     const tables = next.seasonState.leading;
+    /** 유럽 합산 표와 개최국 표에 같은 출주를 더한다 */
+    const addBoth = (category: LeadingCategory, id: string): void => {
+      addLeading(tables, category, id, delta);
+      addLeading(countryTables, category, id, delta);
+    };
     const sireId = horse.sireId;
     if (sireId !== null) {
-      addLeading(tables, 'sire', sireId, { won, placed, groupWin, prize });
+      addBoth('sire', sireId);
     }
     const dam = horse.damId === null ? undefined : next.horses[horse.damId];
     const damsireId = dam?.sireId ?? null;
     if (damsireId !== null) {
-      addLeading(tables, 'damsire', damsireId, { won, placed, groupWin, prize });
+      addBoth('damsire', damsireId);
     }
-    addLeading(tables, 'jockey', runner.jockeyId, { won, placed, groupWin, prize });
+    addBoth('jockey', runner.jockeyId);
     if (decl.trainerId !== null) {
-      addLeading(tables, 'trainer', decl.trainerId, { won, placed, groupWin, prize });
+      addBoth('trainer', decl.trainerId);
     }
-    addLeading(tables, 'owner', decl.ownerId, { won, placed, groupWin, prize });
+    addBoth('owner', decl.ownerId);
     if (horse.breederId !== null) {
-      addLeading(tables, 'breeder', horse.breederId, { won, placed, groupWin, prize });
+      addBoth('breeder', horse.breederId);
     }
   }
 
   // 1b. OR 갱신(M3-C3): 레이스 전 OR 기준으로 PR 을 계산해 OR·첫 OR 대기분을 갱신
-  applyRatingsInPlace(next, race, result, date);
+  const prs = applyRatingsInPlace(next, race, result, date);
+
+  // 1c. 퍼포먼스 기록(M3-E1a): 출주마 전원에 PR 을 남기고, 그룹 레이스는 상위 N두 PR 평균을 레이스 레이팅으로 남긴다
+  // 날짜 객체는 레이스 하나당 한 번만 만든다(주간 state 복제 비용을 줄인다. 값은 모두 같다)
+  const raceDate = { ...date };
+  for (const runner of result.runners) {
+    const pr = prs.get(runner.horseId);
+    if (pr === undefined) throw new Error(`applyRaceResult: 말 ${runner.horseId} 의 PR 없음`);
+    // 시상 입력만 남긴다: 블랙타입 레이스이거나 PR 이 기준 이상(하위 핸디캡 기록은 시상에 쓰이지 않아 버린다)
+    if (race.grade === null && pr < PERFORMANCE_RECORD_MIN_PR) continue;
+    const entry: PerformanceEntry = {
+      raceId: race.id,
+      templateId,
+      date: raceDate,
+      grade: race.grade,
+      distance: race.distance,
+      country,
+      position: runner.position,
+      pr,
+    };
+    const list = next.seasonState.performances[runner.horseId] ?? [];
+    list.push(entry);
+    next.seasonState.performances[runner.horseId] = list;
+  }
+  // 그룹 레이스(G1·G2·G3)만. 리스티드(L)는 그룹이 아니므로 레이스 레이팅을 남기지 않는다
+  const raceGrade = race.grade;
+  if (raceGrade !== null && raceGrade !== 'L') {
+    const byPosition = [...result.runners].sort((a, b) => a.position - b.position);
+    const top = byPosition.slice(0, RACE_RATING_TOP_N);
+    const sum = top.reduce((acc, r) => acc + (prs.get(r.horseId) ?? 0), 0);
+    const avg = sum / Math.max(1, top.length);
+    const factor = 10 ** RACE_RATING_DECIMALS;
+    const rating: RaceRatingEntry = {
+      raceId: race.id,
+      templateId,
+      name: race.name,
+      date: { ...date },
+      grade: raceGrade,
+      country,
+      rating: Math.round(avg * factor) / factor,
+    };
+    next.seasonState.raceRatings.push(rating);
+  }
 
   // 2. 시리즈: 이 레이스가 레그인 시리즈만
-  const templateId = scheduled.templateId;
   if (templateId !== null) {
     for (const def of series) {
       if (!def.legs.includes(templateId)) continue;

@@ -154,8 +154,14 @@ function pushHistory(
 /**
  * 레이스 결과를 OR 에 반영한다(draft 를 고친다).
  * 레이스 전 OR 을 모두 읽어 PR 을 먼저 계산하므로, 같은 레이스 안에서 갱신된 OR 이 다른 말 계산에 쓰이지 않는다.
+ * 계산한 출주마별 PR 을 돌려준다(M3-E1a: 퍼포먼스 기록·레이스 레이팅 입력).
  */
-export function applyRatingsInPlace(draft: GameState, race: Race, result: RaceResult, date: GameDate): void {
+export function applyRatingsInPlace(
+  draft: GameState,
+  race: Race,
+  result: RaceResult,
+  date: GameDate,
+): Map<HorseId, number> {
   const ratings = new Map<HorseId, number | null>();
   const ages = new Map<HorseId, number>();
   for (const r of result.runners) {
@@ -190,4 +196,5 @@ export function applyRatingsInPlace(draft: GameState, race: Race, result: RaceRe
       draft.seasonState.unratedFigures[r.horseId] = figures;
     }
   }
+  return prs;
 }

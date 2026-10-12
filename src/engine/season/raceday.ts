@@ -113,6 +113,7 @@ export function runMeetingInPlace(
         result,
         field: built.field,
         series: ctx.series,
+        country: course.country,
       }),
     );
     results.push(result);

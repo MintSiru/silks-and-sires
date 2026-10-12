@@ -34,3 +34,13 @@ export const RACE_SEED_MAX = 0x7fffffff;
 
 /** 플레이어 말이 이 나이(연도 차) 이상이고 yearling 이면 조교사 배정과 함께 in_training 으로 바뀐다 */
 export const PLAYER_TRAINING_START_AGE = 2;
+
+/** 그룹 레이스 레이팅 = 착순 상위 N두 PR 평균 (M3-E1a) */
+export const RACE_RATING_TOP_N = 4;
+/** 그룹 레이스 레이팅 반올림 자릿수(소수 첫째 자리) */
+export const RACE_RATING_DECIMALS = 1;
+/**
+ * 퍼포먼스 기록 하한(M3-E1a). 블랙타입이 아닌 레이스는 PR 이 이 값 이상일 때만 남긴다.
+ * 시상(Ledger 상위 50·Global·Laurel)에 쓰이지 않는 하위 기록이 연중 쌓여 주간 상태 복제가 느려지는 것을 막는다.
+ */
+export const PERFORMANCE_RECORD_MIN_PR = 95;
