@@ -172,3 +172,4 @@
 - 2026-10-12 | 데이터(사용자 제공) | 실명 종마 털색 미확인 41두 반영 → 300/300. 데이터 테스트를 '모든 종마에 coatColour' 로 강화.
 - 2026-10-12 | 기술(Opus) | M3-C4 공용 타입: OffspringStats(자마 출주·우승·그룹 우승·상금·우승 거리 합), GameState.sireStats(아비 HorseId 키 — 은퇴·과거 종마 포함), GameEvent nick_revealed. 저장 v6.
 - 2026-10-12 | 승인(Opus 보정) | M3-C7c 이름 데이터 — 아랍어 213, 실제 지명 국가 161·지역 220·도시 236, 경마장 지명 차단 토큰 239(경마장과 같은 도시 Saratoga·Deauville·Chantilly 등 제외, New York·Sussex 제외), AE 인명 풀(성 120, 걸프 왕가·마주 가문 금지, 차단 목록 +28). Opus 보정: NAME_COUNTRIES 에 AE, places.json 에 AE 목장 접미사·가상 지역명 20, 테스트 갱신. 흔한 부족형 성(Al Mansouri 등)은 이름+성 조합이 실존 유명인이 아니므로 허용.
+- 2026-10-12 | 승인(Opus 보정) | M3-D2a 레이스 띠 — 미니맵 아래 고저 단면(선두 위치), 펄롱 구간 기록, 띠 아래 실황 자막(aria-live), 결승 후 한 줄 평, 착차 {margin} 표기(코·짧은 머리·머리·목·N마신 분수·대차·동착). 브라우저 캡처로 확인. 승인: saint_ourens 검증 거리 3,000m, 띠 높이 240, renderCommentary(result) 선택 인자. Opus 보정: '짧은 머리' 표기 통일(results.ts·테스트), 한 줄 평 목록의 이름 중복 제거.

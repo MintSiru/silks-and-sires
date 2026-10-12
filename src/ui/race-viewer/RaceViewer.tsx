@@ -12,15 +12,34 @@ export interface RaceViewerProps {
   info: ViewerInfo;
   width?: number;
   height?: number;
+  /** 실황 자막. t 오름차순. 현재 시각 이하의 마지막 한 줄을 캔버스 아래에 보인다. */
+  commentary?: { t: number; text: string }[];
+  /** 레이스 후 한 줄 평. 착순대로 넘긴다. t ≥ duration 이면 목록으로 보인다. */
+  verdicts?: { name: string; text: string }[];
 }
 
 type Speed = 1 | 2 | 4;
 const SPEEDS: readonly Speed[] = [1, 2, 4];
 const DEFAULT_WIDTH = 1200;
-const DEFAULT_HEIGHT = 200;
+/** 좌측 고저 단면 띠와 미니맵이 함께 들어갈 높이 */
+const DEFAULT_HEIGHT = 240;
+/** 자막 줄 높이 유지(자막이 없을 때도 레이아웃이 흔들리지 않게) */
+const SUBTITLE_STYLE = { minHeight: '1.6em', margin: '6px 0' } as const;
+
+/** t 이하의 마지막 자막 문장. 없으면 빈 문자열. lines 는 t 오름차순이어야 한다. */
+function subtitleAt(lines: readonly { t: number; text: string }[], t: number): string {
+  let text = '';
+  for (const line of lines) {
+    if (line.t > t) break;
+    text = line.text;
+  }
+  return text;
+}
 
 export default function RaceViewer(props: RaceViewerProps): JSX.Element {
   const { replay, result, path, info } = props;
+  const commentary = props.commentary ?? [];
+  const verdicts = props.verdicts ?? [];
   const width = props.width ?? DEFAULT_WIDTH;
   const height = props.height ?? DEFAULT_HEIGHT;
 
@@ -97,6 +116,9 @@ export default function RaceViewer(props: RaceViewerProps): JSX.Element {
     setPlaying(true);
   };
 
+  const finished = t >= duration;
+  const subtitle = subtitleAt(commentary, t);
+
   return (
     <div className="race-viewer">
       <canvas
@@ -105,6 +127,9 @@ export default function RaceViewer(props: RaceViewerProps): JSX.Element {
         aria-label={`${info.raceName} 레이스 뷰어`}
         style={{ display: 'block' }}
       />
+      <div className="race-viewer-subtitle" aria-live="polite" style={SUBTITLE_STYLE}>
+        {subtitle}
+      </div>
       <div className="race-viewer-controls">
         <button type="button" onClick={togglePlay}>
           {playing ? '일시정지' : '재생'}
@@ -127,6 +152,13 @@ export default function RaceViewer(props: RaceViewerProps): JSX.Element {
           처음부터
         </button>
       </div>
+      {finished && verdicts.length > 0 && (
+        <ol className="race-viewer-verdicts" aria-label="한 줄 평">
+          {verdicts.map((v, i) => (
+            <li key={`${i}-${v.name}`}>{v.text}</li>
+          ))}
+        </ol>
+      )}
     </div>
   );
 }

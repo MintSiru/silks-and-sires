@@ -127,7 +127,7 @@ describe('formatMargin / formatMarginKo', () => {
   it('한국어 표기', () => {
     expect(formatMarginKo({ label: 'dead_heat', lengths: 0 })).toBe('동착');
     expect(formatMarginKo({ label: 'nose', lengths: 0 })).toBe('코');
-    expect(formatMarginKo({ label: 'short_head', lengths: 0 })).toBe('짧은머리');
+    expect(formatMarginKo({ label: 'short_head', lengths: 0 })).toBe('짧은 머리');
     expect(formatMarginKo({ label: 'head', lengths: 0 })).toBe('머리');
     expect(formatMarginKo({ label: 'neck', lengths: 0 })).toBe('목');
     expect(formatMarginKo({ label: 'distance', lengths: 0 })).toBe('대차');

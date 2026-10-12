@@ -10,8 +10,9 @@ import {
   VERDICT_SAMPLE_TICKS,
   WINNER_EASY_MIN_LENGTHS,
 } from '../config/commentary';
+import { formatMarginKo as formatRaceMarginKo } from '../race/results';
 import { createRng } from '../rng';
-import type { RaceReplay, RaceResult } from '../types';
+import type { Margin, RaceReplay, RaceResult } from '../types';
 import {
   earlyPointM,
   frameAt,
@@ -23,7 +24,7 @@ import {
   type CommentaryPath,
 } from './events';
 
-/** 문장 틀. 키 = 사건 키(lineKeyOf) 또는 한 줄 평 키. 자리 표시: {horse}, {horse2}, {n} */
+/** 문장 틀. 키 = 사건 키(lineKeyOf) 또는 한 줄 평 키. 자리 표시: {horse}, {horse2}, {n}, {margin} */
 export type CommentaryLines = Record<string, string[]>;
 
 export interface CommentaryLine {
@@ -52,18 +53,36 @@ function formatValue(v: number): string {
   return String(Math.round(v * VALUE_ROUND_FACTOR) / VALUE_ROUND_FACTOR);
 }
 
-/** 자리 표시 치환. horses[0] = {horse}, horses[1] = {horse2}. */
+/** 착차 한국어 표기. 짧은 머리만 띄어 쓴다. 나머지(코·머리·목·대차·동착·N마신)는 race/results.formatMarginKo 와 같다. */
+export function formatMarginKo(m: Margin): string {
+  return formatRaceMarginKo(m);
+}
+
+/** 2착 착차가 null 이면 동착(승자와 같은 착순). */
+const DEAD_HEAT_MARGIN: Margin = { label: 'dead_heat', lengths: 0 };
+
+/** {margin} 에 넣을 2착 착차. 결과가 없으면 던진다. */
+function secondMarginOf(result: RaceResult | undefined, template: string): Margin {
+  if (result === undefined) throw new Error(`commentary: {margin} 에 넣을 결과가 없다 (${template})`);
+  const second = result.runners[1];
+  if (second === undefined) throw new Error(`commentary: {margin} 에 넣을 2착이 없다 (${template})`);
+  return second.margin ?? DEAD_HEAT_MARGIN;
+}
+
+/** 자리 표시 치환. horses[0] = {horse}, horses[1] = {horse2}. {margin} 은 result 의 2착 착차. */
 function fillTemplate(
   template: string,
   horses: readonly number[],
   names: readonly string[],
   value: number | undefined,
+  result?: RaceResult,
 ): string {
-  return template.replace(/\{(horse2?|n)\}/g, (_match: string, key: string) => {
+  return template.replace(/\{(horse2?|n|margin)\}/g, (_match: string, key: string) => {
     if (key === 'n') {
       if (value === undefined) throw new Error(`commentary: {n} 에 넣을 값이 없다 (${template})`);
       return formatValue(value);
     }
+    if (key === 'margin') return formatMarginKo(secondMarginOf(result, template));
     const idx = key === 'horse' ? horses[0] : horses[1];
     const name = idx === undefined ? undefined : names[idx];
     if (name === undefined) throw new Error(`commentary: {${key}} 에 대응하는 말이 없다 (${template})`);
@@ -80,12 +99,14 @@ function linesFor(lines: CommentaryLines, key: string): readonly string[] {
 /**
  * 사건을 한국어 자막 문장으로 바꾼다. 같은 seed = 같은 문장.
  * 같은 키가 연달아 나오면 직전과 다른 후보를 고른다.
+ * result 는 {margin}(2착 착차)을 쓰는 문장이 있을 때만 필요하다.
  */
 export function renderCommentary(
   events: readonly CommentaryEvent[],
   names: readonly string[],
   seed: number,
   lines: CommentaryLines,
+  result?: RaceResult,
 ): CommentaryLine[] {
   const rng = createRng('commentary:' + seed);
   let prevKey: string | null = null;
@@ -105,7 +126,7 @@ export function renderCommentary(
     prevIdx = idx;
     const chosen = list[idx];
     if (chosen === undefined) throw new Error(`commentary: 문장 선택 실패 (${key})`);
-    return { t: ev.t, text: fillTemplate(chosen, ev.horses, names, ev.value) };
+    return { t: ev.t, text: fillTemplate(chosen, ev.horses, names, ev.value, result) };
   });
 }
 

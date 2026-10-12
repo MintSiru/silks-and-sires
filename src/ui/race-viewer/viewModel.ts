@@ -17,12 +17,24 @@ import type {
 import { formatMarginKo, marginFromLengths } from '../../engine/race/results';
 import { formatOdds } from '../../engine/race/odds';
 import { goingLabel } from '../../engine/going/going';
+import { SECTIONAL_STEP_M } from '../../engine/config/results';
+import { timeToReach } from '../../engine/commentary/events';
 
 // ── UI 상수 (밸런스 상수가 아닌 표시 상수) ─────────────────────────────
 /** 착차 환산에 쓰는 마신 길이(m). 선두와 progress 차를 마신으로 바꾼다. */
 const LENGTH_M = 2.4;
-/** 1펄롱(m) */
-const FURLONG_M = 201.168;
+/** 1펄롱(m). 구간 표지 간격과 같다(SECTIONAL_STEP_M). */
+const FURLONG_M = SECTIONAL_STEP_M;
+/** 고저 단면 샘플 간격(m) */
+const PROFILE_STEP_M = 20;
+/** 고저 단면 세로 축 최소 범위(m). 이보다 완만한 경로도 이 범위로 그려 과장되지 않게 한다. */
+const PROFILE_MIN_RANGE_M = 10;
+/** 좌측 패널 고저 단면 띠 높이(px) */
+export const PROFILE_H = 36;
+/** 좌측 패널 바깥 여백(px). stripRenderer 의 PANEL_PAD 와 같다. */
+export const LEFT_PAD = 10;
+/** 구간 기록 소수 자릿수 */
+const SPLIT_DECIMALS = 1;
 /** 카메라 창의 최소 폭(m) */
 const CAMERA_MIN_SPAN_M = 30;
 /** 카메라 창 여백 비율(폭 대비) */
@@ -106,12 +118,16 @@ export interface StripModel {
     goingLabel: string;
     remainingLabel: string;
     speedLabel: string;
+    /** 고저 단면. 좌표는 strip 전체 기준(좌측 패널 하단 띠 안). marker = 선두 위치 */
+    profile: { points: { x: number; y: number }[]; marker: { x: number; y: number } };
   };
   center: {
     rect: Rect;
     discs: DiscPlacement[];
     poles: { x: number; label: string }[];
     finishX: number | null;
+    /** 선두가 지난 마지막 펄롱 구간 시간("12.6s"). 첫 구간을 다 지나기 전이면 null */
+    split: string | null;
   };
   right: {
     rows: StandingRow[];
@@ -394,6 +410,118 @@ export function placeDiscs(
   });
 }
 
+// ── 고저 단면 · 구간 기록 ─────────────────────────────────────────────
+/** 좌측 패널 하단 고저 단면 띠 사각형(strip 좌표). 아래쪽 여백 LEFT_PAD. */
+export function profileRect(height: number): Rect {
+  return { x: LEFT_PAD, y: height - LEFT_PAD - PROFILE_H, w: LEFT_PANEL_W - 2 * LEFT_PAD, h: PROFILE_H };
+}
+
+/**
+ * 경로 고저 단면. gradient(= 상승 / 길이)를 거리에 대해 사다리꼴 적분한 상대 높이(m), 출발점 h = 0.
+ * 마지막 점의 s 는 distance. 평탄 경로는 모든 h 가 0 이다.
+ */
+export function elevationProfile(
+  path: RacePath,
+  distance: number,
+  stepM = PROFILE_STEP_M,
+): { s: number; h: number }[] {
+  if (!(distance > 0)) throw new RangeError(`elevationProfile: distance 는 0보다 커야 한다 (${distance})`);
+  if (!(stepM > 0)) throw new RangeError(`elevationProfile: stepM 은 0보다 커야 한다 (${stepM})`);
+  const out: { s: number; h: number }[] = [{ s: 0, h: 0 }];
+  let prevS = 0;
+  let prevG = path.sample(0).gradient;
+  let h = 0;
+  while (prevS < distance) {
+    const s = Math.min(prevS + stepM, distance);
+    const g = path.sample(s).gradient;
+    h += ((prevG + g) / 2) * (s - prevS);
+    out.push({ s, h: h === 0 ? 0 : h });
+    prevS = s;
+    prevG = g;
+  }
+  return out;
+}
+
+/**
+ * 구간 표지 위치(m, 오름차순): distance − k·SECTIONAL_STEP_M (양수인 것) 과 결승선 distance.
+ * 첫 표지 앞 구간은 1펄롱이 안 되므로 구간 기록은 표지 사이에서만 난다.
+ */
+export function sectionBoundaries(distance: number): number[] {
+  const out: number[] = [];
+  for (let k = Math.floor(distance / FURLONG_M); k >= 1; k--) {
+    const m = distance - k * FURLONG_M;
+    if (m > 0) out.push(m);
+  }
+  out.push(distance);
+  return out;
+}
+
+/** 어느 주자든 처음 진행도 s 에 닿는 시각(s). 아무도 닿지 않으면 null. */
+export function firstReachTime(replay: RaceReplay, s: number): number | null {
+  let best: number | null = null;
+  const n = replay.horseIds.length;
+  for (let i = 0; i < n; i++) {
+    const ti = timeToReach(replay.frames, i, s);
+    if (ti !== null && (best === null || ti < best)) best = ti;
+  }
+  return best;
+}
+
+/**
+ * 선두(leaderProgress)가 지난 마지막 표지 구간의 시간. 두 표지 사이 시각 차를 "12.6s" 로 준다.
+ * 아직 표지 두 개(첫 구간)를 넘지 못했으면 null.
+ */
+export function sectionSplit(replay: RaceReplay, distance: number, leaderProgress: number): string | null {
+  const marks = sectionBoundaries(distance);
+  let j = -1;
+  for (let k = 0; k < marks.length; k++) {
+    if ((marks[k] ?? Infinity) <= leaderProgress) j = k;
+  }
+  if (j < 1) return null;
+  const tEnd = firstReachTime(replay, marks[j] ?? 0);
+  const tStart = firstReachTime(replay, marks[j - 1] ?? 0);
+  if (tEnd === null || tStart === null) return null;
+  return `${(tEnd - tStart).toFixed(SPLIT_DECIMALS)}s`;
+}
+
+/** 고저 단면(s 오름차순)에서 진행도 s 의 높이를 선형 보간한다. */
+function heightAt(profile: readonly { s: number; h: number }[], s: number): number {
+  for (let k = 1; k < profile.length; k++) {
+    const a = profile[k - 1];
+    const b = profile[k];
+    if (a === undefined || b === undefined) continue;
+    if (s <= b.s) {
+      const span = b.s - a.s;
+      return span > 0 ? a.h + ((b.h - a.h) * (s - a.s)) / span : b.h;
+    }
+  }
+  return profile[profile.length - 1]?.h ?? 0;
+}
+
+/** 고저 단면을 띠 사각형에 맞춘 좌표와 선두 위치. 세로는 최소 범위를 두고 가운데에 맞춘다. */
+function profileGeometry(
+  profile: readonly { s: number; h: number }[],
+  band: Rect,
+  distance: number,
+  leaderProgress: number,
+): StripModel['left']['profile'] {
+  let lo = Infinity;
+  let hi = -Infinity;
+  for (const p of profile) {
+    if (p.h < lo) lo = p.h;
+    if (p.h > hi) hi = p.h;
+  }
+  const mid = (lo + hi) / 2;
+  const range = Math.max(hi - lo, PROFILE_MIN_RANGE_M);
+  const xOf = (s: number): number => band.x + (s / distance) * band.w;
+  const yOf = (h: number): number => band.y + band.h / 2 - ((h - mid) / range) * band.h;
+  const s = Math.min(Math.max(leaderProgress, 0), distance);
+  return {
+    points: profile.map((p) => ({ x: xOf(p.s), y: yOf(p.h) })),
+    marker: { x: xOf(s), y: yOf(heightAt(profile, s)) },
+  };
+}
+
 // ── 모델 ──────────────────────────────────────────────────────────────
 function gradeBadgeOf(grade: RaceGrade | null): string | null {
   if (grade === null) return null;
@@ -438,6 +566,13 @@ export function buildStripModel(args: {
     if (p >= win.from && p <= win.to) poles.push({ x: xOf(p), label: `${k}f` });
   }
   const finishX = distance >= win.from && distance <= win.to ? xOf(distance) : null;
+  const profile = profileGeometry(
+    elevationProfile(path, distance),
+    profileRect(height),
+    distance,
+    leaderProgress,
+  );
+  const split = sectionSplit(replay, distance, leaderProgress);
 
   // 우측
   const runners = result.runners;
@@ -465,12 +600,14 @@ export function buildStripModel(args: {
       goingLabel: goingLabel(info.going),
       remainingLabel: formatRemaining(distance - leaderProgress),
       speedLabel: `${speedKmh(leaderSpeed)} km/h`,
+      profile,
     },
     center: {
       rect,
       discs,
       poles,
       finishX,
+      split,
     },
     right: {
       rows: finished ? finalStandings(result, info) : liveStandings(frame, info),

@@ -224,4 +224,24 @@ describe('drawStrip', () => {
     drawStrip(ctx, modelAt(10));
     expect(calls.some((c) => c.name === 'set:strokeStyle' && c.args[0] === '#f5c518')).toBe(true);
   });
+
+  it('선두가 두 번째 표지 뒤에 있으면 구간 기록(작은 글씨)을 그린다', () => {
+    // 선두 20m/s: 펄롱 구간 10.06s → 표기 10.1s. t=50 은 선두 1000m(998.8m 표지 통과).
+    const { ctx, calls } = recordingCtx();
+    drawStrip(ctx, modelAt(50));
+    expect(texts(calls)).toContain('구간 10.1s');
+  });
+
+  it('첫 구간 전에는 구간 기록을 그리지 않는다', () => {
+    const { ctx, calls } = recordingCtx();
+    drawStrip(ctx, modelAt(5));
+    expect(texts(calls).some((x) => x.startsWith('구간 '))).toBe(false);
+  });
+
+  it('고저 단면 선과 선두 점을 그린다(평탄 경로도 같은 경로 호출)', () => {
+    const { ctx, calls } = recordingCtx();
+    drawStrip(ctx, modelAt(10));
+    expect(countOf(calls, 'lineTo')).toBeGreaterThan(0);
+    expect(calls.some((c) => c.name === 'set:lineWidth' && c.args[0] === 1.5)).toBe(true);
+  });
 });

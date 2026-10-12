@@ -62,7 +62,7 @@ const GATE_KO = ['내측 1/3', '중간 1/3', '외측 1/3'] as const;
 const MARGIN_ORDER = [
   '동착',
   '코',
-  '짧은머리',
+  '짧은 머리',
   '머리',
   '목',
   '1마신 미만',
@@ -101,7 +101,7 @@ function marginBucket(m: Margin | null | undefined): string {
     case 'nose':
       return '코';
     case 'short_head':
-      return '짧은머리';
+      return '짧은 머리';
     case 'head':
       return '머리';
     case 'neck':

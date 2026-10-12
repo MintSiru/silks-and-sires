@@ -9,7 +9,13 @@ import {
   type CommentaryKind,
   type CommentaryPath,
 } from '../../src/engine/commentary/events';
-import { horseVerdicts, lineKeyOf, renderCommentary, type CommentaryLines } from '../../src/engine/commentary/render';
+import {
+  formatMarginKo,
+  horseVerdicts,
+  lineKeyOf,
+  renderCommentary,
+  type CommentaryLines,
+} from '../../src/engine/commentary/render';
 import { getCommentaryLines } from '../../src/engine/data/commentaryData';
 import { getRacecourse, loadRacecourses } from '../../src/engine/course/load';
 import { createRng } from '../../src/engine/rng';
@@ -365,8 +371,8 @@ describe('renderCommentary', () => {
   it('같은 입력·시드면 같은 문장이 나온다', () => {
     const g = goldenRace();
     const events = goldenEvents();
-    const a = renderCommentary(events, g.names, GOLDEN.seed, lines);
-    const b = renderCommentary(events, g.names, GOLDEN.seed, lines);
+    const a = renderCommentary(events, g.names, GOLDEN.seed, lines, g.out.sim.result);
+    const b = renderCommentary(events, g.names, GOLDEN.seed, lines, g.out.sim.result);
     expect(a).toEqual(b);
     expect(a).toHaveLength(events.length);
     for (const line of a) {
@@ -393,6 +399,45 @@ describe('renderCommentary', () => {
     const custom: CommentaryLines = { lead_change: ['{horse}, {horse2} 제치고 {n}'] };
     const out = renderCommentary([{ t: 5, kind: 'lead_change', horses: [0, 1], value: 2.25 }], names, 1, custom);
     expect(out[0]?.text).toBe('Alpha, Beta 제치고 2.3');
+  });
+
+  it('{margin} 은 2착 착차를 한국어로 바꾼다. 2착 margin 이 null 이면 동착', () => {
+    const base = goldenRace().out.sim.result;
+    const second = base.runners[1];
+    if (second === undefined) throw new Error('fixture');
+    const names = ['Alpha', 'Beta'];
+    const lines: CommentaryLines = { finish: ['{horse}, 착차 {margin}'] };
+    const event = [{ t: 5, kind: 'finish' as const, horses: [0] }];
+    const withLengths = {
+      ...base,
+      runners: [base.runners[0]!, { ...second, margin: { label: 'lengths' as const, lengths: 1.25 } }, ...base.runners.slice(2)],
+    };
+    expect(renderCommentary(event, names, 1, lines, withLengths)[0]?.text).toBe('Alpha, 착차 1¼마신');
+    const deadHeat = { ...base, runners: [base.runners[0]!, { ...second, margin: null }, ...base.runners.slice(2)] };
+    expect(renderCommentary(event, names, 1, lines, deadHeat)[0]?.text).toBe('Alpha, 착차 동착');
+  });
+
+  it('{margin} 을 쓰는데 결과를 넘기지 않으면 던진다', () => {
+    const lines: CommentaryLines = { finish: ['{horse}, 착차 {margin}'] };
+    expect(() => renderCommentary([{ t: 5, kind: 'finish', horses: [0] }], ['Alpha'], 1, lines)).toThrow();
+  });
+});
+
+describe('formatMarginKo (실황 표기)', () => {
+  it('라벨별 문구: 코·짧은 머리·머리·목·대차·동착', () => {
+    expect(formatMarginKo({ label: 'nose', lengths: 0 })).toBe('코');
+    expect(formatMarginKo({ label: 'short_head', lengths: 0 })).toBe('짧은 머리');
+    expect(formatMarginKo({ label: 'head', lengths: 0 })).toBe('머리');
+    expect(formatMarginKo({ label: 'neck', lengths: 0 })).toBe('목');
+    expect(formatMarginKo({ label: 'distance', lengths: 0 })).toBe('대차');
+    expect(formatMarginKo({ label: 'dead_heat', lengths: 0 })).toBe('동착');
+  });
+
+  it('마신 표기: 0.75·1.25·2·5.5 마신', () => {
+    expect(formatMarginKo({ label: 'lengths', lengths: 0.75 })).toBe('¾마신');
+    expect(formatMarginKo({ label: 'lengths', lengths: 1.25 })).toBe('1¼마신');
+    expect(formatMarginKo({ label: 'lengths', lengths: 2 })).toBe('2마신');
+    expect(formatMarginKo({ label: 'lengths', lengths: 5.5 })).toBe('5½마신');
   });
 });
 
@@ -499,7 +544,7 @@ describe('commentary.ko.json 형식', () => {
     'winner_easy',
     'winner_narrow',
   ];
-  const PLACEHOLDERS = new Set(['horse', 'horse2', 'n']);
+  const PLACEHOLDERS = new Set(['horse', 'horse2', 'n', 'margin']);
   const table = commentaryJson as Record<string, string[]>;
 
   it('필수 키가 정확히 있고 키마다 후보가 5개 이상이다', () => {
@@ -537,7 +582,7 @@ describe('실황 처리 시간 (골든 레이스 1개, 사건 + 문장 + 한 줄
         path: g.out.path,
         distance: g.race.distance,
       });
-      renderCommentary(events, g.names, GOLDEN.seed, lines);
+      renderCommentary(events, g.names, GOLDEN.seed, lines, g.out.sim.result);
       horseVerdicts({ replay: g.replay, result: g.out.sim.result, names: g.names, seed: GOLDEN.seed, lines, path: g.out.path });
     };
     for (let w = 0; w < 5; w++) run();

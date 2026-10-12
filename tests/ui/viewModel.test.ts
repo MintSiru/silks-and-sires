@@ -1,4 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import racecoursesJson from '../../data/racecourses.json';
+import { buildRacePath } from '../../src/engine/course/path';
+import { getRacecourse, loadRacecourses } from '../../src/engine/course/load';
 import type {
   FractionalOdds,
   RaceEntry,
@@ -13,6 +16,7 @@ import {
   cameraWindow,
   contrastRatio,
   discBorderFor,
+  elevationProfile,
   finalStandings,
   formatDistanceLabel,
   formatRemaining,
@@ -21,6 +25,8 @@ import {
   placeDiscs,
   relativeLuminance,
   replayDuration,
+  sectionBoundaries,
+  sectionSplit,
   speedKmh,
   textColorFor,
 } from '../../src/ui/race-viewer/viewModel';
@@ -396,5 +402,114 @@ describe('buildStripModel', () => {
     expect(build(0).right.gradeBadge).toBe('G3');
     expect(build(0, makeInfo({ grade: 'L' })).right.gradeBadge).toBe('Listed');
     expect(build(0, makeInfo({ grade: null })).right.gradeBadge).toBeNull();
+  });
+});
+
+// ── 고저 단면 · 구간 기록 ───────────────────────────────────────────────
+/** 기울기 함수 slope(s) 를 따르는 경로. 나머지 기하는 makePath 와 같다. */
+function slopePath(slope: (s: number) => number): RacePath {
+  const base = makePath();
+  return {
+    ...base,
+    sample(s: number) {
+      const sc = Math.max(0, s);
+      return { ...base.sample(sc), gradient: slope(sc) };
+    },
+  };
+}
+
+/** 선두 속도 v(m/s) 로 일정하게 달리는 두 말 리플레이. 0.1s 틱. */
+function steadyReplay(v: number, tEnd: number): RaceReplay {
+  const frames: ReplayFrame[] = [];
+  const last = Math.round(tEnd * 10);
+  for (let k = 0; k <= last; k++) {
+    const t = k / 10;
+    frames.push({ t, progress: [v * t, v * 0.94 * t], lane: [0, 1], speed: [v, v * 0.94] });
+  }
+  return { tickSeconds: 0.1, horseIds: ['h0', 'h1'], frames };
+}
+
+describe('elevationProfile', () => {
+  it('평탄 경로는 모든 h 가 0 이고 마지막 s 는 distance', () => {
+    const profile = elevationProfile(makePath(), DISTANCE);
+    expect(profile.every((p) => p.h === 0)).toBe(true);
+    expect(profile[0]).toEqual({ s: 0, h: 0 });
+    expect(profile[profile.length - 1]?.s).toBe(DISTANCE);
+  });
+
+  it('오르막 구간(s < 500, 기울기 0.01)에서는 h 가 늘고, 평지 구간에서는 h 가 유지된다', () => {
+    const profile = elevationProfile(slopePath((s) => (s < 500 ? 0.01 : 0)), DISTANCE);
+    const upTo = profile.filter((p) => p.s <= 480);
+    for (let k = 1; k < upTo.length; k++) {
+      expect(upTo[k]!.h).toBeGreaterThan(upTo[k - 1]!.h);
+    }
+    const flatFrom = profile.filter((p) => p.s >= 500);
+    const h500 = flatFrom[0]?.h ?? NaN;
+    for (const p of flatFrom) expect(p.h).toBeCloseTo(h500, 9);
+    // 0.01 × 500m = 5m (사다리꼴 적분의 경계 한 칸 오차 허용)
+    expect(h500).toBeGreaterThan(4.5);
+    expect(h500).toBeLessThanOrEqual(5);
+  });
+
+  it('실제 코스 saint_ourens 3,000m(+10m 오르막 포함)는 최고점이 출발 대비 +8m 이상', () => {
+    // 2,400m 는 출발점(u0 = 총길이 − 거리 = 876.5m)이 이미 오르막 한가운데라 최고점이 약 +7m 이다.
+    const course = getRacecourse(loadRacecourses(racecoursesJson), 'saint_ourens');
+    const path = buildRacePath(course, 3000);
+    const profile = elevationProfile(path, 3000);
+    expect(profile[0]?.h).toBe(0);
+    expect(Math.max(...profile.map((p) => p.h))).toBeGreaterThanOrEqual(8);
+  });
+
+  it('stepM 이 0 이하이면 RangeError', () => {
+    expect(() => elevationProfile(makePath(), DISTANCE, 0)).toThrow(RangeError);
+  });
+});
+
+describe('sectionBoundaries', () => {
+  it('1200m 은 결승에서 1펄롱씩 거슬러 올라간 표지와 결승선', () => {
+    const b = sectionBoundaries(1200);
+    expect(b).toHaveLength(6);
+    expect(b[b.length - 1]).toBe(1200);
+    expect(b[b.length - 2]).toBeCloseTo(1200 - 201.168, 6);
+  });
+});
+
+describe('sectionSplit', () => {
+  // 선두 16m/s: 펄롱(201.168m) 구간은 12.57s
+  const replay = steadyReplay(16, 80);
+
+  it('첫 구간을 다 지나기 전에는 null', () => {
+    // 선두 240m: 표지 194m 는 넘었지만 두 번째 표지(395m) 전
+    const split = sectionSplit(replay, DISTANCE, 240);
+    expect(split).toBeNull();
+  });
+
+  it('선두가 두 번째 표지를 넘으면 구간 시간 12.6±0.1s', () => {
+    const split = sectionSplit(replay, DISTANCE, 420);
+    expect(split).not.toBeNull();
+    expect(Number.parseFloat(split ?? 'NaN')).toBeCloseTo(12.6, 1);
+    expect(split).toMatch(/^\d+\.\d+s$/);
+  });
+
+  it('결승선을 지나면 마지막 펄롱 구간 시간을 준다', () => {
+    const split = sectionSplit(replay, DISTANCE, 1264);
+    expect(Number.parseFloat(split ?? 'NaN')).toBeCloseTo(12.6, 1);
+  });
+
+  it('buildStripModel 의 center.split 과 left.profile 이 채워진다', () => {
+    const model = buildStripModel({
+      replay,
+      t: 70,
+      path: makePath(),
+      info: makeInfo(),
+      result: makeResult(),
+      width: 1200,
+      height: 240,
+    });
+    expect(Number.parseFloat(model.center.split ?? 'NaN')).toBeCloseTo(12.6, 1);
+    expect(model.left.profile.points.length).toBeGreaterThan(1);
+    // 평탄 경로: 모든 점의 y 가 같다(수평)
+    const ys = new Set(model.left.profile.points.map((p) => p.y.toFixed(6)));
+    expect(ys.size).toBe(1);
   });
 });

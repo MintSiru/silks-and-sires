@@ -121,7 +121,7 @@ export function formatMarginKo(m: Margin): string {
     case 'nose':
       return '코';
     case 'short_head':
-      return '짧은머리';
+      return '짧은 머리';
     case 'head':
       return '머리';
     case 'neck':

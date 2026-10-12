@@ -3,7 +3,7 @@
  * 외부 이미지·폰트는 쓰지 않는다(system-ui).
  */
 import type { PathPoint } from '../../engine/types';
-import { DISC_RADIUS, discBorderFor, STRIP_BG, textColorFor } from './viewModel';
+import { DISC_RADIUS, discBorderFor, PROFILE_H, STRIP_BG, textColorFor } from './viewModel';
 import type { DiscPlacement, Rect, StandingRow, StripModel } from './viewModel';
 
 // ── 그리기 상수 (표시용) ──────────────────────────────────────────────
@@ -15,6 +15,13 @@ const MINIMAP_DOT_R = 4;
 const LAYOUT_STROKE = '#6b7785';
 const RACE_STROKE = '#ffffff';
 const LEADER_FILL = '#f5c518';
+const PROFILE_STROKE = '#8fb3d9';
+const PROFILE_BASE_STROKE = '#55626f';
+const PROFILE_LINE_W = 1.5;
+const PROFILE_MARKER_R = 3;
+const FONT_SPLIT = '11px system-ui';
+/** 구간 기록 글씨의 오른쪽 안쪽 여백(px). 진행 방향 화살표 왼쪽에 둔다. */
+const SPLIT_INSET_X = 24;
 const RAIL_STROKE = '#55626f';
 const POLE_STROKE = '#8a96a3';
 const FINISH_STROKE = '#e5484d';
@@ -99,9 +106,10 @@ function strokePolyline(ctx: CanvasRenderingContext2D, pts: readonly PathPoint[]
 function drawLeftPanel(ctx: CanvasRenderingContext2D, model: StripModel): void {
   const { left } = model;
   const panelW = model.center.rect.x;
+  // 미니맵은 텍스트 줄과 고저 단면 띠 위쪽에 남는 높이만큼만 쓴다
   const side = Math.max(
     10,
-    Math.min(panelW - 2 * PANEL_PAD, model.height - TEXT_LINES * TEXT_LINE_H - 3 * PANEL_PAD),
+    Math.min(panelW - 2 * PANEL_PAD, model.height - TEXT_LINES * TEXT_LINE_H - PROFILE_H - 4 * PANEL_PAD),
   );
 
   // 미니맵: 레이아웃 bbox 를 정사각형에 균등 축척으로 맞추고 y 를 뒤집는다.
@@ -147,6 +155,35 @@ function drawLeftPanel(ctx: CanvasRenderingContext2D, model: StripModel): void {
   lines.forEach((line, i) => {
     ctx.fillText(line, PANEL_PAD, textTop + (i + 1) * TEXT_LINE_H - 3);
   });
+  ctx.restore();
+
+  // 고저 단면: 텍스트 아래 띠. 점선은 출발점 높이(h = 0), 점은 선두 위치.
+  drawProfile(ctx, left.profile);
+}
+
+function drawProfile(ctx: CanvasRenderingContext2D, profile: StripModel['left']['profile']): void {
+  const { points, marker } = profile;
+  const first = points[0];
+  const last = points[points.length - 1];
+  ctx.save();
+  if (first !== undefined && last !== undefined) {
+    ctx.strokeStyle = PROFILE_BASE_STROKE;
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(first.x, first.y);
+    ctx.lineTo(last.x, first.y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  ctx.lineJoin = 'round';
+  ctx.strokeStyle = PROFILE_STROKE;
+  ctx.lineWidth = PROFILE_LINE_W;
+  strokePolyline(ctx, points);
+  ctx.fillStyle = LEADER_FILL;
+  ctx.beginPath();
+  ctx.arc(marker.x, marker.y, PROFILE_MARKER_R, 0, Math.PI * 2);
+  ctx.fill();
   ctx.restore();
 }
 
@@ -209,6 +246,15 @@ function drawCenter(ctx: CanvasRenderingContext2D, model: StripModel): void {
   ctx.textAlign = 'right';
   ctx.textBaseline = 'top';
   ctx.fillText('→', r.x + r.w - PANEL_PAD, r.y + LABEL_TOP_Y);
+
+  // 구간 기록(작은 글씨): 화살표 왼쪽
+  if (center.split !== null) {
+    ctx.font = FONT_SPLIT;
+    ctx.fillStyle = TEXT_MAIN;
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'top';
+    ctx.fillText(`구간 ${center.split}`, r.x + r.w - SPLIT_INSET_X, r.y + LABEL_TOP_Y);
+  }
   ctx.restore();
 }
 

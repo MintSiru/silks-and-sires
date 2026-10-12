@@ -1,5 +1,9 @@
 import { useState } from 'react';
 import type { JSX } from 'react';
+import { extractCommentaryEvents } from '../engine/commentary/events';
+import { horseVerdicts, renderCommentary } from '../engine/commentary/render';
+import type { CommentaryLine } from '../engine/commentary/render';
+import { getCommentaryLines } from '../engine/data/commentaryData';
 import { getNamePool, getRace, getRaces, getRacecourse } from '../engine/data/staticData';
 import { goingLabel, isGoingValidForSurface, rollGoing } from '../engine/going/going';
 import { runRace } from '../engine/race/runRace';
@@ -110,6 +114,10 @@ interface RunSnapshot {
   info: ViewerInfo;
   going: Going;
   elapsedMs: number;
+  /** 실황 자막(t 오름차순) */
+  commentary: CommentaryLine[];
+  /** 한 줄 평(착순대로) */
+  verdicts: { name: string; text: string }[];
 }
 
 interface RunView {
@@ -171,6 +179,33 @@ export default function RaceDemo(): JSX.Element {
       horseNames: field.runners.map((r) => r.horse.name),
     };
 
+    // 실황 자막과 한 줄 평은 레이스 시드로 만든다(같은 시드 = 같은 문장)
+    const { replay, result } = output.sim;
+    let commentary: CommentaryLine[] = [];
+    let verdicts: { name: string; text: string }[] = [];
+    if (replay !== null) {
+      const lines = getCommentaryLines();
+      const events = extractCommentaryEvents({
+        replay,
+        result,
+        path: output.path,
+        distance: race.distance,
+      });
+      commentary = renderCommentary(events, info.horseNames, seed, lines, result);
+      const texts = horseVerdicts({
+        replay,
+        result,
+        names: info.horseNames,
+        seed,
+        lines,
+        path: output.path,
+      });
+      verdicts = result.runners.map((r) => ({
+        name: info.horseNames[r.runnerIndex] ?? '',
+        text: texts[r.runnerIndex] ?? '',
+      }));
+    }
+
     setRun({
       id: (run?.id ?? 0) + 1,
       output,
@@ -179,6 +214,8 @@ export default function RaceDemo(): JSX.Element {
       info,
       going,
       elapsedMs,
+      commentary,
+      verdicts,
     });
   };
 
@@ -272,6 +309,8 @@ export default function RaceDemo(): JSX.Element {
                 result={view.result}
                 path={run.path}
                 info={run.info}
+                commentary={run.commentary}
+                verdicts={run.verdicts}
               />
             </div>
           ) : (
