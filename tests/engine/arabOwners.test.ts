@@ -9,13 +9,7 @@ import {
   PEOPLE_PER_COUNTRY,
 } from '../../src/engine/config/people';
 import { POPULATION_COUNTRY_ORDER } from '../../src/engine/config/population';
-import {
-  getHorseWords,
-  getPeopleData,
-  getStallionRecords,
-  getStallionNames,
-  getNicks,
-} from '../../src/engine/data/staticData';
+import { getNamingData, getPeopleData, getStallionRecords, getStallionNames, getNicks } from '../../src/engine/data/staticData';
 import { createRng } from '../../src/engine/rng';
 import { deserializeGame, serializeGame } from '../../src/engine/save/serialize';
 import { createNewGame } from '../../src/engine/state/newGame';
@@ -51,12 +45,12 @@ function worldData(): WorldStaticData {
     stallionRecords: getStallionRecords(),
     stallionNames: getStallionNames(),
     nicks: getNicks(),
-    words: getHorseWords(),
+    naming: getNamingData(),
   };
 }
 
 function populationData(): RacingPopulationStaticData {
-  return { stallionRecords: getStallionRecords(), words: getHorseWords() };
+  return { stallionRecords: getStallionRecords(), naming: getNamingData(), stallionNames: getStallionNames() };
 }
 
 /** 인물 → 세계 → 현역마 순서의 새 게임 상태 */

@@ -50,4 +50,3 @@ export const MENTAL_MEAN = 70;
 export const MENTAL_SD = 10;
 export const DEFAULT_FITNESS = 70;
 export const NAME_MAX_LENGTH = 18;
-export const NAME_MAX_ATTEMPTS = 50;

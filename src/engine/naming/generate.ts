@@ -192,6 +192,33 @@ export function extractKeywords(name: string, lex: NamingLexicon): string[] {
   return out;
 }
 
+/** NamingData 에서만 파생되는 값: 연상 맵(소문자 키)과 실제 지명 전체 목록 */
+interface DerivedNaming {
+  associations: ReadonlyMap<string, readonly string[]>;
+  realPlaces: readonly string[];
+}
+
+/** 데이터 객체별 파생 값 캐시. 같은 NamingData 면 한 번만 만든다(말 한 마리마다 다시 만들지 않도록). */
+const derivedCache = new WeakMap<NamingData, DerivedNaming>();
+
+function derivedOf(data: NamingData): DerivedNaming {
+  const hit = derivedCache.get(data);
+  if (hit !== undefined) {
+    return hit;
+  }
+  const associations = new Map<string, string[]>();
+  for (const [key, list] of Object.entries(data.lexicon.associations)) {
+    const k = key.toLowerCase();
+    associations.set(k, [...(associations.get(k) ?? []), ...list]);
+  }
+  const derived: DerivedNaming = {
+    associations,
+    realPlaces: [...data.realPlaces.countries, ...data.realPlaces.regions, ...data.realPlaces.cities],
+  };
+  derivedCache.set(data, derived);
+  return derived;
+}
+
 function buildEnv(ctx: NamingContext, data: NamingData): Env {
   const keywords: Keyword[] = [];
   const addParent = (parentName: string | null, role: string): void => {
@@ -205,12 +232,7 @@ function buildEnv(ctx: NamingContext, data: NamingData): Env {
   addParent(ctx.sireName, '아비');
   addParent(ctx.damName, '어미');
 
-  const associations = new Map<string, string[]>();
-  for (const [key, list] of Object.entries(data.lexicon.associations)) {
-    const k = key.toLowerCase();
-    associations.set(k, [...(associations.get(k) ?? []), ...list]);
-  }
-  const realPlaces = [...data.realPlaces.countries, ...data.realPlaces.regions, ...data.realPlaces.cities];
+  const { associations, realPlaces } = derivedOf(data);
   return { ctx, data, lex: data.lexicon, keywords, associations, realPlaces };
 }
 

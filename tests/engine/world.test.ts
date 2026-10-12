@@ -7,12 +7,7 @@ import {
 } from '../../src/engine/config/world';
 import { buildPedigree } from '../../src/engine/breeding/pedigree';
 import { initialRevealedNicks } from '../../src/engine/breeding/nicks';
-import {
-  getHorseWords,
-  getNicks,
-  getStallionNames,
-  getStallionRecords,
-} from '../../src/engine/data/staticData';
+import { getNamingData, getNicks, getStallionNames, getStallionRecords } from '../../src/engine/data/staticData';
 import { createRng } from '../../src/engine/rng';
 import { createNewGame } from '../../src/engine/state/newGame';
 import { createRealStallionHorses } from '../../src/engine/state/stallionHorses';
@@ -29,7 +24,7 @@ function staticData(): WorldStaticData {
     stallionRecords: getStallionRecords(),
     stallionNames: getStallionNames(),
     nicks: getNicks(),
-    words: getHorseWords(),
+    naming: getNamingData(),
   };
 }
 

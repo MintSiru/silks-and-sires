@@ -9,7 +9,7 @@ import {
   SORE_SHINS_KNOCK_AGE,
 } from '../../src/engine/config/conditioning';
 import { FATIGUE_GAIN_BY_DISTANCE, FITNESS_LOSS_PER_RUN } from '../../src/engine/config/season';
-import { getHorseWords, getNicks, getPeopleData, getStallionNames, getStallionRecords } from '../../src/engine/data/staticData';
+import { getNamingData, getNicks, getPeopleData, getStallionNames, getStallionRecords } from '../../src/engine/data/staticData';
 import { rollInjury, trainerReport, weeklyConditionInPlace } from '../../src/engine/horse/conditioning';
 import type { TrainerReportKey } from '../../src/engine/horse/conditioning';
 import { loadRacecourses } from '../../src/engine/course/load';
@@ -127,7 +127,7 @@ const BOOT_DATA: BootstrapData = {
   stallionRecords: getStallionRecords(),
   stallionNames: getStallionNames(),
   nicks: getNicks(),
-  words: getHorseWords(),
+  naming: getNamingData(),
   ...getPeopleData(),
   courses: COURSES,
   templates: TEMPLATES,
@@ -136,7 +136,8 @@ const BOOT_DATA: BootstrapData = {
 
 const STATIC_GAME: GameStaticData = {
   nicks: getNicks(),
-  words: getHorseWords(),
+  naming: getNamingData(),
+  stallionNames: getStallionNames(),
   stallionRecords: getStallionRecords(),
   courses: COURSES,
   templates: TEMPLATES,

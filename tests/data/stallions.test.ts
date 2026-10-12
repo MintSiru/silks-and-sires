@@ -16,7 +16,7 @@ import { createRng } from '../../src/engine/rng';
 import { createNewGame } from '../../src/engine/state/newGame';
 import { bootstrapWorld, type WorldStaticData } from '../../src/engine/state/world';
 import { profileOfDistance } from '../../src/engine/horse/generate';
-import { getHorseWords, getNicks, getStallionNames, getStallionRecords } from '../../src/engine/data/staticData';
+import { getNamingData, getNicks, getStallionNames, getStallionRecords } from '../../src/engine/data/staticData';
 
 /** M2-01 실명 종마 데이터 검증 (data/stallions/*.json). 스키마는 src/engine/types/bloodline.ts 를 따른다. */
 
@@ -152,7 +152,7 @@ describe('거리 프로필 4단계 (M2-14)', () => {
       stallionRecords: getStallionRecords(),
       stallionNames: getStallionNames(),
       nicks: getNicks(),
-      words: getHorseWords(),
+      naming: getNamingData(),
     };
     const state = bootstrapWorld(
       createNewGame({ seed, playerName: 'Test Owner', silks: SILKS }),

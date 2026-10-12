@@ -1,12 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import racecoursesJson from './fixtures/m1-racecourses.json';
-import {
-  getHorseWords,
-  getNicks,
-  getPeopleData,
-  getStallionNames,
-  getStallionRecords,
-} from '../../src/engine/data/staticData';
+import { getNamingData, getNicks, getPeopleData, getStallionNames, getStallionRecords } from '../../src/engine/data/staticData';
 import { HANDICAP_OR_RANGE } from '../../src/engine/config/meetings';
 import { loadRacecourses } from '../../src/engine/course/load';
 import { createRng } from '../../src/engine/rng';
@@ -60,7 +54,7 @@ function layoutFor(courseId: string, distance: number): string {
 }
 
 function populationData(): RacingPopulationStaticData {
-  return { stallionRecords: getStallionRecords(), words: getHorseWords() };
+  return { stallionRecords: getStallionRecords(), naming: getNamingData(), stallionNames: getStallionNames() };
 }
 
 function worldData(): WorldStaticData {
@@ -68,7 +62,7 @@ function worldData(): WorldStaticData {
     stallionRecords: getStallionRecords(),
     stallionNames: getStallionNames(),
     nicks: getNicks(),
-    words: getHorseWords(),
+    naming: getNamingData(),
   };
 }
 

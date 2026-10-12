@@ -8,7 +8,9 @@ import {
   MARE_MIN_BREEDING_AGE,
 } from '../config/breedingSeason';
 import { WEEKS_PER_YEAR } from '../config/game';
-import { generateHorseName, type HorseWords } from '../horse/generate';
+import { makeNameRegistry, namingContextFor, type MutableNameRegistry } from '../naming/context';
+import { nameForHorse } from '../naming/generate';
+import type { NamingData } from '../naming/types';
 import { allocateHorseId } from '../state/world';
 import { addWeeks, isInPhase } from '../time/calendar';
 import type {
@@ -47,7 +49,10 @@ export type BookingResult =
 /** 교배 시스템 정적 데이터(닉스 표·이름 단어장) */
 export interface BreedingStaticData {
   nicks: readonly NickEntry[];
-  words: HorseWords;
+  /** 이름 생성 데이터(마주 스타일·어휘·보호 명단 등) */
+  naming: NamingData;
+  /** 종마 key → 표시 이름(부·모 이름 연상에 쓴다) */
+  stallionNames: Record<string, string>;
 }
 
 const BREEDING_PHASE = 'breeding' as const;
@@ -257,7 +262,7 @@ function deliverFoals(
   events: GameEvent[],
 ): void {
   const key = weekKey(ctx.date);
-  let usedNames: Set<string> | null = null;
+  let registry: MutableNameRegistry | null = null;
 
   for (const mareId of mareIds) {
     const mare = state.mares[mareId];
@@ -274,11 +279,13 @@ function deliverFoals(
     const root = buildMatingPedigree(lookup, sire.id, dam.id);
     const inbreeding = dominantCrosses(root, findInbreeding(root));
 
-    if (usedNames === null) {
-      usedNames = new Set(Object.values(state.horses).map((h) => h.name));
+    if (registry === null) {
+      registry = makeNameRegistry(state);
     }
     const foalId = allocateHorseId(state);
-    const foalName = generateHorseName(ctx.rng, data.words, usedNames);
+    const foalNaming = namingContextFor(state, { ownerId: dam.ownerId, sireId: sire.id, damId: dam.id }, data);
+    const foalName = nameForHorse(foalNaming, data.naming, ctx.rng, registry);
+    registry.add(foalName);
 
     const foal = breed(ctx.rng, {
       sire,

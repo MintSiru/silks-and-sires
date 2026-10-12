@@ -13,13 +13,7 @@ import {
   RACE_STANDARD,
   RATING_HISTORY_MAX,
 } from '../../src/engine/config/rating';
-import {
-  getHorseWords,
-  getNicks,
-  getPeopleData,
-  getStallionNames,
-  getStallionRecords,
-} from '../../src/engine/data/staticData';
+import { getNamingData, getNicks, getPeopleData, getStallionNames, getStallionRecords } from '../../src/engine/data/staticData';
 import { loadRacecourses } from '../../src/engine/course/load';
 import {
   applyRatingsInPlace,
@@ -136,7 +130,8 @@ const SERIES: SeriesDefinition[] = [
 
 const STATIC_GAME: GameStaticData = {
   nicks: getNicks(),
-  words: getHorseWords(),
+  naming: getNamingData(),
+  stallionNames: getStallionNames(),
   stallionRecords: getStallionRecords(),
   courses: COURSES,
   templates: TEMPLATES,
@@ -147,7 +142,7 @@ const BOOT_DATA: BootstrapData = {
   stallionRecords: getStallionRecords(),
   stallionNames: getStallionNames(),
   nicks: getNicks(),
-  words: getHorseWords(),
+  naming: getNamingData(),
   ...getPeopleData(),
   courses: COURSES,
   templates: TEMPLATES,

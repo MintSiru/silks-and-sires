@@ -7,7 +7,7 @@ import { isInPhase } from '../../engine/time/calendar';
 import { bookCovering, type BookingResult } from '../../engine/breeding/season';
 import { deserializeGame, serializeGame } from '../../engine/save/serialize';
 import {
-  getHorseWords,
+  getNamingData,
   getNicks,
   getPeopleData,
   getRaceTemplates,
@@ -67,7 +67,8 @@ const AUTOSAVE_NAME = '자동 저장';
 function gameStaticData(): GameStaticData {
   return {
     nicks: getNicks(),
-    words: getHorseWords(),
+    naming: getNamingData(),
+    stallionNames: getStallionNames(),
     stallionRecords: getStallionRecords(),
     courses: getRacecourses(),
     templates: getRaceTemplates(),
@@ -79,7 +80,6 @@ function gameStaticData(): GameStaticData {
 function bootstrapData(): BootstrapData {
   return {
     ...gameStaticData(),
-    stallionNames: getStallionNames(),
     ...getPeopleData(),
   };
 }

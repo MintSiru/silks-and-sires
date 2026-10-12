@@ -1,3 +1,4 @@
+import { makeNameRegistry } from '../naming/context';
 import {
   POPULATION_COUNTRY_ORDER,
   POPULATION_CUT_MIN_AGE,
@@ -114,7 +115,7 @@ export function createPopulationSystem(data: RacingPopulationStaticData): Weekly
 
       // 4. 나라별 신규 2세 투입 = 그 해 그 나라 은퇴 두수 (마주·조교사 부하는 은퇴 뒤의 상태로 계산)
       const market = buildMarket(draft);
-      const used = new Set(Object.values(draft.horses).map((h) => h.name));
+      const registry = makeNameRegistry(draft);
       const records = sortStallionRecords(data.stallionRecords);
       for (const country of POPULATION_COUNTRY_ORDER) {
         const count = retiredByCountry.get(country) ?? 0;
@@ -125,7 +126,7 @@ export function createPopulationSystem(data: RacingPopulationStaticData): Weekly
             data,
             ctx.rng,
             market,
-            used,
+            registry,
             { country, birthYear: year - POPULATION_ENTRY_AGE, currentYear: year, sex, gelded },
             records,
           );

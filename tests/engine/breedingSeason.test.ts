@@ -13,12 +13,7 @@ import {
   revealNick,
   type BookingError,
 } from '../../src/engine/breeding/season';
-import {
-  getHorseWords,
-  getNicks,
-  getStallionNames,
-  getStallionRecords,
-} from '../../src/engine/data/staticData';
+import { getNamingData, getNicks, getStallionNames, getStallionRecords } from '../../src/engine/data/staticData';
 import { createRng } from '../../src/engine/rng';
 import { createNewGame } from '../../src/engine/state/newGame';
 import { bootstrapWorld, type WorldStaticData } from '../../src/engine/state/world';
@@ -33,7 +28,7 @@ function staticData(): WorldStaticData {
     stallionRecords: getStallionRecords(),
     stallionNames: getStallionNames(),
     nicks: getNicks(),
-    words: getHorseWords(),
+    naming: getNamingData(),
   };
 }
 

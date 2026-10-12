@@ -41,7 +41,6 @@ import {
   GOING_TOL_MIN,
   MENTAL_MEAN,
   MENTAL_SD,
-  NAME_MAX_ATTEMPTS,
   NAME_MAX_LENGTH,
   SOUNDNESS_MEAN,
   SOUNDNESS_SD,
@@ -215,50 +214,4 @@ export function generateHorse(rng: Rng, opts: GenerateHorseOptions): Horse {
     coat: generateCoat(rng.fork('coat')),
     record: zeroRecord(),
   };
-}
-
-export interface HorseWords {
-  adjectives: readonly string[];
-  nouns: readonly string[];
-}
-
-/**
- * "Adjective Noun" 형태, NAME_MAX_LENGTH 이하, used 에 없는 이름을 만든다.
- * NAME_MAX_ATTEMPTS 번 무작위 조합이 실패하면 조합 순서를 섞어 " 2", " 3" … 접미사를 붙인다.
- * 반환 전 used 에 추가한다. 단어장이 모두 소진되면 RangeError.
- * 접미사는 숫자로 쓴다(로마자는 10,000개 규모에서 길이 제한을 넘는다).
- */
-export function generateHorseName(rng: Rng, words: HorseWords, used: Set<string>): string {
-  if (words.adjectives.length === 0 || words.nouns.length === 0) {
-    throw new RangeError('generateHorseName: 단어장이 비어 있다');
-  }
-
-  for (let attempt = 0; attempt < NAME_MAX_ATTEMPTS; attempt++) {
-    const candidate = `${rng.pick(words.adjectives)} ${rng.pick(words.nouns)}`;
-    if (candidate.length <= NAME_MAX_LENGTH && !used.has(candidate)) {
-      used.add(candidate);
-      return candidate;
-    }
-  }
-
-  // 접미사 단계: 접미사를 붙여도 길이 제한 안에 드는 조합만 대상으로 한다.
-  const bases: string[] = [];
-  for (const adj of words.adjectives) {
-    for (const noun of words.nouns) {
-      bases.push(`${adj} ${noun}`);
-    }
-  }
-  const shuffled = rng.shuffle(bases);
-  for (const base of shuffled) {
-    for (let n = 2; ; n++) {
-      const candidate = `${base} ${n}`;
-      if (candidate.length > NAME_MAX_LENGTH) break;
-      if (!used.has(candidate)) {
-        used.add(candidate);
-        return candidate;
-      }
-    }
-  }
-
-  throw new RangeError('generateHorseName: 단어장으로 만들 수 있는 이름이 남아 있지 않다');
 }

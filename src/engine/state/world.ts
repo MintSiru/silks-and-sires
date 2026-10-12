@@ -15,7 +15,10 @@ import {
   SIRE_BIRTH_MARGIN_YEARS,
   FOUNDER_SIRE_MIN_CHAIN,
 } from '../config/world';
-import { generateHorse, generateHorseName, type HorseWords } from '../horse/generate';
+import { generateHorse } from '../horse/generate';
+import { makeNameRegistry, namingContextFor } from '../naming/context';
+import { nameForHorse } from '../naming/generate';
+import type { NamingData } from '../naming/types';
 import type {
   GameState,
   Horse,
@@ -33,7 +36,8 @@ export interface WorldStaticData {
   stallionRecords: readonly RealStallionRecord[];
   stallionNames: StallionNameTable;
   nicks: readonly NickEntry[];
-  words: HorseWords;
+  /** 이름 생성 데이터(마주 스타일·어휘·보호 명단 등) */
+  naming: NamingData;
 }
 
 /**
@@ -100,8 +104,8 @@ export function bootstrapWorld(state: GameState, data: WorldStaticData, rng: Rng
   // 2. 시작 공개 닉스
   next.breeding.revealedNicks = initialRevealedNicks(data.nicks);
 
-  // 3. 이름 중복 방지 집합
-  const used = new Set<string>(Object.values(next.horses).map((h) => h.name));
+  // 3. 이름 레지스트리(이름 중복 방지)
+  const registry = makeNameRegistry(next);
 
   // 4. 플레이어 기초 암말
   const isCoverSire = (r: RealStallionRecord): boolean =>
@@ -144,7 +148,9 @@ export function bootstrapWorld(state: GameState, data: WorldStaticData, rng: Rng
       realRecords.filter((r) => r.foaled <= latestSireFoaledYear(damBirth)),
     );
     const damId = allocateHorseId(next);
-    const damName = generateHorseName(rng, data.words, used);
+    const damNaming = namingContextFor(next, { ownerId: null, sireId: damSireRec.key, damId: null }, data);
+    const damName = nameForHorse(damNaming, data.naming, rng, registry);
+    registry.add(damName);
     const dam: Horse = generateHorse(rng, {
       id: damId,
       name: damName,
@@ -164,7 +170,9 @@ export function bootstrapWorld(state: GameState, data: WorldStaticData, rng: Rng
 
     // d. 기초 암말
     const mareId = allocateHorseId(next);
-    const mareName = generateHorseName(rng, data.words, used);
+    const mareNaming = namingContextFor(next, { ownerId: null, sireId: mareSireRec.key, damId: dam.id }, data);
+    const mareName = nameForHorse(mareNaming, data.naming, rng, registry);
+    registry.add(mareName);
     const mare: Horse = generateHorse(rng, {
       id: mareId,
       name: mareName,

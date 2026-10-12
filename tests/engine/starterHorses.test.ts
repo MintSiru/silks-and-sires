@@ -5,16 +5,7 @@ import { START_YEAR } from '../../src/engine/config/game';
 import { TWO_YO_FROM_WEEK } from '../../src/engine/config/meetings';
 import { STARTER_COUNTRY, STARTER_FITNESS, STARTER_HORSES, STARTER_SIRE_TIER } from '../../src/engine/config/starter';
 import { POPULATION_RATING_MIN_AGE } from '../../src/engine/config/population';
-import {
-  getHorseWords,
-  getNicks,
-  getPeopleData,
-  getRaceTemplates,
-  getRacecourses,
-  getSeriesDefinitions,
-  getStallionNames,
-  getStallionRecords,
-} from '../../src/engine/data/staticData';
+import { getNamingData, getNicks, getPeopleData, getRaceTemplates, getRacecourses, getSeriesDefinitions, getStallionNames, getStallionRecords } from '../../src/engine/data/staticData';
 import { isEligible } from '../../src/engine/season/eligibility';
 import { buildWeekMeetings } from '../../src/engine/season/meetings';
 import { weekOfSlot } from '../../src/engine/season/schedule';
@@ -33,7 +24,7 @@ const BOOT_DATA: BootstrapData = {
   stallionRecords: getStallionRecords(),
   stallionNames: getStallionNames(),
   nicks: getNicks(),
-  words: getHorseWords(),
+  naming: getNamingData(),
   ...getPeopleData(),
   courses: getRacecourses(),
   templates: getRaceTemplates(),

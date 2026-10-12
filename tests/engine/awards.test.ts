@@ -3,13 +3,7 @@ import { resolve } from 'node:path';
 import { beforeAll, describe, expect, it } from 'vitest';
 import racecoursesJson from './fixtures/m1-racecourses.json';
 import { WEEKS_PER_YEAR } from '../../src/engine/config/game';
-import {
-  getHorseWords,
-  getNicks,
-  getPeopleData,
-  getStallionNames,
-  getStallionRecords,
-} from '../../src/engine/data/staticData';
+import { getNamingData, getNicks, getPeopleData, getStallionNames, getStallionRecords } from '../../src/engine/data/staticData';
 import { createRng } from '../../src/engine/rng';
 import {
   type AwardsSource,
@@ -395,7 +389,8 @@ const SERIES: SeriesDefinition[] = [
 
 const STATIC_GAME: GameStaticData = {
   nicks: getNicks(),
-  words: getHorseWords(),
+  naming: getNamingData(),
+  stallionNames: getStallionNames(),
   stallionRecords: getStallionRecords(),
   courses: COURSES,
   templates: TEMPLATES,
@@ -406,7 +401,7 @@ const BOOT_DATA: BootstrapData = {
   stallionRecords: getStallionRecords(),
   stallionNames: getStallionNames(),
   nicks: getNicks(),
-  words: getHorseWords(),
+  naming: getNamingData(),
   ...getPeopleData(),
   courses: COURSES,
   templates: TEMPLATES,

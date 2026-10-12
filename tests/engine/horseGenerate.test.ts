@@ -11,7 +11,7 @@ import {
   NAME_MAX_LENGTH,
 } from '../../src/engine/config/horse';
 import { abilityAtAge, maturity, sampleGrowthProfile } from '../../src/engine/horse/growthCurve';
-import { generateHorse, generateHorseName, type GenerateHorseOptions } from '../../src/engine/horse/generate';
+import { generateHorse, type GenerateHorseOptions } from '../../src/engine/horse/generate';
 import type { Abilities, GrowthProfile, Horse } from '../../src/engine/types';
 
 const CURRENT_YEAR = 2026;
@@ -170,43 +170,5 @@ describe('generateHorse', () => {
       blackTypePlacings: 0,
       groupWins: 0,
     });
-  });
-});
-
-describe('generateHorseName', () => {
-  const words = {
-    adjectives: ['Silent', 'Golden', 'Iron', 'Royal', 'Swift'],
-    nouns: ['Thunder', 'Harbor', 'Falcon', 'Crown', 'Storm'],
-  };
-
-  it('5×5 단어장으로 10,000개를 만들어도 중복이 없고 전부 18자 이하', () => {
-    const rng = createRng('names-10k');
-    const used = new Set<string>();
-    const names: string[] = [];
-    for (let i = 0; i < 10000; i++) {
-      names.push(generateHorseName(rng, words, used));
-    }
-    expect(new Set(names).size).toBe(10000);
-    expect(used.size).toBe(10000);
-    for (const n of names) {
-      expect(n.length).toBeLessThanOrEqual(NAME_MAX_LENGTH);
-    }
-  });
-
-  it('이미 used 에 있는 이름은 반환하지 않는다', () => {
-    const rng = createRng('names-used');
-    const used = new Set<string>(['Silent Thunder']);
-    const name = generateHorseName(rng, words, used);
-    expect(name).not.toBe('Silent Thunder');
-    expect(used.has(name)).toBe(true);
-  });
-
-  it('같은 시드·같은 단어장이면 같은 이름 순서를 낸다', () => {
-    const run = (): string[] => {
-      const rng = createRng('names-det');
-      const used = new Set<string>();
-      return Array.from({ length: 200 }, () => generateHorseName(rng, words, used));
-    };
-    expect(run()).toEqual(run());
   });
 });

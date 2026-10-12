@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import nicksJson from '../../data/breeding/nicks.json';
-import wordsJson from '../../data/names/horse_words.json';
 import commentsJson from '../../data/text/comments.ko.json';
 import sireLinesJson from '../../data/stallions/sire_lines.json';
 import { COMMENT_KEYS } from '../../src/engine/types/breeding';
@@ -10,7 +9,6 @@ import type { SireLine } from '../../src/engine/types/bloodline';
 /** M2-04 배합 데이터 검증 (data/breeding, data/names, data/text). 스키마는 src/engine/types/breeding.ts 를 따른다. */
 
 const nicks = nicksJson as NickEntry[];
-const words = wordsJson as { adjectives: string[]; nouns: string[] };
 const comments = commentsJson as Record<string, string[]>;
 const lineIds = new Set((sireLinesJson as SireLine[]).map((l) => l.id));
 
@@ -63,27 +61,6 @@ describe('닉스 표 (data/breeding/nicks.json)', () => {
       expect(entry, `${sire} × ${dam} 항목 존재`).toBeDefined();
       expect(entry?.knownAtStart, `${sire} × ${dam} knownAtStart`).toBe(true);
       expect(entry?.value ?? 0, `${sire} × ${dam} value`).toBeGreaterThan(0);
-    }
-  });
-});
-
-describe('말 이름 단어장 (data/names/horse_words.json)', () => {
-  it('adjectives 150개, nouns 200개', () => {
-    expect(words.adjectives.length).toBe(150);
-    expect(words.nouns.length).toBe(200);
-  });
-
-  it('중복 없음 (대소문자 무시, 두 목록 합산 포함)', () => {
-    const all = [...words.adjectives, ...words.nouns].map((w) => w.toLowerCase());
-    expect(new Set(all).size).toBe(all.length);
-  });
-
-  it('길이 2~10, 영문자만 (하이픈·아포스트로피 허용, 공백·숫자 없음)', () => {
-    const pattern = /^[A-Za-z]+(?:['-][A-Za-z]+)*$/;
-    for (const w of [...words.adjectives, ...words.nouns]) {
-      expect(w.length, w).toBeGreaterThanOrEqual(2);
-      expect(w.length, w).toBeLessThanOrEqual(10);
-      expect(pattern.test(w), w).toBe(true);
     }
   });
 });

@@ -7,15 +7,7 @@ import {
 } from '../../src/engine/config/playerView';
 import { PLAYER_START_MARES } from '../../src/engine/config/world';
 import { WEEKS_PER_YEAR, START_YEAR } from '../../src/engine/config/game';
-import {
-  getHorseWords,
-  getNicks,
-  getRaceTemplates,
-  getRacecourses,
-  getSeriesDefinitions,
-  getStallionNames,
-  getStallionRecords,
-} from '../../src/engine/data/staticData';
+import { getNamingData, getNicks, getRaceTemplates, getRacecourses, getSeriesDefinitions, getStallionNames, getStallionRecords } from '../../src/engine/data/staticData';
 import {
   assessForPlayer,
   availableStallions,
@@ -43,7 +35,7 @@ function worldData(): WorldStaticData {
     stallionRecords: getStallionRecords(),
     stallionNames: getStallionNames(),
     nicks: getNicks(),
-    words: getHorseWords(),
+    naming: getNamingData(),
   };
 }
 
@@ -51,7 +43,8 @@ function worldData(): WorldStaticData {
 function gameData(): GameStaticData {
   return {
     nicks: getNicks(),
-    words: getHorseWords(),
+    naming: getNamingData(),
+    stallionNames: getStallionNames(),
     stallionRecords: getStallionRecords(),
     courses: getRacecourses(),
     templates: getRaceTemplates(),

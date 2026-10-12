@@ -1,14 +1,5 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import {
-  getHorseWords,
-  getNicks,
-  getPeopleData,
-  getRaceTemplates,
-  getRacecourses,
-  getSeriesDefinitions,
-  getStallionNames,
-  getStallionRecords,
-} from '../../src/engine/data/staticData';
+import { getNamingData, getNicks, getPeopleData, getRaceTemplates, getRacecourses, getSeriesDefinitions, getStallionNames, getStallionRecords } from '../../src/engine/data/staticData';
 import { declarePlayerHorse } from '../../src/engine/season/player';
 import { bootstrapGame, type BootstrapData } from '../../src/engine/state/bootstrap';
 import { createGameSystems, type GameStaticData } from '../../src/engine/state/systems';
@@ -27,7 +18,8 @@ const MID_TIMEOUT = 300_000;
 
 const STATIC_GAME: GameStaticData = {
   nicks: getNicks(),
-  words: getHorseWords(),
+  naming: getNamingData(),
+  stallionNames: getStallionNames(),
   stallionRecords: getStallionRecords(),
   courses: getRacecourses(),
   templates: getRaceTemplates(),
@@ -38,7 +30,7 @@ const BOOT_DATA: BootstrapData = {
   stallionRecords: getStallionRecords(),
   stallionNames: getStallionNames(),
   nicks: getNicks(),
-  words: getHorseWords(),
+  naming: getNamingData(),
   ...getPeopleData(),
   courses: getRacecourses(),
   templates: getRaceTemplates(),

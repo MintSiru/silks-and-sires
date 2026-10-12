@@ -2,13 +2,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { beforeAll, describe, expect, it } from 'vitest';
 import racecoursesJson from './fixtures/m1-racecourses.json';
-import {
-  getHorseWords,
-  getNicks,
-  getPeopleData,
-  getStallionNames,
-  getStallionRecords,
-} from '../../src/engine/data/staticData';
+import { getNamingData, getNicks, getPeopleData, getStallionNames, getStallionRecords } from '../../src/engine/data/staticData';
 import { loadRacecourses } from '../../src/engine/course/load';
 import { nickKey } from '../../src/engine/breeding/nicks';
 import { emptyOffspringStats, observedProfile, recordOffspringRun } from '../../src/engine/breeding/offspring';
@@ -119,7 +113,8 @@ const SERIES: SeriesDefinition[] = [
 
 const STATIC_GAME: GameStaticData = {
   nicks: getNicks(),
-  words: getHorseWords(),
+  naming: getNamingData(),
+  stallionNames: getStallionNames(),
   stallionRecords: getStallionRecords(),
   courses: COURSES,
   templates: TEMPLATES,
@@ -130,7 +125,7 @@ const BOOT_DATA: BootstrapData = {
   stallionRecords: getStallionRecords(),
   stallionNames: getStallionNames(),
   nicks: getNicks(),
-  words: getHorseWords(),
+  naming: getNamingData(),
   ...getPeopleData(),
   courses: COURSES,
   templates: TEMPLATES,

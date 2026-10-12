@@ -19,7 +19,10 @@ import {
 import { FOREIGN_OWNER_SHARE } from '../config/people';
 import { STARTER_COUNTRY, STARTER_FITNESS, STARTER_HORSES, STARTER_SIRE_TIER } from '../config/starter';
 import { MIN_SIRE_AGE_AT_COVER, PROFILE_DISTANCE, SIRE_BIRTH_MARGIN_YEARS } from '../config/world';
-import { generateHorse, generateHorseName, type HorseWords } from '../horse/generate';
+import { generateHorse } from '../horse/generate';
+import { makeNameRegistry, namingContextFor, type MutableNameRegistry } from '../naming/context';
+import { nameForHorse } from '../naming/generate';
+import type { NamingData } from '../naming/types';
 import { sortStallionRecords } from '../state/stallionHorses';
 import { allocateHorseId } from '../state/world';
 import type {
@@ -41,8 +44,10 @@ import { initialOfficialRating } from './rating';
 export interface RacingPopulationStaticData {
   /** 실명 종마 레코드(data/stallions/stallions.json). 부(父) 후보는 active·pensioned */
   stallionRecords: readonly RealStallionRecord[];
-  /** 가상 말 이름 단어장 */
-  words: HorseWords;
+  /** 이름 생성 데이터(마주 스타일·어휘·보호 명단 등) */
+  naming: NamingData;
+  /** 종마 key → 표시 이름(부·모 이름 연상에 쓴다) */
+  stallionNames: Record<string, string>;
 }
 
 /** AI 현역마 상태. 'resting' 도 현역에 포함한다(부상·휴양 중인 현역마). */
@@ -232,14 +237,15 @@ export interface RacingHorseSpec {
 
 /**
  * 현역마 한 마리를 만들어 state.horses 에 넣고 마주·조교사 연결을 갱신한다(state 직접 수정).
- * rng 사용 순서: 부 → 마주(ownerId 없을 때만) → 조교사 → 이름 → 말 생성(generateHorse 내부).
+ * rng 사용 순서: 부 → 마주(ownerId 없을 때만) → 조교사 → 이름(nameForHorse) → 말 생성(generateHorse 내부).
+ * 이름을 정하면 registry 에 등록한다.
  */
 export function spawnRacingHorse(
   state: GameState,
   data: RacingPopulationStaticData,
   rng: Rng,
   market: PopulationMarket,
-  used: Set<string>,
+  registry: MutableNameRegistry,
   spec: RacingHorseSpec,
   records: readonly RealStallionRecord[],
 ): Horse {
@@ -260,7 +266,9 @@ export function spawnRacingHorse(
   const trainer = pickTrainer(rng, market, spec.country);
 
   const id = allocateHorseId(state);
-  const name = generateHorseName(rng, data.words, used);
+  const naming = namingContextFor(state, { ownerId: owner.id, sireId: sire.key, damId: null }, data);
+  const name = nameForHorse(naming, data.naming, rng, registry);
+  registry.add(name);
   const distanceBias =
     POPULATION_DISTANCE_SIRE_WEIGHT * PROFILE_DISTANCE[sire.distanceProfile] +
     (1 - POPULATION_DISTANCE_SIRE_WEIGHT) * POPULATION_DISTANCE_DEFAULT_MEDIAN;
@@ -310,7 +318,7 @@ export function bootstrapRacingPopulation(
   const next = structuredClone(state);
   const currentYear = next.date.year;
   const market = buildMarket(next);
-  const used = new Set(Object.values(next.horses).map((h) => h.name));
+  const registry = makeNameRegistry(next);
   const records = sortStallionRecords(data.stallionRecords);
 
   for (const country of POPULATION_COUNTRY_ORDER) {
@@ -325,7 +333,7 @@ export function bootstrapRacingPopulation(
           data,
           rng,
           market,
-          used,
+          registry,
           { country, birthYear: currentYear - age, currentYear, sex, gelded },
           records,
         );
@@ -352,7 +360,7 @@ export function grantStarterHorses(
 ): HorseId[] {
   const currentYear = state.date.year;
   const market = buildMarket(state);
-  const used = new Set(Object.values(state.horses).map((h) => h.name));
+  const registry = makeNameRegistry(state);
   const records = sortStallionRecords(data.stallionRecords);
   const granted: HorseId[] = [];
 
@@ -364,7 +372,7 @@ export function grantStarterHorses(
         data,
         rng,
         market,
-        used,
+        registry,
         {
           country: STARTER_COUNTRY,
           birthYear: currentYear - group.age,

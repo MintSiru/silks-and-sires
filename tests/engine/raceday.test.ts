@@ -3,13 +3,7 @@ import racecoursesJson from './fixtures/m1-racecourses.json';
 import { createRng } from '../../src/engine/rng';
 import { ODDS_LADDER, SAMPLE_ABILITY_MAX, SAMPLE_ABILITY_MIN } from '../../src/engine/config/raceday';
 import { SIMULATE_GRADES } from '../../src/engine/config/season';
-import {
-  getHorseWords,
-  getNicks,
-  getPeopleData,
-  getStallionNames,
-  getStallionRecords,
-} from '../../src/engine/data/staticData';
+import { getNamingData, getNicks, getPeopleData, getStallionNames, getStallionRecords } from '../../src/engine/data/staticData';
 import { loadRacecourses } from '../../src/engine/course/load';
 import { runRace } from '../../src/engine/race/runRace';
 import { sectionalMarks } from '../../src/engine/race/results';
@@ -309,10 +303,10 @@ function bootRun(seed = RUN_SEED): GameState {
     stallionRecords: getStallionRecords(),
     stallionNames: getStallionNames(),
     nicks: getNicks(),
-    words: getHorseWords(),
+    naming: getNamingData(),
   };
   const withWorld = bootstrapWorld(withPeople, worldData, createRng(seed + 1));
-  const popData: RacingPopulationStaticData = { stallionRecords: getStallionRecords(), words: getHorseWords() };
+  const popData: RacingPopulationStaticData = { stallionRecords: getStallionRecords(), naming: getNamingData(), stallionNames: getStallionNames() };
   return bootstrapRacingPopulation(withWorld, popData, createRng(seed + 2));
 }
 

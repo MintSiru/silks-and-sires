@@ -7,13 +7,7 @@ import {
   POPULATION_COUNTRY_ORDER,
   POPULATION_IN_TRAINING,
 } from '../../src/engine/config/population';
-import {
-  getHorseWords,
-  getNicks,
-  getPeopleData,
-  getStallionNames,
-  getStallionRecords,
-} from '../../src/engine/data/staticData';
+import { getNamingData, getNicks, getPeopleData, getStallionNames, getStallionRecords } from '../../src/engine/data/staticData';
 import { growthSystem } from '../../src/engine/horse/growth';
 import { createRng } from '../../src/engine/rng';
 import { serializeGame } from '../../src/engine/save/serialize';
@@ -37,12 +31,12 @@ function worldData(): WorldStaticData {
     stallionRecords: getStallionRecords(),
     stallionNames: getStallionNames(),
     nicks: getNicks(),
-    words: getHorseWords(),
+    naming: getNamingData(),
   };
 }
 
 function populationData(): RacingPopulationStaticData {
-  return { stallionRecords: getStallionRecords(), words: getHorseWords() };
+  return { stallionRecords: getStallionRecords(), naming: getNamingData(), stallionNames: getStallionNames() };
 }
 
 /** 인물 → 세계(실명 종마·기초 암말) → 현역마 순서로 만든 새 게임 상태 */

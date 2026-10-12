@@ -1,16 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { TrainerReportKey } from '../../src/engine/horse/conditioning';
 import type { PersonalityClueKey } from '../../src/engine/horse/personality';
-import {
-  getHorseWords,
-  getNicks,
-  getPeopleData,
-  getRaceTemplates,
-  getRacecourses,
-  getSeriesDefinitions,
-  getStallionNames,
-  getStallionRecords,
-} from '../../src/engine/data/staticData';
+import { getNamingData, getNicks, getPeopleData, getRaceTemplates, getRacecourses, getSeriesDefinitions, getStallionNames, getStallionRecords } from '../../src/engine/data/staticData';
 import { assignTrainer, declarePlayerHorse } from '../../src/engine/season/player';
 import { bootstrapGame, type BootstrapData } from '../../src/engine/state/bootstrap';
 import type {
@@ -41,7 +32,7 @@ const BOOT_DATA: BootstrapData = {
   stallionRecords: getStallionRecords(),
   stallionNames: getStallionNames(),
   nicks: getNicks(),
-  words: getHorseWords(),
+  naming: getNamingData(),
   ...getPeopleData(),
   courses: getRacecourses(),
   templates: getRaceTemplates(),

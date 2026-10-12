@@ -5,7 +5,6 @@ import stallionRecordsJson from '../../../data/stallions/stallions.json';
 import stallionNamesJson from '../../../data/stallions/names.json';
 import sireLinesJson from '../../../data/stallions/sire_lines.json';
 import nicksJson from '../../../data/breeding/nicks.json';
-import horseWordsJson from '../../../data/names/horse_words.json';
 import peoplePoolsJson from '../../../data/people/name_pools.json';
 import peopleBlockedJson from '../../../data/people/blocked_names.json';
 import peoplePlacesJson from '../../../data/people/places.json';
@@ -23,7 +22,6 @@ import { getRacecourse as findRacecourse, loadRacecourses } from '../course/load
 import { NAME_COUNTRIES, type CountryNamePool, type NameCountry, type NamePools } from '../people/names';
 import type { PeopleStaticData, PlacesData } from '../people/generate';
 import type { NamePool } from '../race/sampleField';
-import type { HorseWords } from '../horse/generate';
 import { normalizePlaceToken, normalizeName } from '../naming/validate';
 import type {
   ForeignLanguage,
@@ -125,11 +123,6 @@ export function getSireLines(): SireLine[] {
 /** 닉스 표 (data/breeding/nicks.json). */
 export function getNicks(): NickEntry[] {
   return nicksJson as NickEntry[];
-}
-
-/** 가상 말 이름 단어장 (data/names/horse_words.json). */
-export function getHorseWords(): HorseWords {
-  return horseWordsJson as HorseWords;
 }
 
 /** 인물 생성용 정적 데이터 캐시(검증 후 한 번만 만든다). */

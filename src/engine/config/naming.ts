@@ -19,6 +19,9 @@ export const NAME_CANDIDATE_ATTEMPTS = 50;
 /** nameForHorse 의 음절 단어 대체 생성 최대 횟수 */
 export const NAME_FALLBACK_ATTEMPTS = 200;
 
+/** tributeNames 에 넣는 게임 속 인물(기수·조교사) 성의 최대 개수(정렬 후 앞쪽) */
+export const TRIBUTE_NAME_LIMIT = 40;
+
 /** makeSyllableWord 목표 음절 수 (양끝 포함) */
 export const SYLLABLE_WORD_MIN = 2;
 export const SYLLABLE_WORD_MAX = 3;
