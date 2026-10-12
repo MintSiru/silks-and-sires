@@ -1,1 +1,2424 @@
-[]
+[
+  {
+    "id": "prix_de_brunelande",
+    "name": "Prix de Brunelande",
+    "racecourseId": "saint_ourens",
+    "distance": 2400,
+    "layoutId": "saint_ourens_grande",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": [
+      "trial"
+    ]
+  },
+  {
+    "id": "prix_d_aubrevallon",
+    "name": "Prix d'Aubrevallon",
+    "racecourseId": "saint_ourens",
+    "distance": 2400,
+    "layoutId": "saint_ourens_grande",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 4,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 20,
+    "tags": [
+      "trial"
+    ]
+  },
+  {
+    "id": "prix_de_saulvert",
+    "name": "Prix de Saulvert",
+    "racecourseId": "saint_ourens",
+    "distance": 2400,
+    "layoutId": "saint_ourens_grande",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 30,
+    "tags": [
+      "fillies_mares",
+      "trial"
+    ]
+  },
+  {
+    "id": "prix_de_hautegarde",
+    "name": "Prix de Hautegarde",
+    "racecourseId": "saint_ourens",
+    "distance": 2000,
+    "layoutId": "saint_ourens_grande",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 7,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "prix_de_combebrune",
+    "name": "Prix de Combebrune",
+    "racecourseId": "saint_ourens",
+    "distance": 1850,
+    "layoutId": "saint_ourens_grande",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 4,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "prix_de_fontclaire",
+    "name": "Prix de Fontclaire",
+    "racecourseId": "saint_ourens",
+    "distance": 2400,
+    "layoutId": "saint_ourens_grande",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "prix_d_ormeraie",
+    "name": "Prix d'Ormeraie",
+    "racecourseId": "saint_ourens",
+    "distance": 1600,
+    "layoutId": "saint_ourens_grande",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 12,
+    "schedule": {
+      "month": 10,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 15,
+    "tags": [
+      "two_year_old"
+    ]
+  },
+  {
+    "id": "prix_de_clairebrume",
+    "name": "Prix de Clairebrume",
+    "racecourseId": "saint_ourens",
+    "distance": 1000,
+    "layoutId": "saint_ourens_straight",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 12,
+    "schedule": {
+      "month": 10,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 5,
+    "tags": [
+      "two_year_old",
+      "sprint"
+    ]
+  },
+  {
+    "id": "prix_de_brumevert",
+    "name": "Prix de Brumevert",
+    "racecourseId": "saint_ourens",
+    "distance": 1400,
+    "layoutId": "saint_ourens_grande",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 4,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": [
+      "fillies_mares",
+      "trial"
+    ]
+  },
+  {
+    "id": "prix_d_aubelande",
+    "name": "Prix d'Aubelande",
+    "racecourseId": "saint_ourens",
+    "distance": 1400,
+    "layoutId": "saint_ourens_grande",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 4,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 10,
+    "tags": [
+      "trial"
+    ]
+  },
+  {
+    "id": "prix_de_vallonbrune",
+    "name": "Prix de Vallonbrune",
+    "racecourseId": "vallenaire",
+    "distance": 2000,
+    "layoutId": "vallenaire_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": [
+      "trial"
+    ]
+  },
+  {
+    "id": "prix_de_sorbeval",
+    "name": "Prix de Sorbeval",
+    "racecourseId": "vallenaire",
+    "distance": 2000,
+    "layoutId": "vallenaire_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 10,
+    "tags": [
+      "fillies_mares",
+      "trial"
+    ]
+  },
+  {
+    "id": "prix_de_trefleval",
+    "name": "Prix de Trèfleval",
+    "racecourseId": "vallenaire",
+    "distance": 1400,
+    "layoutId": "vallenaire_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "prix_de_hauteroche",
+    "name": "Prix de Hauteroche",
+    "racecourseId": "vallenaire",
+    "distance": 2400,
+    "layoutId": "vallenaire_main",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "prix_de_vignehaute",
+    "name": "Prix de Vignehaute",
+    "racecourseId": "vallenaire",
+    "distance": 1400,
+    "layoutId": "vallenaire_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 10,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "prix_de_marronval",
+    "name": "Prix de Marronval",
+    "racecourseId": "vallenaire",
+    "distance": 1600,
+    "layoutId": "vallenaire_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 7,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "prix_de_lisierevent",
+    "name": "Prix de Lisièrevent",
+    "racecourseId": "port_aubray",
+    "distance": 1400,
+    "layoutId": "port_aubray_straight",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 12,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 5,
+    "tags": [
+      "two_year_old"
+    ]
+  },
+  {
+    "id": "prix_de_mesangelle",
+    "name": "Prix de Mésangelle",
+    "racecourseId": "port_aubray",
+    "distance": 1200,
+    "layoutId": "port_aubray_straight",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 12,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 5,
+    "tags": [
+      "two_year_old",
+      "fillies_mares",
+      "sprint"
+    ]
+  },
+  {
+    "id": "prix_de_roseloire",
+    "name": "Prix de Roseloire",
+    "racecourseId": "port_aubray",
+    "distance": 1400,
+    "layoutId": "port_aubray_straight",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 12,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 5,
+    "tags": [
+      "two_year_old"
+    ]
+  },
+  {
+    "id": "prix_de_ruisselac",
+    "name": "Prix de Ruisselac",
+    "racecourseId": "port_aubray",
+    "distance": 1600,
+    "layoutId": "port_aubray_straight",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 7,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "prix_de_tourbelle",
+    "name": "Prix de Tourbelle",
+    "racecourseId": "port_aubray",
+    "distance": 1600,
+    "layoutId": "port_aubray_straight",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "prix_de_cassissel",
+    "name": "Prix de Cassissel",
+    "racecourseId": "port_aubray",
+    "distance": 1200,
+    "layoutId": "port_aubray_straight",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 7,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": [
+      "fillies_mares",
+      "sprint"
+    ]
+  },
+  {
+    "id": "prix_de_bergerolle",
+    "name": "Prix de Bergerolle",
+    "racecourseId": "port_aubray",
+    "distance": 2000,
+    "layoutId": "port_aubray_round",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "prix_de_clos_fleurel",
+    "name": "Prix de Clos-Fleurel",
+    "racecourseId": "clairval",
+    "distance": 1600,
+    "layoutId": "clairval_main",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 12,
+    "schedule": {
+      "month": 11,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 5,
+    "tags": [
+      "two_year_old"
+    ]
+  },
+  {
+    "id": "prix_de_sablevent",
+    "name": "Prix de Sablevent",
+    "racecourseId": "clairval",
+    "distance": 2000,
+    "layoutId": "clairval_main",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 10,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "prix_de_pervenchere",
+    "name": "Prix de Pervenchère",
+    "racecourseId": "clairval",
+    "distance": 1400,
+    "layoutId": "clairval_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 12,
+    "schedule": {
+      "month": 10,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": [
+      "two_year_old",
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "prix_d_oreelande",
+    "name": "Prix d'Oréelande",
+    "racecourseId": "clairval",
+    "distance": 1600,
+    "layoutId": "clairval_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 7,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "prix_de_coppelande",
+    "name": "Prix de Coppelande",
+    "racecourseId": "clairval",
+    "distance": 2000,
+    "layoutId": "clairval_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "prix_de_brindelle",
+    "name": "Prix de Brindelle",
+    "racecourseId": "clairval",
+    "distance": 2100,
+    "layoutId": "clairval_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 10,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "prix_de_paquerelle",
+    "name": "Prix de Pâquerelle",
+    "racecourseId": "bellerive_le_bois",
+    "distance": 1200,
+    "layoutId": "bellerive_straight",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 10,
+    "tags": [
+      "sprint"
+    ]
+  },
+  {
+    "id": "prix_de_rochegris",
+    "name": "Prix de Rochegris",
+    "racecourseId": "montvigne",
+    "distance": 2000,
+    "layoutId": "montvigne_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "prix_de_charmevert",
+    "name": "Prix de Charmevert",
+    "racecourseId": "montvigne",
+    "distance": 1600,
+    "layoutId": "montvigne_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 10,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "prix_de_luciolande",
+    "name": "Prix de Luciolande",
+    "racecourseId": "montvigne",
+    "distance": 2400,
+    "layoutId": "montvigne_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "prix_d_ajoncelle",
+    "name": "Prix d'Ajoncelle",
+    "racecourseId": "bellerive_le_bois",
+    "distance": 1400,
+    "layoutId": "bellerive_straight",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 7,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "prix_de_hirondelande",
+    "name": "Prix de Hirondelande",
+    "racecourseId": "bellerive_le_bois",
+    "distance": 1200,
+    "layoutId": "bellerive_straight",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 12,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": [
+      "two_year_old",
+      "sprint"
+    ]
+  },
+  {
+    "id": "prix_de_cressonval",
+    "name": "Prix de Cressonval",
+    "racecourseId": "bellerive_le_bois",
+    "distance": 2000,
+    "layoutId": "bellerive_straight",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "prix_de_sourcelande",
+    "name": "Prix de Sourcelande",
+    "racecourseId": "saint_ourens",
+    "distance": 1400,
+    "layoutId": "saint_ourens_grande",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "prix_de_lavandelle",
+    "name": "Prix de Lavandelle",
+    "racecourseId": "saint_ourens",
+    "distance": 1850,
+    "layoutId": "saint_ourens_grande",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "prix_de_hetraval",
+    "name": "Prix de Hêtraval",
+    "racecourseId": "saint_ourens",
+    "distance": 2000,
+    "layoutId": "saint_ourens_grande",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 4,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "prix_de_vieuxmoulin",
+    "name": "Prix de Vieuxmoulin",
+    "racecourseId": "saint_ourens",
+    "distance": 1600,
+    "layoutId": "saint_ourens_grande",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "prix_de_tourterelande",
+    "name": "Prix de Tourterelande",
+    "racecourseId": "saint_ourens",
+    "distance": 2000,
+    "layoutId": "saint_ourens_grande",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "prix_de_fleurelande",
+    "name": "Prix de Fleurelande",
+    "racecourseId": "saint_ourens",
+    "distance": 2100,
+    "layoutId": "saint_ourens_grande",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "prix_de_vergerval",
+    "name": "Prix de Vergerval",
+    "racecourseId": "saint_ourens",
+    "distance": 1850,
+    "layoutId": "saint_ourens_grande",
+    "kind": "handicap",
+    "grade": null,
+    "raceClass": 2,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": 80,
+      "ratingMax": 110,
+      "weightSystem": "handicap",
+      "baseWeightLb": 140
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 20,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 10,
+    "tags": [
+      "heritage_handicap"
+    ]
+  },
+  {
+    "id": "preis_von_eschenbrunn",
+    "name": "Preis von Eschenbrunn",
+    "racecourseId": "hohenmoor",
+    "distance": 2012,
+    "layoutId": "hohenmoor_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": [
+      "trial"
+    ]
+  },
+  {
+    "id": "silberstrand_rennen",
+    "name": "Silberstrand-Rennen",
+    "racecourseId": "wesselfeld",
+    "distance": 2414,
+    "layoutId": "wesselfeld_main",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      57000,
+      22000,
+      11000,
+      5500,
+      3000,
+      1500
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "preis_von_morgenbruch",
+    "name": "Preis von Morgenbruch",
+    "racecourseId": "lichtenau",
+    "distance": 2012,
+    "layoutId": "lichtenau_main",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      57000,
+      22000,
+      11000,
+      5500,
+      3000,
+      1500
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "adlerfeld_rennen",
+    "name": "Adlerfeld-Rennen",
+    "racecourseId": "hohenmoor",
+    "distance": 2012,
+    "layoutId": "hohenmoor_main",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      57000,
+      22000,
+      11000,
+      5500,
+      3000,
+      1500
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 10,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "preis_von_waldgrund",
+    "name": "Preis von Waldgrund",
+    "racecourseId": "lichtenau",
+    "distance": 1609,
+    "layoutId": "lichtenau_main",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      57000,
+      22000,
+      11000,
+      5500,
+      3000,
+      1500
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "lerchenwiese_rennen",
+    "name": "Lerchenwiese-Rennen",
+    "racecourseId": "wesselfeld",
+    "distance": 1207,
+    "layoutId": "wesselfeld_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 12,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 10,
+    "tags": [
+      "two_year_old",
+      "sprint"
+    ]
+  },
+  {
+    "id": "preis_von_rotenbach",
+    "name": "Preis von Rotenbach",
+    "racecourseId": "lichtenau",
+    "distance": 1408,
+    "layoutId": "lichtenau_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 12,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 10,
+    "tags": [
+      "two_year_old"
+    ]
+  },
+  {
+    "id": "preis_von_quellenhain",
+    "name": "Preis von Quellenhain",
+    "racecourseId": "hohenmoor",
+    "distance": 2414,
+    "layoutId": "hohenmoor_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "preis_von_ostermoor",
+    "name": "Preis von Ostermoor",
+    "racecourseId": "wesselfeld",
+    "distance": 1207,
+    "layoutId": "wesselfeld_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 7,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 10,
+    "tags": [
+      "sprint"
+    ]
+  },
+  {
+    "id": "preis_von_grunwiesen",
+    "name": "Preis von Grünwiesen",
+    "racecourseId": "lichtenau",
+    "distance": 2012,
+    "layoutId": "lichtenau_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 4,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "lindenlauf_rennen",
+    "name": "Lindenlauf-Rennen",
+    "racecourseId": "hohenmoor",
+    "distance": 1609,
+    "layoutId": "hohenmoor_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      17100,
+      6600,
+      3300,
+      1650,
+      900,
+      450
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "nebelhorst_rennen",
+    "name": "Nebelhorst-Rennen",
+    "racecourseId": "hohenmoor",
+    "distance": 2414,
+    "layoutId": "hohenmoor_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      17100,
+      6600,
+      3300,
+      1650,
+      900,
+      450
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "fruhlingsbrunn_rennen",
+    "name": "Frühlingsbrunn-Rennen",
+    "racecourseId": "wesselfeld",
+    "distance": 1609,
+    "layoutId": "wesselfeld_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 4,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      17100,
+      6600,
+      3300,
+      1650,
+      900,
+      450
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 4,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "preis_von_eichenhain",
+    "name": "Preis von Eichenhain",
+    "racecourseId": "lichtenau",
+    "distance": 1408,
+    "layoutId": "lichtenau_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      17100,
+      6600,
+      3300,
+      1650,
+      900,
+      450
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 4,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "preis_von_herbstwald",
+    "name": "Preis von Herbstwald",
+    "racecourseId": "wesselfeld",
+    "distance": 2213,
+    "layoutId": "wesselfeld_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      17100,
+      6600,
+      3300,
+      1650,
+      900,
+      450
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 10,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "preis_von_nebelau",
+    "name": "Preis von Nebelau",
+    "racecourseId": "lichtenau",
+    "distance": 1408,
+    "layoutId": "lichtenau_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      17100,
+      6600,
+      3300,
+      1650,
+      900,
+      450
+    ],
+    "maxRunners": 12,
+    "schedule": {
+      "month": 10,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 10,
+    "tags": [
+      "two_year_old"
+    ]
+  },
+  {
+    "id": "premio_ginestra",
+    "name": "Premio Ginestra",
+    "racecourseId": "torreverde",
+    "distance": 2012,
+    "layoutId": "torreverde_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 4,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 10,
+    "tags": [
+      "trial"
+    ]
+  },
+  {
+    "id": "premio_fonte_alba",
+    "name": "Premio Fonte Alba",
+    "racecourseId": "torreverde",
+    "distance": 2414,
+    "layoutId": "torreverde_main",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      57000,
+      22000,
+      11000,
+      5500,
+      3000,
+      1500
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "premio_valle_serena",
+    "name": "Premio Valle Serena",
+    "racecourseId": "valmerano",
+    "distance": 2213,
+    "layoutId": "valmerano_main",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      57000,
+      22000,
+      11000,
+      5500,
+      3000,
+      1500
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "premio_vallescura",
+    "name": "Premio Vallescura",
+    "racecourseId": "torreverde",
+    "distance": 1609,
+    "layoutId": "torreverde_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 7,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "premio_magnolvera",
+    "name": "Premio Magnolvera",
+    "racecourseId": "torreverde",
+    "distance": 1207,
+    "layoutId": "torreverde_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": [
+      "sprint"
+    ]
+  },
+  {
+    "id": "premio_lavandora",
+    "name": "Premio Lavandora",
+    "racecourseId": "valmerano",
+    "distance": 2012,
+    "layoutId": "valmerano_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 7,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 10,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "premio_gelsomara",
+    "name": "Premio Gelsomara",
+    "racecourseId": "valmerano",
+    "distance": 1609,
+    "layoutId": "valmerano_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      17100,
+      6600,
+      3300,
+      1650,
+      900,
+      450
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 4,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "premio_torrente_bianco",
+    "name": "Premio Torrente Bianco",
+    "racecourseId": "torreverde",
+    "distance": 2012,
+    "layoutId": "torreverde_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      17100,
+      6600,
+      3300,
+      1650,
+      900,
+      450
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "premio_sorgenti",
+    "name": "Premio Sorgenti",
+    "racecourseId": "valmerano",
+    "distance": 1609,
+    "layoutId": "valmerano_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      17100,
+      6600,
+      3300,
+      1650,
+      900,
+      450
+    ],
+    "maxRunners": 12,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 10,
+    "tags": [
+      "two_year_old"
+    ]
+  },
+  {
+    "id": "premio_querceto",
+    "name": "Premio Querceto",
+    "racecourseId": "torreverde",
+    "distance": 1609,
+    "layoutId": "torreverde_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      17100,
+      6600,
+      3300,
+      1650,
+      900,
+      450
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 10,
+    "tags": []
+  }
+]
