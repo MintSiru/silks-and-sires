@@ -256,11 +256,12 @@ describe('playerHorses', () => {
 });
 
 describe('availableStallions', () => {
-  it('종마 전체를 빠짐없이 돌려주고 종부료 내림차순으로 정렬한다', () => {
+  it('교배 시작 연도가 된 종마를 빠짐없이 돌려주고 종부료 내림차순으로 정렬한다', () => {
     const state = boot();
     const rows = availableStallions(state);
     expect(rows.length).toBeGreaterThan(0);
-    expect(rows.length).toBe(Object.keys(state.stallions).length);
+    const startedCount = Object.values(state.stallions).filter((s) => s.firstSeasonYear <= state.date.year).length;
+    expect(rows.length).toBe(startedCount);
     for (let i = 0; i + 1 < rows.length; i++) {
       const cur = rows[i];
       const next = rows[i + 1];
@@ -293,5 +294,17 @@ describe('availableStallions', () => {
     const a = availableStallions(state).map((r) => r.horse.id);
     const b = availableStallions(state).map((r) => r.horse.id);
     expect(b).toEqual(a);
+  });
+});
+
+describe('임대 복귀 종마 (M2-02 availableFromYear)', () => {
+  it('American Pharoah 는 2027 부터 교배 가능 종마 목록에 나온다', () => {
+    const state = boot();
+    const ap = state.stallions['stl_american_pharoah'];
+    expect(ap?.firstSeasonYear).toBe(2027);
+    expect(state.date.year).toBeLessThan(2027);
+    expect(availableStallions(state).some((r) => r.stallion.horseId === 'stl_american_pharoah')).toBe(false);
+    const later = { ...state, date: { ...state.date, year: 2027 } };
+    expect(availableStallions(later).some((r) => r.stallion.horseId === 'stl_american_pharoah')).toBe(true);
   });
 });

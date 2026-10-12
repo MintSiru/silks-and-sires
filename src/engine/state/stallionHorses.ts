@@ -108,7 +108,8 @@ export function createRealStallionHorses(
         fertility: clamp(rng.normal(FERTILITY_MEAN, FERTILITY_SD), FERTILITY_MIN, FERTILITY_MAX),
         popularity: TIER_POPULARITY[rec.marketTier],
         standsIn,
-        firstSeasonYear: rec.foaled + FIRST_SEASON_AGE,
+        // 해외 임대 등으로 복귀 연도가 있으면 그 해부터 교배 가능(M2-02 availableFromYear)
+        firstSeasonYear: Math.max(rec.foaled + FIRST_SEASON_AGE, rec.availableFromYear ?? 0),
       });
     }
   }

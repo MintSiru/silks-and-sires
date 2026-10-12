@@ -850,3 +850,75 @@ Avenue of Flags, Bailjumper, Kaldounevees, Kendargent, Lord At War, Made Of Gold
 - 사용자 제공 종마 등록 화면 확인(2026-10-12): Gun Runner(Candy Ride, 2013, ch, 외조부 Giant's Causeway) 일치. Not This Time(Giant's Causeway, 2014) 털색 bay → brown(dkb/br) 정정, 외조부 Trippi(미수록). Quality Road(Elusive Quality, 2006, b) 일치, 외조부 Strawberry Road(미수록). City of Light(Quality Road, 2014, b) 일치, 외조부 Dehere(미수록). 미수록 외조부는 M4 미국 종마 추가 때 함께 검토.
 - 사망 연도 확인(사용자): Uncle Mo 2024, Speightstown 2023 — historical 유지.
 - American Pharoah: 2025~2026 일본 단기 임대, 2027 미국 복귀(사용자). M4 미국 종마 후보.
+
+## M2-02 미국 종마 추가 (haiku-data, 2026-10-12)
+
+출처: 영어 위키백과 action=raw 원문(인포박스 sire·damsire·foaled·colour·country·death_date, 본문 경주 기록). 한 번에 한 페이지, 요청 간 3.5초 이상, 429 는 30초 대기 후 재시도. 원문과 스크립트는 저장소 밖(/tmp/m2_02)에만 두었다. 동명 말은 출생연도로 확인했다(예: Authentic 은 "Authentic (racehorse)" 2017 문서, "Authentic (horse)" 는 리다이렉트).
+
+### 결과 요약
+- 명세 23두 중 위키백과에서 부·생년·털색을 확인한 현역 9두 + 부계 조상 4두 = 13건 추가. 종마 총수 303 → 316, names.json 316건.
+- 미추가 14두: 위키백과 문서를 찾지 못했거나(대부분) 털색이 비어 있어(Volatile) 레코드를 만들지 않았다. 털색 필드가 모든 종마에 필요하므로(tests/data/stallions.test.ts "coatColour 모든 종마") 추측으로 채우지 않았다. 아래 "확인 필요" 표 참고.
+- 명세의 "?" 생년 2건은 위키백과로 확정: Goldencents 2010, Omaha Beach 2016.
+- 외조부: 추가 13건 중 기존·신규 레코드에 있는 것만 연결(Indian Charlie, Storm Cat, Seeking the Gold, Seattle Slew, Lord at War). 외조부만을 위해 새 레코드는 만들지 않았다(Trippi, Theatrical, Banker's Gold, Mr. Greeley, Petionville, Yankee Gentleman, Rubiano, Lear Fan 은 null).
+- 계통: sire_lines.json 변경 없음(31개). 신규 부는 모두 부의 계통을 그대로 받았다(sl_storm_cat, sl_el_prado, sl_danzig, sl_mr_prospector, sl_into_mischief, sl_ap_indy).
+- 현역 외조부 채움: 125/136 (91.9%). 테스트 ≥60% 충족.
+- 현역 US 더트·양용 46두(≥15 충족).
+- Not This Time·Quality Road·City of Light 의 외조부(Trippi·Strawberry Road·Dehere)는 이번에 추가되지 않아 그대로 null 이다.
+- 기존 레코드의 status·marketTier·털색은 변경하지 않았다.
+
+### 추가 레코드 (13건)
+| 이름 | 부(sireKey) | 외조부(damsireKey) | 생년 | 털색 | 거리 | 표면 | 계통 | status | standsIn | tier | confidence | 비고 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Liam's Map | Unbridled's Song | null (Trippi 미수록) | 2011 | grey | classic | dirt | sl_mr_prospector | active | US | 3 | high | 인포박스 Gray → grey |
+| Oscar Performance | Kitten's Joy (신규) | null (Theatrical 미수록) | 2014 | bay | classic | turf | sl_el_prado | active | US | 2 | high | 턴프 1마일~1⅛마일 승리 |
+| Goldencents | Into Mischief | null (Banker's Gold 미수록) | 2010 | bay | classic | dirt | sl_into_mischief | active | US | 4 | high | 생년 '?' 해소. Dirt Mile 2회·Santa Anita Derby. 6~7f 승리도 있어 경계(거리 판단 확인 필요) |
+| Mitole | Eskendereya (신규) | stl_indian_charlie | 2015 | bay | speed | dirt | sl_storm_cat | active | US | 4 | high | 6~7f 위주(BC Sprint, Vanderbilt, Churchill Downs Stakes) |
+| Dialed In | Mineshaft | stl_storm_cat | 2008 | brown | classic | dirt | sl_ap_indy | active | US | 4 | high | 인포박스 Dark bay or brown → brown. Florida Derby 등 |
+| Authentic | Into Mischief | null (Mr. Greeley 미수록) | 2017 | bay | classic | dirt | sl_into_mischief | active | US | 4 | high | 2020 Kentucky Derby·BC Classic(1¼마일 2회) + 1⅛마일 승리 다수 → classic 판단 |
+| McKinzie | Street Sense | null (Petionville 미수록) | 2015 | bay | classic | dirt | sl_mr_prospector | active | US | 2 | high | 1⅛마일 승리(Pennsylvania Derby, Alysheba, Whitney) |
+| Omaha Beach | War Front (신규) | stl_seeking_the_gold | 2016 | bay | classic | dirt | sl_danzig | active | AU | 2 | high | 생년 '?' 해소. 인포박스 Dark bay → bay(명세 규칙은 "dark bay or brown" 만 brown). 2020년부터 호주 계류 기록 |
+| American Pharoah | Pioneerof the Nile (신규) | null (Yankee Gentleman 미수록) | 2012 | bay | classic | dirt | sl_mr_prospector | active | US | 2 | high | availableFromYear 2027 (사용자 결정). Del Mar Futurity 만 Polytrack |
+| War Front | Danzig | null (Rubiano 미수록) | 2002 | bay | classic | dirt | sl_danzig | pensioned | — | 5 | medium | 조상. Claiborne Farm 계류 기록, 사망 기록 없음 → 2026 상태 미확인. 거리는 경주명 기준 추정(아래 참고) |
+| Kitten's Joy | El Prado | null (Lear Fan 미수록) | 2001 | chestnut | classic | turf | sl_el_prado | historical | — | 5 | high | 조상. 2022-07-15 사망 |
+| Eskendereya | Giant's Causeway | stl_seattle_slew | 2007 | chestnut | classic | dirt | sl_storm_cat | historical | — | 5 | high | 조상. 2024-03-02 사망. Wood Memorial 9f 등 |
+| Pioneerof the Nile | Empire Maker | stl_lord_at_war | 2006 | brown | classic | dirt | sl_mr_prospector | historical | — | 5 | high | 조상. 인포박스 Dark Bay/Brown → brown. 2019-03-18 사망 |
+
+거리·표면 판단 근거(본문 경주 기록 기준, 명세의 거리 구간: 1400m 이하 speed, 1600~2000 classic, 2000~2400 middle, 2800+ cup. 7f 는 1408m 이라 speed 경계로 본다):
+- 주요 승리가 1마일 이상 위주인 말은 classic, 6~7f 위주인 Mitole 만 speed.
+- Goldencents 는 6~7f 승리도 있으나 Dirt Mile 2회·Santa Anita Derby(9f)가 주요 승리라 classic. 경계 사례.
+- Authentic 은 Kentucky Derby·BC Classic(약 2,012m)과 1⅛마일 승리가 섞여 classic 으로 판단. 경계 사례.
+- Kitten's Joy 는 턴프 1마일~1⅛마일 승리 위주라 classic(잔디). 
+- American Pharoah 는 Del Mar Futurity(7f)를 제외하면 1⅛마일 이상 더트 승리라 classic.
+- War Front 는 인포박스에 Vanderbilt Handicap(2006)만 있고 본문에 해당 거리가 명시되지 않았다. Princelet Stakes 1마일 반 등 1마일 전후 기록을 근거로 classic 으로 추정. Opus 확인 필요.
+
+### 확인 필요 (레코드 미추가 14두 + 보류 1두)
+명세의 23두 중 위키백과에서 확인하지 못한 말. 명세 값(부·생년·계류·tier)은 사용자 화면 기준이며 위키백과로 확인되지 않았다. 레코드를 만들려면 털색(coatColour)이 필요하므로 보류했다.
+
+| 종마 | 부(화면) | 생년(화면) | 계류 | tier | 확인 결과 |
+| --- | --- | --- | --- | --- | --- |
+| Vekoma | Candy Ride | 2016 | US | 2 | "Vekoma", "Vekoma (horse)", "Vekoma (racehorse)" 모두 문서 없음(Vekoma 는 놀이기구 회사 문서) |
+| Twirling Candy | Candy Ride | 2007 | US | 2 | 세 제목 모두 404 |
+| Maclean's Music | Distorted Humor | 2008 | US | 3 | 세 제목 모두 404 |
+| Yaupon | Uncle Mo | 2017 | US | 2 | "Yaupon" 은 식물 문서 리다이렉트, "(horse)"·"(racehorse)" 404 |
+| Volatile | Violence | 2016 | US | 4 | 문서 있음(부 Violence, 2016, 외조부 Unbridled's Song 확인). 인포박스 colour 가 비어 있어 털색 미확인 → 보류. 사용자 털색 확인 시 바로 추가 가능 |
+| Kantharos | Lion Heart | 2008 | US | 4 | "(horse)"·"(racehorse)" 404, 평문은 고대 그릇 문서 |
+| Cairo Prince | Pioneerof the Nile | 2011 | US | 4 | 세 제목 모두 404 |
+| Audible | Into Mischief | 2015 | US | 5 | "(horse)"·"(racehorse)" 404, 평문은 동음이의 목록 |
+| Upstart | Flatter | 2012 | US | 4 | "(horse)" 는 다른 말(디킨 메달 목록) 리다이렉트, "(racehorse)" 404 |
+| Maximus Mischief | Into Mischief | 2016 | US | 4 | 세 제목 모두 404 |
+| Flameaway | Scat Daddy | 2015 | US | 4 | 세 제목 모두 404 |
+| Collected | City Zip | 2013 | US | 5 | "(horse)" 는 무관 문서(Dressage) 리다이렉트, "(racehorse)" 404 |
+| Tapiture | Tapit | 2011 | CA | 5 | 세 제목 모두 404 |
+| The Factor | War Front | ? | US | 5 | "(horse)"·"(racehorse)" 404, 평문은 The O'Reilly Factor 리다이렉트 |
+
+Opus 확인 요청:
+1. 위 14두의 털색·출처를 사용자에게 받을지, 위키백과 외 출처를 허용할지(명세: 위키백과만). 받으면 레코드 추가 가능.
+2. 명세 외 조상: Lion Heart, Flatter, City Zip 은 미추가 14두의 부라 이번에 만들지 않았다.
+3. War Front 의 2026 계류 상태(pensioned 로 두었고 confidence medium) 와 거리(classic 추정) 확인.
+4. Goldencents·Authentic 의 classic/speed 경계 판단 확인.
+
+### 검증
+- npx vitest run tests/data: 10 files, 261 tests 통과.
+- npm test 전체: 1142 통과, 1 실패. 실패는 tests/engine/namingLandmarks.test.ts "빈 landmarks·workTitles 는 HEAD 와 같은 생성 결과" (SHA-256 대조). 원인: 같은 파일의 PARENT_NAMES 가 종마 이름 전체를 정렬한 목록(Object.values(getStallionNames()).sort())이라 종마 이름이 늘면 샘플의 부·모 이름이 바뀐다. HEAD 의 303개 이름으로 고정하면 기존 지문과 같다(확인함, 생성기 로직 변경 아님). 이 테스트 파일은 M2-02 수정 범위 밖이므로 고치지 않았다. 재고정 값: e9d60fbddca1007141b33b6e0a3f5af02edd4db876ed59eccd53919d2f35193b. Opus 판단 필요.
+- npm run typecheck: 통과(exit 0).
+- npm run lint: 저장소 루트 실행 시 .claude/worktrees 아래 여러 tsconfig 가 잡혀 파싱 오류 1186건(환경 문제, 데이터·테스트 코드와 무관). 같은 설정을 HEAD 사본(/tmp)에서 실행하면 통과. tests/data/stallions.test.ts 는 tsconfigRootDir 지정 시 통과.

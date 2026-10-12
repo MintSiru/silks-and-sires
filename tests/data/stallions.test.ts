@@ -318,3 +318,35 @@ describe('현역 외조부 BMS (M2-01e)', () => {
     }
   });
 });
+
+describe('M2-02 미국 종마 추가 (위키백과 확인분)', () => {
+  // 사용자 화면 23두 중 위키백과에서 부·생년·털색을 모두 확인한 9두 + 그 부계 조상 4두.
+  // 나머지 14두는 위키백과 문서를 찾지 못해 _review.md '확인 필요' 표에 있다(털색 미확인이라 레코드 없음).
+  const ADDED_KEYS = [
+    'stl_liams_map',
+    'stl_oscar_performance',
+    'stl_goldencents',
+    'stl_mitole',
+    'stl_dialed_in',
+    'stl_authentic',
+    'stl_mckinzie',
+    'stl_omaha_beach',
+    'stl_american_pharoah',
+    'stl_war_front',
+    'stl_kittens_joy',
+    'stl_eskendereya',
+    'stl_pioneerof_the_nile',
+  ];
+
+  it('추가된 종마 13두(현역 9 + 조상 4)가 모두 있다', () => {
+    for (const k of ADDED_KEYS) {
+      expect(byKey.has(k), k).toBe(true);
+    }
+  });
+
+  it('availableFromYear 는 American Pharoah 에만 있고 값은 2027', () => {
+    const withYear = stallions.filter((s) => s.availableFromYear !== undefined);
+    expect(withYear.map((s) => s.key)).toEqual(['stl_american_pharoah']);
+    expect(withYear[0]?.availableFromYear).toBe(2027);
+  });
+});

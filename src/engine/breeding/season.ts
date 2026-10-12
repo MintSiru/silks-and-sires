@@ -155,7 +155,7 @@ export function bookCovering(
   if (mare.coveredBy !== null) return fail('already_covered');
 
   const stallion = state.stallions[stallionId];
-  if (stallion === undefined) return fail('stallion_not_available');
+  if (stallion === undefined || state.date.year < stallion.firstSeasonYear) return fail('stallion_not_available');
   if (stallion.bookedThisSeason >= stallion.bookLimit) return fail('book_full');
 
   const payer = state.owners[ownerId];
