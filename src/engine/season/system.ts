@@ -20,6 +20,7 @@ import type {
   WeekContext,
   WeeklySystem,
 } from '../types';
+import { computeSeasonAwards, hadRacesIn } from './awards';
 import { declareAiRunners } from './declarations';
 import type { CourseCountryLookup } from './eligibility';
 import { buildWeekMeetings } from './meetings';
@@ -79,10 +80,27 @@ function closePointsSeries(
   }
 }
 
-/** (a) 연도 전환: 시리즈 챔피언 확정, 리딩 빈 표, 연도 갱신, 오래된 결과 정리 */
-function startNewSeason(draft: GameState, series: readonly SeriesDefinition[], date: GameDate, events: GameEvent[]): void {
+/**
+ * (a) 연도 전환: 시리즈 챔피언 확정 → 지난해 시상 확정(레이스가 있었을 때만) → 리딩·올해 기록 비우기 → 연도 갱신 → 오래된 결과 정리.
+ * awardsRng 는 호출자가 rng.fork('awards') 로 넘긴다.
+ */
+function startNewSeason(
+  draft: GameState,
+  series: readonly SeriesDefinition[],
+  date: GameDate,
+  awardsRng: Rng,
+  events: GameEvent[],
+): void {
   closePointsSeries(draft, series, date, events);
+  const prevYear = draft.seasonState.year;
+  if (hadRacesIn(draft, prevYear)) {
+    draft.awardsHistory.push(computeSeasonAwards(draft, prevYear, awardsRng));
+    events.push({ type: 'awards_announced', year: prevYear, date: { ...date } });
+  }
   draft.seasonState.leading = emptyLeadingTables();
+  draft.seasonState.leadingByCountry = {};
+  draft.seasonState.performances = {};
+  draft.seasonState.raceRatings = [];
   draft.seasonState.year = date.year;
   const oldest = date.year - RESULTS_KEEP_SEASONS;
   draft.raceResults = draft.raceResults.filter((r) => r.date.year >= oldest);
@@ -177,7 +195,7 @@ export function createSeasonSystem(data: SeasonStaticData): WeeklySystem {
       const rng = ctx.rng.fork('season');
 
       if (date.week === FIRST_WEEK && draft.seasonState.year !== date.year) {
-        startNewSeason(draft, data.series, date, events);
+        startNewSeason(draft, data.series, date, rng.fork('awards'), events);
       }
       runThisWeek(draft, data, courseCountry, date, rng, events);
       scheduleNextWeek(draft, data, date, rng);
