@@ -55,6 +55,7 @@ function makeState(): GameState {
     stallions: {},
     mares: {},
     owners: { [PLAYER_ID]: playerOwner },
+    breeders: {},
     trainers: {},
     jockeys: {},
     breeding: { revealedNicks: [] },
@@ -455,6 +456,25 @@ describe('저장 마이그레이션 v8 → v9 (M4-B2·B3)', () => {
       expect(v).toBe(trainerEyeFromId(id));
       expect(v).toBeGreaterThanOrEqual(TRAINER_EYE_MIN);
       expect(v).toBeLessThanOrEqual(TRAINER_EYE_MAX);
+    }
+  });
+});
+
+describe('저장 마이그레이션 v9 → v10 (M4-C0)', () => {
+  it('상업 생산자 목록이 빈 객체로 생긴다', () => {
+    const { breeders: _b, ...v9 } = makeState();
+    void _b;
+    const json = JSON.stringify({
+      format: 'silks-and-sires-save',
+      schemaVersion: 9,
+      savedAt: '2026-10-12T00:00:00.000Z',
+      state: { ...v9, schemaVersion: 9 },
+    });
+    const result = deserializeGame(json);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.state.schemaVersion).toBe(SAVE_SCHEMA_VERSION);
+      expect(result.state.breeders).toEqual({});
     }
   });
 });

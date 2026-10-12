@@ -1,6 +1,6 @@
-import type { HorseId, JockeyId, Money, OwnerId, SireLineId, TrainerId } from './common';
+import type { BreederId, HorseId, JockeyId, Money, OwnerId, SireLineId, TrainerId } from './common';
 import type { Horse, HorseStatus, InjuryKind, Mare, OffspringStats, Stallion } from './horse';
-import type { Jockey, Owner, Trainer } from './people';
+import type { CommercialBreeder, Jockey, Owner, Trainer } from './people';
 import type { RaceResult } from './race';
 import type { Rng, RngState } from './rng';
 import type { SeasonAwards, SeasonState, SeriesId } from './season';
@@ -79,6 +79,8 @@ export interface GameState {
   /** key = horseId */
   mares: Record<HorseId, Mare>;
   owners: Record<OwnerId, Owner>;
+  /** 상업 생산자(M4-C0). 마주와 따로 둔다(경주에 출주하지 않음) */
+  breeders: Record<BreederId, CommercialBreeder>;
   trainers: Record<TrainerId, Trainer>;
   jockeys: Record<JockeyId, Jockey>;
   breeding: BreedingState;

@@ -102,6 +102,8 @@ export const MIGRATIONS: Readonly<Record<number, Migration>> = {
       relations: { ...relations, contracts: relations.contracts ?? [] },
     };
   },
+  /** v9 → v10 (M4-C0): 상업 생산자. 옛 저장본은 빈 목록(생산자 배정은 마주로 대체된다) */
+  9: (state) => ({ ...state, breeders: state.breeders ?? {} }),
 };
 
 /** 구조 상수(형식 규칙). 밸런스 수치가 아니므로 여기 둔다. */

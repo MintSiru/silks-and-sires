@@ -179,8 +179,9 @@ function nameOfLeading(state: GameState, category: LeadingCategory, id: string):
     case 'trainer':
       return state.trainers[id]?.name ?? id;
     case 'owner':
-    case 'breeder':
       return state.owners[id]?.name ?? id;
+    case 'breeder':
+      return state.owners[id]?.name ?? state.breeders[id]?.name ?? id;
   }
 }
 

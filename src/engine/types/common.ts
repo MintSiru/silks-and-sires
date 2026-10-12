@@ -4,6 +4,8 @@ export type HorseId = string;
 export type OwnerId = string;
 export type TrainerId = string;
 export type JockeyId = string;
+/** 상업 생산자(경주에 출주하지 않는 생산·판매 목장, M4-C0). 'brd_' 로 시작 */
+export type BreederId = string;
 export type RacecourseId = string;
 export type RaceId = string;
 /** 부계(sire line) 식별자. M2 에서 사용. */

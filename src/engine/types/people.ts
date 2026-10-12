@@ -1,4 +1,4 @@
-import type { CountryCode, HorseId, JockeyId, Money, OwnerId, Silks, TrainerId } from './common';
+import type { BreederId, CountryCode, HorseId, JockeyId, Money, OwnerId, Silks, TrainerId } from './common';
 import type { RunningStyle } from './horse';
 
 /** 조교사 성향 */
@@ -95,4 +95,24 @@ export interface Owner {
   persona: OwnerPersona;
   /** 관명 접두어(이름 짓기 'prefix' 템플릿). 없으면 null */
   namePrefix: string | null;
+}
+
+/** 상업 생산자 규모(M4-C0). 생산 두수 가중치와 세일 출품 규모(C2)를 정한다 */
+export type BreederScale = 'large' | 'medium' | 'small';
+
+/**
+ * 상업 생산자(M4-C0): 경주에 말을 내지 않고 생산·판매만 하는 가상 목장(나라별).
+ * AI 현역마 중 오너브리더(목장 있는 마주가 직접 생산)가 아닌 말의 생산자가 되고, 세일 출품자가 된다(C2).
+ * 이름은 가상 목장명(원칙 1).
+ */
+export interface CommercialBreeder {
+  id: BreederId;
+  /** 가상 목장명 */
+  name: string;
+  country: CountryCode;
+  scale: BreederScale;
+  /** 자금(유로 정수). C2 세일 판매 대금이 들어온다. C0 에서는 생성값만 */
+  funds: Money;
+  /** 보유 번식 암말·미판매 생산마(C2 에서 사용). C0 에서는 빈 배열 */
+  horseIds: HorseId[];
 }

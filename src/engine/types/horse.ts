@@ -1,4 +1,4 @@
-import type { CountryCode, HorseId, Money, OwnerId, SireLineId, TrainerId } from './common';
+import type { BreederId, CountryCode, HorseId, Money, OwnerId, SireLineId, TrainerId } from './common';
 
 export type Sex = 'male' | 'female';
 
@@ -112,7 +112,8 @@ export interface Horse {
   sireId: HorseId | null;
   damId: HorseId | null;
   ownerId: OwnerId | null;
-  breederId: OwnerId | null;
+  /** 생산자: 마주(오너브리더·플레이어) OwnerId 또는 상업 생산자 BreederId(M4-C0). 모르면 null */
+  breederId: OwnerId | BreederId | null;
   trainerId: TrainerId | null;
   /** 현재 능력(숨김) */
   ability: Abilities;
