@@ -3848,7 +3848,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 5,
-    "confidence": "low"
+    "confidence": "high"
   },
   {
     "key": "stl_bernstein",
@@ -3862,49 +3862,49 @@
     "distanceProfile": "speed",
     "surfaceProfile": "both",
     "marketTier": 5,
-    "confidence": "medium"
+    "confidence": "high"
   },
   {
     "key": "stl_born_to_sea",
     "foaled": 2009,
     "countryOfBirth": "IE",
     "sireKey": "stl_invincible_spirit",
-    "damsireKey": null,
+    "damsireKey": "stl_miswaki",
     "sireLineId": "sl_invincible_spirit",
     "status": "pensioned",
     "standsIn": null,
     "distanceProfile": "classic",
     "surfaceProfile": "turf",
     "marketTier": 5,
-    "confidence": "medium"
+    "confidence": "high"
   },
   {
     "key": "stl_cowboy_cal",
     "foaled": 2005,
     "countryOfBirth": "US",
     "sireKey": "stl_giant_causeway",
-    "damsireKey": null,
+    "damsireKey": "stl_seeking_the_gold",
     "sireLineId": "sl_storm_cat",
     "status": "historical",
     "standsIn": null,
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
-    "confidence": "medium"
+    "confidence": "high"
   },
   {
     "key": "stl_deploy",
     "foaled": 1987,
     "countryOfBirth": "GB",
     "sireKey": "stl_shirley_heights",
-    "damsireKey": null,
+    "damsireKey": "stl_roberto",
     "sireLineId": "sl_phalaris",
     "status": "historical",
     "standsIn": null,
     "distanceProfile": "middle",
     "surfaceProfile": "turf",
     "marketTier": 5,
-    "confidence": "medium"
+    "confidence": "high"
   },
   {
     "key": "stl_dynaformer",
@@ -3923,7 +3923,7 @@
   {
     "key": "stl_frozen_power",
     "foaled": 2007,
-    "countryOfBirth": "GB",
+    "countryOfBirth": "IE",
     "sireKey": "stl_oasis_dream",
     "damsireKey": null,
     "sireLineId": "sl_danzig",
@@ -3932,21 +3932,21 @@
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
-    "confidence": "medium"
+    "confidence": "high"
   },
   {
     "key": "stl_hallowed_crown",
-    "foaled": 2012,
+    "foaled": 2011,
     "countryOfBirth": "AU",
-    "sireKey": "stl_street_cry",
-    "damsireKey": null,
+    "sireKey": "stl_street_sense",
+    "damsireKey": "stl_danehill",
     "sireLineId": "sl_mr_prospector",
     "status": "pensioned",
     "standsIn": null,
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
-    "confidence": "medium"
+    "confidence": "high"
   },
   {
     "key": "stl_holy_bull",
@@ -3988,7 +3988,7 @@
     "distanceProfile": "classic",
     "surfaceProfile": "turf",
     "marketTier": 5,
-    "confidence": "low"
+    "confidence": "high"
   },
   {
     "key": "stl_kendargent",
@@ -4002,7 +4002,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
-    "confidence": "low"
+    "confidence": "high"
   },
   {
     "key": "stl_kris",
@@ -4044,21 +4044,21 @@
     "distanceProfile": "classic",
     "surfaceProfile": "both",
     "marketTier": 5,
-    "confidence": "low"
+    "confidence": "high"
   },
   {
     "key": "stl_made_of_gold",
-    "foaled": 1988,
+    "foaled": 1989,
     "countryOfBirth": "US",
     "sireKey": null,
     "damsireKey": null,
-    "sireLineId": "sl_mr_prospector",
+    "sireLineId": "sl_phalaris",
     "status": "historical",
     "standsIn": null,
     "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 5,
-    "confidence": "low"
+    "confidence": "medium"
   },
   {
     "key": "stl_mark_of_esteem",
@@ -4142,7 +4142,7 @@
     "distanceProfile": "middle",
     "surfaceProfile": "turf",
     "marketTier": 5,
-    "confidence": "medium"
+    "confidence": "high"
   },
   {
     "key": "stl_singspiel",
@@ -4184,7 +4184,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 5,
-    "confidence": "low"
+    "confidence": "high"
   },
   {
     "key": "stl_vettori",
@@ -4198,7 +4198,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
-    "confidence": "medium"
+    "confidence": "high"
   },
   {
     "key": "stl_zamindar",
@@ -4212,6 +4212,6 @@
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
-    "confidence": "medium"
+    "confidence": "high"
   }
 ]
