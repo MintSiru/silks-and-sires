@@ -1,4 +1,5 @@
-import { defaultCoat, neutralPersonality } from './traits';
+import { defaultCoat } from './traits';
+import { deriveStyle, generatePersonality } from './personality';
 import type {
   Abilities,
   Aptitudes,
@@ -10,7 +11,6 @@ import type {
   Horse,
   HorseStatus,
   OwnerId,
-  RunningStyle,
   Rng,
   Sex,
   SireLineId,
@@ -47,7 +47,6 @@ import {
   SOUNDNESS_SD,
   STAMINA_BIAS_DIVISOR,
   STAMINA_BIAS_REF,
-  STYLE_WEIGHTS,
   SURFACE_APT_SD,
   SURFACE_BIAS_BONUS,
 } from '../config/horse';
@@ -93,18 +92,6 @@ export function profileOfDistance(distanceOptimum: number): DistanceProfile {
 /** 정규 분포 샘플을 능력 범위로 자른다. */
 function sampleAbility(rng: Rng, mean: number, spread: number, offset = 0): number {
   return clamp(rng.normal(mean, spread) + offset, ABILITY_MIN, ABILITY_MAX);
-}
-
-/** STYLE_WEIGHTS 누적 가중치로 작전을 고른다. rng.next() 를 정확히 1회 쓴다. */
-function sampleStyle(rng: Rng): RunningStyle {
-  const u = rng.next();
-  const styles = Object.keys(STYLE_WEIGHTS) as RunningStyle[];
-  let cumulative = 0;
-  for (const style of styles) {
-    cumulative += STYLE_WEIGHTS[style];
-    if (u < cumulative) return style;
-  }
-  return styles[styles.length - 1] as RunningStyle;
 }
 
 function zeroRecord(): CareerRecord {
@@ -185,8 +172,9 @@ export function generateHorse(rng: Rng, opts: GenerateHorseOptions): Horse {
     undulation,
   };
 
-  // 5. 선호 작전
-  const preferredStyle = sampleStyle(rng);
+  // 5. 성격 → 선호 작전 (성격·능력에서 결정, fork 로 분리)
+  const personality = generatePersonality(rng.fork('personality'));
+  const preferredStyle = deriveStyle(personality, ability, rng.fork('style'));
 
   // 6. 건강도
   const soundness = sampleAbility(rng, SOUNDNESS_MEAN, SOUNDNESS_SD);
@@ -223,7 +211,7 @@ export function generateHorse(rng: Rng, opts: GenerateHorseOptions): Horse {
     familyId: opts.familyId ?? null,
     sireLineId: opts.sireLineId ?? null,
     soundness,
-    personality: neutralPersonality(),
+    personality,
     coat: defaultCoat(),
     record: zeroRecord(),
   };

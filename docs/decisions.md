@@ -156,3 +156,4 @@
 - 2026-10-12 | 데이터(Opus 직접, 사용자 혈통표) | Avenue of Flags 출생 1990→1988 확인, Archipenko 값 일치 확인 → 두 말 confidence high. 미확인 남음: Najran(USA).
 - 2026-10-12 | 데이터(Opus 직접, 사용자 혈통표) | Najran(USA) 1999·부 Runaway Groom 확인 → confidence high. M2-01f 신규 조상 29두 확인 완료.
 - 2026-10-12 | 기술(Opus) | M3-C5·C6 공용 타입: Horse.personality(5축 0~100, 50=효과 없음), Horse.coat(유전자 E/A·At·a/G/Rn + 얼굴 반점·흰 양말). 생성·교배는 일단 중립 성격·기본 털색(horse/traits.ts) — C5·C6 가 교체. 저장 v4(기존 말에 중립값). G1 cardOrder 10 단위 + pattern 파일 로더(873091c).
+- 2026-10-12 | 승인 | M3-C5a 말의 성격 — 5축 N(50,15), 유전 50+0.35×(부모평균−50)+N(0,14)(부모 90→자식 63.9), 각질은 성격(기세·침착·겁)+능력(스피드−스태미나)+잡음으로 결정(5,000두 비율 front .150/prominent .302/midfield .364/held_up .184), 부모 각질 복사 삭제. 단서 키 5종(gate_nervous·keen_going·genuine·quirky·laid_back). 단독 작업 트리 전체 739 통과, 골든 불변.

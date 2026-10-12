@@ -1,4 +1,5 @@
-import { defaultCoat, neutralPersonality } from '../horse/traits';
+import { defaultCoat } from '../horse/traits';
+import { deriveStyle, inheritPersonality } from '../horse/personality';
 import type {
   Abilities,
   Aptitudes,
@@ -10,7 +11,6 @@ import type {
   InbreedingCross,
   NickEntry,
   OwnerId,
-  RunningStyle,
   Rng,
   SireLineId,
 } from '../types';
@@ -42,8 +42,6 @@ import {
   SIRE_WEIGHT,
   SOUNDNESS_INHERIT_SD,
   SOUNDNESS_REGRESSION,
-  STYLE_FROM_DAM_P,
-  STYLE_FROM_SIRE_P,
   SURFACE_INHERIT_KEEP,
   SURFACE_INHERIT_SD,
 } from '../config/genetics';
@@ -59,7 +57,6 @@ import {
   GROWTH_DECLINE_RATE,
   GROWTH_PEAK_AGE,
   SOUNDNESS_MEAN,
-  STYLE_WEIGHTS,
 } from '../config/horse';
 import { abilityAtAge, sampleGrowthProfile } from '../horse/growthCurve';
 import { profileOfDistance } from '../horse/generate';
@@ -260,25 +257,6 @@ function inheritGrowthType(rng: Rng, sire: Horse, dam: Horse): GrowthProfile['ty
   return sampleGrowthProfile(rng).type;
 }
 
-/** 가중치 누적으로 키를 고른다(u 는 [0,1)) */
-function pickByWeight<K extends string>(weights: Record<K, number>, u: number): K {
-  const keys = Object.keys(weights) as K[];
-  let cumulative = 0;
-  for (const key of keys) {
-    cumulative += weights[key];
-    if (u < cumulative) return key;
-  }
-  return keys[keys.length - 1] as K;
-}
-
-/** 작전 선호: 부 STYLE_FROM_SIRE_P, 모 STYLE_FROM_DAM_P, 나머지 STYLE_WEIGHTS */
-function inheritStyle(rng: Rng, sire: Horse, dam: Horse): RunningStyle {
-  const u = rng.next();
-  if (u < STYLE_FROM_SIRE_P) return sire.preferredStyle;
-  if (u < STYLE_FROM_SIRE_P + STYLE_FROM_DAM_P) return dam.preferredStyle;
-  return pickByWeight(STYLE_WEIGHTS, rng.next());
-}
-
 /** 적성 하나의 유전(표면·코스 적성 공통): 평균 × KEEP + 정규 편차, [APTITUDE_MIN, APTITUDE_MAX] */
 function inheritAptitudeScore(rng: Rng, a: number, b: number): number {
   return clamp(
@@ -375,8 +353,10 @@ export function breed(rng: Rng, args: BreedArgs): Horse {
     undulation,
   };
 
-  // 6. 작전 선호
-  const preferredStyle = inheritStyle(rng, sire, dam);
+  // 6. 성격 → 작전 선호 (성격과 망아지 능력에서 결정, fork 로 분리)
+  const personality = inheritPersonality(rng.fork('personality'), sire.personality, dam.personality);
+  const ability = abilityAtAge(potential, args.currentYear - args.birthYear, growth);
+  const preferredStyle = deriveStyle(personality, ability, rng.fork('style'));
 
   // 7. 건강도, 정신
   const soundnessMid = soundnessRegressed(
@@ -396,9 +376,7 @@ export function breed(rng: Rng, args: BreedArgs): Horse {
     ABILITY_MAX,
   );
 
-  // 8. 현재 능력과 나머지 필드
-  const ability = abilityAtAge(potential, args.currentYear - args.birthYear, growth);
-
+  // 8. 나머지 필드
   return {
     id: args.id,
     name: args.name,
@@ -427,7 +405,7 @@ export function breed(rng: Rng, args: BreedArgs): Horse {
     familyId: dam.familyId ?? dam.id,
     sireLineId: sire.sireLineId,
     soundness,
-    personality: neutralPersonality(),
+    personality,
     coat: defaultCoat(),
     record: zeroRecord(),
   };

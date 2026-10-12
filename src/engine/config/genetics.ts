@@ -42,9 +42,6 @@ export const MENTAL_INHERIT_SD = 10;
 /** 성장형: 부 형 SIRE_P, 모 형 DAM_P, 나머지 무작위 */
 export const GROWTH_FROM_SIRE_P = 0.4;
 export const GROWTH_FROM_DAM_P = 0.4;
-/** 작전 선호: 부 SIRE_P, 모 DAM_P, 나머지 STYLE_WEIGHTS */
-export const STYLE_FROM_SIRE_P = 0.5;
-export const STYLE_FROM_DAM_P = 0.3;
 /** 닉스 라벨 경계 */
 export const NICK_EXCELLENT = 0.5;
 export const NICK_GOOD = 0.2;
