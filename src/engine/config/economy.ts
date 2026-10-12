@@ -130,3 +130,5 @@ export const RETAINER_TERMINATION_PENALTY_RATE = 0.25;
 export const RETAINER_TERMINATION_RELATION_HIT = 40;
 /** 전속 조교사는 플레이어 말을 수용 두수 + EXTRA_BOXES 까지 받는다 */
 export const RETAINER_EXTRA_BOXES = 6;
+/** 전속 조교사의 상마안(eye) 가산(M4-C6). 계약 중 조교사 소견의 평가자 능력 = min(100, eye + 이 값) */
+export const RETAINER_EYE_BONUS = 15;

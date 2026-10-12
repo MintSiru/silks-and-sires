@@ -177,3 +177,8 @@ export const SALE_OPEN_BUYER_COUNTRIES: readonly CountryCode[] = ['GB', 'IE', 'F
 
 /** 실시간 경매 보기(liveAuctionSteps) 단계 수 상한. 넘으면 가격이 낮은 앞쪽 단계를 건너뛴다 */
 export const SALE_LIVE_MAX_STEPS = 200;
+
+// ── 세일 동행 검사(M4-C6) ─────────────────────────
+
+/** 세일 동행 검사 가능 관계 하한(이상이면 동행 가능). 전속 조교사는 관계와 무관하게 가능 */
+export const SALE_INSPECT_MIN_RELATION = 10;
