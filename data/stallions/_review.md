@@ -849,4 +849,4 @@ Avenue of Flags, Bailjumper, Kaldounevees, Kendargent, Lord At War, Made Of Gold
 - 상위 50위 중 우리 데이터에 없는 종마 22두는 docs/m4-ideas.md 의 '미국 종마 후보'(M4 추가 대상).
 - 사용자 제공 종마 등록 화면 확인(2026-10-12): Gun Runner(Candy Ride, 2013, ch, 외조부 Giant's Causeway) 일치. Not This Time(Giant's Causeway, 2014) 털색 bay → brown(dkb/br) 정정, 외조부 Trippi(미수록). Quality Road(Elusive Quality, 2006, b) 일치, 외조부 Strawberry Road(미수록). City of Light(Quality Road, 2014, b) 일치, 외조부 Dehere(미수록). 미수록 외조부는 M4 미국 종마 추가 때 함께 검토.
 - 사망 연도 확인(사용자): Uncle Mo 2024, Speightstown 2023 — historical 유지.
-- American Pharoah: 2025~2026 일본 셔틀 종마(사용자). M4 미국 종마 후보에 추가(계류: 미국·일본 셔틀).
+- American Pharoah: 2025~2026 일본 단기 임대, 2027 미국 복귀(사용자). M4 미국 종마 후보.
