@@ -10,6 +10,8 @@ import {
 import type { GameState, Owner } from '../../src/engine/types';
 import { SAVE_FORMAT } from '../../src/engine/types';
 import { createEmptyEconomyState, createEmptyRelationsState } from '../../src/engine/economy/state';
+import { TRAINER_EYE_MAX, TRAINER_EYE_MIN } from '../../src/engine/config/people';
+import { trainerEyeFromId } from '../../src/engine/people/generate';
 import { createEmptySeasonState } from '../../src/engine/season/state';
 
 const PLAYER_ID = 'owner-player';
@@ -419,6 +421,40 @@ describe('저장 마이그레이션 v6 → v7 (M4-A1)', () => {
       expect(result.state.schemaVersion).toBe(SAVE_SCHEMA_VERSION);
       expect(result.state.economy).toEqual(createEmptyEconomyState('casual'));
       expect(result.state.relations).toEqual(createEmptyRelationsState());
+    }
+  });
+});
+
+describe('저장 마이그레이션 v8 → v9 (M4-B2·B3)', () => {
+  it('조교사에 상마안(ID 해시)과 플레이어 전속 계약 목록이 생긴다', () => {
+    const v9 = makeState();
+    v9.trainers = {
+      'tr-000001': {
+        id: 'tr-000001', name: 'T', country: 'GB', yardName: 'Y', region: 'R', facilityGrade: 2, style: 'all_round',
+        skill: 50, weeklyFee: 360, capacity: 40, birthYear: 1980, staminaBias: 0, juvenileFocus: 0.5, eye: 0,
+      } as never,
+    };
+    const { contracts: _c, ...relRest } = v9.relations;
+    void _c;
+    const trainer = { ...(v9.trainers['tr-000001'] as unknown as Record<string, unknown>) };
+    delete trainer.eye;
+    const v8 = { ...v9, schemaVersion: 8, trainers: { 'tr-000001': trainer }, relations: relRest };
+    const json = JSON.stringify({ format: 'silks-and-sires-save', schemaVersion: 8, savedAt: '2026-10-12T00:00:00.000Z', state: v8 });
+    const result = deserializeGame(json);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.state.schemaVersion).toBe(SAVE_SCHEMA_VERSION);
+      expect(result.state.trainers['tr-000001']?.eye).toBe(trainerEyeFromId('tr-000001'));
+      expect(result.state.relations.contracts).toEqual([]);
+    }
+  });
+
+  it('trainerEyeFromId 는 범위 안의 결정적 값이다', () => {
+    for (const id of ['tr-000001', 'tr-000002', 'tr-123456']) {
+      const v = trainerEyeFromId(id);
+      expect(v).toBe(trainerEyeFromId(id));
+      expect(v).toBeGreaterThanOrEqual(TRAINER_EYE_MIN);
+      expect(v).toBeLessThanOrEqual(TRAINER_EYE_MAX);
     }
   });
 });

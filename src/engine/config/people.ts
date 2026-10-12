@@ -159,3 +159,7 @@ export const STUD_WORDS_BEFORE_NAME: ReadonlySet<string> = new Set([
   'Coudelaria',
   'Fazenda',
 ]);
+
+/** 조교사 상마안(M4-B2) 범위. 기존 난수 흐름을 바꾸지 않으려고 조교사 ID 해시로 정한다 */
+export const TRAINER_EYE_MIN = 20;
+export const TRAINER_EYE_MAX = 90;

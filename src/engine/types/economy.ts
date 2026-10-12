@@ -91,10 +91,27 @@ export type RelationKind = 'owner' | 'trainer' | 'jockey';
 /** 관계 키: `${kind}:${id}` (예 'owner:ow-000012') */
 export type RelationKey = `owner:${OwnerId}` | `trainer:${TrainerId}` | `jockey:${JockeyId}`;
 
+/**
+ * 플레이어 전속 계약(M4-B3, 사용자 결정 2026-10-12: 관계 고정이 아닌 특수 취급).
+ * 계약 중: 내 말 우선 기승·위탁, 코멘트 정확도 보너스, 관계 하한·상승 가속. 만료 연도 말에 관계로 갱신 판정.
+ */
+export interface RetainerContract {
+  kind: 'trainer' | 'jockey';
+  /** TrainerId 또는 JockeyId */
+  personId: string;
+  startYear: number;
+  /** 이 해 말(연도 전환 때) 갱신 판정 */
+  endYear: number;
+  /** 연간 계약금(유로 정수). 매년 연도 전환 때 지불 */
+  annualFee: Money;
+}
+
 /** 관계·명성 상태 */
 export interface RelationsState {
   /** 플레이어와 상대의 관계값(−100 ~ 100). 없는 키 = 0(처음 보는 사이) */
   values: Partial<Record<RelationKey, number>>;
   /** 플레이어 전체 명성(0 ~ 100) */
   reputation: number;
+  /** 플레이어 전속 계약(조교사·기수). 같은 사람과 계약은 하나 */
+  contracts: RetainerContract[];
 }

@@ -28,6 +28,8 @@ import {
   SILK_PALETTE,
   SILK_PATTERNS,
   TRAINER_AGE_MAX,
+  TRAINER_EYE_MAX,
+  TRAINER_EYE_MIN,
   TRAINER_AGE_MIN,
   TRAINER_BIAS_STYLE_THRESHOLD,
   TRAINER_CAPACITY_MAX,
@@ -197,6 +199,19 @@ function pickTrainerStyle(rng: Rng, staminaBias: number, juvenileFocus: number):
 }
 
 /** 조교사 한 명. 야드 이름 = 지역명 + yard_words. */
+/**
+ * 조교사 상마안(M4-B2). 기존 생성 난수 흐름을 바꾸지 않도록 ID 문자열 해시(FNV-1a)로 결정적으로 정한다.
+ * 저장 이주(v8 → v9)도 같은 함수를 쓴다.
+ */
+export function trainerEyeFromId(id: TrainerId): number {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < id.length; i++) {
+    h ^= id.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return TRAINER_EYE_MIN + (h % (TRAINER_EYE_MAX - TRAINER_EYE_MIN + 1));
+}
+
 export function generateTrainer(rng: Rng, ctx: PeopleContext, id: TrainerId, country: CountryCode): Trainer {
   const home = requireNameCountry(country);
 
@@ -232,6 +247,7 @@ export function generateTrainer(rng: Rng, ctx: PeopleContext, id: TrainerId, cou
     birthYear: ctx.currentYear - age,
     staminaBias,
     juvenileFocus,
+    eye: trainerEyeFromId(id),
   };
 }
 

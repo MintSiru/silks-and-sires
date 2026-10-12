@@ -1,6 +1,7 @@
 import { SAVE_SCHEMA_VERSION, WEEKS_PER_YEAR } from '../config/game';
 import { createEmptyEconomyState, createEmptyRelationsState } from '../economy/state';
 import { defaultCoat, neutralPersonality } from '../horse/traits';
+import { trainerEyeFromId } from '../people/generate';
 import { createEmptySeasonState } from '../season/state';
 import { SAVE_FORMAT } from '../types';
 import type { GameState, LoadResult, SaveEnvelope, SaveErrorCode } from '../types';
@@ -86,6 +87,20 @@ export const MIGRATIONS: Readonly<Record<number, Migration>> = {
       };
     }
     return { ...state, trainers: next };
+  },
+  /** v8 → v9 (M4-B2·B3): 조교사 상마안(ID 해시), 플레이어 전속 계약 목록 */
+  8: (state) => {
+    const trainers = state.trainers as Record<string, Record<string, unknown>> | undefined;
+    const nextTrainers: Record<string, Record<string, unknown>> = {};
+    for (const [id, t] of Object.entries(trainers ?? {})) {
+      nextTrainers[id] = { ...t, eye: typeof t.eye === 'number' ? t.eye : trainerEyeFromId(id) };
+    }
+    const relations = (state.relations ?? {}) as Record<string, unknown>;
+    return {
+      ...state,
+      trainers: trainers === undefined ? state.trainers : nextTrainers,
+      relations: { ...relations, contracts: relations.contracts ?? [] },
+    };
   },
 };
 

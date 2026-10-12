@@ -27,6 +27,8 @@ export interface Trainer {
   staminaBias: number;
   /** 2세 조기 출주 성향 0~1 */
   juvenileFocus: number;
+  /** 상마안(말 보는 눈) 0~100 (숨김, M4-B2). 세일 동행 코멘트·조교사 소견의 정확도 */
+  eye: number;
 }
 
 export interface Jockey {

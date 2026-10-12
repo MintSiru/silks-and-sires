@@ -9,6 +9,7 @@ import {
   weeklyCosts,
 } from '../../src/engine/economy/costs';
 import { FARM_UPKEEP } from '../../src/engine/config/economy';
+import { SAVE_SCHEMA_VERSION } from '../../src/engine/config/game';
 import { getNamingData, getNicks, getPeopleData, getStallionNames, getStallionRecords } from '../../src/engine/data/staticData';
 import { deserializeGame, serializeGame } from '../../src/engine/save/serialize';
 import { bootstrapGame, type BootstrapData } from '../../src/engine/state/bootstrap';
@@ -364,7 +365,7 @@ describe('저장 이주 v7 → v8 (M4-A2b)', () => {
     const loaded = deserializeGame(JSON.stringify(envelope));
     expect(loaded.ok).toBe(true);
     if (!loaded.ok) return;
-    expect(loaded.state.schemaVersion).toBe(8);
+    expect(loaded.state.schemaVersion).toBe(SAVE_SCHEMA_VERSION);
     const trainers = Object.values(loaded.state.trainers);
     expect(trainers.length).toBeGreaterThan(0);
     for (const t of trainers) {

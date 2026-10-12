@@ -16,5 +16,5 @@ export function createEmptyEconomyState(mode: EconomyMode): EconomyState {
 
 /** 빈 관계 상태(새 게임·저장 이주용) */
 export function createEmptyRelationsState(): RelationsState {
-  return { values: {}, reputation: STARTING_REPUTATION };
+  return { values: {}, reputation: STARTING_REPUTATION, contracts: [] };
 }
