@@ -611,3 +611,27 @@ Al Qarwan, Al Dhurayn, Al Sindar, Al Mirzaq, Al Hazwar, Al Basrin, Al Tawmir, Al
 ### 기타 확인 사항
 - places.json 에는 AE 지명 풀(stud_suffixes·region_names)이 없다. people.test.ts 의 지명 검사는 열 개 국가(COUNTRIES) 기준으로 유지했다.
 - src/engine/data/staticData.ts 의 NAME_COUNTRIES(열 개)가 AE 키를 거부해 인물 관련 테스트 다수가 실패한다(다음 티켓에서 src 수정 필요).
+
+## M4-C1 세일 캘린더 가상 이름 (data/sales/sales.json, 2026-10-12)
+
+상세 대응표(모티브 열 포함)는 data/sales/_review.md 에만 있다. 아래는 json 에 들어간 가상 이름 목록.
+
+| 구분 | 이름 | 근거 |
+|---|---|---|
+| 회사 | Ashcombe Bloodstock Sales | 가상 조어 (명세의 영국 가상 지명 예시 재사용) |
+| 회사 | Ardcarrig Thoroughbred Sales | 가상 조어 (IE regionNames 와 같은 어근) |
+| 회사 | Lorvaux Enchères | 가상 조어 (FR regionNames 재사용) |
+| 회사 | Wolfsrode Auktionen | 가상 조어 (DE regionNames 와 같은 어근) |
+| 회사 | Quenmoor Thoroughbred Sales | 가상 조어, 실존 여부 미확인 |
+| 장소 | Kelsmoor Sales Park | GB regionNames 재사용 |
+| 장소 | Corrinvale Sales Grounds | IE regionNames 재사용 |
+| 장소 | Vesserac Pavillon de Vente | FR regionNames 재사용 |
+| 장소 | Adlerhain Auktionshalle | DE regionNames 재사용 |
+| 장소 | Halvard Sales Pavilion | 가상 조어, 미국 지명 풀에 없음. 실존 여부 미확인 |
+| 세일 | Ashcombe October Yearling Sale · Ashcombe Summer Yearling Sale · Ashcombe December Foal Sale · Ashcombe October In-Training Sale · Ashcombe December Breeding Stock Sale | 회사명 + 종류·월 조합 |
+| 세일 | Ardcarrig September Yearling Sale · Ardcarrig November Foal Sale · Ardcarrig Breeze-Up Sale | 회사명 + 종류·월 조합 |
+| 세일 | Lorvaux August Yearling Sale · Lorvaux October Training Sale · Lorvaux December Broodmare Sale | 회사명 + 종류·월 조합 |
+| 세일 | Wolfsrode September Yearling Auktion | 회사명 + 종류·월 조합 |
+| 세일 | Quenmoor September Yearling Sale · Quenmoor Spring Breeze-Up Sale · Quenmoor November Breeding Stock Sale | 회사명 + 종류·월 조합 |
+
+금지어 검사: 실제 세일 회사명·real_places.json blockedTokens 단어 단위 일치 0건 (tests/data/sales.test.ts 에서 검사).

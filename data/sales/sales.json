@@ -1,0 +1,238 @@
+{
+  "version": 1,
+  "companies": [
+    {
+      "id": "sco_ashcombe",
+      "name": "Ashcombe Bloodstock Sales",
+      "country": "GB",
+      "venue": "Kelsmoor Sales Park",
+      "prestige": 1
+    },
+    {
+      "id": "sco_ardcarrig",
+      "name": "Ardcarrig Thoroughbred Sales",
+      "country": "IE",
+      "venue": "Corrinvale Sales Grounds",
+      "prestige": 1
+    },
+    {
+      "id": "sco_lorvaux",
+      "name": "Lorvaux Enchères",
+      "country": "FR",
+      "venue": "Vesserac Pavillon de Vente",
+      "prestige": 1
+    },
+    {
+      "id": "sco_wolfsrode",
+      "name": "Wolfsrode Auktionen",
+      "country": "DE",
+      "venue": "Adlerhain Auktionshalle",
+      "prestige": 2
+    },
+    {
+      "id": "sco_quenmoor",
+      "name": "Quenmoor Thoroughbred Sales",
+      "country": "US",
+      "venue": "Halvard Sales Pavilion",
+      "prestige": 1
+    }
+  ],
+  "events": [
+    {
+      "id": "sev_ashcombe_yearling_oct",
+      "companyId": "sco_ashcombe",
+      "name": "Ashcombe October Yearling Sale",
+      "kind": "yearling",
+      "week": 41,
+      "books": [
+        { "book": 1, "weekOffset": 0, "lotsTarget": 180, "maxSireTier": 1 },
+        { "book": 2, "weekOffset": 0, "lotsTarget": 320, "maxSireTier": 2 },
+        { "book": 3, "weekOffset": 1, "lotsTarget": 420, "maxSireTier": 3 },
+        { "book": 4, "weekOffset": 1, "lotsTarget": 500, "maxSireTier": 5 }
+      ],
+      "buyerPremiumRate": 0.05,
+      "minimumBid": 3000
+    },
+    {
+      "id": "sev_ashcombe_yearling_aug",
+      "companyId": "sco_ashcombe",
+      "name": "Ashcombe Summer Yearling Sale",
+      "kind": "yearling",
+      "week": 34,
+      "books": [
+        { "book": 1, "weekOffset": 0, "lotsTarget": 200, "maxSireTier": 5 }
+      ],
+      "buyerPremiumRate": 0.05,
+      "minimumBid": 2000
+    },
+    {
+      "id": "sev_ardcarrig_yearling_sep",
+      "companyId": "sco_ardcarrig",
+      "name": "Ardcarrig September Yearling Sale",
+      "kind": "yearling",
+      "week": 37,
+      "books": [
+        { "book": 1, "weekOffset": 0, "lotsTarget": 150, "maxSireTier": 1 },
+        { "book": 2, "weekOffset": 0, "lotsTarget": 300, "maxSireTier": 2 },
+        { "book": 3, "weekOffset": 1, "lotsTarget": 450, "maxSireTier": 5 }
+      ],
+      "buyerPremiumRate": 0.045,
+      "minimumBid": 3000
+    },
+    {
+      "id": "sev_lorvaux_yearling_aug",
+      "companyId": "sco_lorvaux",
+      "name": "Lorvaux August Yearling Sale",
+      "kind": "yearling",
+      "week": 33,
+      "books": [
+        { "book": 1, "weekOffset": 0, "lotsTarget": 140, "maxSireTier": 1 },
+        { "book": 2, "weekOffset": 0, "lotsTarget": 260, "maxSireTier": 2 },
+        { "book": 3, "weekOffset": 1, "lotsTarget": 360, "maxSireTier": 5 }
+      ],
+      "buyerPremiumRate": 0.04,
+      "minimumBid": 3000
+    },
+    {
+      "id": "sev_wolfsrode_yearling_sep",
+      "companyId": "sco_wolfsrode",
+      "name": "Wolfsrode September Yearling Auktion",
+      "kind": "yearling",
+      "week": 38,
+      "books": [
+        { "book": 1, "weekOffset": 0, "lotsTarget": 120, "maxSireTier": 2 },
+        { "book": 2, "weekOffset": 1, "lotsTarget": 220, "maxSireTier": 5 }
+      ],
+      "buyerPremiumRate": 0.035,
+      "minimumBid": 3000
+    },
+    {
+      "id": "sev_quenmoor_yearling_sep",
+      "companyId": "sco_quenmoor",
+      "name": "Quenmoor September Yearling Sale",
+      "kind": "yearling",
+      "week": 36,
+      "books": [
+        { "book": 1, "weekOffset": 0, "lotsTarget": 180, "maxSireTier": 1 },
+        { "book": 2, "weekOffset": 0, "lotsTarget": 280, "maxSireTier": 2 },
+        { "book": 3, "weekOffset": 1, "lotsTarget": 380, "maxSireTier": 3 },
+        { "book": 4, "weekOffset": 1, "lotsTarget": 480, "maxSireTier": 4 },
+        { "book": 5, "weekOffset": 2, "lotsTarget": 580, "maxSireTier": 5 }
+      ],
+      "buyerPremiumRate": 0.055,
+      "minimumBid": 3000
+    },
+    {
+      "id": "sev_ashcombe_foal_dec",
+      "companyId": "sco_ashcombe",
+      "name": "Ashcombe December Foal Sale",
+      "kind": "foal",
+      "week": 49,
+      "books": [
+        { "book": 1, "weekOffset": 0, "lotsTarget": 350, "maxSireTier": 5 }
+      ],
+      "buyerPremiumRate": 0.05,
+      "minimumBid": 1000
+    },
+    {
+      "id": "sev_ardcarrig_foal_nov",
+      "companyId": "sco_ardcarrig",
+      "name": "Ardcarrig November Foal Sale",
+      "kind": "foal",
+      "week": 46,
+      "books": [
+        { "book": 1, "weekOffset": 0, "lotsTarget": 150, "maxSireTier": 2 },
+        { "book": 2, "weekOffset": 1, "lotsTarget": 220, "maxSireTier": 5 }
+      ],
+      "buyerPremiumRate": 0.045,
+      "minimumBid": 1000
+    },
+    {
+      "id": "sev_ardcarrig_breeze_up_apr",
+      "companyId": "sco_ardcarrig",
+      "name": "Ardcarrig Breeze-Up Sale",
+      "kind": "breeze_up",
+      "week": 16,
+      "books": [
+        { "book": 1, "weekOffset": 0, "lotsTarget": 90, "maxSireTier": 2 },
+        { "book": 2, "weekOffset": 0, "lotsTarget": 130, "maxSireTier": 5 }
+      ],
+      "buyerPremiumRate": 0.045,
+      "minimumBid": 3000
+    },
+    {
+      "id": "sev_quenmoor_breeze_up_may",
+      "companyId": "sco_quenmoor",
+      "name": "Quenmoor Spring Breeze-Up Sale",
+      "kind": "breeze_up",
+      "week": 20,
+      "books": [
+        { "book": 1, "weekOffset": 0, "lotsTarget": 110, "maxSireTier": 3 },
+        { "book": 2, "weekOffset": 1, "lotsTarget": 150, "maxSireTier": 5 }
+      ],
+      "buyerPremiumRate": 0.055,
+      "minimumBid": 3000
+    },
+    {
+      "id": "sev_ashcombe_horses_in_training_oct",
+      "companyId": "sco_ashcombe",
+      "name": "Ashcombe October In-Training Sale",
+      "kind": "horses_in_training",
+      "week": 43,
+      "books": [
+        { "book": 1, "weekOffset": 0, "lotsTarget": 120, "maxSireTier": 5 }
+      ],
+      "buyerPremiumRate": 0.05,
+      "minimumBid": 5000
+    },
+    {
+      "id": "sev_lorvaux_horses_in_training_oct",
+      "companyId": "sco_lorvaux",
+      "name": "Lorvaux October Training Sale",
+      "kind": "horses_in_training",
+      "week": 41,
+      "books": [
+        { "book": 1, "weekOffset": 0, "lotsTarget": 100, "maxSireTier": 5 }
+      ],
+      "buyerPremiumRate": 0.04,
+      "minimumBid": 5000
+    },
+    {
+      "id": "sev_ashcombe_breeding_stock_dec",
+      "companyId": "sco_ashcombe",
+      "name": "Ashcombe December Breeding Stock Sale",
+      "kind": "breeding_stock",
+      "week": 51,
+      "books": [
+        { "book": 1, "weekOffset": 0, "lotsTarget": 110, "maxSireTier": 5 }
+      ],
+      "buyerPremiumRate": 0.05,
+      "minimumBid": 5000
+    },
+    {
+      "id": "sev_lorvaux_breeding_stock_dec",
+      "companyId": "sco_lorvaux",
+      "name": "Lorvaux December Broodmare Sale",
+      "kind": "breeding_stock",
+      "week": 50,
+      "books": [
+        { "book": 1, "weekOffset": 0, "lotsTarget": 90, "maxSireTier": 5 }
+      ],
+      "buyerPremiumRate": 0.04,
+      "minimumBid": 5000
+    },
+    {
+      "id": "sev_quenmoor_breeding_stock_nov",
+      "companyId": "sco_quenmoor",
+      "name": "Quenmoor November Breeding Stock Sale",
+      "kind": "breeding_stock",
+      "week": 47,
+      "books": [
+        { "book": 1, "weekOffset": 0, "lotsTarget": 100, "maxSireTier": 3 },
+        { "book": 2, "weekOffset": 1, "lotsTarget": 140, "maxSireTier": 5 }
+      ],
+      "buyerPremiumRate": 0.055,
+      "minimumBid": 5000
+    }
+  ]
+}
