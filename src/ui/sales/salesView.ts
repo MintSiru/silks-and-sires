@@ -2,6 +2,7 @@
  * 세일 화면 뷰 모델 (M4-C10a). React 없이 테스트할 수 있도록 순수 함수만 둔다.
  * 숨김 값(로트의 시장 평가값·AI 입찰 상한)은 결과 어디에도 담지 않는다. 화면에는 추정 범위(estimateRange)만 보인다.
  */
+import { getStallionRecords } from '../../engine/data/staticData';
 import { fitsKind } from '../../engine/sales/catalogue';
 import {
   liveAuctionSteps,
@@ -21,6 +22,7 @@ import type {
   SaleCatalogue,
   SaleLot,
   SaleLotResult,
+  SurfaceProfile,
 } from '../../engine/types';
 import { feeKo, saleKindKo, saleStatusKo } from '../game/text';
 
@@ -77,6 +79,8 @@ export interface CatalogueRow {
   /** 예: '수 1세', '암 2세', '거세 3세'. 말을 찾을 수 없으면 '—' */
   sexAgeKo: string;
   sireName: string;
+  /** 부의 주로 성향 경고(M4-C9). 더트·겸용 혈통이면 문구, 잔디면 null */
+  surfaceNoteKo: string | null;
   /** 예: '상업 생산자 <이름>' · '마주 <이름>' · '내 위탁' */
   vendorKo: string;
   /** 예: '€70,000 ~ €140,000' */
@@ -88,6 +92,8 @@ export interface CatalogueRow {
 
 export interface LotDetailView extends LotView {
   sireName: string;
+  /** 부의 주로 성향 경고(M4-C9). 더트·겸용 혈통이면 문구, 잔디면 null */
+  surfaceNoteKo: string | null;
   damName: string;
   saleDateKo: string;
   vendorKo: string;
@@ -136,6 +142,24 @@ function companyNameOf(data: SalesStaticData, companyId: string): { name: string
 
 function saleNameOf(data: SalesStaticData, saleId: string): string {
   return data.sales?.events.find((e) => e.id === saleId)?.name ?? saleId;
+}
+
+/** 실명 종마 key → 주로 성향(잔디·더트·겸용) */
+let surfaceByKey: Map<string, SurfaceProfile> | null = null;
+
+/**
+ * 부의 주로 성향 경고(M4-C9): 더트 혈통이면 유럽 잔디 적성이 불확실하다는 문구, 겸용이면 짧은 안내, 잔디·미상이면 null.
+ * 미국 세일 로트(미국 계류 종마 자마)를 살 때 위험이 보이게 한다.
+ */
+function surfaceNoteOf(state: GameState, sireId: HorseId | null): string | null {
+  if (sireId === null) return null;
+  const key = state.stallions[sireId]?.realKey ?? null;
+  if (key === null) return null;
+  surfaceByKey ??= new Map(getStallionRecords().map((r) => [r.key, r.surfaceProfile] as const));
+  const surface = surfaceByKey.get(key);
+  if (surface === 'dirt') return '더트 혈통 — 유럽 잔디 적성 불확실';
+  if (surface === 'both') return '잔디·더트 겸용 혈통';
+  return null;
 }
 
 function sireNameOf(state: GameState, sireId: HorseId | null): string {
@@ -231,6 +255,7 @@ export function catalogueRows(
       horseName: lot.horseName,
       sexAgeKo: sexAgeKo(state.horses[lot.horseId], year),
       sireName,
+      surfaceNoteKo: surfaceNoteOf(state, lot.sireId),
       vendorKo: vendorKoOf(state, lot.vendor),
       estimateKo: estimateKoOf(lot.valuation),
       myBid,
@@ -265,6 +290,7 @@ export function lotDetailView(
   return {
     ...view,
     sireName: sireNameOf(state, view.lot.sireId),
+    surfaceNoteKo: surfaceNoteOf(state, view.lot.sireId),
     damName: damNameOf(state, lot.horseId),
     saleDateKo: formatDateKo(view.saleWeek),
     vendorKo: vendorKoOf(state, lot.vendor),

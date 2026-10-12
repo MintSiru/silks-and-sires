@@ -264,3 +264,16 @@ describe('위탁 가능 말', () => {
     expect(after?.consignedSaleName).toBe(event.name);
   });
 });
+
+describe('부 주로 성향 경고 (M4-C9)', () => {
+  it('미국 1세마 세일에는 더트 혈통 경고가 붙은 로트가 있고, 유럽 1세마 세일 북 1 은 대부분 경고가 없다', () => {
+    const us = SALES.events.find((e) => e.id === 'sev_quenmoor_yearling_sep');
+    const gb = SALES.events.find((e) => e.id === 'sev_ashcombe_yearling_oct');
+    if (us === undefined || gb === undefined) throw new Error('세일 없음');
+    const usRows = catalogueRows(announced(us), us.id, YEAR, DATA);
+    expect(usRows.some((r) => r.surfaceNoteKo === '더트 혈통 — 유럽 잔디 적성 불확실')).toBe(true);
+    const gbRows = catalogueRows(announced(gb), gb.id, YEAR, DATA, { book: 1 });
+    const warned = gbRows.filter((r) => r.surfaceNoteKo !== null).length;
+    expect(warned).toBeLessThan(gbRows.length / 2);
+  });
+});

@@ -492,3 +492,163 @@ h3 {
   align-items: baseline;
   gap: 0.25rem 0.75rem;
 }
+
+/* ── 세일·인맥 화면(M4-C10b) ─────────────────────── */
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.data-table th,
+.data-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #2c333d;
+  text-align: left;
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+.data-table input,
+.data-table select {
+  background: #0f1217;
+  color: #e8e8e8;
+  border: 1px solid #3a4350;
+  border-radius: 6px;
+  padding: 4px 6px;
+  font: inherit;
+  max-width: 100%;
+}
+
+.data-table input[type='number'] {
+  width: 7rem;
+}
+
+.data-table tr.is-clickable {
+  cursor: pointer;
+}
+
+.data-table tr.is-clickable:hover {
+  background: #242b35;
+}
+
+.data-table tr.is-selected {
+  background: #1f3349;
+}
+
+.data-table tr.is-current {
+  background: #3d3210;
+  color: #ffd166;
+  font-weight: 700;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #9fc3ff;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.sales-sub {
+  color: #8b949e;
+  font-size: 0.82rem;
+}
+
+.sales-closed {
+  margin: 4px 0 0;
+  padding-left: 18px;
+}
+
+.sales-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin: 8px 0;
+}
+
+.sales-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
+}
+
+.sales-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.sales-detail {
+  position: sticky;
+  top: 8px;
+  max-height: calc(100vh - 16px);
+  overflow-y: auto;
+}
+
+.sales-block {
+  border-top: 1px solid #2c333d;
+  margin-top: 10px;
+  padding-top: 8px;
+}
+
+.sales-facts {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 4px 12px;
+  margin: 6px 0;
+}
+
+.sales-facts dt {
+  color: #8b949e;
+}
+
+.sales-facts dd {
+  margin: 0;
+}
+
+.sales-live {
+  border-radius: 6px;
+  border: 1px solid transparent;
+  padding: 8px;
+}
+
+.sales-live--active {
+  border-color: #ffd166;
+  box-shadow: 0 0 0 1px #ffd166 inset;
+}
+
+.sales-live__result {
+  margin: 8px 0 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffd166;
+}
+
+@media (max-width: 900px) {
+  .sales-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sales-detail {
+    position: static;
+    max-height: none;
+  }
+}
+
+/* 세일: 부 주로 성향 경고(M4-C9) */
+.sale-surface-note {
+  color: #b45309;
+  font-size: 0.85em;
+}

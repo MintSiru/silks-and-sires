@@ -5,7 +5,9 @@ import { formatDateKo } from '../../engine/time/calendar';
 import type { BookingError } from '../../engine/breeding/season';
 import type { RetainerRefusal } from '../../engine/economy/contracts';
 import type { BidError } from '../../engine/sales/bidding';
+import type { InspectError } from '../../engine/sales/inspection';
 import type { ConsignError, UpcomingSale } from '../../engine/sales/player';
+import { SALE_INSPECT_MIN_RELATION } from '../../engine/config/sales';
 import type { TrainerReportKey } from '../../engine/horse/conditioning';
 import type { PersonalityClueKey } from '../../engine/horse/personality';
 import type { AssignTrainerError, DeclareError, WithdrawError } from '../../engine/season/player';
@@ -725,4 +727,65 @@ const SALE_STATUS_KO: Record<UpcomingSale['status'], string> = {
 /** 세일 일정 상태 한국어. 예: 'catalogued' → '카탈로그 발표' */
 export function saleStatusKo(s: UpcomingSale['status']): string {
   return SALE_STATUS_KO[s];
+}
+
+// ── 세일·인맥 화면 안내 문구(M4-C10b) ───────────────────────────
+
+const INSPECT_ERROR_KO: Record<InspectError, string> = {
+  catalogue_not_found: '카탈로그가 아직 발표되지 않았습니다.',
+  lot_not_found: '로트를 찾을 수 없습니다.',
+  lot_closed: '마감된 로트는 검사할 수 없습니다.',
+  horse_missing: '말 정보를 찾을 수 없습니다.',
+  not_eligible: '이 조교사는 동행 검사를 할 수 없습니다.',
+};
+
+/** 조교사 검사 실패 사유 → 한국어 */
+export function inspectErrorKo(e: InspectError): string {
+  return INSPECT_ERROR_KO[e];
+}
+
+/** 동행 검사 가능한 조교사가 없을 때의 안내. 기준 관계값은 config 를 따른다 */
+export function inspectNoneKo(): string {
+  return `전속 조교사나 관계 ${SALE_INSPECT_MIN_RELATION} 이상 조교사가 있어야 검사할 수 있습니다`;
+}
+
+/** 발표 전 세일 안내. 예: '발표 전 — 12주에 발표' (세일 연도가 다르면 연도를 붙인다) */
+export function saleAnnounceKo(year: number, currentYear: number, announceWeek: number): string {
+  const when = year === currentYear ? `${announceWeek}주` : `${year}년 ${announceWeek}주`;
+  return `발표 전 — ${when}에 발표`;
+}
+
+/** 로트 최저 호가 안내 */
+export function bidMinimumKo(minimum: Money): string {
+  return `최저 호가 ${feeKo(minimum)}`;
+}
+
+/** 실시간 보기가 판매 주가 아닐 때의 안내. dateKo 는 판매 주 표기(formatDateKo) */
+export function liveClosedKo(dateKo: string): string {
+  return `실시간 보기는 판매 주(${dateKo})에만 열립니다.`;
+}
+
+/** 실시간 보기 하단 고정 안내: 실제 결과는 다음 주 진행 때 확정된다 */
+export function liveFinalNoticeKo(): string {
+  return '실제 결과는 다음 주 진행 때 확정됩니다.';
+}
+
+/** 입찰 상한 취소 실패(상한이 없음) */
+export function clearBidErrorKo(): string {
+  return '취소할 입찰 상한이 없습니다.';
+}
+
+/** 발표 전 위탁 취소 실패(카탈로그에 올라간 말은 취소할 수 없다) */
+export function consignWithdrawErrorKo(): string {
+  return '발표 전 위탁만 취소할 수 있습니다. 카탈로그에 올라간 말은 취소할 수 없습니다.';
+}
+
+/** 전속 계약 체결 확인 대화 문구. feeText 는 feeKo 로 만든 계약금 표기 */
+export function signConfirmKo(feeText: string): string {
+  return `계약금 ${feeText} 을 내고 전속 계약을 맺습니다. 계속할까요?`;
+}
+
+/** 전속 계약 해지 확인 대화 문구(위약금 안내) */
+export function terminateConfirmKo(penalty: Money): string {
+  return `해지하면 위약금 ${feeKo(penalty)} 을 내고, 이 사람과의 관계가 떨어집니다. 계속할까요?`;
 }

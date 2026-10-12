@@ -4,7 +4,9 @@ import BreedingScreen from './breeding/BreedingScreen';
 import EconomyScreen from './economy/EconomyScreen';
 import { fundsBanner } from './economy/economyView';
 import RaceDemo from './RaceDemo';
+import SalesScreen from './sales/SalesScreen';
 import SeasonScreen from './season/SeasonScreen';
+import StaffScreen from './staff/StaffScreen';
 import StandingsScreen from './standings/StandingsScreen';
 import { useGame } from './game/useGame';
 import { WeightUnitProvider, useWeightUnit } from './game/WeightUnitContext';
@@ -12,13 +14,15 @@ import { WEIGHT_UNITS, isWeightUnit, weightUnitLabelKo } from './game/units';
 import { feeKo, economyModeKo, fundsWarningKo } from './game/text';
 import type { GameState } from '../engine/types';
 
-type TabId = 'season' | 'standings' | 'breeding' | 'economy' | 'race';
+type TabId = 'season' | 'standings' | 'breeding' | 'economy' | 'sales' | 'staff' | 'race';
 
 const TABS: readonly { id: TabId; label: string }[] = [
   { id: 'season', label: '시즌' },
   { id: 'standings', label: '순위·시상' },
   { id: 'breeding', label: '목장·배합' },
   { id: 'economy', label: '경제' },
+  { id: 'sales', label: '세일' },
+  { id: 'staff', label: '인맥' },
   { id: 'race', label: '레이스 데모' },
 ];
 
@@ -107,6 +111,8 @@ function AppContent() {
       {tab === 'standings' && <StandingsScreen game={game} />}
       {tab === 'breeding' && <BreedingScreen game={game} locked={bankrupt} />}
       {tab === 'economy' && <EconomyScreen game={game} />}
+      {tab === 'sales' && <SalesScreen game={game} locked={bankrupt} />}
+      {tab === 'staff' && <StaffScreen game={game} />}
       {tab === 'race' && <RaceDemo />}
     </main>
   );
