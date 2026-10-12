@@ -57,6 +57,7 @@ export function createNewGame(opts: NewGameOptions): GameState {
     raceResults: [],
     seasonState: createEmptySeasonState(START_YEAR),
     awardsHistory: [],
+    sireStats: {},
     eventLog: [],
   };
 }

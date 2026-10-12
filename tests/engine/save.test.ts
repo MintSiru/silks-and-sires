@@ -59,6 +59,7 @@ function makeState(): GameState {
     raceResults: [],
     seasonState: createEmptySeasonState(2026),
     awardsHistory: [],
+    sireStats: {},
     eventLog: [{ type: 'week_started', date: { year: 2026, week: 7 } }],
   };
 }
@@ -368,18 +369,35 @@ describe('저장 마이그레이션 v4 → v5 (M3-E1·E2)', () => {
     void _a;
     void _b;
     void _c;
-    const { awardsHistory: _d, ...rest } = v5;
+    const { awardsHistory: _d, sireStats: _e, ...rest } = v5;
+    void _e;
     void _d;
     const v4 = { ...rest, schemaVersion: 4, seasonState: season };
     const json = JSON.stringify({ format: 'silks-and-sires-save', schemaVersion: 4, savedAt: '2026-10-12T00:00:00.000Z', state: v4 });
     const result = deserializeGame(json);
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(result.state.schemaVersion).toBe(5);
+      expect(result.state.schemaVersion).toBe(SAVE_SCHEMA_VERSION);
       expect(result.state.awardsHistory).toEqual([]);
       expect(result.state.seasonState.leadingByCountry).toEqual({});
       expect(result.state.seasonState.performances).toEqual({});
       expect(result.state.seasonState.raceRatings).toEqual([]);
+    }
+  });
+});
+
+describe('저장 마이그레이션 v5 → v6 (M3-C4)', () => {
+  it('sireStats 가 없는 v5 저장본에 빈 표를 채운다', () => {
+    const v6 = makeState();
+    const { sireStats: _s, ...rest } = v6;
+    void _s;
+    const v5 = { ...rest, schemaVersion: 5 };
+    const json = JSON.stringify({ format: 'silks-and-sires-save', schemaVersion: 5, savedAt: '2026-10-12T00:00:00.000Z', state: v5 });
+    const result = deserializeGame(json);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.state.schemaVersion).toBe(6);
+      expect(result.state.sireStats).toEqual({});
     }
   });
 });

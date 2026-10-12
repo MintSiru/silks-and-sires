@@ -170,3 +170,4 @@
 - 2026-10-12 | 승인 | M3-D1a 실황 중계 엔진 — 사건 11종(start·slow_start·early_leader·lead_battle·pace·turn_in·move·lead_change·final_furlong·photo·finish), 문장 키 20(사건 12 + 한 줄 평 8, 키마다 5문장, 이름 뒤 조사 없음), 시드 고정 문장 선택, 레이스당 1.8ms. 승인: 400m 선두 1착 = made_all 우선, horseVerdicts path 인자, pace_fast/slow 분리. D1b 과제: 착차 {n} 을 소수 마신 대신 착차 표기(코·머리·목·마신)로, '테이프' 같은 경마에 맞지 않는 표현 정리, 동착 시 '0마신' 방지.
 - 2026-10-12 | 데이터(Opus 직접) | 실명 종마 털색 259/300 반영(위키백과 241 + 사용자 혈통표 18, 'bay or brown' → brown). 미확인 41두는 data/stallions/_review.md 에 목록, 사용자 확인 대기(엔진은 bay). 데이터 테스트에 coatColour 값 범위·250두 이상 검사 추가.
 - 2026-10-12 | 데이터(사용자 제공) | 실명 종마 털색 미확인 41두 반영 → 300/300. 데이터 테스트를 '모든 종마에 coatColour' 로 강화.
+- 2026-10-12 | 기술(Opus) | M3-C4 공용 타입: OffspringStats(자마 출주·우승·그룹 우승·상금·우승 거리 합), GameState.sireStats(아비 HorseId 키 — 은퇴·과거 종마 포함), GameEvent nick_revealed. 저장 v6.

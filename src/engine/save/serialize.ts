@@ -58,6 +58,8 @@ export const MIGRATIONS: Readonly<Record<number, Migration>> = {
           };
     return { ...state, seasonState, awardsHistory: state.awardsHistory ?? [] };
   },
+  /** v5 → v6 (M3-C4): 종마별 자마 성적 누적 */
+  5: (state) => ({ ...state, sireStats: state.sireStats ?? {} }),
 };
 
 /** 구조 상수(형식 규칙). 밸런스 수치가 아니므로 여기 둔다. */

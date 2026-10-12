@@ -291,6 +291,8 @@ export function eventKo(e: GameEvent, nameOf: (id: HorseId) => string): string {
       return `${formatDateKo(e.date)} · 레이스 결과: 우승 ${nameOf(e.winnerId)}`;
     case 'series_completed':
       return `${formatDateKo(e.date)} · 시리즈 달성: ${nameOf(e.horseId)}`;
+    case 'nick_revealed':
+      return `${formatDateKo(e.date)} · 닉스 확인: ${nameOf(e.horseId)} 의 그룹 우승으로 배합 궁합이 드러났습니다`;
     case 'awards_announced':
       return `${formatDateKo(e.date)} · ${e.year}년 시상·순위 발표`;
     case 'horse_injured':

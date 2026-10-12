@@ -1,5 +1,5 @@
-import type { HorseId, JockeyId, Money, OwnerId, TrainerId } from './common';
-import type { Horse, HorseStatus, InjuryKind, Mare, Stallion } from './horse';
+import type { HorseId, JockeyId, Money, OwnerId, SireLineId, TrainerId } from './common';
+import type { Horse, HorseStatus, InjuryKind, Mare, OffspringStats, Stallion } from './horse';
 import type { Jockey, Owner, Trainer } from './people';
 import type { RaceResult } from './race';
 import type { Rng, RngState } from './rng';
@@ -28,6 +28,8 @@ export type GameEvent =
   | { type: 'series_completed'; seriesId: SeriesId; horseId: HorseId; date: GameDate }
   /** 플레이어 말 부상(M3-C1). AI 말 부상은 이벤트로 남기지 않는다 */
   | { type: 'horse_injured'; horseId: HorseId; kind: InjuryKind; weeksOut: number; date: GameDate }
+  /** 성적으로 닉스가 확인됨(그 배합의 말이 그룹 레이스 우승, M3-C4) */
+  | { type: 'nick_revealed'; sireLineId: SireLineId; damsireLineId: SireLineId; horseId: HorseId; date: GameDate }
   /** 지난 시즌 시상·순위 확정(연도 전환 때, M3-E1). 내용은 awardsHistory 의 마지막 항목 */
   | { type: 'awards_announced'; year: number; date: GameDate };
 
@@ -69,6 +71,8 @@ export interface GameState {
   seasonState: SeasonState;
   /** 지난 시즌들의 시상·순위 (M3-E1·E2). 오래된 순 */
   awardsHistory: SeasonAwards[];
+  /** 아비 HorseId → 자마 성적 누적 (M3-C4) */
+  sireStats: Record<HorseId, OffspringStats>;
   /** 최근 이벤트 로그 (최대 길이는 config 에서) */
   eventLog: GameEvent[];
 }

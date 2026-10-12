@@ -183,6 +183,29 @@ export interface Coat {
   whiteLegs: number;
 }
 
+/**
+ * 종마의 자마(자식) 성적 누적(경력 전체, M3-C4). GameState.sireStats[아비 HorseId].
+ * 실제 성적 기준 거리 적성(observedProfile)과 화면의 '산구 성적'에 쓴다.
+ */
+export interface OffspringStats {
+  /** 출주한 자마 수(한 번이라도 출주) */
+  starters: number;
+  /** 1승 이상 자마 수 */
+  winners: number;
+  /** 출주 수 합 */
+  runs: number;
+  /** 우승 수 합 */
+  wins: number;
+  /** 그룹 레이스 우승 수 합 */
+  groupWins: number;
+  /** 그룹 레이스 우승 자마 수 */
+  groupWinners: number;
+  /** 자마 상금 합 */
+  earnings: Money;
+  /** 우승 거리 합(m). 평균 우승 거리 = winDistanceSum / wins */
+  winDistanceSum: number;
+}
+
 /** 종마(씨수말) 프로필. Horse 레코드(horseId)에 붙는 확장 레코드. */
 export interface Stallion {
   horseId: HorseId;
