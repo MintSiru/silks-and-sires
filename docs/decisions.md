@@ -219,3 +219,4 @@
 - 2026-10-12 | 기술 | M4-A1 공용 타입(Opus): types/economy.ts(EconomyMode, LedgerCategory·Entry·Totals, EconomyYearSummary, EconomyState, RelationKey, RelationsState), GameState.economy·relations, NewGameOptions.economyMode, economy/state.ts 빈 상태, config/economy.ts, 저장 v7 이주(이전 저장 = 캐주얼). 장부는 플레이어만 항목별, AI 는 연도 합계·연말 요약만(저장 크기). 세일·종마·시설 타입은 해당 단계 시작 때 추가.
 - 2026-10-12 | 승인 | M4-A2a 장부(economy/ledger.ts recordMoney·prunePlayerLedger·closeEconomyYear). 상금·시리즈 보너스·종부료·불수태 환불이 장부를 거친다. 연말 요약은 startNewSeason 끝에서. 자금 값·난수 불변.
 - 2026-10-12 | 버그 수정(사용자 제보, Opus 직접) | 시즌 탭 레이스 행에서 '클래스 4' 와 거리 '2,012m' 가 붙어 '42,012m' 처럼 보이던 문제 — .season-race__head 에 flex 간격 추가(app.css).
+- 2026-10-12 | 결정(사용자) | 플레이 피드백 1차(docs/feedback/2026-10-12-playtest-1.md): M4 먼저, 혈통표 빈칸은 원칙 유지+압축 표시, 예후불량은 끌 수 있는 옵션, 수득 상금 조건 없음 대신 급 안 맞는 출주 경고.
