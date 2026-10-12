@@ -123,12 +123,12 @@ describe('값 범위', () => {
     }
   });
 
-  it('coatColour 는 생략하거나 6색 중 하나(M3-C6, 위키백과·사용자 혈통표 기준)', () => {
+  it('coatColour 는 6색 중 하나이고 모든 종마에 있다(M3-C6, 위키백과·사용자 확인)', () => {
     const colours = ['bay', 'brown', 'black', 'chestnut', 'grey', 'roan'];
     for (const s of stallions) {
       if (s.coatColour !== undefined) expect(colours, s.key).toContain(s.coatColour);
     }
-    expect(stallions.filter((s) => s.coatColour !== undefined).length).toBeGreaterThanOrEqual(250);
+    expect(stallions.filter((s) => s.coatColour !== undefined).length).toBe(stallions.length);
   });
 });
 

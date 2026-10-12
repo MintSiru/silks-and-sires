@@ -281,6 +281,7 @@
     "distanceProfile": "middle",
     "surfaceProfile": "turf",
     "marketTier": 4,
+    "coatColour": "chestnut",
     "confidence": "high"
   },
   {
@@ -1105,6 +1106,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 4,
+    "coatColour": "brown",
     "confidence": "medium"
   },
   {
@@ -1660,6 +1662,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 4,
+    "coatColour": "bay",
     "confidence": "high"
   },
   {
@@ -2529,6 +2532,7 @@
     "distanceProfile": "middle",
     "surfaceProfile": "turf",
     "marketTier": 2,
+    "coatColour": "bay",
     "confidence": "high"
   },
   {
@@ -2543,6 +2547,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
+    "coatColour": "bay",
     "confidence": "high"
   },
   {
@@ -2557,6 +2562,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
+    "coatColour": "bay",
     "confidence": "medium"
   },
   {
@@ -2571,6 +2577,7 @@
     "distanceProfile": "classic",
     "surfaceProfile": "turf",
     "marketTier": 3,
+    "coatColour": "brown",
     "confidence": "high"
   },
   {
@@ -2630,6 +2637,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
+    "coatColour": "bay",
     "confidence": "medium"
   },
   {
@@ -2734,6 +2742,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
+    "coatColour": "bay",
     "confidence": "medium"
   },
   {
@@ -2748,6 +2757,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 5,
+    "coatColour": "chestnut",
     "confidence": "medium"
   },
   {
@@ -2762,6 +2772,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
+    "coatColour": "grey",
     "confidence": "medium"
   },
   {
@@ -2791,6 +2802,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 5,
+    "coatColour": "bay",
     "confidence": "medium"
   },
   {
@@ -2805,6 +2817,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
+    "coatColour": "bay",
     "confidence": "medium"
   },
   {
@@ -2819,6 +2832,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
+    "coatColour": "bay",
     "confidence": "medium"
   },
   {
@@ -2833,6 +2847,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 3,
+    "coatColour": "bay",
     "confidence": "high"
   },
   {
@@ -2847,6 +2862,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
+    "coatColour": "grey",
     "confidence": "medium"
   },
   {
@@ -2861,6 +2877,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 3,
+    "coatColour": "brown",
     "confidence": "high"
   },
   {
@@ -2875,6 +2892,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 5,
+    "coatColour": "bay",
     "confidence": "high"
   },
   {
@@ -2889,6 +2907,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "both",
     "marketTier": 5,
+    "coatColour": "bay",
     "confidence": "high"
   },
   {
@@ -2903,6 +2922,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 3,
+    "coatColour": "chestnut",
     "confidence": "high"
   },
   {
@@ -2917,6 +2937,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
+    "coatColour": "bay",
     "confidence": "high"
   },
   {
@@ -2931,6 +2952,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
+    "coatColour": "bay",
     "confidence": "high"
   },
   {
@@ -2945,6 +2967,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 5,
+    "coatColour": "brown",
     "confidence": "high"
   },
   {
@@ -2959,6 +2982,7 @@
     "distanceProfile": "classic",
     "surfaceProfile": "dirt",
     "marketTier": 4,
+    "coatColour": "chestnut",
     "confidence": "high"
   },
   {
@@ -2973,6 +2997,7 @@
     "distanceProfile": "classic",
     "surfaceProfile": "dirt",
     "marketTier": 3,
+    "coatColour": "bay",
     "confidence": "high"
   },
   {
@@ -2987,6 +3012,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "dirt",
     "marketTier": 4,
+    "coatColour": "bay",
     "confidence": "high"
   },
   {
@@ -3001,6 +3027,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
+    "coatColour": "brown",
     "confidence": "high"
   },
   {
@@ -3015,6 +3042,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
+    "coatColour": "bay",
     "confidence": "high"
   },
   {
@@ -3030,6 +3058,7 @@
     "surfaceProfile": "turf",
     "marketTier": 3,
     "studRole": "flat",
+    "coatColour": "bay",
     "confidence": "high"
   },
   {
@@ -3077,6 +3106,7 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "studRole": "flat",
+    "coatColour": "bay",
     "confidence": "high"
   },
   {
@@ -3092,6 +3122,7 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "studRole": "flat",
+    "coatColour": "bay",
     "confidence": "high"
   },
   {
@@ -3123,6 +3154,7 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "studRole": "nh",
+    "coatColour": "bay",
     "confidence": "high"
   },
   {
@@ -3186,6 +3218,7 @@
     "surfaceProfile": "turf",
     "marketTier": 4,
     "studRole": "flat",
+    "coatColour": "bay",
     "confidence": "medium"
   },
   {
@@ -3201,6 +3234,7 @@
     "surfaceProfile": "turf",
     "marketTier": 4,
     "studRole": "flat",
+    "coatColour": "bay",
     "confidence": "high"
   },
   {
@@ -3216,6 +3250,7 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "studRole": "flat",
+    "coatColour": "brown",
     "confidence": "medium"
   },
   {
@@ -3261,6 +3296,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
+    "coatColour": "brown",
     "confidence": "medium"
   },
   {
@@ -3980,6 +4016,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 3,
+    "coatColour": "bay",
     "confidence": "medium"
   },
   {
@@ -3994,6 +4031,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 3,
+    "coatColour": "bay",
     "confidence": "high"
   },
   {
@@ -4008,6 +4046,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 2,
+    "coatColour": "bay",
     "confidence": "high"
   },
   {
@@ -4022,6 +4061,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 4,
+    "coatColour": "bay",
     "confidence": "high"
   },
   {
@@ -4036,6 +4076,7 @@
     "distanceProfile": "speed",
     "surfaceProfile": "turf",
     "marketTier": 5,
+    "coatColour": "bay",
     "confidence": "high"
   },
   {
