@@ -304,6 +304,7 @@ function applyPlan(state: GameState, plan: Plan): GameState {
     field: fieldOf(plan),
     series: [],
     country: plan.country,
+    nicks: [],
   }).state;
 }
 

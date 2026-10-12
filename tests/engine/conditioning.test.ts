@@ -143,7 +143,7 @@ const STATIC_GAME: GameStaticData = {
   series: SERIES,
 };
 
-const SEASON_STATIC: SeasonStaticData = { courses: COURSES, templates: TEMPLATES, series: SERIES };
+const SEASON_STATIC: SeasonStaticData = { courses: COURSES, templates: TEMPLATES, series: SERIES, nicks: getNicks() };
 
 function boot(seed = SEED): GameState {
   return bootstrapGame({ seed, playerName: 'Test Owner', silks: { ...SILKS } }, BOOT_DATA);

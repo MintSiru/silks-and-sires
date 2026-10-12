@@ -12,6 +12,7 @@ import type {
   GameEvent,
   GameState,
   HorseStatus,
+  NickEntry,
   Racecourse,
   RacecourseId,
   RaceTemplate,
@@ -32,6 +33,8 @@ export interface SeasonStaticData {
   courses: Racecourse[];
   templates: RaceTemplate[];
   series: SeriesDefinition[];
+  /** 닉스 표(성적 공개 판정, M3-C4) */
+  nicks: NickEntry[];
 }
 
 /** 연도 전환이 일어나는 주(1월 1주) */
@@ -127,7 +130,7 @@ function runThisWeek(
     const out = runMeetingInPlace(
       draft,
       meeting,
-      { courses: data.courses, series: data.series },
+      { courses: data.courses, series: data.series, nicks: data.nicks },
       rng.fork('meeting:' + meeting.id),
     );
     events.push(...out.events);

@@ -10,6 +10,10 @@ import {
   RACE_RATING_TOP_N,
   REPLAYABLE_MAX,
 } from '../config/season';
+import { NICK_REVEAL_GRADES, NICK_REVEAL_MIN_VALUE } from '../config/offspring';
+import { damsireLineOf, revealNick } from '../breeding/season';
+import { emptyOffspringStats, recordOffspringRun } from '../breeding/offspring';
+import { nickValue } from '../breeding/nicks';
 import type { SampleField } from '../race/sampleField';
 import { applyRatingsInPlace } from './handicapper';
 import { emptyLeadingTables } from './state';
@@ -25,6 +29,7 @@ import type {
   LeadingEntry,
   LeadingTables,
   Meeting,
+  NickEntry,
   PerformanceEntry,
   Race,
   RaceRatingEntry,
@@ -47,6 +52,8 @@ export interface ApplyRaceResultArgs {
   series: readonly SeriesDefinition[];
   /** 레이스 개최국(나라별 리딩·퍼포먼스 기록에 쓴다) */
   country: CountryCode;
+  /** 닉스 표(data/breeding/nicks.json). 그룹 우승 때 성적 공개 판정에 쓴다(M3-C4). 테스트는 [] 또는 테스트 표 */
+  nicks: readonly NickEntry[];
 }
 
 export interface ApplyRaceResultOutput {
@@ -189,6 +196,20 @@ export function applyRaceResultInPlace(state: GameState, args: ApplyRaceResultAr
     if (groupWin) rec.groupWins += 1;
     rec.earnings += prize;
 
+    // 아비 자마 성적(M3-C4): 이번 출주가 그 말의 첫 출주·첫 우승·첫 그룹 우승인지 경력 기록으로 판정한다
+    if (horse.sireId !== null) {
+      const stats = (next.sireStats[horse.sireId] ??= emptyOffspringStats());
+      recordOffspringRun(stats, {
+        firstStart: rec.starts === 1,
+        becameWinner: won && rec.wins === 1,
+        won,
+        groupWin,
+        firstGroupWin: groupWin && rec.groupWins === 1,
+        earnings: prize,
+        distance: race.distance,
+      });
+    }
+
     horse.condition.fatigue = clampCondition(horse.condition.fatigue + gain);
     horse.condition.fitness = clampCondition(horse.condition.fitness - FITNESS_LOSS_PER_RUN);
 
@@ -218,6 +239,27 @@ export function applyRaceResultInPlace(state: GameState, args: ApplyRaceResultAr
     addBoth('owner', decl.ownerId);
     if (horse.breederId !== null) {
       addBoth('breeder', horse.breederId);
+    }
+  }
+
+  // 1a. 닉스 공개(M3-C4): 그룹(G1~G3) 1착 말의 부 계통 × 모부 계통이 좋은 닉스(값 ≥ 기준)이고 처음 공개되면 이벤트
+  if (race.grade !== null && NICK_REVEAL_GRADES.includes(race.grade)) {
+    for (const runner of result.runners) {
+      if (runner.position !== 1) continue;
+      const winnerHorse = requireHorse(next, runner.horseId);
+      const winnerDam = winnerHorse.damId === null ? undefined : next.horses[winnerHorse.damId];
+      const sireLineId = winnerHorse.sireLineId;
+      const damsireLineId = winnerDam === undefined ? null : damsireLineOf(next, winnerDam);
+      if (sireLineId === null || damsireLineId === null) continue;
+      if (nickValue(args.nicks, sireLineId, damsireLineId) < NICK_REVEAL_MIN_VALUE) continue;
+      if (!revealNick(next, sireLineId, damsireLineId)) continue;
+      events.push({
+        type: 'nick_revealed',
+        sireLineId,
+        damsireLineId,
+        horseId: runner.horseId,
+        date: { ...date },
+      });
     }
   }
 

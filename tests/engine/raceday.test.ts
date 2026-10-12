@@ -457,7 +457,7 @@ describe('M3-A6b 개최일 실행 · 결과 반영', () => {
   beforeAll(() => {
     state = bootRun();
     declared = declareAiRunners(state, runJuneMeetings(RUN_SEED), createRng(RUN_SEED + 7), runLookupCountry);
-    ctx = { courses: RUN_COURSES, series: [] };
+    ctx = { courses: RUN_COURSES, series: [], nicks: [] };
   });
 
   it('1. 같은 시드면 runMeeting 의 state·results·events·meeting 이 toEqual 이고, 입력은 바뀌지 않는다', () => {
@@ -776,18 +776,18 @@ describe('M3-A6b 결과 반영 단위 (합성 결과)', () => {
     if (ownerX === undefined) throw new Error('마주 없음');
     const fundsBefore = ownerX.funds;
 
-    const a = applyRaceResult(state, { meeting: meetingStub, country: 'GB', ...legA, series: [series] });
+    const a = applyRaceResult(state, { meeting: meetingStub, country: 'GB', nicks: [], ...legA, series: [series] });
     expect(a.events.filter((e) => e.type === 'series_completed')).toHaveLength(0);
     expect(a.state.seasonState.series['run-test-crown']?.champion).toBeNull();
 
-    const b = applyRaceResult(a.state, { meeting: meetingStub, country: 'GB', ...legB, series: [series] });
+    const b = applyRaceResult(a.state, { meeting: meetingStub, country: 'GB', nicks: [], ...legB, series: [series] });
     expect(b.state.seasonState.series['run-test-crown']?.champion).toBe(x.id);
     const completed = [...a.events, ...b.events].filter((e) => e.type === 'series_completed');
     expect(completed).toEqual([{ type: 'series_completed', seriesId: 'run-test-crown', horseId: x.id, date: DATE }]);
     expect((b.state.owners[x.ownerId]?.funds ?? 0) - fundsBefore).toBe(10000);
 
     // 이미 달성된 뒤 같은 말이 또 이겨도 보너스는 다시 주지 않는다
-    const c = applyRaceResult(b.state, { meeting: meetingStub, country: 'GB', ...legB, series: [series] });
+    const c = applyRaceResult(b.state, { meeting: meetingStub, country: 'GB', nicks: [], ...legB, series: [series] });
     expect(c.events.filter((e) => e.type === 'series_completed')).toHaveLength(0);
     expect((c.state.owners[x.ownerId]?.funds ?? 0) - (b.state.owners[x.ownerId]?.funds ?? 0)).toBe(0);
   });
@@ -806,7 +806,7 @@ describe('M3-A6b 결과 반영 단위 (합성 결과)', () => {
       bonus: 5000,
     };
     const leg = legInput(syntheticRace('pts-a', 'G3', [0, 0]), 'pts-a', [x, y]);
-    const out = applyRaceResult(state, { meeting: meetingStub, country: 'GB', ...leg, series: [series] });
+    const out = applyRaceResult(state, { meeting: meetingStub, country: 'GB', nicks: [], ...leg, series: [series] });
     const progress = out.state.seasonState.series['run-test-points'];
     expect(progress?.points[x.id]).toBe(10);
     expect(progress?.points[y.id]).toBe(6);
@@ -820,7 +820,7 @@ describe('M3-A6b 결과 반영 단위 (합성 결과)', () => {
     ];
     const leg = legInput(syntheticRace('fat-a', null, [0, 0], 1609, 'ashcombe'), null, [x, y]);
     const before = state.horses[x.id]?.condition;
-    const out = applyRaceResult(state, { meeting: meetingStub, country: 'GB', ...leg, series: [] });
+    const out = applyRaceResult(state, { meeting: meetingStub, country: 'GB', nicks: [], ...leg, series: [] });
     const after = out.state.horses[x.id]?.condition;
     expect(after?.fatigue).toBe(Math.min(100, (before?.fatigue ?? 0) + 22));
     expect(after?.fitness).toBe(Math.max(0, (before?.fitness ?? 0) - 8));
@@ -835,12 +835,12 @@ describe('M3-A6b 결과 반영 단위 (합성 결과)', () => {
     ];
     const group = legInput(syntheticRace('keep-g3', 'G3', [0, 0]), null, [x, y]);
     const plain = legInput(syntheticRace('keep-plain', null, [0, 0], 1207, 'ashcombe'), null, [x, y]);
-    const g = applyRaceResult(state, { meeting: meetingStub, country: 'GB', ...group, series: [] });
+    const g = applyRaceResult(state, { meeting: meetingStub, country: 'GB', nicks: [], ...group, series: [] });
     expect(g.state.raceResults.map((r) => r.raceId)).toContain('keep-g3');
     expect(g.events.some((e) => e.type === 'race_run' && e.raceId === 'keep-g3')).toBe(true);
     expect(g.state.seasonState.replayable).toHaveLength(0);
 
-    const p = applyRaceResult(state, { meeting: meetingStub, country: 'GB', ...plain, series: [] });
+    const p = applyRaceResult(state, { meeting: meetingStub, country: 'GB', nicks: [], ...plain, series: [] });
     expect(p.state.raceResults.map((r) => r.raceId)).not.toContain('keep-plain');
     expect(p.events.some((e) => e.type === 'race_run')).toBe(false);
   });
@@ -865,7 +865,7 @@ describe('M3-A6b 결과 반영 단위 (합성 결과)', () => {
     fourth.position = 4;
 
     const before = structuredClone(state);
-    const out = applyRaceResult(state, { meeting: meetingStub, country: 'GB', ...leg, series: [] });
+    const out = applyRaceResult(state, { meeting: meetingStub, country: 'GB', nicks: [], ...leg, series: [] });
     const gain = (id: string): number =>
       (out.state.horses[id]?.record.earnings ?? 0) - (before.horses[id]?.record.earnings ?? 0);
     expect(gain(a.id)).toBe(60000);
@@ -882,7 +882,7 @@ describe('M3-A6b 결과 반영 단위 (합성 결과)', () => {
     if (oddSecond === undefined) throw new Error('주자 부족');
     oddSecond.position = 1;
     oddSecond.margin = null;
-    const o = applyRaceResult(state, { meeting: meetingStub, country: 'GB', ...odd, series: [] });
+    const o = applyRaceResult(state, { meeting: meetingStub, country: 'GB', nicks: [], ...odd, series: [] });
     expect((o.state.horses[a.id]?.record.earnings ?? 0) - (before.horses[a.id]?.record.earnings ?? 0)).toBe(5001);
     expect((o.state.horses[b.id]?.record.earnings ?? 0) - (before.horses[b.id]?.record.earnings ?? 0)).toBe(5000);
   });

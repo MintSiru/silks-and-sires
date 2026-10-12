@@ -6,6 +6,7 @@ import type {
   GameEvent,
   GameState,
   Meeting,
+  NickEntry,
   RaceResult,
   Racecourse,
   RacecourseId,
@@ -21,6 +22,8 @@ import { summarizeRace } from './summary';
 export interface RunMeetingContext {
   courses: readonly Racecourse[];
   series: readonly SeriesDefinition[];
+  /** 닉스 표(그룹 우승 때 성적 공개 판정, M3-C4) */
+  nicks: readonly NickEntry[];
 }
 
 export interface RunMeetingInPlaceOutput {
@@ -114,6 +117,7 @@ export function runMeetingInPlace(
         field: built.field,
         series: ctx.series,
         country: course.country,
+        nicks: ctx.nicks,
       }),
     );
     results.push(result);
