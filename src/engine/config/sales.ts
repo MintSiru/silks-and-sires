@@ -172,3 +172,8 @@ export const SALE_BID_LADDER: readonly { below: Money; increment: Money }[] = [
 export const SALE_VENDOR_COMMISSION = 0.05;
 /** 세일 나라 밖 AI 마주 중 major 만 입찰할 수 있는 나라(유럽 5개국 + AE) */
 export const SALE_OPEN_BUYER_COUNTRIES: readonly CountryCode[] = ['GB', 'IE', 'FR', 'DE', 'IT', 'AE'];
+
+// ── 플레이어 입찰·실시간 보기(M4-C5) ─────────────────────────
+
+/** 실시간 경매 보기(liveAuctionSteps) 단계 수 상한. 넘으면 가격이 낮은 앞쪽 단계를 건너뛴다 */
+export const SALE_LIVE_MAX_STEPS = 200;

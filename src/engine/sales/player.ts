@@ -90,9 +90,18 @@ export function upcomingSales(state: GameState, data: SalesStaticData): Upcoming
   for (const year of [thisYear, thisYear + 1]) {
     for (const event of sales.events) {
       const catalogue = state.sales.catalogues.find((c) => c.saleId === event.id && c.year === year);
+      const announceWeek = announceWeekOf(event);
+      // 올해 발표 주가 지났는데 카탈로그가 없으면 마감 뒤 정리된 것이다(이번 주 발표분은 진행 때 만들어진다)
+      const pruned = catalogue === undefined && year === thisYear && announceWeek < state.date.week;
       const status: UpcomingSale['status'] =
-        catalogue === undefined ? 'upcoming' : catalogue.status === 'closed' ? 'closed' : 'catalogued';
-      all.push({ event, year, announceWeek: announceWeekOf(event), status });
+        catalogue === undefined
+          ? pruned
+            ? 'closed'
+            : 'upcoming'
+          : catalogue.status === 'closed'
+            ? 'closed'
+            : 'catalogued';
+      all.push({ event, year, announceWeek, status });
     }
   }
   all.sort((a, b) => {

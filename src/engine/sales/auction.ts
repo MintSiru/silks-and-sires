@@ -52,7 +52,7 @@ export interface LotOutcome {
 }
 
 /** 경매 입찰 한 줄(입찰 순서: AI 먼저, 플레이어 마지막 — 동률은 먼저 낸 쪽이 이긴다) */
-interface Bidder {
+export interface Bidder {
   ownerId: OwnerId;
   max: Money;
   isPlayer: boolean;
@@ -153,7 +153,8 @@ function lotIsLive(state: GameState, lot: SaleLot): boolean {
 }
 
 /** 유효 입찰자: AI 는 자금이 상한 × (1 + 구매자 수수료) 이상이고 상한이 minimumBid 이상인 입찰, 플레이어는 playerBidValid */
-function collectBidders(state: GameState, lot: SaleLot, event: SaleEventDef, playerMax: Money | null): Bidder[] {
+/** 유효 입찰자 목록(AI 저장 상한 중 자금·최저가 조건을 지키는 것 + 유효한 플레이어 상한). 실시간 보기(bidding.ts)도 이 함수를 쓴다 */
+export function collectBidders(state: GameState, lot: SaleLot, event: SaleEventDef, playerMax: Money | null): Bidder[] {
   const rate = event.buyerPremiumRate;
   const seller = vendorOwnerId(lot.vendor);
   const bidders: Bidder[] = [];

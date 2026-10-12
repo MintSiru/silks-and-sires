@@ -496,6 +496,22 @@ describe('세일 일정 화면용 목록 upcomingSales', () => {
     expect(list[0]?.status).toBe('upcoming');
   });
 
+  it('발표 주가 지났는데 카탈로그가 없으면(마감 뒤 정리됨) closed 로 보고 목록 앞에서 건너뛴다', () => {
+    const sorted = SALES.events.slice().sort((a, b) => announceWeekOf(a) - announceWeekOf(b));
+    const first = sorted[0];
+    if (first === undefined) throw new Error('세일 없음');
+    const draft = fresh();
+    draft.date = { year: YEAR, week: announceWeekOf(first) + 1 };
+    draft.sales.catalogues = [];
+    const list = upcomingSales(draft, SALES_DATA);
+    expect(list.find((u) => u.event.id === first.id && u.year === YEAR)).toBeUndefined();
+    // 이번 주가 발표 주인 세일은 아직 upcoming(진행 때 발표된다)
+    draft.date = { year: YEAR, week: announceWeekOf(first) };
+    expect(upcomingSales(draft, SALES_DATA).find((u) => u.event.id === first.id && u.year === YEAR)?.status).toBe(
+      'upcoming',
+    );
+  });
+
   it('카탈로그가 발표되면 상태가 catalogued 로 바뀐다', () => {
     const target = eventOfKind('yearling');
     const state = runSalesWeek(fresh(), announceWeekOf(target));
