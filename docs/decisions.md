@@ -201,3 +201,4 @@
 - 2026-10-12 | 기록 | M4 사용자 아이디어 2차(미국 종마 추가, 시설 업그레이드, 어린 조교사·기수 전속 확률, 프라이빗 종마, 세일 대량 구매 혜택) → docs/m4-ideas.md.
 - 2026-10-12 | 기록 | M4 사용자 아이디어: 수태율 낮은 종마는 일정 기간 뒤 은퇴 → docs/m4-ideas.md 10번(기존 Stallion.fertility 활용).
 - 2026-10-12 | 데이터(사용자 제공, Opus 직접) | 2026 북미 리딩 사이어 화면 대조로 종마 상태 정정: Not This Time·Gun Runner·Constitution·Quality Road·City of Light·Candy Ride → active(US), Medaglia d'Oro → pensioned, Frosted → historical. 미수록 상위 50위 22두는 M4 후보(docs/m4-ideas.md). BloodHorse 는 약관(자동·수동 복사 금지, 보안 우회 금지)상 직접 수집하지 않음.
+- 2026-10-12 | 데이터(사용자 제공) | Not This Time 털색 brown 정정, Gun Runner·Quality Road·City of Light 혈통 확인, Uncle Mo(2024)·Speightstown(2023) 사망 확인, American Pharoah 일본 셔틀 → M4 후보.

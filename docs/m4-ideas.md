@@ -59,6 +59,7 @@ M4 계획(docs/m4-plan.md, 아직 없음)을 쓸 때 기획서 5-4장·8장(M4 �
 | Collected | City Zip | 2013 | 캘리포니아 |
 | Tapiture | Tapit | 2011 | 캐나다 계류 |
 | The Factor | War Front | ? | |
+- 추가 후보: American Pharoah(Pioneerof the Nile) — 2025~2026 일본 셔틀(사용자). 셔틀 종마 표현(남반구·일본 계절 이동)이 필요한지 M4 에서 결정.
 - 제외: Girvin(2026 사망).
 - 데이터에 없는 부: War Front, Kitten's Joy, Eskendereya, Lion Heart, Pioneerof the Nile, Flatter, City Zip — 부계 사슬을 잇는 조상 레코드도 함께 필요.
 - 추가 시 필요한 값: 외조부, 털색, 생년(? 3두), 거리 프로필. 대략 60개 값 → 사용자에게 요청 또는 위키백과(사용자 결정).
