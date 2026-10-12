@@ -1,4 +1,5 @@
 import type { CountryCode, SireLineId } from './common';
+import type { CoatColour } from './horse';
 
 /**
  * 실명 종마 정적 데이터 스키마 (data/stallions/*.json).
@@ -42,6 +43,8 @@ export interface RealStallionRecord {
   marketTier: 1 | 2 | 3 | 4 | 5;
   /** 종마 역할. 생략 시 'flat' (NH 시장은 M4) */
   studRole?: StudRole;
+  /** 털색(위키백과 인포박스 기준). 미확인이면 생략 — 엔진이 기본값(bay)으로 본다. M3-C6 */
+  coatColour?: CoatColour;
   /** 데이터 확신도 (계류 상태·혈통 관계 기준) */
   confidence: 'high' | 'medium' | 'low';
 }
