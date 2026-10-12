@@ -56,3 +56,22 @@ export const PACK_AFFORD_SAFETY = 0.7;
 /** 바로 앞(같은 레인대, DRAFT_DISTANCE_M 이내)에 말이 있으면 스태미나 소모 배수 */
 export const DRAFT_DISTANCE_M = 3;
 export const DRAFT_DRAIN_FACTOR = 0.95;
+
+/**
+ * 성격 5축의 레이스 반영 (M3-C5b). 축 편차 d = (값 − 50) / 50. 모든 효과는 성격값 50 에서 정확히 0 이다.
+ * 과열도 x = clamp((d_drive − d_composure) × MIX, −CLAMP, CLAMP). MIX 0.5 = 두 축의 평균.
+ */
+export const PERSONA_OVERHEAT_MIX = 0.5;
+export const PERSONA_OVERHEAT_CLAMP = 1;
+/** x > 0 (과열): 초반 구간 목표 속도 × (1 + KEEN_EARLY_SPEED × x), 초반 스태미나 소모 × (1 + KEEN_EARLY_DRAIN × x) */
+export const KEEN_EARLY_SPEED = 0.015;
+export const KEEN_EARLY_DRAIN = 0.25;
+/** x < 0 (느긋함): 초반 구간 목표 속도 × (1 + CALM_EARLY_SPEED × x). 소모는 바뀌지 않는다 */
+export const CALM_EARLY_SPEED = 0.008;
+/** 겁 t = max(0, d_timidity): 출발 지연 + TIMID_START_DELAY_S × t, 출발 레인 바깥쪽 + TIMID_LANE_OFFSET_M × t */
+export const TIMID_START_DELAY_S = 0.35;
+export const TIMID_LANE_OFFSET_M = 1.5;
+/** 투쟁심 f = d_fight: 경합 근성 보너스 = GUTS_BATTLE_BONUS × guts × (1 + FIGHT_BATTLE_K × f) */
+export const FIGHT_BATTLE_K = 0.8;
+/** 고집 s = max(0, d_stubbornness): 레이스 시작 시 확률 STUBBORN_IGNORE_MAX_P × s 로 작전을 무시하고 preferredStyle 로 달린다 */
+export const STUBBORN_IGNORE_MAX_P = 0.3;

@@ -37,15 +37,29 @@ import {
   UPHILL_POWER_RELIEF,
   WEIGHT_EFFECT_PER_LB,
 } from '../config/runner';
+import { PERSONALITY_MEAN, PERSONALITY_SCALE } from '../config/personality';
+import {
+  CALM_EARLY_SPEED,
+  FIGHT_BATTLE_K,
+  KEEN_EARLY_DRAIN,
+  KEEN_EARLY_SPEED,
+  PERSONA_OVERHEAT_CLAMP,
+  PERSONA_OVERHEAT_MIX,
+  STUBBORN_IGNORE_MAX_P,
+  TIMID_LANE_OFFSET_M,
+  TIMID_START_DELAY_S,
+} from '../config/sim';
 import { goingFit } from '../going/going';
 import type {
   Aptitudes,
   Condition,
   Going,
   Handedness,
+  Personality,
   PreparedRunner,
   Rng,
   RunnerInput,
+  RunningStyle,
   Surface,
 } from '../types';
 
@@ -160,33 +174,81 @@ function staminaPoolFrom(stamina: number, fitness: number): number {
   );
 }
 
-/** 출발 레인(m). draw 1 = 내측. [LANE_MIN, width - LANE_MIN] 로 clamp. */
-function startLaneFrom(draw: number, trackWidth: number): number {
-  const raw = LANE_MIN_M + (draw - 1) * LANE_PER_STALL_M;
+/** 출발 레인(m). draw 1 = 내측. [LANE_MIN, width - LANE_MIN] 로 clamp. offset 은 겁에 따른 바깥쪽 이동량(m, 0 이면 없음). */
+function startLaneFrom(draw: number, trackWidth: number, offset: number): number {
+  const raw = LANE_MIN_M + (draw - 1) * LANE_PER_STALL_M + offset;
   return Math.min(Math.max(raw, LANE_MIN_M), trackWidth - LANE_MIN_M);
+}
+
+/** 성격 축 편차 d = (값 − 50) / 50 (−1~+1). 50 이면 0. */
+export function personaDeviation(value: number): number {
+  return (value - PERSONALITY_MEAN) / PERSONALITY_SCALE;
+}
+
+/** 과열도 x = clamp((d_drive − d_composure) × MIX, −CLAMP, CLAMP). 양수 = 초반 과열, 음수 = 느긋함. */
+export function overheatLevel(p: Personality): number {
+  const raw = (personaDeviation(p.drive) - personaDeviation(p.composure)) * PERSONA_OVERHEAT_MIX;
+  return Math.min(PERSONA_OVERHEAT_CLAMP, Math.max(-PERSONA_OVERHEAT_CLAMP, raw));
+}
+
+/**
+ * 레이스 시작 시 작전 결정. 고집 s = max(0, d_stubbornness) 이면 확률 STUBBORN_IGNORE_MAX_P × s 로
+ * 작전(entry.tactic) 대신 말의 preferredStyle 을 쓴다. 성격 난수는 personaRng 만 쓴다(레이스 rng 아님).
+ * personaRng 가 생략되면 무시 판정을 하지 않는다.
+ */
+export function resolveStyle(input: RunnerInput, personaRng: Rng | undefined): RunningStyle {
+  const s = Math.max(0, personaDeviation(input.horse.personality.stubbornness));
+  if (s <= 0 || personaRng === undefined) return input.entry.tactic;
+  const ignore = personaRng.chance(STUBBORN_IGNORE_MAX_P * s);
+  return ignore ? input.horse.preferredStyle : input.entry.tactic;
+}
+
+/**
+ * 성격 파생값을 더한 주자 파라미터. PreparedRunner(types)를 확장한다.
+ * 성격 50 이면 overheat·timidity·경합 보정이 0 이고 배수는 정확히 1 이다.
+ */
+export interface PersonaRunner extends PreparedRunner {
+  /** 과열도 x (−1~+1). 양수 = 초반 과열 */
+  overheat: number;
+  /** 겁 t = max(0, d_timidity) */
+  timidity: number;
+  /** 경합 근성 배율 = 1 + FIGHT_BATTLE_K × d_fight. 경합 근성 보너스 = GUTS_BATTLE_BONUS × guts × 이 값 */
+  battleGutsScale: number;
+  /** 초반 구간 목표 속도 배수 */
+  earlySpeedMult: number;
+  /** 초반 구간 스태미나 소모 배수 (x ≤ 0 이면 1) */
+  earlyDrainMult: number;
 }
 
 /**
  * 레이스 시작 시 주자 정적 파라미터 계산.
- * rng 사용 순서 고정: ① normal(0, FORM_SD) 1회(next 2회 소비) ② next() 1회. 이 외 rng 사용 금지.
+ * rng 사용 순서 고정: ① normal(0, FORM_SD) 1회(next 2회 소비) ② next() 1회. 이 외 레이스 rng 사용 금지.
+ * personaRng 는 성격 전용 스트림(고집 판정에 최대 1회 소비). 레이스 rng 와 무관하다.
  */
 export function prepareRunner(
   input: RunnerInput,
   index: number,
   ctx: RaceContext,
   rng: Rng,
-): PreparedRunner {
+  personaRng?: Rng,
+): PersonaRunner {
   const form = 1 + rng.normal(0, FORM_SD);
   const u = rng.next();
 
   const ability = input.horse.ability;
   const mult = speedMultiplier(input, ctx) * form;
   const accel = input.horse.ability.acceleration;
+  const p = input.horse.personality;
+  const overheat = overheatLevel(p);
+  const timidity = Math.max(0, personaDeviation(p.timidity));
+  const earlySpeedMult =
+    overheat > 0 ? 1 + KEEN_EARLY_SPEED * overheat : 1 + CALM_EARLY_SPEED * overheat;
+  const earlyDrainMult = overheat > 0 ? 1 + KEEN_EARLY_DRAIN * overheat : 1;
 
   return {
     index,
     horseId: input.horse.id,
-    style: input.entry.tactic,
+    style: resolveStyle(input, personaRng),
     cruiseSpeed: cruiseFrom(ability.speed, mult),
     topSpeed: topFrom(ability.speed, accel, mult),
     accel: ACCEL_BASE_MPS2 + (ACCEL_RANGE_MPS2 * accel) / 100,
@@ -195,9 +257,15 @@ export function prepareRunner(
     power: ability.power / 100,
     startDelay:
       START_DELAY_MIN_S +
-      u * START_DELAY_RANGE_S * (1 - (START_DELAY_ACCEL_RELIEF * accel) / 100),
+      u * START_DELAY_RANGE_S * (1 - (START_DELAY_ACCEL_RELIEF * accel) / 100) +
+      TIMID_START_DELAY_S * timidity,
     jockeySkill: input.jockey.skill / 100,
-    startLane: startLaneFrom(input.entry.draw, ctx.trackWidth),
+    startLane: startLaneFrom(input.entry.draw, ctx.trackWidth, TIMID_LANE_OFFSET_M * timidity),
+    overheat,
+    timidity,
+    battleGutsScale: 1 + FIGHT_BATTLE_K * personaDeviation(p.fight),
+    earlySpeedMult,
+    earlyDrainMult,
   };
 }
 

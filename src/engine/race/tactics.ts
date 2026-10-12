@@ -20,7 +20,7 @@ import {
   SPURT_SAFETY as SPURT_SAFETY_CFG,
 } from '../config/sim';
 import type { Going, PreparedRunner } from '../types';
-import { exhaustedSpeed, staminaDrainPerSecond } from './runnerModel';
+import { exhaustedSpeed, staminaDrainPerSecond, type PersonaRunner } from './runnerModel';
 import { DRAIN_EXPONENT } from '../config/runner';
 
 /**
@@ -101,7 +101,7 @@ export function shouldStartSpurtPre(
  * earlyLimit = earlyPhaseLimit(distance) 를 호출자가 미리 계산해 넘긴다.
  */
 export function targetSpeedAt(
-  r: PreparedRunner,
+  r: PersonaRunner,
   s: number,
   earlyLimit: number,
   spurting: boolean,
@@ -120,7 +120,7 @@ export function targetSpeedAt(
   if (spurting) {
     target = r.topSpeed;
   } else if (s < earlyLimit) {
-    target = r.cruiseSpeed * EARLY_STYLE_FACTOR[r.style];
+    target = r.cruiseSpeed * EARLY_STYLE_FACTOR[r.style] * r.earlySpeedMult;
   } else {
     target = r.cruiseSpeed * MID_STYLE_FACTOR[r.style];
   }
@@ -135,7 +135,7 @@ export function targetSpeedAt(
 
   // 5. 경합 중 근성 보너스
   if (battling) {
-    target *= 1 + GUTS_BATTLE_BONUS * r.guts;
+    target *= 1 + GUTS_BATTLE_BONUS * r.guts * r.battleGutsScale;
   }
 
   return target;
@@ -143,7 +143,7 @@ export function targetSpeedAt(
 
 /** 이번 틱의 목표 속도(트래픽 전) */
 export function baseTargetSpeed(args: {
-  r: PreparedRunner;
+  r: PersonaRunner;
   s: number;
   distance: number;
   spurting: boolean;

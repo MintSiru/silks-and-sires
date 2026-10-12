@@ -22,7 +22,6 @@ import { buildRacePath } from '../course/path';
 import { createRng } from '../rng';
 import type {
   FinishRecord,
-  PreparedRunner,
   RacePathSample,
   RaceReplay,
   RaceSimInput,
@@ -34,6 +33,7 @@ import {
   exhaustedSpeed,
   prepareRunner,
   staminaDrainPerSecond,
+  type PersonaRunner,
   type RaceContext,
 } from './runnerModel';
 import {
@@ -106,7 +106,10 @@ export function simulateRace(input: RaceSimInput): RaceSimOutput {
     undulation: course.undulation,
     trackWidth: path.width,
   };
-  const prepared: PreparedRunner[] = runners.map((runner, i) => prepareRunner(runner, i, ctx, rng));
+  // 성격 난수는 레이스 rng 와 분리된 스트림(말 id 별)을 쓴다. 레이스 rng 는 소비하지 않는다.
+  const prepared: PersonaRunner[] = runners.map((runner, i) =>
+    prepareRunner(runner, i, ctx, rng, createRng(`persona:${seed}:${runner.horse.id}`)),
+  );
   const judge: number[] = prepared.map(
     (r) => 1 + rng.normal(0, JUDGE_SD * (1 - r.jockeySkill)),
   );
@@ -333,9 +336,12 @@ export function simulateRace(input: RaceSimInput): RaceSimOutput {
       let nst = st;
       if (!isFin) {
         const drafting = scan.drafting;
+        // 초반 구간 소모 배수(과열마 > 1). 구간 밖이면 1 이라 결과가 바뀌지 않는다.
+        const earlyDrain = sample.s < earlyLimit ? r.earlyDrainMult : 1;
         const drain =
           staminaDrainPerSecond(ns, r.cruiseSpeed, sample.gradient, going, r.power) *
-          (drafting ? DRAFT_DRAIN_FACTOR : 1);
+          (drafting ? DRAFT_DRAIN_FACTOR : 1) *
+          earlyDrain;
         nst = Math.max(0, st - drain * dt);
       }
 
