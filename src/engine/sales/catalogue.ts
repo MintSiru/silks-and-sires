@@ -377,7 +377,7 @@ function sireTierOf(ctx: Context, sireId: HorseId | null): number {
 }
 
 /** 종류에 맞는 위탁 말인가(나이·상태·성별) */
-function fitsKind(horse: Horse, kind: SaleKind, year: number): boolean {
+export function fitsKind(horse: Horse, kind: SaleKind, year: number): boolean {
   const age = year - horse.birthYear;
   switch (kind) {
     case 'foal':

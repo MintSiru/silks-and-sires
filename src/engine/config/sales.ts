@@ -127,3 +127,14 @@ export const SALE_MARE_AGE_MAX = 12;
 export const SALE_HOME_SIRE_WEIGHT_MULT = 3;
 /** 플레이어 위탁 말의 부(父) 등급을 알 수 없을 때 쓰는 등급(가장 낮은 등급 = 마지막 북) */
 export const SALE_UNKNOWN_SIRE_TIER = 5;
+
+// ── 세일 주간 시스템·위탁 API(M4-C2b) ─────────────────────────
+
+/** 카탈로그 발표 주 = 세일 시작 주 − 이 값(주). 발표 전까지만 위탁을 받는다 */
+export const SALE_CATALOGUE_LEAD_WEEKS = 4;
+/** 마감 카탈로그 보존 기간: 마지막 북 주 + 이 값(주)이 지나면 카탈로그와 플레이어 입찰을 지운다 */
+export const SALE_CATALOGUE_KEEP_WEEKS = 8;
+/** 세일 결과 요약(history) 보존 기간(년). 세일 연도 기준 이 년보다 오래된 요약은 지운다 */
+export const SALE_HISTORY_YEARS = 3;
+/** 화면용 세일 일정 목록 최대 개수 */
+export const SALE_UPCOMING_LIMIT = 12;

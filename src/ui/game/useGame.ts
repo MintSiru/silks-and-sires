@@ -12,6 +12,7 @@ import {
   getPeopleData,
   getRaceTemplates,
   getRacecourses,
+  getSalesData,
   getSeriesDefinitions,
   getStallionNames,
   getStallionRecords,
@@ -74,6 +75,7 @@ function gameStaticData(): GameStaticData {
     courses: getRacecourses(),
     templates: getRaceTemplates(),
     series: getSeriesDefinitions(),
+    sales: getSalesData(),
   };
 }
 
