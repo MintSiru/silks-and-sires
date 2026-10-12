@@ -52,6 +52,11 @@ export interface RealStallionRecord {
    * 예: American Pharoah 2025~2026 일본 임대 → 2027. 생략하면 제한 없음.
    */
   availableFromYear?: number;
+  /**
+   * 마지막 교배 시즌 연도(사망·종마 은퇴). 이 해 뒤에 태어날 자마(교배 연도 > 이 값)는 만들 수 없다.
+   * active 는 생략. historical·pensioned 는 위키백과 사망·은퇴 연도, 모르면 생략(엔진이 MAX_STUD_AGE 로 추정).
+   */
+  lastCoverYear?: number;
 }
 
 /** key → 표시 이름 */
