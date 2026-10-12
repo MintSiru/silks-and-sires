@@ -841,3 +841,9 @@ Avenue of Flags, Bailjumper, Kaldounevees, Kendargent, Lord At War, Made Of Gold
 - sl_man_o_war(루트) 신설, sl_intentionally 의 parentLineId 를 sl_man_o_war 로. 하위 계통 수 31(테스트 상한 30 → 35).
 - Bubbling Over 는 계통 자료가 없어 레코드를 만들지 않고 Intent 의 damsireKey 는 null(이 메모로만 기록).
 - 털색: Man o' War·War Relic·Intent 모두 chestnut(사용자 확인 2026-10-12).
+
+## 2026 북미 리딩 사이어 대조 (2026-10-12, 사용자 제공 화면)
+- 현역으로 정정(US): Not This Time(tier 1), Gun Runner(1), Constitution(2), Quality Road(2), City of Light(3), Candy Ride(3). M2 때 계류 상태 미확인으로 pensioned 처리했던 종마.
+- Medaglia d'Oro → pensioned, Frosted → historical(사망).
+- Vino Rosso: 2027 계류지가 호주로 보임(확인 필요, 현재 US 유지).
+- 상위 50위 중 우리 데이터에 없는 종마 22두는 docs/m4-ideas.md 의 '미국 종마 후보'(M4 추가 대상).

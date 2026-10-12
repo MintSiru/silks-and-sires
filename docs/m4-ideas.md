@@ -33,3 +33,32 @@ M4 계획(docs/m4-plan.md, 아직 없음)을 쓸 때 기획서 5-4장·8장(M4 �
 - 10: 종마 수태율은 이미 있다 — Stallion.fertility(types/horse.ts, 세계 생성 시 평균 0.85·SD 0.05·0.5~0.99, config/world.ts), 교배 성공 확률 = 종마 수태율 × 암말 나이 배수(breeding/season.ts:234). 지금은 숨김 고정값이라 은퇴로 이어지지 않는다.
 - 추가할 것: 시즌별 실제 수태 기록(교배 수·수태 수), 공개되는 '수태율' 표시(표본이 적으면 범위로), 나이에 따른 종마 수태율 감소, 기준 미달 연속 시즌 → 종마 은퇴(플레이어 소유 종마는 경고 후 선택 — 계속 쓸지 은퇴할지). 낮은 수태율은 종부료 하락 요인으로도 쓴다(M4 종부료 수요 모델).
 - 플레이어 종마(M4 종마 전환)에도 같은 규칙이 적용되므로 종마 전환·판매(4·8)와 같이 설계한다.
+
+## 미국 종마 후보 (2026 북미 리딩 사이어 상위 50위 중 미수록, 사용자 제공 화면 기준)
+| 종마 | 부 | 생년 | 비고 |
+| --- | --- | --- | --- |
+| Vekoma | Candy Ride | 2016 | |
+| Liam's Map | Unbridled's Song | 2011 | |
+| Omaha Beach | War Front | ? | 현재 호주 계류 |
+| Twirling Candy | Candy Ride | 2007 | |
+| Maclean's Music | Distorted Humor | 2008 | |
+| Yaupon | Uncle Mo | 2017 | |
+| Oscar Performance | Kitten's Joy | 2014 | 잔디 |
+| McKinzie | Street Sense | 2015 | |
+| Goldencents | Into Mischief | ? | |
+| Authentic | Into Mischief | 2017 | |
+| Mitole | Eskendereya | 2015 | |
+| Volatile | Violence | 2016 | |
+| Kantharos | Lion Heart | 2008 | 플로리다 |
+| Cairo Prince | Pioneerof the Nile | 2011 | |
+| Audible | Into Mischief | 2015 | |
+| Upstart | Flatter | 2012 | |
+| Dialed In | Mineshaft | 2008 | |
+| Maximus Mischief | Into Mischief | 2016 | |
+| Flameaway | Scat Daddy | 2015 | |
+| Collected | City Zip | 2013 | 캘리포니아 |
+| Tapiture | Tapit | 2011 | 캐나다 계류 |
+| The Factor | War Front | ? | |
+- 제외: Girvin(2026 사망).
+- 데이터에 없는 부: War Front, Kitten's Joy, Eskendereya, Lion Heart, Pioneerof the Nile, Flatter, City Zip — 부계 사슬을 잇는 조상 레코드도 함께 필요.
+- 추가 시 필요한 값: 외조부, 털색, 생년(? 3두), 거리 프로필. 대략 60개 값 → 사용자에게 요청 또는 위키백과(사용자 결정).
