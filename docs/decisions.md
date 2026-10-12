@@ -191,3 +191,4 @@
 - 2026-10-12 | 승인 | M3-C7e2 이름 생성기 게임 연결(세계·현역마·지급마·망아지 → nameForHorse, horse_words.json·generateHorseName 삭제). 1차 반려(시간 +184%, populationSystem 누락) 후 NamingData 파생값 WeakMap 캐시로 +24%. FR 마주 프랑스어 0.65, AE 아랍어 0.79. 후속(M6 다듬기): 음절 조합 이름의 어색한 철자(Kerouthshazz·Lorienbaeea), 소유격+형용사('Oasis' Wondrous'), 성 하나만인 이름('Jones').
 - 2026-10-12 | 결정(사용자) | 공백 포함 18자를 넘는 명승고적·작품 제목도 공백을 뺀 길이가 18자 이하면 허용 — 생성기에서는 항상 붙여 쓰기(예: Savethelastdance).
 - 2026-10-12 | 승인 | M3-C7f1 보강: 공백 제거 18자 이하 긴 제목 joinedOnly 36개(Save the Last Dance·Pride and Prejudice 등), 축약 제목 4개 원제 복구. Opus 제거: The Return of the King(현역 프랜차이즈 연상).
+- 2026-10-12 | 승인 | M3-F1 시즌 검증(tests/verify/season.test.ts, 리포트 docs/reports/2026-10-12-m3-season.md, 3시드×5시즌 270s). 재현성·성능(주당 285ms)·동착(0.2%)·이름 중복 0 통과. 기준 이탈: 인기 1위 승률 56%, G1 평균 6.4두·5두 미만 16.5%, 개최 레이스 32% 취소, 4세 이상 평균 OR 연 -4 드리프트, 7세 이상 4%→17%, 크라운 시리즈 달성 0. → F2 원인 조사·밸런스 조정. Opus 수정: words→naming 인터페이스 반영.
