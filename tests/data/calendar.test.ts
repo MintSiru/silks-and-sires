@@ -4,6 +4,7 @@ import g1Json from '../../data/calendar/g1.json';
 import seriesJson from '../../data/calendar/series.json';
 import { loadRacecourses } from '../../src/engine/course/load';
 import { buildRacePath } from '../../src/engine/course/path';
+import { getRaceTemplates } from '../../src/engine/data/staticData';
 import { weekOfSlot } from '../../src/engine/season/schedule';
 import { isInPhase } from '../../src/engine/time/calendar';
 import type { Racecourse } from '../../src/engine/types/course';
@@ -204,7 +205,8 @@ describe('(5) 상금', () => {
 });
 
 describe('(6) 시리즈 (data/calendar/series.json)', () => {
-  const ids = new Set(templates.map((t) => t.id));
+  // 레그는 G1(g1.json)과 G2 이하(pattern_*.json, A4b) 어디에 있어도 된다
+  const ids = new Set(getRaceTemplates().map((t) => t.id));
 
   it('시리즈 15개, id 중복 없음, nameKey = series.<id>', () => {
     expect(series).toHaveLength(15);
@@ -214,7 +216,7 @@ describe('(6) 시리즈 (data/calendar/series.json)', () => {
     }
   });
 
-  it('모든 legs·requiredLegs 의 id 가 g1.json 에 있다', () => {
+  it('모든 legs·requiredLegs 의 id 가 캘린더 템플릿에 있다', () => {
     for (const s of series) {
       for (const leg of s.legs) {
         expect(ids.has(leg), `${s.id}: ${leg}`).toBe(true);
@@ -245,8 +247,13 @@ describe('(6) 시리즈 (data/calendar/series.json)', () => {
     expect(series.map((s) => s.id).sort()).toEqual([...want].sort());
     expect(series.find((s) => s.id === 'european_sprint_series')?.legs).toHaveLength(9);
     expect(series.find((s) => s.id === 'european_stayers_series')).toMatchObject({
-      winsRequired: 2,
+      winsRequired: 3,
       requiredLegs: ['kingsmere_cup'],
+    });
+    expect(series.find((s) => s.id === 'european_stayers_series')?.legs).toHaveLength(5);
+    expect(series.find((s) => s.id === 'british_oaks_triple')).toMatchObject({
+      legs: ['ashcombe_oaks', 'primrose_stakes', 'northern_oaks'],
+      winsRequired: 3,
     });
   });
 });

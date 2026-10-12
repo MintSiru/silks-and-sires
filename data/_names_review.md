@@ -186,3 +186,11 @@ Opus 검수용. 근거는 모델 지식 기준의 판단이며 실존 여부를 
 - 경마장 이름은 기존 가상 경마장(data/racecourses.json)만 쓴다. 새 경마장 이름 없음.
 - 확신 낮은 이름(프랑스 `Prix ...` 형식 다수, Chalkpit·Hollyhock·Silverbirch·Bramblewood·Linden·Bluebell·Downland·Meadowsweet·Coronet·Northern Oaks 등)은 data/calendar/_review.md 4장에 정리했다. Opus 가 실존 여부를 확인해 달라.
 - 시리즈 이름은 id 만 쓴다(nameKey = `series.<id>`). 사람 이름 없음.
+
+## M3-A4b1 영·아 패턴 레이스 이름 (G2 14 · G3 22 · L 22 · 아 G2 5 · G3 10 · L 10 · 헤리티지 핸디캡 7 = 90개)
+
+- 레이스 이름·id 는 가상 경마장 + 일반어(Stakes / Cup / Trophy / Plate / Handicap / Trial) 형식이다. 전체 목록과 모델 대응은 data/calendar/pattern_gb_ie.json 과 data/calendar/_review.md 6장에 있다.
+- 명세 지정 이름 "Primrose Stakes" 는 실존 레이스명과 같을 가능성이 있어 확인이 필요하다.
+- 확신 낮은 이름(Juvenile Trophy·Ladies Plate·Autumn Plate·Ladies Cup·Cup·Sprint Trophy 등 일반어 조합 24개, Harvest·Opening·Hill 등 흔한 영단어 조합 7개)은 data/calendar/_review.md 6-4장에 정리했다. Opus 가 실존 여부를 확인해 달라.
+- 경마장 이름은 기존 가상 경마장(data/racecourses.json)만 쓴다. 새 경마장 이름 없음.
+- 사람 이름 없음.

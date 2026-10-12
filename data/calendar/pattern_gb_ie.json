@@ -1,1 +1,3195 @@
-[]
+[
+  {
+    "id": "aldermoor_fillies_guineas_trial",
+    "name": "Aldermoor Fillies Guineas Trial",
+    "racecourseId": "aldermoor_park",
+    "distance": 1609,
+    "layoutId": "aldermoor_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 4,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 10,
+    "tags": [
+      "fillies_mares",
+      "trial"
+    ]
+  },
+  {
+    "id": "ravensbridge_guineas_trial",
+    "name": "Ravensbridge Guineas Trial",
+    "racecourseId": "ravensbridge_park",
+    "distance": 1609,
+    "layoutId": "ravensbridge_oval",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 4,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 10,
+    "tags": [
+      "trial"
+    ]
+  },
+  {
+    "id": "wexborough_guineas_trial",
+    "name": "Wexborough Guineas Trial",
+    "racecourseId": "wexborough",
+    "distance": 1609,
+    "layoutId": "wexborough_straight",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 4,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": [
+      "trial"
+    ]
+  },
+  {
+    "id": "tullamere_opening_stakes",
+    "name": "Tullamere Opening Stakes",
+    "racecourseId": "tullamere",
+    "distance": 1207,
+    "layoutId": "tullamere_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 4,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 10,
+    "tags": [
+      "sprint"
+    ]
+  },
+  {
+    "id": "wexborough_fillies_guineas_trial",
+    "name": "Wexborough Fillies Guineas Trial",
+    "racecourseId": "wexborough",
+    "distance": 1408,
+    "layoutId": "wexborough_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 4,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 10,
+    "tags": [
+      "fillies_mares",
+      "trial"
+    ]
+  },
+  {
+    "id": "ashcombe_spring_stakes",
+    "name": "Ashcombe Spring Stakes",
+    "racecourseId": "ashcombe",
+    "distance": 1710,
+    "layoutId": "ashcombe_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 4,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "ballinvar_fillies_guineas_trial",
+    "name": "Ballinvar Fillies Guineas Trial",
+    "racecourseId": "ballinvar",
+    "distance": 1408,
+    "layoutId": "ballinvar_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 4,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 10,
+    "tags": [
+      "fillies_mares",
+      "trial"
+    ]
+  },
+  {
+    "id": "kilcarrow_spring_stakes",
+    "name": "Kilcarrow Spring Stakes",
+    "racecourseId": "kilcarrow_heath",
+    "distance": 1609,
+    "layoutId": "kilcarrow_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 4,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "selsworth_spring_cup",
+    "name": "Selsworth Spring Cup",
+    "racecourseId": "selsworth_downs",
+    "distance": 2414,
+    "layoutId": "selsworth_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 4,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 4,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "tullamere_guineas_trial",
+    "name": "Tullamere Guineas Trial",
+    "racecourseId": "tullamere",
+    "distance": 1609,
+    "layoutId": "tullamere_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 4,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 10,
+    "tags": [
+      "trial"
+    ]
+  },
+  {
+    "id": "dunholme_spring_stakes",
+    "name": "Dunholme Spring Stakes",
+    "racecourseId": "dunholme_moor",
+    "distance": 2012,
+    "layoutId": "dunholme_main",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 4,
+      "weekOfMonth": 5
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "kilcarrow_spring_plate",
+    "name": "Kilcarrow Spring Plate",
+    "racecourseId": "kilcarrow_heath",
+    "distance": 2012,
+    "layoutId": "kilcarrow_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 4,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 4,
+      "weekOfMonth": 5
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "marlow_spring_cup",
+    "name": "Marlow Spring Cup",
+    "racecourseId": "marlow_downs",
+    "distance": 2012,
+    "layoutId": "marlow_straight",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 4,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 4,
+      "weekOfMonth": 5
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "tullamere_fillies_guineas_trial",
+    "name": "Tullamere Fillies Guineas Trial",
+    "racecourseId": "tullamere",
+    "distance": 1609,
+    "layoutId": "tullamere_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 4,
+      "weekOfMonth": 5
+    },
+    "cardOrder": 10,
+    "tags": [
+      "fillies_mares",
+      "trial"
+    ]
+  },
+  {
+    "id": "ballinvar_guineas_trial",
+    "name": "Ballinvar Guineas Trial",
+    "racecourseId": "ballinvar",
+    "distance": 1609,
+    "layoutId": "ballinvar_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 10,
+    "tags": [
+      "trial"
+    ]
+  },
+  {
+    "id": "ravensbridge_derby_trial",
+    "name": "Ravensbridge Derby Trial",
+    "racecourseId": "ravensbridge_park",
+    "distance": 2414,
+    "layoutId": "ravensbridge_oval",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 10,
+    "tags": [
+      "trial"
+    ]
+  },
+  {
+    "id": "ravensbridge_oaks_trial",
+    "name": "Ravensbridge Oaks Trial",
+    "racecourseId": "ravensbridge_park",
+    "distance": 2012,
+    "layoutId": "ravensbridge_oval",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 20,
+    "tags": [
+      "fillies_mares",
+      "trial"
+    ]
+  },
+  {
+    "id": "ballinvar_spring_stakes",
+    "name": "Ballinvar Spring Stakes",
+    "racecourseId": "ballinvar",
+    "distance": 2012,
+    "layoutId": "ballinvar_main",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "easterholm_spring_cup",
+    "name": "Easterholm Spring Cup",
+    "racecourseId": "easterholm",
+    "distance": 2816,
+    "layoutId": "easterholm_main",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 4,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": [
+      "stayers"
+    ]
+  },
+  {
+    "id": "tullamere_spring_stakes",
+    "name": "Tullamere Spring Stakes",
+    "racecourseId": "tullamere",
+    "distance": 1609,
+    "layoutId": "tullamere_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "wexborough_derby_trial",
+    "name": "Wexborough Derby Trial",
+    "racecourseId": "wexborough",
+    "distance": 2414,
+    "layoutId": "wexborough_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": [
+      "trial"
+    ]
+  },
+  {
+    "id": "wexborough_oaks_trial",
+    "name": "Wexborough Oaks Trial",
+    "racecourseId": "wexborough",
+    "distance": 2012,
+    "layoutId": "wexborough_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 20,
+    "tags": [
+      "fillies_mares",
+      "trial"
+    ]
+  },
+  {
+    "id": "dunholme_fillies_stakes",
+    "name": "Dunholme Fillies Stakes",
+    "racecourseId": "dunholme_moor",
+    "distance": 1609,
+    "layoutId": "dunholme_straight",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 10,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "kingsmere_spring_stakes",
+    "name": "Kingsmere Spring Stakes",
+    "racecourseId": "kingsmere_heath",
+    "distance": 1609,
+    "layoutId": "kingsmere_triangle",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "marlow_spring_stakes",
+    "name": "Marlow Spring Stakes",
+    "racecourseId": "marlow_downs",
+    "distance": 1609,
+    "layoutId": "marlow_straight",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "tullamere_derby_trial",
+    "name": "Tullamere Derby Trial",
+    "racecourseId": "tullamere",
+    "distance": 2414,
+    "layoutId": "tullamere_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 10,
+    "tags": [
+      "trial"
+    ]
+  },
+  {
+    "id": "wexborough_spring_mile_handicap",
+    "name": "Wexborough Spring Mile Handicap",
+    "racecourseId": "wexborough",
+    "distance": 1609,
+    "layoutId": "wexborough_straight",
+    "kind": "handicap",
+    "grade": null,
+    "raceClass": 2,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": 80,
+      "ratingMax": 110,
+      "weightSystem": "handicap",
+      "baseWeightLb": 140
+    },
+    "prizeMoney": [
+      114000,
+      44000,
+      22000,
+      11000,
+      6000,
+      3000
+    ],
+    "maxRunners": 20,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 5,
+    "tags": [
+      "heritage_handicap"
+    ]
+  },
+  {
+    "id": "aldermoor_spring_stakes",
+    "name": "Aldermoor Spring Stakes",
+    "racecourseId": "aldermoor_park",
+    "distance": 1609,
+    "layoutId": "aldermoor_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "ashcombe_spring_cup",
+    "name": "Ashcombe Spring Cup",
+    "racecourseId": "ashcombe",
+    "distance": 2012,
+    "layoutId": "ashcombe_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 4,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "easterholm_spring_stakes",
+    "name": "Easterholm Spring Stakes",
+    "racecourseId": "easterholm",
+    "distance": 1609,
+    "layoutId": "easterholm_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "wexborough_cup",
+    "name": "Wexborough Cup",
+    "racecourseId": "wexborough",
+    "distance": 2414,
+    "layoutId": "wexborough_main",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 4,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 5,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "kilcarrow_sprint_stakes",
+    "name": "Kilcarrow Sprint Stakes",
+    "racecourseId": "kilcarrow_heath",
+    "distance": 1006,
+    "layoutId": "kilcarrow_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 10,
+    "tags": [
+      "sprint"
+    ]
+  },
+  {
+    "id": "ravensbridge_sprint_stakes",
+    "name": "Ravensbridge Sprint Stakes",
+    "racecourseId": "ravensbridge_park",
+    "distance": 1006,
+    "layoutId": "ravensbridge_straight",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 10,
+    "tags": [
+      "sprint"
+    ]
+  },
+  {
+    "id": "easterholm_ladies_stakes",
+    "name": "Easterholm Ladies Stakes",
+    "racecourseId": "easterholm",
+    "distance": 1609,
+    "layoutId": "easterholm_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "marlow_sprint_trophy",
+    "name": "Marlow Sprint Trophy",
+    "racecourseId": "marlow_downs",
+    "distance": 1207,
+    "layoutId": "marlow_straight",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": [
+      "sprint"
+    ]
+  },
+  {
+    "id": "ashcombe_ladies_plate",
+    "name": "Ashcombe Ladies Plate",
+    "racecourseId": "ashcombe",
+    "distance": 1710,
+    "layoutId": "ashcombe_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 4,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 10,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "ballinvar_oaks_trial",
+    "name": "Ballinvar Oaks Trial",
+    "racecourseId": "ballinvar",
+    "distance": 2012,
+    "layoutId": "ballinvar_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 10,
+    "tags": [
+      "fillies_mares",
+      "trial"
+    ]
+  },
+  {
+    "id": "kilcarrow_ladies_cup",
+    "name": "Kilcarrow Ladies Cup",
+    "racecourseId": "kilcarrow_heath",
+    "distance": 2414,
+    "layoutId": "kilcarrow_main",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 10,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "primrose_stakes",
+    "name": "Ladysmock Stakes",
+    "racecourseId": "kingsmere_heath",
+    "distance": 2414,
+    "layoutId": "kingsmere_triangle",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 5,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "kingsmere_juvenile_trophy",
+    "name": "Kingsmere Juvenile Trophy",
+    "racecourseId": "kingsmere_heath",
+    "distance": 1207,
+    "layoutId": "kingsmere_straight",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 12,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 15,
+    "tags": [
+      "two_year_old",
+      "sprint"
+    ]
+  },
+  {
+    "id": "selsworth_spring_stakes",
+    "name": "Selsworth Spring Stakes",
+    "racecourseId": "selsworth_downs",
+    "distance": 2012,
+    "layoutId": "selsworth_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "kingsmere_summer_handicap",
+    "name": "Kingsmere Summer Handicap",
+    "racecourseId": "kingsmere_heath",
+    "distance": 1609,
+    "layoutId": "kingsmere_straight",
+    "kind": "handicap",
+    "grade": null,
+    "raceClass": 2,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": 80,
+      "ratingMax": 110,
+      "weightSystem": "handicap",
+      "baseWeightLb": 140
+    },
+    "prizeMoney": [
+      171000,
+      66000,
+      33000,
+      16500,
+      9000,
+      4500
+    ],
+    "maxRunners": 20,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 10,
+    "tags": [
+      "heritage_handicap"
+    ]
+  },
+  {
+    "id": "kingsmere_heath_handicap",
+    "name": "Kingsmere Heath Handicap",
+    "racecourseId": "kingsmere_heath",
+    "distance": 2012,
+    "layoutId": "kingsmere_triangle",
+    "kind": "handicap",
+    "grade": null,
+    "raceClass": 2,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": 80,
+      "ratingMax": 110,
+      "weightSystem": "handicap",
+      "baseWeightLb": 140
+    },
+    "prizeMoney": [
+      114000,
+      44000,
+      22000,
+      11000,
+      6000,
+      3000
+    ],
+    "maxRunners": 20,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 20,
+    "tags": [
+      "heritage_handicap"
+    ]
+  },
+  {
+    "id": "wexborough_sprint_stakes",
+    "name": "Wexborough Sprint Stakes",
+    "racecourseId": "wexborough",
+    "distance": 1207,
+    "layoutId": "wexborough_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 6,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 10,
+    "tags": [
+      "sprint"
+    ]
+  },
+  {
+    "id": "ballinvar_sprint_trophy",
+    "name": "Ballinvar Sprint Trophy",
+    "racecourseId": "ballinvar",
+    "distance": 1207,
+    "layoutId": "ballinvar_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 7,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": [
+      "sprint"
+    ]
+  },
+  {
+    "id": "easterholm_mile_stakes",
+    "name": "Easterholm Mile Stakes",
+    "racecourseId": "easterholm",
+    "distance": 1609,
+    "layoutId": "easterholm_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 7,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "marlow_juvenile_stakes",
+    "name": "Marlow Juvenile Stakes",
+    "racecourseId": "marlow_downs",
+    "distance": 1408,
+    "layoutId": "marlow_straight",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 12,
+    "schedule": {
+      "month": 7,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 5,
+    "tags": [
+      "two_year_old"
+    ]
+  },
+  {
+    "id": "ravensbridge_hill_stakes",
+    "name": "Ravensbridge Hill Stakes",
+    "racecourseId": "ravensbridge_park",
+    "distance": 1609,
+    "layoutId": "ravensbridge_oval",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 7,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "selsworth_ladies_cup",
+    "name": "Selsworth Ladies Cup",
+    "racecourseId": "selsworth_downs",
+    "distance": 2012,
+    "layoutId": "selsworth_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 7,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "ashcombe_sprint_trophy",
+    "name": "Ashcombe Sprint Trophy",
+    "racecourseId": "ashcombe",
+    "distance": 1207,
+    "layoutId": "ashcombe_main",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 7,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 10,
+    "tags": [
+      "sprint"
+    ]
+  },
+  {
+    "id": "kilcarrow_cup",
+    "name": "Kilcarrow Cup",
+    "racecourseId": "kilcarrow_heath",
+    "distance": 2816,
+    "layoutId": "kilcarrow_main",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 4,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 7,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 10,
+    "tags": [
+      "stayers"
+    ]
+  },
+  {
+    "id": "kingsmere_sprint_trophy",
+    "name": "Kingsmere Sprint Trophy",
+    "racecourseId": "kingsmere_heath",
+    "distance": 1207,
+    "layoutId": "kingsmere_straight",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 7,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 5,
+    "tags": [
+      "sprint"
+    ]
+  },
+  {
+    "id": "aldermoor_juvenile_trophy",
+    "name": "Aldermoor Juvenile Trophy",
+    "racecourseId": "aldermoor_park",
+    "distance": 1207,
+    "layoutId": "aldermoor_straight",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 12,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 10,
+    "tags": [
+      "two_year_old",
+      "sprint"
+    ]
+  },
+  {
+    "id": "kilcarrow_fillies_plate",
+    "name": "Kilcarrow Fillies Plate",
+    "racecourseId": "kilcarrow_heath",
+    "distance": 1609,
+    "layoutId": "kilcarrow_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 10,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "selsworth_stakes",
+    "name": "Selsworth Stakes",
+    "racecourseId": "selsworth_downs",
+    "distance": 1408,
+    "layoutId": "selsworth_main",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 5,
+    "tags": []
+  },
+  {
+    "id": "dunholme_st_leger_trial",
+    "name": "Dunholme St Leger Trial",
+    "racecourseId": "dunholme_moor",
+    "distance": 2921,
+    "layoutId": "dunholme_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": 3,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": [
+      "stayers",
+      "trial"
+    ]
+  },
+  {
+    "id": "easterholm_juvenile_stakes",
+    "name": "Easterholm Juvenile Stakes",
+    "racecourseId": "easterholm",
+    "distance": 1408,
+    "layoutId": "easterholm_main",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 12,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": [
+      "two_year_old"
+    ]
+  },
+  {
+    "id": "kilcarrow_juvenile_trophy",
+    "name": "Kilcarrow Juvenile Trophy",
+    "racecourseId": "kilcarrow_heath",
+    "distance": 1207,
+    "layoutId": "kilcarrow_main",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 12,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 5,
+    "tags": [
+      "two_year_old",
+      "sprint"
+    ]
+  },
+  {
+    "id": "kingsmere_ladies_plate",
+    "name": "Kingsmere Ladies Plate",
+    "racecourseId": "kingsmere_heath",
+    "distance": 1609,
+    "layoutId": "kingsmere_straight",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "marlow_fillies_juvenile_trophy",
+    "name": "Marlow Fillies Juvenile Trophy",
+    "racecourseId": "marlow_downs",
+    "distance": 1408,
+    "layoutId": "marlow_straight",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 12,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": [
+      "two_year_old",
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "ballinvar_juvenile_plate",
+    "name": "Ballinvar Juvenile Plate",
+    "racecourseId": "ballinvar",
+    "distance": 1408,
+    "layoutId": "ballinvar_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 12,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 10,
+    "tags": [
+      "two_year_old"
+    ]
+  },
+  {
+    "id": "dunholme_juvenile_trophy",
+    "name": "Dunholme Juvenile Trophy",
+    "racecourseId": "dunholme_moor",
+    "distance": 1408,
+    "layoutId": "dunholme_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 12,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 10,
+    "tags": [
+      "two_year_old"
+    ]
+  },
+  {
+    "id": "easterholm_cup",
+    "name": "Easterholm Cup",
+    "racecourseId": "easterholm",
+    "distance": 3319,
+    "layoutId": "easterholm_main",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 5,
+    "tags": [
+      "stayers"
+    ]
+  },
+  {
+    "id": "kilcarrow_ladies_stakes",
+    "name": "Kilcarrow Ladies Stakes",
+    "racecourseId": "kilcarrow_heath",
+    "distance": 2012,
+    "layoutId": "kilcarrow_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 10,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "ballinvar_mile_stakes",
+    "name": "Ballinvar Mile Stakes",
+    "racecourseId": "ballinvar",
+    "distance": 1609,
+    "layoutId": "ballinvar_main",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "easterholm_staying_handicap",
+    "name": "Easterholm Staying Handicap",
+    "racecourseId": "easterholm",
+    "distance": 2816,
+    "layoutId": "easterholm_main",
+    "kind": "handicap",
+    "grade": null,
+    "raceClass": 2,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": 80,
+      "ratingMax": 110,
+      "weightSystem": "handicap",
+      "baseWeightLb": 140
+    },
+    "prizeMoney": [
+      114000,
+      44000,
+      22000,
+      11000,
+      6000,
+      3000
+    ],
+    "maxRunners": 20,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 10,
+    "tags": [
+      "stayers",
+      "heritage_handicap"
+    ]
+  },
+  {
+    "id": "marlow_round_cup",
+    "name": "Marlow Round Cup",
+    "racecourseId": "marlow_downs",
+    "distance": 2816,
+    "layoutId": "marlow_round",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 4,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 8,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 10,
+    "tags": [
+      "stayers"
+    ]
+  },
+  {
+    "id": "ashcombe_juvenile_stakes",
+    "name": "Ashcombe Juvenile Stakes",
+    "racecourseId": "ashcombe",
+    "distance": 1408,
+    "layoutId": "ashcombe_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 12,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 10,
+    "tags": [
+      "two_year_old"
+    ]
+  },
+  {
+    "id": "kingsmere_harvest_stakes",
+    "name": "Kingsmere Harvest Stakes",
+    "racecourseId": "kingsmere_heath",
+    "distance": 1207,
+    "layoutId": "kingsmere_straight",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 16,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 10,
+    "tags": [
+      "sprint"
+    ]
+  },
+  {
+    "id": "tullamere_juvenile_stakes",
+    "name": "Tullamere Juvenile Stakes",
+    "racecourseId": "tullamere",
+    "distance": 1207,
+    "layoutId": "tullamere_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 2,
+      "maxAge": 2,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 12,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 10,
+    "tags": [
+      "two_year_old",
+      "sprint"
+    ]
+  },
+  {
+    "id": "aldermoor_mile_stakes",
+    "name": "Aldermoor Mile Stakes",
+    "racecourseId": "aldermoor_park",
+    "distance": 1609,
+    "layoutId": "aldermoor_main",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "ashcombe_autumn_cup",
+    "name": "Ashcombe Autumn Cup",
+    "racecourseId": "ashcombe",
+    "distance": 2414,
+    "layoutId": "ashcombe_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 4,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "dunholme_ladies_cup",
+    "name": "Dunholme Ladies Cup",
+    "racecourseId": "dunholme_moor",
+    "distance": 2414,
+    "layoutId": "dunholme_main",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 5,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "wexborough_autumn_stakes",
+    "name": "Wexborough Autumn Stakes",
+    "racecourseId": "wexborough",
+    "distance": 1609,
+    "layoutId": "wexborough_straight",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "ballinvar_autumn_handicap",
+    "name": "Ballinvar Autumn Handicap",
+    "racecourseId": "ballinvar",
+    "distance": 1609,
+    "layoutId": "ballinvar_main",
+    "kind": "handicap",
+    "grade": null,
+    "raceClass": 2,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": 80,
+      "ratingMax": 110,
+      "weightSystem": "handicap",
+      "baseWeightLb": 140
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 20,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 10,
+    "tags": [
+      "heritage_handicap"
+    ]
+  },
+  {
+    "id": "kilcarrow_autumn_cup",
+    "name": "Kilcarrow Autumn Cup",
+    "racecourseId": "kilcarrow_heath",
+    "distance": 2414,
+    "layoutId": "kilcarrow_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 4,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "marlow_autumn_handicap",
+    "name": "Marlow Autumn Handicap",
+    "racecourseId": "marlow_downs",
+    "distance": 1811,
+    "layoutId": "marlow_straight",
+    "kind": "handicap",
+    "grade": null,
+    "raceClass": 2,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": 80,
+      "ratingMax": 110,
+      "weightSystem": "handicap",
+      "baseWeightLb": 140
+    },
+    "prizeMoney": [
+      114000,
+      44000,
+      22000,
+      11000,
+      6000,
+      3000
+    ],
+    "maxRunners": 20,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 10,
+    "tags": [
+      "heritage_handicap"
+    ]
+  },
+  {
+    "id": "selsworth_autumn_mile",
+    "name": "Selsworth Autumn Mile",
+    "racecourseId": "selsworth_downs",
+    "distance": 1609,
+    "layoutId": "selsworth_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "ballinvar_autumn_plate",
+    "name": "Ballinvar Autumn Plate",
+    "racecourseId": "ballinvar",
+    "distance": 1408,
+    "layoutId": "ballinvar_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "ravensbridge_autumn_plate",
+    "name": "Ravensbridge Autumn Plate",
+    "racecourseId": "ravensbridge_park",
+    "distance": 2012,
+    "layoutId": "ravensbridge_oval",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "selsworth_fillies_stakes",
+    "name": "Selsworth Fillies Stakes",
+    "racecourseId": "selsworth_downs",
+    "distance": 2012,
+    "layoutId": "selsworth_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 9,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 10,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "aldermoor_autumn_stakes",
+    "name": "Aldermoor Autumn Stakes",
+    "racecourseId": "aldermoor_park",
+    "distance": 2816,
+    "layoutId": "aldermoor_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 4,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 10,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 10,
+    "tags": [
+      "stayers"
+    ]
+  },
+  {
+    "id": "ballinvar_harvest_stakes",
+    "name": "Ballinvar Harvest Stakes",
+    "racecourseId": "ballinvar",
+    "distance": 1609,
+    "layoutId": "ballinvar_main",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 10,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "marlow_ladies_mile",
+    "name": "Marlow Ladies Mile",
+    "racecourseId": "marlow_downs",
+    "distance": 1609,
+    "layoutId": "marlow_straight",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 10,
+      "weekOfMonth": 1
+    },
+    "cardOrder": 10,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "dunholme_autumn_stakes",
+    "name": "Dunholme Autumn Stakes",
+    "racecourseId": "dunholme_moor",
+    "distance": 2414,
+    "layoutId": "dunholme_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 10,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "tullamere_autumn_stakes",
+    "name": "Tullamere Autumn Stakes",
+    "racecourseId": "tullamere",
+    "distance": 2012,
+    "layoutId": "tullamere_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 10,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "wexborough_autumn_plate",
+    "name": "Wexborough Autumn Plate",
+    "racecourseId": "wexborough",
+    "distance": 2012,
+    "layoutId": "wexborough_main",
+    "kind": "group",
+    "grade": "G3",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "fillies_mares",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      45600,
+      17600,
+      8800,
+      4400,
+      2400,
+      1200
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 10,
+      "weekOfMonth": 2
+    },
+    "cardOrder": 10,
+    "tags": [
+      "fillies_mares"
+    ]
+  },
+  {
+    "id": "marlow_autumn_plate",
+    "name": "Marlow Autumn Plate",
+    "racecourseId": "marlow_downs",
+    "distance": 1408,
+    "layoutId": "marlow_straight",
+    "kind": "listed",
+    "grade": "L",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      31350,
+      12100,
+      6050,
+      3025,
+      1650,
+      825
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 10,
+      "weekOfMonth": 3
+    },
+    "cardOrder": 10,
+    "tags": []
+  },
+  {
+    "id": "dunholme_long_handicap",
+    "name": "Dunholme Long Handicap",
+    "racecourseId": "dunholme_moor",
+    "distance": 3620,
+    "layoutId": "dunholme_main",
+    "kind": "handicap",
+    "grade": null,
+    "raceClass": 2,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": 80,
+      "ratingMax": 110,
+      "weightSystem": "handicap",
+      "baseWeightLb": 140
+    },
+    "prizeMoney": [
+      114000,
+      44000,
+      22000,
+      11000,
+      6000,
+      3000
+    ],
+    "maxRunners": 20,
+    "schedule": {
+      "month": 10,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 5,
+    "tags": [
+      "stayers",
+      "heritage_handicap"
+    ]
+  },
+  {
+    "id": "kingsmere_autumn_stakes",
+    "name": "Kingsmere Autumn Stakes",
+    "racecourseId": "kingsmere_heath",
+    "distance": 1609,
+    "layoutId": "kingsmere_triangle",
+    "kind": "group",
+    "grade": "G2",
+    "raceClass": 1,
+    "conditions": {
+      "minAge": 3,
+      "maxAge": null,
+      "sex": "open",
+      "ratingMin": null,
+      "ratingMax": null,
+      "weightSystem": "wfa",
+      "baseWeightLb": 126
+    },
+    "prizeMoney": [
+      85500,
+      33000,
+      16500,
+      8250,
+      4500,
+      2250
+    ],
+    "maxRunners": 14,
+    "schedule": {
+      "month": 10,
+      "weekOfMonth": 4
+    },
+    "cardOrder": 10,
+    "tags": []
+  }
+]

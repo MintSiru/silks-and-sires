@@ -144,3 +144,126 @@ Opus 검수용. 가상 이름 ↔ 모델(실제 레이스) 대응. 데이터(g1.
 - data/calendar/g1.json, series.json 에는 실명이 없다(테스트 tests/data/calendar.test.ts 의 (7)번 검사로 확인).
 - 경마장 id 는 data/racecourses.json 의 가상 id 를 그대로 쓴다. 목록과 distances 는 바꾸지 않았다.
 
+
+## 6. 영·아 패턴 레이스 (M3-A4b1) — 실명은 이 파일에만
+
+Opus 검수용. 데이터(data/calendar/pattern_gb_ie.json)에는 실명이 없다. 아래 "모델" 칸은 거리·조건·계절이 비슷한 실제 레이스를 **추정**한 것이며, 확신이 없으면 "미확정"으로 두었다. 1~5장은 그대로 두고 이 장을 추가했다(명세의 "5장 추가"는 기존 5장과 겹쳐 6장으로 했다).
+
+### 6-1. 이름 규칙과 확인 사항
+- 형식: "<가상 경마장> <일반어>" (Stakes / Cup / Trophy / Plate / Handicap / Ladies Cup / Mile / Sprint …). 트라이얼은 "<가상 경마장> Guineas Trial", "<가상 경마장> Derby Trial", "<가상 경마장> Oaks Trial", "<가상 경마장> St Leger Trial".
+- 명세가 지정한 이름 "Primrose Stakes" 는 실존 레이스명과 같을 가능성을 Opus 가 확인해야 한다(확신 낮음).
+- 금지어 정규식(calendar.test.ts 목록 + 명세 추가 목록) 검사 0건(tests/data/pattern.test.ts (7)).
+- 모델 칸이 "미확정"인 항목은 실제 레이스를 특정하지 못한 것이다. 이름 자체는 규칙에 맞다.
+
+### 6-2. 트라이얼과 짝이 되는 G1 (3~5주 전)
+| 트라이얼 | 짝 G1 | 간격(주) |
+|---|---|---|
+| Wexborough Guineas Trial (4/2) · Ravensbridge Guineas Trial (4/1) | Marlow 2000 Guineas (5/1) | 4 · 5 |
+| Wexborough Fillies Guineas Trial (4/3) · Aldermoor Fillies Guineas Trial (4/1) | Marlow 1000 Guineas (5/1) | 3 · 5 |
+| Tullamere Guineas Trial (4/4) · Ballinvar Guineas Trial (5/1) | Kilcarrow 2000 Guineas (5/4) | 5 · 3 |
+| Tullamere Fillies Guineas Trial (4/5) · Ballinvar Fillies Guineas Trial (4/4) | Kilcarrow 1000 Guineas (5/4) | 4 · 5 |
+| Wexborough Derby Trial (5/2) · Ravensbridge Derby Trial (5/1) | Ashcombe Derby (6/1) | 3 · 4 |
+| Tullamere Derby Trial (5/3) | Kilcarrow Derby (6/4) | 5 |
+| Wexborough Oaks Trial (5/2) · Ravensbridge Oaks Trial (5/1) | Ashcombe Oaks (6/1) | 3 · 4 |
+| Ballinvar Oaks Trial (6/3) | Kilcarrow Oaks (7/2) | 3 |
+| Dunholme St Leger Trial (8/2) | Dunholme St Leger (9/2) | 4 |
+
+### 6-3. 레이스별 대응표 (일정순)
+| 일정 | 경마장(id) | 가상 이름 | id | 등급 | 거리 | layoutId | 조건 | 모델(실제 레이스, 추정) | 확신 |
+|---|---|---|---|---|---|---|---|---|---|
+| 4월 1주 | Aldermoor Park(aldermoor_park) | Aldermoor Fillies Guineas Trial | aldermoor_fillies_guineas_trial | L | 1609 | aldermoor_main | F3 | Nell Gwyn Stakes | 낮 |
+| 4월 1주 | Ravensbridge Park(ravensbridge_park) | Ravensbridge Guineas Trial | ravensbridge_guineas_trial | L | 1609 | ravensbridge_oval | 3 | Feilden Stakes | 낮 |
+| 4월 2주 | Wexborough(wexborough) | Wexborough Guineas Trial | wexborough_guineas_trial | G3 | 1609 | wexborough_straight | 3 | Craven Stakes | 낮 |
+| 4월 3주 | Tullamere(tullamere) | Tullamere Opening Stakes | tullamere_opening_stakes | L | 1207 | tullamere_main | 3+ | 미확정 | 없음 |
+| 4월 3주 | Wexborough(wexborough) | Wexborough Fillies Guineas Trial | wexborough_fillies_guineas_trial | G3 | 1408 | wexborough_main | F3 | Fred Darling Stakes | 낮 |
+| 4월 4주 | Ashcombe(ashcombe) | Ashcombe Spring Stakes | ashcombe_spring_stakes | L | 1710 | ashcombe_main | 3 | 미확정 | 없음 |
+| 4월 4주 | Ballinvar(ballinvar) | Ballinvar Fillies Guineas Trial | ballinvar_fillies_guineas_trial | G3 | 1408 | ballinvar_main | F3 | Athasi Stakes | 낮 |
+| 4월 4주 | Kilcarrow Heath(kilcarrow_heath) | Kilcarrow Spring Stakes | kilcarrow_spring_stakes | L | 1609 | kilcarrow_main | 3 | 미확정 | 없음 |
+| 4월 4주 | Selsworth Downs(selsworth_downs) | Selsworth Spring Cup | selsworth_spring_cup | G3 | 2414 | selsworth_main | 4+ | 미확정 | 없음 |
+| 4월 4주 | Tullamere(tullamere) | Tullamere Guineas Trial | tullamere_guineas_trial | L | 1609 | tullamere_main | 3 | 미확정 | 없음 |
+| 4월 5주 | Dunholme Moor(dunholme_moor) | Dunholme Spring Stakes | dunholme_spring_stakes | G2 | 2012 | dunholme_main | 3 | Dante Stakes | 낮 |
+| 4월 5주 | Kilcarrow Heath(kilcarrow_heath) | Kilcarrow Spring Plate | kilcarrow_spring_plate | G3 | 2012 | kilcarrow_main | 4+ | 미확정 | 없음 |
+| 4월 5주 | Marlow Downs(marlow_downs) | Marlow Spring Cup | marlow_spring_cup | G3 | 2012 | marlow_straight | 4+ | 미확정 | 없음 |
+| 4월 5주 | Tullamere(tullamere) | Tullamere Fillies Guineas Trial | tullamere_fillies_guineas_trial | L | 1609 | tullamere_main | F3 | 미확정 | 없음 |
+| 5월 1주 | Ballinvar(ballinvar) | Ballinvar Guineas Trial | ballinvar_guineas_trial | G3 | 1609 | ballinvar_main | 3 | Tetrarch Stakes | 낮 |
+| 5월 1주 | Ravensbridge Park(ravensbridge_park) | Ravensbridge Derby Trial | ravensbridge_derby_trial | L | 2414 | ravensbridge_oval | 3 | Dee Stakes | 낮 |
+| 5월 1주 | Ravensbridge Park(ravensbridge_park) | Ravensbridge Oaks Trial | ravensbridge_oaks_trial | L | 2012 | ravensbridge_oval | F3 | Musidora Stakes 계열 | 낮 |
+| 5월 2주 | Ballinvar(ballinvar) | Ballinvar Spring Stakes | ballinvar_spring_stakes | G2 | 2012 | ballinvar_main | 3 | Ballysax Stakes | 낮 |
+| 5월 2주 | Easterholm(easterholm) | Easterholm Spring Cup | easterholm_spring_cup | G2 | 2816 | easterholm_main | 4+ | Yorkshire Cup | 중 |
+| 5월 2주 | Tullamere(tullamere) | Tullamere Spring Stakes | tullamere_spring_stakes | G3 | 1609 | tullamere_main | 3+ | 미확정 | 없음 |
+| 5월 2주 | Wexborough(wexborough) | Wexborough Derby Trial | wexborough_derby_trial | G3 | 2414 | wexborough_main | 3 | Chester Vase | 낮 |
+| 5월 2주 | Wexborough(wexborough) | Wexborough Oaks Trial | wexborough_oaks_trial | G3 | 2012 | wexborough_main | F3 | Musidora Stakes | 낮 |
+| 5월 3주 | Dunholme Moor(dunholme_moor) | Dunholme Fillies Stakes | dunholme_fillies_stakes | G3 | 1609 | dunholme_straight | F3 | 미확정 | 없음 |
+| 5월 3주 | Kingsmere Heath(kingsmere_heath) | Kingsmere Spring Stakes | kingsmere_spring_stakes | L | 1609 | kingsmere_triangle | 3+ | 미확정 | 없음 |
+| 5월 3주 | Marlow Downs(marlow_downs) | Marlow Spring Stakes | marlow_spring_stakes | L | 1609 | marlow_straight | 3 | Greenham Stakes | 낮 |
+| 5월 3주 | Tullamere(tullamere) | Tullamere Derby Trial | tullamere_derby_trial | G3 | 2414 | tullamere_main | 3 | Derrinstown Stud Derby Trial | 낮 |
+| 5월 3주 | Wexborough(wexborough) | Wexborough Spring Mile Handicap | wexborough_spring_mile_handicap | 핸디캡 | 1609 | wexborough_straight | 핸디캡 OR 80~110 | Lincoln Handicap | 낮 |
+| 5월 4주 | Aldermoor Park(aldermoor_park) | Aldermoor Spring Stakes | aldermoor_spring_stakes | L | 1609 | aldermoor_main | 3 | 미확정 | 없음 |
+| 5월 4주 | Ashcombe(ashcombe) | Ashcombe Spring Cup | ashcombe_spring_cup | G3 | 2012 | ashcombe_main | 4+ | 미확정 | 없음 |
+| 5월 4주 | Easterholm(easterholm) | Easterholm Spring Stakes | easterholm_spring_stakes | L | 1609 | easterholm_main | 3 | 미확정 | 없음 |
+| 5월 4주 | Wexborough(wexborough) | Wexborough Cup | wexborough_cup | G2 | 2414 | wexborough_main | 4+ | Lonsdale Cup | 낮 |
+| 6월 1주 | Kilcarrow Heath(kilcarrow_heath) | Kilcarrow Sprint Stakes | kilcarrow_sprint_stakes | L | 1006 | kilcarrow_main | 3+ | 미확정 | 없음 |
+| 6월 1주 | Ravensbridge Park(ravensbridge_park) | Ravensbridge Sprint Stakes | ravensbridge_sprint_stakes | L | 1006 | ravensbridge_straight | 3+ | 미확정 | 없음 |
+| 6월 2주 | Easterholm(easterholm) | Easterholm Ladies Stakes | easterholm_ladies_stakes | G3 | 1609 | easterholm_main | F3+ | 미확정 | 없음 |
+| 6월 2주 | Marlow Downs(marlow_downs) | Marlow Sprint Trophy | marlow_sprint_trophy | G3 | 1207 | marlow_straight | 3+ | 미확정 | 없음 |
+| 6월 3주 | Ashcombe(ashcombe) | Ashcombe Ladies Plate | ashcombe_ladies_plate | L | 1710 | ashcombe_main | F4+ | 미확정 | 없음 |
+| 6월 3주 | Ballinvar(ballinvar) | Ballinvar Oaks Trial | ballinvar_oaks_trial | L | 2012 | ballinvar_main | F3 | 미확정 | 없음 |
+| 6월 3주 | Kilcarrow Heath(kilcarrow_heath) | Kilcarrow Ladies Cup | kilcarrow_ladies_cup | G2 | 2414 | kilcarrow_main | F3+ | Blandford Stakes | 낮 |
+| 6월 3주 | Kingsmere Heath(kingsmere_heath) | Ladysmock Stakes | primrose_stakes | G2 | 2414 | kingsmere_triangle | F3 | Ribblesdale Stakes | 중 |
+| 6월 3주 | Kingsmere Heath(kingsmere_heath) | Kingsmere Juvenile Trophy | kingsmere_juvenile_trophy | G2 | 1207 | kingsmere_straight | 2 | Chesham Stakes | 낮 |
+| 6월 3주 | Selsworth Downs(selsworth_downs) | Selsworth Spring Stakes | selsworth_spring_stakes | L | 2012 | selsworth_main | 3 | 미확정 | 없음 |
+| 6월 4주 | Kingsmere Heath(kingsmere_heath) | Kingsmere Summer Handicap | kingsmere_summer_handicap | 핸디캡 | 1609 | kingsmere_straight | 핸디캡 OR 80~110 | Royal Hunt Cup | 낮 |
+| 6월 4주 | Kingsmere Heath(kingsmere_heath) | Kingsmere Heath Handicap | kingsmere_heath_handicap | 핸디캡 | 2012 | kingsmere_triangle | 핸디캡 OR 80~110 | 미확정 | 없음 |
+| 6월 4주 | Wexborough(wexborough) | Wexborough Sprint Stakes | wexborough_sprint_stakes | L | 1207 | wexborough_main | 3+ | 미확정 | 없음 |
+| 7월 2주 | Ballinvar(ballinvar) | Ballinvar Sprint Trophy | ballinvar_sprint_trophy | G3 | 1207 | ballinvar_main | 3+ | 미확정 | 없음 |
+| 7월 2주 | Easterholm(easterholm) | Easterholm Mile Stakes | easterholm_mile_stakes | L | 1609 | easterholm_main | 3+ | 미확정 | 없음 |
+| 7월 2주 | Marlow Downs(marlow_downs) | Marlow Juvenile Stakes | marlow_juvenile_stakes | G2 | 1408 | marlow_straight | 2 | Champagne 계열 (7f 2세) | 낮 |
+| 7월 2주 | Ravensbridge Park(ravensbridge_park) | Ravensbridge Hill Stakes | ravensbridge_hill_stakes | G2 | 1609 | ravensbridge_oval | 3+ | Hungerford Stakes | 낮 |
+| 7월 2주 | Selsworth Downs(selsworth_downs) | Selsworth Ladies Cup | selsworth_ladies_cup | L | 2012 | selsworth_main | F3+ | 미확정 | 없음 |
+| 7월 4주 | Ashcombe(ashcombe) | Ashcombe Sprint Trophy | ashcombe_sprint_trophy | G2 | 1207 | ashcombe_main | 3+ | Abernant Stakes | 낮 |
+| 7월 4주 | Kilcarrow Heath(kilcarrow_heath) | Kilcarrow Cup | kilcarrow_cup | G2 | 2816 | kilcarrow_main | 4+ | Galway Plate | 낮 |
+| 7월 4주 | Kingsmere Heath(kingsmere_heath) | Kingsmere Sprint Trophy | kingsmere_sprint_trophy | G3 | 1207 | kingsmere_straight | 3+ | 미확정 | 없음 |
+| 8월 1주 | Aldermoor Park(aldermoor_park) | Aldermoor Juvenile Trophy | aldermoor_juvenile_trophy | G3 | 1207 | aldermoor_straight | 2 | 미확정 | 없음 |
+| 8월 1주 | Kilcarrow Heath(kilcarrow_heath) | Kilcarrow Fillies Plate | kilcarrow_fillies_plate | G3 | 1609 | kilcarrow_main | F3+ | 미확정 | 없음 |
+| 8월 1주 | Selsworth Downs(selsworth_downs) | Selsworth Stakes | selsworth_stakes | G2 | 1408 | selsworth_main | 3+ | Gordon Stakes | 낮 |
+| 8월 2주 | Dunholme Moor(dunholme_moor) | Dunholme St Leger Trial | dunholme_st_leger_trial | L | 2921 | dunholme_main | 3 | Great Voltigeur Stakes | 낮 |
+| 8월 2주 | Easterholm(easterholm) | Easterholm Juvenile Stakes | easterholm_juvenile_stakes | G2 | 1408 | easterholm_main | 2 | Gimcrack 계열 (2세) | 낮 |
+| 8월 2주 | Kilcarrow Heath(kilcarrow_heath) | Kilcarrow Juvenile Trophy | kilcarrow_juvenile_trophy | G2 | 1207 | kilcarrow_main | 2 | Phoenix Stakes | 낮 |
+| 8월 2주 | Kingsmere Heath(kingsmere_heath) | Kingsmere Ladies Plate | kingsmere_ladies_plate | G3 | 1609 | kingsmere_straight | F3+ | 미확정 | 없음 |
+| 8월 2주 | Marlow Downs(marlow_downs) | Marlow Fillies Juvenile Trophy | marlow_fillies_juvenile_trophy | G3 | 1408 | marlow_straight | F2 | 미확정 | 없음 |
+| 8월 3주 | Ballinvar(ballinvar) | Ballinvar Juvenile Plate | ballinvar_juvenile_plate | G3 | 1408 | ballinvar_main | 2 | 미확정 | 없음 |
+| 8월 3주 | Dunholme Moor(dunholme_moor) | Dunholme Juvenile Trophy | dunholme_juvenile_trophy | G3 | 1408 | dunholme_main | 2 | 미확정 | 없음 |
+| 8월 3주 | Easterholm(easterholm) | Easterholm Cup | easterholm_cup | G2 | 3319 | easterholm_main | 3+ | Goodwood Cup | 낮 |
+| 8월 3주 | Kilcarrow Heath(kilcarrow_heath) | Kilcarrow Ladies Stakes | kilcarrow_ladies_stakes | L | 2012 | kilcarrow_main | F3+ | 미확정 | 없음 |
+| 8월 4주 | Ballinvar(ballinvar) | Ballinvar Mile Stakes | ballinvar_mile_stakes | G2 | 1609 | ballinvar_main | 3+ | 미확정 | 없음 |
+| 8월 4주 | Easterholm(easterholm) | Easterholm Staying Handicap | easterholm_staying_handicap | 핸디캡 | 2816 | easterholm_main | 핸디캡 OR 80~110 | Cesarewitch Handicap | 낮 |
+| 8월 4주 | Marlow Downs(marlow_downs) | Marlow Round Cup | marlow_round_cup | G3 | 2816 | marlow_round | 4+ | Doncaster Cup | 낮 |
+| 9월 1주 | Ashcombe(ashcombe) | Ashcombe Juvenile Stakes | ashcombe_juvenile_stakes | G3 | 1408 | ashcombe_main | 2 | 미확정 | 없음 |
+| 9월 1주 | Kingsmere Heath(kingsmere_heath) | Kingsmere Harvest Stakes | kingsmere_harvest_stakes | L | 1207 | kingsmere_straight | 3+ | 미확정 | 없음 |
+| 9월 1주 | Tullamere(tullamere) | Tullamere Juvenile Stakes | tullamere_juvenile_stakes | L | 1207 | tullamere_main | 2 | 미확정 | 없음 |
+| 9월 2주 | Aldermoor Park(aldermoor_park) | Aldermoor Mile Stakes | aldermoor_mile_stakes | G2 | 1609 | aldermoor_main | 3+ | 미확정 | 없음 |
+| 9월 2주 | Ashcombe(ashcombe) | Ashcombe Autumn Cup | ashcombe_autumn_cup | G3 | 2414 | ashcombe_main | 4+ | 미확정 | 없음 |
+| 9월 2주 | Dunholme Moor(dunholme_moor) | Dunholme Ladies Cup | dunholme_ladies_cup | G2 | 2414 | dunholme_main | F3+ | Park Hill Stakes | 낮 |
+| 9월 2주 | Wexborough(wexborough) | Wexborough Autumn Stakes | wexborough_autumn_stakes | L | 1609 | wexborough_straight | 3+ | 미확정 | 없음 |
+| 9월 3주 | Ballinvar(ballinvar) | Ballinvar Autumn Handicap | ballinvar_autumn_handicap | 핸디캡 | 1609 | ballinvar_main | 핸디캡 OR 80~110 | 미확정 | 없음 |
+| 9월 3주 | Kilcarrow Heath(kilcarrow_heath) | Kilcarrow Autumn Cup | kilcarrow_autumn_cup | G3 | 2414 | kilcarrow_main | 4+ | Gallinule Stakes | 낮 |
+| 9월 3주 | Marlow Downs(marlow_downs) | Marlow Autumn Handicap | marlow_autumn_handicap | 핸디캡 | 1811 | marlow_straight | 핸디캡 OR 80~110 | Cambridgeshire Handicap | 중 |
+| 9월 3주 | Selsworth Downs(selsworth_downs) | Selsworth Autumn Mile | selsworth_autumn_mile | G3 | 1609 | selsworth_main | 3+ | 미확정 | 없음 |
+| 9월 4주 | Ballinvar(ballinvar) | Ballinvar Autumn Plate | ballinvar_autumn_plate | L | 1408 | ballinvar_main | 3+ | 미확정 | 없음 |
+| 9월 4주 | Ravensbridge Park(ravensbridge_park) | Ravensbridge Autumn Plate | ravensbridge_autumn_plate | L | 2012 | ravensbridge_oval | 3+ | 미확정 | 없음 |
+| 9월 4주 | Selsworth Downs(selsworth_downs) | Selsworth Fillies Stakes | selsworth_fillies_stakes | G3 | 2012 | selsworth_main | F3+ | 미확정 | 없음 |
+| 10월 1주 | Aldermoor Park(aldermoor_park) | Aldermoor Autumn Stakes | aldermoor_autumn_stakes | L | 2816 | aldermoor_main | 4+ | 미확정 | 없음 |
+| 10월 1주 | Ballinvar(ballinvar) | Ballinvar Harvest Stakes | ballinvar_harvest_stakes | L | 1609 | ballinvar_main | 3+ | 미확정 | 없음 |
+| 10월 1주 | Marlow Downs(marlow_downs) | Marlow Ladies Mile | marlow_ladies_mile | L | 1609 | marlow_straight | F3+ | 미확정 | 없음 |
+| 10월 2주 | Dunholme Moor(dunholme_moor) | Dunholme Autumn Stakes | dunholme_autumn_stakes | G3 | 2414 | dunholme_main | 3+ | 미확정 | 없음 |
+| 10월 2주 | Tullamere(tullamere) | Tullamere Autumn Stakes | tullamere_autumn_stakes | G3 | 2012 | tullamere_main | 3+ | Ballyroan Stakes | 낮 |
+| 10월 2주 | Wexborough(wexborough) | Wexborough Autumn Plate | wexborough_autumn_plate | G3 | 2012 | wexborough_main | F3+ | 미확정 | 없음 |
+| 10월 3주 | Marlow Downs(marlow_downs) | Marlow Autumn Plate | marlow_autumn_plate | L | 1408 | marlow_straight | 3+ | 미확정 | 없음 |
+| 10월 4주 | Dunholme Moor(dunholme_moor) | Dunholme Long Handicap | dunholme_long_handicap | 핸디캡 | 3620 | dunholme_main | 핸디캡 OR 80~110 | 미확정 | 없음 |
+| 10월 4주 | Kingsmere Heath(kingsmere_heath) | Kingsmere Autumn Stakes | kingsmere_autumn_stakes | G2 | 1609 | kingsmere_triangle | 3+ | 미확정 | 없음 |
+
+### 6-4. 확신 낮은 이름 (Opus 확인)
+- Primrose Stakes (명세 지정 이름, 실존 레이스와 같을 가능성 확인 필요)
+- 일반어 조합이지만 실존 레이스명과 우연히 같을 수 있는 이름: Kilcarrow Juvenile Trophy, Dunholme Juvenile Trophy, Aldermoor Juvenile Trophy, Marlow Fillies Juvenile Trophy, Ballinvar Juvenile Plate, Kingsmere Ladies Plate, Ashcombe Ladies Plate, Kilcarrow Fillies Plate, Wexborough Autumn Plate, Ballinvar Autumn Plate, Marlow Autumn Plate, Ravensbridge Autumn Plate, Selsworth Ladies Cup, Kilcarrow Ladies Cup, Dunholme Ladies Cup, Kilcarrow Cup, Wexborough Cup, Marlow Round Cup, Ashcombe Autumn Cup, Kilcarrow Autumn Cup, Ashcombe Sprint Trophy, Kingsmere Sprint Trophy, Marlow Sprint Trophy, Ballinvar Sprint Trophy
+- 흔한 영단어 조합: Kingsmere Harvest Stakes, Tullamere Opening Stakes, Ravensbridge Hill Stakes, Easterholm Mile Stakes, Marlow Ladies Mile, Easterholm Staying Handicap, Wexborough Spring Mile Handicap
+- Opus 결정(2026-10-12): primrose_stakes 의 이름을 "Ladysmock Stakes" 로 바꾼다(실존 이름과 겹칠 가능성 배제, id 유지).

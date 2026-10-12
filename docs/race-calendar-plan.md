@@ -73,7 +73,7 @@
 | **이탈리아 3관/티아라** | Torreverde 2000/1000 Guineas(4/3) → Torreverde Derby(5/3) / Valmerano Oaks(5/4) → Valmerano St Leger(9/4) / Premio Dama di Torreverde(10/2) | 칭호 |
 | **유럽 더비 3관** | Ashcombe Derby(6/1, 2,400) → Vallenaire Derby(6/2, 2,100) → Kilcarrow Derby(6/4, 2,400) | 큰 보너스(4주 3전 강행군 vs 보상) |
 | **유럽 마일 3관** | Selsworth Mile(8/1) → Prix du Grand Phare(8/2) → Kingsmere Autumn Mile(10/3) | 보너스 |
-| **영국 오크스 3관** | Ashcombe Oaks(G1 6/1) → Primrose Stakes(G2 6/3, 3세 암말 2,400) → Northern Oaks(G1 8/3) | 보너스 |
+| **영국 오크스 3관** | Ashcombe Oaks(G1 6/1) → Ladysmock Stakes(G2 6/3, 3세 암말 2,400) → Northern Oaks(G1 8/3) | 보너스 |
 | **유러피언 스테이어 시리즈** | Easterholm Spring Cup(G2 5/2) → Kingsmere Cup(G1 6/3) → Selsworth Cup(G1 8/1) → Easterholm Cup(G2 8/3) → Prix du Long Chemin(G1 10/1) | Kingsmere Cup 포함 3승 시 보너스 |
 | **유러피언 스프린트 시리즈** | 스프린트 G1 9개 포인트제(1위 10·2위 6·3위 4·4위 2) | 시즌 1위 보너스·"스프린트 챔피언" |
 

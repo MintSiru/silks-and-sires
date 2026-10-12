@@ -149,9 +149,10 @@
     "kind": "crown",
     "legs": [
       "ashcombe_oaks",
+      "primrose_stakes",
       "northern_oaks"
     ],
-    "winsRequired": 2,
+    "winsRequired": 3,
     "bonus": 500000
   },
   {
@@ -159,11 +160,13 @@
     "nameKey": "series.european_stayers_series",
     "kind": "crown",
     "legs": [
+      "easterholm_spring_cup",
       "kingsmere_cup",
       "selsworth_cup",
+      "easterholm_cup",
       "prix_du_long_chemin"
     ],
-    "winsRequired": 2,
+    "winsRequired": 3,
     "requiredLegs": [
       "kingsmere_cup"
     ],
