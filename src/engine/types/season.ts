@@ -1,7 +1,7 @@
-import type { HorseId, JockeyId, Money, OwnerId, RaceId, RacecourseId, TrainerId } from './common';
+import type { CountryCode, HorseId, JockeyId, Money, OwnerId, RaceId, RacecourseId, TrainerId } from './common';
 import type { SampleField } from '../race/sampleField';
 import type { Going } from './going';
-import type { Race } from './race';
+import type { Race, RaceGrade } from './race';
 import type { GameDate } from './time';
 
 /**
@@ -140,6 +140,32 @@ export interface ReplayableRace {
   field: SampleField;
 }
 
+/** 말 한 두의 한 레이스 퍼포먼스 레이팅 기록(올해분, M3-E1 시상 입력) */
+export interface PerformanceEntry {
+  raceId: RaceId;
+  /** 고정 일정 레이스면 템플릿 id */
+  templateId: RaceId | null;
+  date: GameDate;
+  grade: RaceGrade | null;
+  distance: number;
+  /** 레이스가 열린 나라 */
+  country: CountryCode;
+  position: number;
+  /** 퍼포먼스 레이팅(OR 척도, 핸디캐퍼 PR) */
+  pr: number;
+}
+
+/** 레이스 한 개의 레이팅(상위 4두 PR 평균, 론진형 '최우수 레이스' 입력). 그룹 레이스만 */
+export interface RaceRatingEntry {
+  raceId: RaceId;
+  templateId: RaceId | null;
+  name: string;
+  date: GameDate;
+  grade: RaceGrade;
+  country: CountryCode;
+  rating: number;
+}
+
 /** GameState.seasonState */
 export interface SeasonState {
   year: number;
@@ -159,4 +185,49 @@ export interface SeasonState {
   lastPopulationYear: number | null;
   /** 최근 다시 볼 수 있는 레이스(최대 개수는 config) */
   replayable: ReplayableRace[];
+  /** 나라별 올해 리딩(레이스가 열린 나라 기준). 유럽 합산은 leading (M3-E2) */
+  leadingByCountry: Partial<Record<CountryCode, LeadingTables>>;
+  /** 말별 올해 퍼포먼스 기록. 연도 전환 때 시상 계산 후 비운다 (M3-E1) */
+  performances: Record<HorseId, PerformanceEntry[]>;
+  /** 올해 그룹 레이스 레이팅. 연도 전환 때 비운다 (M3-E1) */
+  raceRatings: RaceRatingEntry[];
+}
+
+/** 시상식형(카르티에 모델) 부문 */
+export type LaurelCategory =
+  | 'horse_of_the_year'
+  | 'older_horse'
+  | 'stayer'
+  | 'sprinter'
+  | 'two_year_old_colt'
+  | 'two_year_old_filly'
+  | 'three_year_old_colt'
+  | 'three_year_old_filly';
+
+/** 평가지·랭킹 한 줄 */
+export interface RatedHorse {
+  horseId: HorseId;
+  rating: number;
+}
+
+/** 리딩 최종 순위 상위 N(카테고리별) */
+export type LeadingTop = Record<LeadingCategory, LeadingEntry[]>;
+
+/** 한 해의 시상·순위 결과 (연도 전환 때 확정, GameState.awardsHistory) */
+export interface SeasonAwards {
+  year: number;
+  /** Laurel Racing Awards — 부문별 수상마(해당 없으면 null) */
+  laurel: Record<LaurelCategory, HorseId | null>;
+  /** The Racing Ledger — 연간 레이팅 상위(150 척도) */
+  ledger: RatedHorse[];
+  /** Global Turf Rankings — 시즌 최고 퍼포먼스 상위(OR 척도) */
+  globalRankings: RatedHorse[];
+  /** Global Turf Rankings — 최우수 레이스 */
+  bestRace: RaceRatingEntry | null;
+  /** 유럽 합산 리딩 상위 */
+  leading: LeadingTop;
+  /** 나라별 리딩 상위 */
+  leadingByCountry: Partial<Record<CountryCode, LeadingTop>>;
+  /** 시리즈 달성(crown) 또는 1위(points) */
+  seriesChampions: Record<SeriesId, HorseId>;
 }

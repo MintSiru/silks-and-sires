@@ -44,6 +44,20 @@ export const MIGRATIONS: Readonly<Record<number, Migration>> = {
     const seasonState = season === undefined || replayable === undefined ? state.seasonState : { ...season, replayable };
     return { ...state, horses: next, seasonState };
   },
+  /** v4 → v5 (M3-E1·E2): 나라별 리딩·퍼포먼스 기록·레이스 레이팅·시상 이력 */
+  4: (state) => {
+    const season = state.seasonState as Record<string, unknown> | undefined;
+    const seasonState =
+      season === undefined
+        ? season
+        : {
+            ...season,
+            leadingByCountry: season.leadingByCountry ?? {},
+            performances: season.performances ?? {},
+            raceRatings: season.raceRatings ?? [],
+          };
+    return { ...state, seasonState, awardsHistory: state.awardsHistory ?? [] };
+  },
 };
 
 /** 구조 상수(형식 규칙). 밸런스 수치가 아니므로 여기 둔다. */

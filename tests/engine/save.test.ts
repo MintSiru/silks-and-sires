@@ -58,6 +58,7 @@ function makeState(): GameState {
     nextHorseNumber: 1,
     raceResults: [],
     seasonState: createEmptySeasonState(2026),
+    awardsHistory: [],
     eventLog: [{ type: 'week_started', date: { year: 2026, week: 7 } }],
   };
 }
@@ -350,12 +351,35 @@ describe('저장 마이그레이션 v3 → v4 (M3-C5·C6)', () => {
     const result = deserializeGame(json);
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(result.state.schemaVersion).toBe(4);
+      expect(result.state.schemaVersion).toBe(SAVE_SCHEMA_VERSION);
       expect(Object.keys(result.state.horses)).toContain('h_old');
       for (const h of Object.values(result.state.horses)) {
         expect(h.personality).toEqual(neutralPersonality());
         expect(h.coat).toEqual(defaultCoat());
       }
+    }
+  });
+});
+
+describe('저장 마이그레이션 v4 → v5 (M3-E1·E2)', () => {
+  it('시상 이력·나라별 리딩·퍼포먼스 기록이 없는 v4 저장본에 빈 값을 채운다', () => {
+    const v5 = makeState();
+    const { leadingByCountry: _a, performances: _b, raceRatings: _c, ...season } = v5.seasonState;
+    void _a;
+    void _b;
+    void _c;
+    const { awardsHistory: _d, ...rest } = v5;
+    void _d;
+    const v4 = { ...rest, schemaVersion: 4, seasonState: season };
+    const json = JSON.stringify({ format: 'silks-and-sires-save', schemaVersion: 4, savedAt: '2026-10-12T00:00:00.000Z', state: v4 });
+    const result = deserializeGame(json);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.state.schemaVersion).toBe(5);
+      expect(result.state.awardsHistory).toEqual([]);
+      expect(result.state.seasonState.leadingByCountry).toEqual({});
+      expect(result.state.seasonState.performances).toEqual({});
+      expect(result.state.seasonState.raceRatings).toEqual([]);
     }
   });
 });

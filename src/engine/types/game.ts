@@ -3,7 +3,7 @@ import type { Horse, HorseStatus, InjuryKind, Mare, Stallion } from './horse';
 import type { Jockey, Owner, Trainer } from './people';
 import type { RaceResult } from './race';
 import type { Rng, RngState } from './rng';
-import type { SeasonState, SeriesId } from './season';
+import type { SeasonAwards, SeasonState, SeriesId } from './season';
 import type { CalendarPhaseId, GameDate, Season } from './time';
 
 /** 주 진행 중 발생한 사건. M3 이후 종류가 늘어난다(판별 유니온에 추가). */
@@ -65,6 +65,8 @@ export interface GameState {
   raceResults: RaceResult[];
   /** 시즌 진행 상태(개최·시리즈·리딩·OR 이력) */
   seasonState: SeasonState;
+  /** 지난 시즌들의 시상·순위 (M3-E1·E2). 오래된 순 */
+  awardsHistory: SeasonAwards[];
   /** 최근 이벤트 로그 (최대 길이는 config 에서) */
   eventLog: GameEvent[];
 }

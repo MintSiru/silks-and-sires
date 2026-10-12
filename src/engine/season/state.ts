@@ -18,5 +18,8 @@ export function createEmptySeasonState(year: number): SeasonState {
     lastRun: {},
     lastPopulationYear: null,
     replayable: [],
+    leadingByCountry: {},
+    performances: {},
+    raceRatings: [],
   };
 }
