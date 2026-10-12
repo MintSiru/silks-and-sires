@@ -16,6 +16,7 @@ import {
   POPULATION_TRAINER_SKILL_FLOOR,
   type PopulationCountry,
 } from '../config/population';
+import { STARTER_COUNTRY, STARTER_FITNESS, STARTER_HORSES, STARTER_SIRE_TIER } from '../config/starter';
 import { MIN_SIRE_AGE_AT_COVER, PROFILE_DISTANCE, SIRE_BIRTH_MARGIN_YEARS } from '../config/world';
 import { generateHorse, generateHorseName, type HorseWords } from '../horse/generate';
 import { sortStallionRecords } from '../state/stallionHorses';
@@ -26,6 +27,7 @@ import type {
   HorseId,
   HorseStatus,
   Owner,
+  OwnerId,
   RealStallionRecord,
   Rng,
   Sex,
@@ -171,14 +173,22 @@ function sireCandidates(records: readonly RealStallionRecord[], birthYear: numbe
   );
 }
 
-/** 부(父) 한 마리: marketTier 가중, 계류국이 같은 나라면 배수 */
+/**
+ * 부(父) 한 마리: marketTier 가중, 계류국이 같은 나라면 배수.
+ * sireTier 가 주어지면 그 marketTier 후보로 먼저 한정한다(해당 후보가 없으면 제한 없이).
+ */
 function pickSire(
   rng: Rng,
   records: readonly RealStallionRecord[],
   birthYear: number,
   country: PopulationCountry,
+  sireTier?: 1 | 2 | 3 | 4 | 5,
 ): RealStallionRecord {
-  const candidates = sireCandidates(records, birthYear);
+  let candidates = sireCandidates(records, birthYear);
+  if (sireTier !== undefined) {
+    const tiered = candidates.filter((c) => c.marketTier === sireTier);
+    if (tiered.length > 0) candidates = tiered;
+  }
   if (candidates.length === 0) {
     throw new RangeError(`현역마 집단: 출생 ${birthYear}년 말의 교배 가능한 부(父)가 없다`);
   }
@@ -196,11 +206,15 @@ export interface RacingHorseSpec {
   currentYear: number;
   sex: Sex;
   gelded: boolean;
+  /** 주면 마주를 고르지 않고 이 마주(플레이어 등)를 쓴다. 이 경우 pickOwner 의 난수를 쓰지 않는다 */
+  ownerId?: OwnerId;
+  /** 주면 부 후보를 이 marketTier 로 한정한다(후보가 없으면 제한 없음) */
+  sireTier?: 1 | 2 | 3 | 4 | 5;
 }
 
 /**
  * 현역마 한 마리를 만들어 state.horses 에 넣고 마주·조교사 연결을 갱신한다(state 직접 수정).
- * rng 사용 순서: 부 → 마주 → 조교사 → 이름 → 말 생성(generateHorse 내부).
+ * rng 사용 순서: 부 → 마주(ownerId 없을 때만) → 조교사 → 이름 → 말 생성(generateHorse 내부).
  */
 export function spawnRacingHorse(
   state: GameState,
@@ -211,11 +225,20 @@ export function spawnRacingHorse(
   spec: RacingHorseSpec,
   records: readonly RealStallionRecord[],
 ): Horse {
-  const sire = pickSire(rng, records, spec.birthYear, spec.country);
+  const sire = pickSire(rng, records, spec.birthYear, spec.country, spec.sireTier);
   if (state.horses[sire.key] === undefined) {
     throw new Error(`현역마 집단: 부(父) ${sire.key} 가 세계 초기화(bootstrapWorld)에 없다`);
   }
-  const owner = pickOwner(rng, market, spec.country);
+  let owner: Owner;
+  if (spec.ownerId === undefined) {
+    owner = pickOwner(rng, market, spec.country);
+  } else {
+    const given = state.owners[spec.ownerId];
+    if (given === undefined) {
+      throw new Error(`현역마 집단: 마주 ${spec.ownerId} 가 없다`);
+    }
+    owner = given;
+  }
   const trainer = pickTrainer(rng, market, spec.country);
 
   const id = allocateHorseId(state);
@@ -296,5 +319,54 @@ export function bootstrapRacingPopulation(
   }
 
   return next;
+}
+
+/**
+ * 새 게임 시작 현역마를 플레이어 마주에게 지급한다(STARTER_HORSES 두수·나이 대로, state 직접 수정).
+ * 조교사는 spawnRacingHorse 가 고른 GB 조교사, 부는 STARTER_SIRE_TIER 종마 중에서 고른다.
+ * breederId 는 null(플레이어 생산마가 아님). 3세 이상에는 초기 OR, 전 두수 fitness = STARTER_FITNESS.
+ * 반환값은 지급한 말 ID 목록(지급 순서).
+ */
+export function grantStarterHorses(
+  state: GameState,
+  data: RacingPopulationStaticData,
+  rng: Rng,
+): HorseId[] {
+  const currentYear = state.date.year;
+  const market = buildMarket(state);
+  const used = new Set(Object.values(state.horses).map((h) => h.name));
+  const records = sortStallionRecords(data.stallionRecords);
+  const granted: HorseId[] = [];
+
+  for (const group of STARTER_HORSES) {
+    for (let i = 0; i < group.count; i++) {
+      const { sex, gelded } = drawSexAndGelding(rng, group.age);
+      const horse = spawnRacingHorse(
+        state,
+        data,
+        rng,
+        market,
+        used,
+        {
+          country: STARTER_COUNTRY,
+          birthYear: currentYear - group.age,
+          currentYear,
+          sex,
+          gelded,
+          ownerId: state.playerOwnerId,
+          sireTier: STARTER_SIRE_TIER,
+        },
+        records,
+      );
+      horse.breederId = null;
+      horse.condition.fitness = STARTER_FITNESS;
+      if (group.age >= POPULATION_RATING_MIN_AGE) {
+        horse.officialRating = initialOfficialRating(horse);
+      }
+      granted.push(horse.id);
+    }
+  }
+
+  return granted;
 }
 
