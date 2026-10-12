@@ -1,3 +1,4 @@
+import { neutralPersonality } from '../../src/engine/horse/traits';
 import { describe, expect, it } from 'vitest';
 import { createRng } from '../../src/engine/rng';
 import {
@@ -87,6 +88,7 @@ function makeInput(o: Overrides = {}): RunnerInput {
       aptitude: { ...avgAptitudes(o.distance ?? 1600), ...o.aptitude },
       condition: { ...AVG_CONDITION, ...o.condition },
       preferredStyle: 'prominent',
+      personality: neutralPersonality(),
     },
     jockey: { id: 'j1', name: 'Test Jockey', skill: o.skill ?? 50 },
   };

@@ -76,7 +76,7 @@ export interface RunnerInput {
   entry: RaceEntry;
   horse: Pick<
     Horse,
-    'id' | 'name' | 'sex' | 'birthYear' | 'ability' | 'aptitude' | 'condition' | 'preferredStyle'
+    'id' | 'name' | 'sex' | 'birthYear' | 'ability' | 'aptitude' | 'condition' | 'preferredStyle' | 'personality'
   >;
   jockey: Pick<Jockey, 'id' | 'name' | 'skill'>;
 }

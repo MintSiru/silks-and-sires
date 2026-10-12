@@ -155,6 +155,7 @@ function horseSnapshot(horse: Horse): RunnerInput['horse'] {
     aptitude: { ...horse.aptitude },
     condition: structuredClone(horse.condition),
     preferredStyle: horse.preferredStyle,
+    personality: { ...horse.personality },
   };
 }
 

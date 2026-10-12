@@ -1,3 +1,4 @@
+import { neutralPersonality } from '../horse/traits';
 import type {
   Abilities,
   Aptitudes,
@@ -264,6 +265,7 @@ export function generateSampleField(rng: Rng, opts: SampleFieldOptions): SampleF
         aptitude,
         condition,
         preferredStyle,
+        personality: neutralPersonality(),
       },
       jockey: {
         id: jockeyId,

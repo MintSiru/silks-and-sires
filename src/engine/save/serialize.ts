@@ -29,7 +29,20 @@ export const MIGRATIONS: Readonly<Record<number, Migration>> = {
     for (const [id, h] of Object.entries(horses)) {
       next[id] = { ...h, personality: h.personality ?? neutralPersonality(), coat: h.coat ?? defaultCoat() };
     }
-    return { ...state, horses: next };
+    // 다시보기 입력(SampleField)의 주자에도 성격을 채운다(중립 = 저장 당시와 같은 결과)
+    const season = state.seasonState as { replayable?: { field: { runners: { horse: Record<string, unknown> }[] } }[] } | undefined;
+    const replayable = season?.replayable?.map((r) => ({
+      ...r,
+      field: {
+        ...r.field,
+        runners: r.field.runners.map((ru) => ({
+          ...ru,
+          horse: { ...ru.horse, personality: ru.horse.personality ?? neutralPersonality() },
+        })),
+      },
+    }));
+    const seasonState = season === undefined || replayable === undefined ? state.seasonState : { ...season, replayable };
+    return { ...state, horses: next, seasonState };
   },
 };
 
