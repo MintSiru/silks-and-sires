@@ -1,4 +1,11 @@
-import { MAX_STUD_AGE, MIN_SIRE_AGE_AT_COVER, SIRE_BIRTH_MARGIN_YEARS } from '../config/world';
+import {
+  MAX_STUD_AGE,
+  MIN_SIRE_AGE_AT_COVER,
+  SIRE_BIRTH_MARGIN_YEARS,
+  SIRE_DIRT_WEIGHT_MULT,
+  SIRE_HOME_REGION,
+  SIRE_OVERSEAS_WEIGHT_MULT,
+} from '../config/world';
 import type { RealStallionRecord } from '../types';
 
 /**
@@ -62,4 +69,14 @@ export function filterSiresForCover(
     best = Math.min(best, windowDistance(r, coverYear, maxStudAge));
   }
   return records.filter((r) => windowDistance(r, coverYear, maxStudAge) === best);
+}
+
+/**
+ * 유럽 현역마·기초 암말의 부 선택 가중치 배수: 유럽 밖 계류(계류지 없으면 출생국) × SIRE_OVERSEAS_WEIGHT_MULT,
+ * 더트 성향 × SIRE_DIRT_WEIGHT_MULT. 다른 가중치에 곱해 쓴다.
+ */
+export function europeanSireWeightMult(record: RealStallionRecord): number {
+  const base = record.standsIn ?? record.countryOfBirth;
+  const region = SIRE_HOME_REGION.includes(base) ? 1 : SIRE_OVERSEAS_WEIGHT_MULT;
+  return region * (record.surfaceProfile === 'dirt' ? SIRE_DIRT_WEIGHT_MULT : 1);
 }

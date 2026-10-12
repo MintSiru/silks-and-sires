@@ -40,7 +40,7 @@ import type {
   TrainerId,
 } from '../types';
 import { initialOfficialRating } from './rating';
-import { coverYearForFoal, filterSiresForCover } from './sireWindow';
+import { coverYearForFoal, europeanSireWeightMult, filterSiresForCover } from './sireWindow';
 
 /** 현역마 집단 생성·교체에 필요한 정적 데이터 */
 export interface RacingPopulationStaticData {
@@ -227,7 +227,8 @@ function pickSire(
   const weights = candidates.map(
     (c) =>
       POPULATION_SIRE_TIER_WEIGHT[c.marketTier] *
-      (c.standsIn === country ? POPULATION_SIRE_SAME_COUNTRY_MULT : 1),
+      (c.standsIn === country ? POPULATION_SIRE_SAME_COUNTRY_MULT : 1) *
+      europeanSireWeightMult(c),
   );
   return candidates[pickWeightedIndex(rng, weights)] as RealStallionRecord;
 }

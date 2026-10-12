@@ -39,10 +39,11 @@ const BOOT_DATA: BootstrapData = {
  * 변경 전(M4-C0 이전, HEAD 97daaca) 같은 시드의 현역마·마주·조교사 투영 해시.
  * 투영은 breederId 를 뺀 말 전체 + 마주(id·이름·horseIds) + 조교사(id·이름·수용 두수)다.
  * 생산자 배정은 집단 rng 를 쓰지 않으므로 이 값이 바뀌면 기존 결과가 바뀐 것이다.
+ * 2026-10-12 재고정: 유럽 밖·더트 종마 가중치 보정(SIRE_OVERSEAS_WEIGHT_MULT·SIRE_DIRT_WEIGHT_MULT)으로 부 선택이 바뀜.
  */
 const PRE_CHANGE_PROJECTION_SHA: Record<number, string> = {
-  20261011: '23c330c2a28bf0345b3517b5508ba2c0f35acdb4cbadcc3a363bc332a7768a8e',
-  7: '61ce64ebfb0f9d59ec98e286d3dc43a013c1b037b7c43ecc39d953940aa7d99f',
+  20261011: 'b30913894980ff9c0df6ddc913e65e5345ffae6143701b0fb47f41e74a13a649',
+  7: 'c5eb69bc717a95474e9fa2f7158260d09f70eef0b9f483928397b5c5f84fab8b',
 };
 
 function boot(seed: number): GameState {

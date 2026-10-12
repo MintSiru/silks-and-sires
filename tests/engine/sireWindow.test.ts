@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { MAX_STUD_AGE, MIN_SIRE_AGE_AT_COVER, SIRE_BIRTH_MARGIN_YEARS } from '../../src/engine/config/world';
+import {
+  MAX_STUD_AGE,
+  MIN_SIRE_AGE_AT_COVER,
+  SIRE_BIRTH_MARGIN_YEARS,
+  SIRE_DIRT_WEIGHT_MULT,
+  SIRE_OVERSEAS_WEIGHT_MULT,
+} from '../../src/engine/config/world';
 import {
   getNamingData,
   getNicks,
@@ -14,7 +20,13 @@ import { createRng } from '../../src/engine/rng';
 import { bootstrapGame, type BootstrapData } from '../../src/engine/state/bootstrap';
 import type { GameState, RealStallionRecord } from '../../src/engine/types';
 import { createPopulationSystem } from '../../src/engine/world/populationSystem';
-import { canSireIn, filterSiresForCover, lastCoverYearOf } from '../../src/engine/world/sireWindow';
+import { racingHorseIds } from '../../src/engine/world/population';
+import {
+  canSireIn,
+  europeanSireWeightMult,
+  filterSiresForCover,
+  lastCoverYearOf,
+} from '../../src/engine/world/sireWindow';
 
 const SILKS = { primary: '#1d4e89', secondary: '#ffd23f', pattern: 'hoops' } as const;
 const SEEDS = [20261011, 7] as const;
@@ -167,4 +179,32 @@ describe('기존 재현성 보존', () => {
   it('같은 시드 2회 bootstrapGame 결과가 같다', () => {
     expect(boot(SEEDS[0])).toEqual(boot(SEEDS[0]));
   });
+});
+
+describe('유럽 현역마의 부 선택 보정 (europeanSireWeightMult)', () => {
+  it('유럽 계류 잔디 1, 유럽 밖 계류 × OVERSEAS, 더트 × DIRT, 계류지 없으면 출생국 기준', () => {
+    expect(europeanSireWeightMult(rec({ standsIn: 'IE', surfaceProfile: 'turf' }))).toBe(1);
+    expect(europeanSireWeightMult(rec({ standsIn: 'US', surfaceProfile: 'turf' }))).toBe(SIRE_OVERSEAS_WEIGHT_MULT);
+    expect(europeanSireWeightMult(rec({ standsIn: 'US', surfaceProfile: 'dirt' }))).toBeCloseTo(
+      SIRE_OVERSEAS_WEIGHT_MULT * SIRE_DIRT_WEIGHT_MULT,
+    );
+    expect(europeanSireWeightMult(rec({ standsIn: null, countryOfBirth: 'US', surfaceProfile: 'both' }))).toBe(
+      SIRE_OVERSEAS_WEIGHT_MULT,
+    );
+  });
+
+  it('부트스트랩 AI 현역마 중 유럽 밖 계류(또는 출생) 종마 자마는 5~15% (피드백 전 약 38%)', () => {
+    const state = boot(20261011);
+    const records = new Map(getStallionRecords().map((r) => [r.key, r] as const));
+    const europe = new Set(['GB', 'IE', 'FR', 'DE', 'IT']);
+    const ids = racingHorseIds(state);
+    let overseas = 0;
+    for (const id of ids) {
+      const r = records.get(state.horses[id]?.sireId ?? '');
+      if (r !== undefined && !europe.has(r.standsIn ?? r.countryOfBirth)) overseas += 1;
+    }
+    const share = overseas / ids.length;
+    expect(share).toBeGreaterThan(0.05);
+    expect(share).toBeLessThan(0.15);
+  }, 600_000);
 });

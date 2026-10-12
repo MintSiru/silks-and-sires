@@ -27,7 +27,7 @@ import type {
   Rng,
   StallionNameTable,
 } from '../types';
-import { coverYearForFoal, filterSiresForCover } from '../world/sireWindow';
+import { coverYearForFoal, europeanSireWeightMult, filterSiresForCover } from '../world/sireWindow';
 import { createRealStallionHorses, sortStallionRecords } from './stallionHorses';
 
 /** 새 게임 초기화에 필요한 정적 데이터 묶음 */
@@ -49,7 +49,7 @@ export function allocateHorseId(state: GameState): HorseId {
 }
 
 /**
- * 후보 목록(key 오름차순)에서 MARE_SIRE_TIER_WEIGHT 가중으로 한 마리를 고른다.
+ * 후보 목록(key 오름차순)에서 MARE_SIRE_TIER_WEIGHT × europeanSireWeightMult 가중으로 한 마리를 고른다.
  * rng.next() 를 정확히 1회 쓴다.
  */
 function pickWeightedSire(rng: Rng, candidates: readonly RealStallionRecord[]): RealStallionRecord {
@@ -58,12 +58,12 @@ function pickWeightedSire(rng: Rng, candidates: readonly RealStallionRecord[]): 
   }
   let total = 0;
   for (const c of candidates) {
-    total += MARE_SIRE_TIER_WEIGHT[c.marketTier];
+    total += MARE_SIRE_TIER_WEIGHT[c.marketTier] * europeanSireWeightMult(c);
   }
   const target = rng.next() * total;
   let cumulative = 0;
   for (const c of candidates) {
-    cumulative += MARE_SIRE_TIER_WEIGHT[c.marketTier];
+    cumulative += MARE_SIRE_TIER_WEIGHT[c.marketTier] * europeanSireWeightMult(c);
     if (target < cumulative) return c;
   }
   return candidates[candidates.length - 1] as RealStallionRecord;

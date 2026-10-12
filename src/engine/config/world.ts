@@ -1,3 +1,4 @@
+import type { CountryCode } from '../types';
 /** 세계 초기화(실명 종마 Horse 레코드 + 플레이어 기초 암말) 밸런스 상수. */
 
 /** 시장 인기 등급(marketTier) → 종마 능력 잠재 평균 */
@@ -40,6 +41,14 @@ export const SIRE_BIRTH_MARGIN_YEARS = 1;
  * 마지막 교배 연도 = foaled + 이 값. lastCoverYear 가 있으면 그 값을 쓴다(M2-03b).
  */
 export const MAX_STUD_AGE = 22;
+/**
+ * 유럽 현역마·기초 암말의 부 선택 가중치 보정(사용자 피드백 2026-10-12: 미국 종마 자마가 유럽 현역마의 38%).
+ * 유럽 5개국 밖 계류(계류지 없으면 출생국) 종마 × OVERSEAS, 더트 성향 종마 × DIRT. 목표 유럽 밖 부 약 8%.
+ */
+export const SIRE_OVERSEAS_WEIGHT_MULT = 0.25;
+export const SIRE_DIRT_WEIGHT_MULT = 0.5;
+/** 위 보정에서 '유럽'으로 보는 계류 나라 */
+export const SIRE_HOME_REGION: readonly CountryCode[] = ['GB', 'IE', 'FR', 'DE', 'IT'];
 /** 암말의 부 선택 가중치(tier 별) — 기초 암말은 중하위권 혈통이 많다 */
 export const MARE_SIRE_TIER_WEIGHT = { 1: 1, 2: 2, 3: 3, 4: 4, 5: 4 } as const;
 /** 기초 암말 출생국 후보 */
