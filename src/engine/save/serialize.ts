@@ -1,4 +1,5 @@
 import { SAVE_SCHEMA_VERSION, WEEKS_PER_YEAR } from '../config/game';
+import { defaultCoat, neutralPersonality } from '../horse/traits';
 import { createEmptySeasonState } from '../season/state';
 import { SAVE_FORMAT } from '../types';
 import type { GameState, LoadResult, SaveEnvelope, SaveErrorCode } from '../types';
@@ -19,6 +20,16 @@ export const MIGRATIONS: Readonly<Record<number, Migration>> = {
     const season = state.seasonState as Record<string, unknown> | undefined;
     if (season === undefined) return state;
     return { ...state, seasonState: { ...season, unratedFigures: season.unratedFigures ?? {} } };
+  },
+  /** v3 → v4 (M3-C5·C6): 말에 성격·털색 추가(중립 성격, 기본 털색) */
+  3: (state) => {
+    const horses = state.horses as Record<string, Record<string, unknown>> | undefined;
+    if (horses === undefined) return state;
+    const next: Record<string, Record<string, unknown>> = {};
+    for (const [id, h] of Object.entries(horses)) {
+      next[id] = { ...h, personality: h.personality ?? neutralPersonality(), coat: h.coat ?? defaultCoat() };
+    }
+    return { ...state, horses: next };
   },
 };
 

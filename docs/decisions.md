@@ -155,3 +155,4 @@
 - 2026-10-12 | 데이터(Opus 직접, 사용자 제공 혈통표) | 조상 15두 확인·수정: Made Of Gold 1989·부 Green Forest(파일 없음, 계통 sl_phalaris), Hallowed Crown 2011·부 Street Sense·외조부 Danehill, Frozen Power 국가 IE, 외조부 연결 Deploy→Roberto·Cowboy Cal→Seeking the Gold·Born To Sea→Miswaki, 나머지 9두 값 일치 확인 → confidence high. 사용자가 보낸 'Narjan'(GB 2006 거세마)은 Corniche 외조부 Najran(USA)과 다른 말이라 반영하지 않음. 미확인 남음: Najran, Archipenko, Avenue of Flags.
 - 2026-10-12 | 데이터(Opus 직접, 사용자 혈통표) | Avenue of Flags 출생 1990→1988 확인, Archipenko 값 일치 확인 → 두 말 confidence high. 미확인 남음: Najran(USA).
 - 2026-10-12 | 데이터(Opus 직접, 사용자 혈통표) | Najran(USA) 1999·부 Runaway Groom 확인 → confidence high. M2-01f 신규 조상 29두 확인 완료.
+- 2026-10-12 | 기술(Opus) | M3-C5·C6 공용 타입: Horse.personality(5축 0~100, 50=효과 없음), Horse.coat(유전자 E/A·At·a/G/Rn + 얼굴 반점·흰 양말). 생성·교배는 일단 중립 성격·기본 털색(horse/traits.ts) — C5·C6 가 교체. 저장 v4(기존 말에 중립값). G1 cardOrder 10 단위 + pattern 파일 로더(873091c).

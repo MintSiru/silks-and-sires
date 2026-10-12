@@ -130,7 +130,57 @@ export interface Horse {
   familyId: HorseId | null;
   /** 다리·체질 건강도 0~100 (숨김). 부상 위험·마체 평가 'legs' 의 근거 */
   soundness: number;
+  /** 성격 5축(숨김). M3-C5 */
+  personality: Personality;
+  /** 털색 유전자와 흰 반점. 표시 털색은 유전자와 나이에서 파생한다. M3-C6 */
+  coat: Coat;
   record: CareerRecord;
+}
+
+/**
+ * 성격 5축 (숨김, 0~100, 50 = 보통). 레이스 보정은 50 에서 벗어난 만큼만 준다(50 이면 효과 없음).
+ * 유전력은 낮다(부모 평균 + 큰 잡음). 플레이어에게는 조교사·기수 코멘트로만 드러난다. M3-C5
+ */
+export interface Personality {
+  /** 기세: 앞으로 나가려는 성향. 높으면 선행 쪽 각질·초반 과열 */
+  drive: number;
+  /** 침착: 흥분·과열 억제. 낮으면 초반 스태미나 손실 */
+  composure: number;
+  /** 투쟁심: 경합에서 버팀(근성 보정) */
+  fight: number;
+  /** 겁: 무리 속·게이트를 두려워함. 높으면 출발 늦음·바깥 선호 */
+  timidity: number;
+  /** 고집: 기수 작전 지시를 무시할 확률 */
+  stubbornness: number;
+}
+
+/** 털색 유전자 좌위 대립유전자 (단순화한 모델). M3-C6 */
+export type ExtensionAllele = 'E' | 'e';
+/** Agouti: 'A'(갈색 bay) > 'At'(흑갈색 brown) > 'a'(흑색 black) */
+export type AgoutiAllele = 'A' | 'At' | 'a';
+export type GreyAllele = 'G' | 'g';
+export type RoanAllele = 'Rn' | 'rn';
+
+export interface CoatGenes {
+  /** ee = 밤색(chestnut). E 가 하나라도 있으면 검은 색소 */
+  extension: [ExtensionAllele, ExtensionAllele];
+  agouti: [AgoutiAllele, AgoutiAllele];
+  /** G 가 하나라도 있으면 회색(나이 들수록 밝아짐) */
+  grey: [GreyAllele, GreyAllele];
+  /** Rn 이 하나라도 있으면 조모(roan). RnRn 은 만들지 않는다 */
+  roan: [RoanAllele, RoanAllele];
+}
+
+/** 표시 털색. coatColour(genes, age) 로 파생 */
+export type CoatColour = 'bay' | 'brown' | 'black' | 'chestnut' | 'grey' | 'roan';
+
+export type FaceMarking = 'none' | 'star' | 'snip' | 'stripe' | 'blaze';
+
+export interface Coat {
+  genes: CoatGenes;
+  face: FaceMarking;
+  /** 흰 양말이 있는 다리 수 0~4 */
+  whiteLegs: number;
 }
 
 /** 종마(씨수말) 프로필. Horse 레코드(horseId)에 붙는 확장 레코드. */

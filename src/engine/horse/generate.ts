@@ -1,3 +1,4 @@
+import { defaultCoat, neutralPersonality } from './traits';
 import type {
   Abilities,
   Aptitudes,
@@ -222,6 +223,8 @@ export function generateHorse(rng: Rng, opts: GenerateHorseOptions): Horse {
     familyId: opts.familyId ?? null,
     sireLineId: opts.sireLineId ?? null,
     soundness,
+    personality: neutralPersonality(),
+    coat: defaultCoat(),
     record: zeroRecord(),
   };
 }

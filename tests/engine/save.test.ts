@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { SAVE_SCHEMA_VERSION } from '../../src/engine/config/game';
+import { defaultCoat, neutralPersonality } from '../../src/engine/horse/traits';
 import {
   applyMigrations,
   deserializeGame,
@@ -328,8 +329,32 @@ describe('저장 마이그레이션 v2 → v3 (M3-C3)', () => {
     const result = deserializeGame(json);
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(result.state.schemaVersion).toBe(3);
+      expect(result.state.schemaVersion).toBe(SAVE_SCHEMA_VERSION);
       expect(result.state.seasonState.unratedFigures).toEqual({});
+    }
+  });
+});
+
+describe('저장 마이그레이션 v3 → v4 (M3-C5·C6)', () => {
+  it('성격·털색이 없는 말에 중립 성격과 기본 털색을 채운다', () => {
+    const v4 = makeState();
+    const horses: Record<string, unknown> = {};
+    for (const [id, h] of Object.entries(v4.horses)) {
+      const { personality: _p, coat: _c, ...rest } = h;
+      void _p;
+      void _c;
+      horses[id] = rest;
+    }
+    const v3 = { ...v4, schemaVersion: 3, horses };
+    const json = JSON.stringify({ format: 'silks-and-sires-save', schemaVersion: 3, savedAt: '2026-10-12T00:00:00.000Z', state: v3 });
+    const result = deserializeGame(json);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.state.schemaVersion).toBe(4);
+      for (const h of Object.values(result.state.horses)) {
+        expect(h.personality).toEqual(neutralPersonality());
+        expect(h.coat).toEqual(defaultCoat());
+      }
     }
   });
 });

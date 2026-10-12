@@ -1,3 +1,4 @@
+import { defaultCoat, neutralPersonality } from '../horse/traits';
 import type {
   Abilities,
   Aptitudes,
@@ -426,6 +427,8 @@ export function breed(rng: Rng, args: BreedArgs): Horse {
     familyId: dam.familyId ?? dam.id,
     sireLineId: sire.sireLineId,
     soundness,
+    personality: neutralPersonality(),
+    coat: defaultCoat(),
     record: zeroRecord(),
   };
 }

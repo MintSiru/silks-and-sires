@@ -1,3 +1,4 @@
+import { defaultCoat, neutralPersonality } from '../../src/engine/horse/traits';
 import { describe, expect, it } from 'vitest';
 import { createRng } from '../../src/engine/rng';
 import { assessHorse, gradeOf } from '../../src/engine/horse/assessment';
@@ -71,6 +72,8 @@ function makeHorse(spec: HorseSpec = {}): Horse {
     officialRating: null,
     familyId: null,
     soundness: spec.soundness ?? 60,
+    personality: neutralPersonality(),
+    coat: defaultCoat(),
     record: { starts: 0, wins: 0, seconds: 0, thirds: 0, earnings: 0, blackTypePlacings: 0, groupWins: 0 },
   };
 }
