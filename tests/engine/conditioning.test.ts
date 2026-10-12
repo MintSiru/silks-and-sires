@@ -376,6 +376,8 @@ describe('isEligible 피로 조건 (M3-C1)', () => {
     const base = BASE.seasonState;
     const horse = makeHorse({ fitness: 80, mental: 70 });
     horse.ownerId = BASE.playerOwnerId;
+    // M3-F2b: 개최 레이스가 줄어 무레이팅 말이 나갈 레이스가 없을 수 있다 → 핸디캡 대역에 드는 OR 을 준다
+    horse.officialRating = 70;
     let found: { race: Race; date: GameDate } | undefined;
     for (const m of BASE.seasonState.meetings) {
       for (const sr of m.races) {

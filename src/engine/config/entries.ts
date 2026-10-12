@@ -4,7 +4,7 @@ import type { CountryCode, RaceGrade } from '../types';
 /** 같은 말이 두 레이스 사이에 필요한 최소 주 수 */
 export const MIN_WEEKS_BETWEEN_RUNS = 2;
 /** 그룹 레이스에 나가려면 마지막 출주 후 필요한 최소 주 수 */
-export const MIN_WEEKS_BETWEEN_GROUP_RUNS = 3;
+export const MIN_WEEKS_BETWEEN_GROUP_RUNS = 2;
 /** 출주 가능 최소 컨디션(fitness) */
 export const MIN_FITNESS_TO_RUN = 55;
 /** 거리 적합: |distanceOptimum − distance| ≤ distanceRange × DISTANCE_TOLERANCE */
@@ -14,9 +14,9 @@ export const MIN_FIELD_SIZE = 2;
 
 /** 그룹·리스티드 후보 OR 하한(3세 이상). 2세 그룹은 적용하지 않는다(잠재 평균 사용) */
 export const GROUP_OR_FLOOR: Readonly<Record<RaceGrade, number>> = {
-  G1: 100,
-  G2: 95,
-  G3: 90,
+  G1: 93,
+  G2: 92,
+  G3: 88,
   L: 82,
 };
 
@@ -24,7 +24,7 @@ export const GROUP_OR_FLOOR: Readonly<Record<RaceGrade, number>> = {
 export const RACE_GRADE_ORDER: readonly RaceGrade[] = ['G1', 'G2', 'G3', 'L'];
 
 /** 그룹 레이스에서 다른 유럽 나라 말이 후보가 되는 확률 */
-export const TRAVEL_CHANCE_GROUP = 0.15;
+export const TRAVEL_CHANCE_GROUP = 0.45;
 /** 원정 후보가 될 수 있는 나라(유럽 5개국). 홈 나라를 뺀 나머지가 원정 후보 나라다 */
 export const TRAVEL_COUNTRIES: readonly CountryCode[] = ['GB', 'IE', 'FR', 'DE', 'IT'];
 

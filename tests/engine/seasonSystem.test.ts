@@ -196,6 +196,8 @@ function makePlayerRacer(base: GameState): { state: GameState; horseId: HorseId 
     ...structuredClone(template),
     id,
     name: 'Test Racer',
+    /** 핸디캡 대역(클래스 3~5)에 드는 OR. 출주 가능한 open 레이스가 다음 주에 있도록 고정한다 */
+    officialRating: PLAYER_RACER_OR,
     ownerId: state.playerOwnerId,
     breederId: state.playerOwnerId,
     trainerId: null,
@@ -209,6 +211,9 @@ function makePlayerRacer(base: GameState): { state: GameState; horseId: HorseId 
   owner.horseIds.push(id);
   return { state, horseId: id };
 }
+
+/** 플레이어 테스트 말의 OR (핸디캡 대역에 드는 값) */
+const PLAYER_RACER_OR = 70;
 
 /** 플레이어 말이 출주할 수 있는 'open' 레이스를 찾는다. skipRaceId 는 제외 */
 function findOpenRace(

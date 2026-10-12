@@ -9,12 +9,12 @@ export type HandicapClass = Exclude<RaceClass, 1>;
 export type MinorCountry = 'GB' | 'IE' | 'FR' | 'DE' | 'IT';
 
 /** 개최일 하나의 경주 수 목표. 고정 일정 레이스가 이미 이보다 많으면 그대로 둔다 */
-export const MEETING_RACES_TARGET = 7;
+export const MEETING_RACES_TARGET = 3;
 
 /** 나라별 주당 일반 개최 수(잔디 시즌). 그 나라 잔디 경마장이 모자라면 있는 만큼 */
 export const MINOR_MEETINGS_PER_WEEK: Readonly<Record<MinorCountry, number>> = {
-  GB: 3,
-  IE: 2,
+  GB: 2,
+  IE: 1,
   FR: 2,
   DE: 1,
   IT: 1,
@@ -25,9 +25,9 @@ export const AW_MEETINGS_PER_WEEK = 2;
 
 /** 자동 생성 경주 종류 가중치 (잔디 시즌) */
 export const GENERATED_KIND_WEIGHTS: Readonly<Record<GeneratedRaceKind, number>> = {
-  maiden: 0.25,
-  novice: 0.15,
-  handicap: 0.6,
+  maiden: 0.1,
+  novice: 0.1,
+  handicap: 0.8,
 };
 
 /** 핸디캡 클래스 목록(오름차순) */
@@ -35,12 +35,12 @@ export const HANDICAP_CLASSES: readonly HandicapClass[] = [2, 3, 4, 5, 6, 7];
 
 /** 핸디캡 OR 범위 (양끝 포함) */
 export const HANDICAP_OR_RANGE: Readonly<Record<HandicapClass, { min: number; max: number }>> = {
-  2: { min: 86, max: 105 },
-  3: { min: 76, max: 95 },
-  4: { min: 66, max: 85 },
-  5: { min: 56, max: 75 },
-  6: { min: 46, max: 65 },
-  7: { min: 0, max: 50 },
+  2: { min: 80, max: 105 },
+  3: { min: 72, max: 95 },
+  4: { min: 62, max: 85 },
+  5: { min: 52, max: 75 },
+  6: { min: 42, max: 65 },
+  7: { min: 0, max: 58 },
 };
 
 /** 핸디캡 클래스 가중치 (잔디 시즌) */
@@ -89,18 +89,18 @@ export const TWO_YO_CAP_START_MONTH = 9;
 export const TWO_YO_CAP_EARLY_M = 1609;
 /** 9월 이후 2세 거리 상한(m) */
 export const TWO_YO_CAP_LATE_M = 2012;
-/** 2세 허용 주에 메이든·노비스가 2세 경주가 될 확률 (명세 미지정, 임의 선택) */
-export const TWO_YO_SHARE = 0.5;
+/** 2세 허용 주에 메이든·노비스가 2세 경주가 될 확률. M3-F2b 튜닝(2세 출주 평균 2.5~5회 목표) */
+export const TWO_YO_SHARE = 0.67;
 
 /**
  * 거리 가중 구간. 거리 d 는 d <= maxM 인 첫 구간에 속한다.
  * 마지막 구간은 상한 없음(장거리). 후보 거리 하나의 가중은 구간 가중을 그 구간의 후보 수로 나눈 값이다.
  */
 export const DISTANCE_BUCKETS: readonly { maxM: number; weight: number }[] = [
-  { maxM: 1408, weight: 0.4 },
-  { maxM: 1811, weight: 0.3 },
-  { maxM: 2414, weight: 0.22 },
-  { maxM: Number.POSITIVE_INFINITY, weight: 0.08 },
+  { maxM: 1408, weight: 0.2 },
+  { maxM: 1811, weight: 0.43 },
+  { maxM: 2414, weight: 0.35 },
+  { maxM: Number.POSITIVE_INFINITY, weight: 0.02 },
 ];
 
 /** 연령별 정량 기준 부담중량(lb) */
