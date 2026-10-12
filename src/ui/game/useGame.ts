@@ -27,6 +27,7 @@ import {
 } from '../../engine/season/player';
 import type {
   CalendarPhaseId,
+  EconomyMode,
   GameEvent,
   GameState,
   HorseId,
@@ -44,7 +45,7 @@ import {
 export interface GameApi {
   state: GameState | null;
   lastEvents: GameEvent[];          // 마지막 진행에서 나온 이벤트
-  newGame(seed: number, playerName: string): void;   // bootstrapGame(세계·인물·현역마·첫 개최)
+  newGame(seed: number, playerName: string, economyMode: EconomyMode): void;   // bootstrapGame(세계·인물·현역마·첫 개최), 경제 모드는 새 게임 때 고른다
   advance(weeks: number): void;     // createGameSystems(data) 로 advanceWeek 반복, 이벤트 누적
   advanceToPhase(phase: CalendarPhaseId): void;  // 그 단계가 시작되는 주까지(최대 52주)
   advanceUntil(stop: (s: GameState) => boolean, maxWeeks: number): void;  // 매 주 진행 후 stop(state) 가 true 면 멈춤(최대 maxWeeks 주)
@@ -120,8 +121,8 @@ export function useGame(): GameApi {
     return current;
   }, []);
 
-  const newGame = useCallback((seed: number, playerName: string): void => {
-    const world = bootstrapGame({ seed, playerName, silks: PLAYER_SILKS }, bootstrapData());
+  const newGame = useCallback((seed: number, playerName: string, economyMode: EconomyMode): void => {
+    const world = bootstrapGame({ seed, playerName, silks: PLAYER_SILKS, economyMode }, bootstrapData());
     stateRef.current = world;
     setState(world);
     setLastEvents([]);

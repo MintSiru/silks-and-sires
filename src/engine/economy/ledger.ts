@@ -30,6 +30,29 @@ export function ledgerTotalsSum(t: LedgerTotals): Money {
   return sum;
 }
 
+/** 장부 항목 한 줄을 남긴다(플레이어 항목·올해 합계 또는 AI 올해 합계). 자금은 건드리지 않는다. */
+function appendLedgerEntry(
+  draft: GameState,
+  ownerId: OwnerId,
+  category: LedgerCategory,
+  amount: Money,
+  date: GameDate,
+  horseId: HorseId | null,
+): void {
+  const economy = draft.economy;
+  if (ownerId === draft.playerOwnerId) {
+    economy.playerLedger.push({
+      date: { year: date.year, week: date.week },
+      category,
+      amount,
+      horseId,
+    });
+    addToTotals(economy.currentYear.player, category, amount);
+  } else {
+    addToTotals(economy.currentYear.aiTotals, category, amount);
+  }
+}
+
 /**
  * 마주 자금을 amount 만큼 바꾸고 장부에 남긴다. draft 를 직접 고친다.
  * amount 는 정수여야 하며(아니면 RangeError), 0 이면 아무것도 하지 않는다.
@@ -53,19 +76,30 @@ export function recordMoney(
     throw new Error(`recordMoney: 마주가 없음: ${ownerId}`);
   }
   owner.funds += amount;
+  appendLedgerEntry(draft, ownerId, category, amount, date, horseId);
+}
 
-  const economy = draft.economy;
-  if (ownerId === draft.playerOwnerId) {
-    economy.playerLedger.push({
-      date: { year: date.year, week: date.week },
-      category,
-      amount,
-      horseId,
-    });
-    addToTotals(economy.currentYear.player, category, amount);
-  } else {
-    addToTotals(economy.currentYear.aiTotals, category, amount);
+/**
+ * 장부 항목만 남기고 마주 자금은 바꾸지 않는다(M4-A3 빚 이자처럼 자금 밖에서 생기는 비용용).
+ * amount 는 정수여야 하며(아니면 RangeError), 0 이면 아무것도 하지 않는다.
+ * 호출자는 자금과 장부가 맞지 않는 이유(예: 빚 잔액이 늘었다)를 같은 주 안에서 따로 반영해야 한다.
+ */
+export function recordLedgerOnly(
+  draft: GameState,
+  ownerId: OwnerId,
+  category: LedgerCategory,
+  amount: Money,
+  date: GameDate,
+  horseId: HorseId | null = null,
+): void {
+  if (!Number.isInteger(amount)) {
+    throw new RangeError(`recordLedgerOnly: 금액은 정수여야 한다: ${amount}`);
   }
+  if (amount === 0) return;
+  if (draft.owners[ownerId] === undefined) {
+    throw new Error(`recordLedgerOnly: 마주가 없음: ${ownerId}`);
+  }
+  appendLedgerEntry(draft, ownerId, category, amount, date, horseId);
 }
 
 /** 플레이어 장부에서 보존 기간(PLAYER_LEDGER_KEEP_WEEKS)보다 오래된 항목을 지운다. 기준 날짜는 date */

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { FormEvent, JSX } from 'react';
+import { DEFAULT_ECONOMY_MODE, LEGACY_BANKRUPT_WEEKS } from '../../engine/config/economy';
 import { INBREED_EXCESS_FROM } from '../../engine/config/genetics';
 import { totalBloodPercent } from '../../engine/breeding/inbreeding';
 import { buildMatingPedigree, type PedigreeLookup } from '../../engine/breeding/pedigree';
@@ -10,6 +11,7 @@ import { assessForPlayer, availableStallions, playerHorses } from '../../engine/
 import { ageInYear, formatDateKo } from '../../engine/time/calendar';
 import type {
   Assessment,
+  EconomyMode,
   GameEvent,
   GameState,
   Horse,
@@ -40,6 +42,19 @@ const DEFAULT_SEED_TEXT = '20261011';
 const RECENT_EVENT_LINES = 10;
 /** 값이 없을 때 표시하는 기호(미상 부모·계통 등) */
 const NO_VALUE = '—';
+/** 새 게임 경제 모드 선택지(짧은 설명 포함). 파산 주 수는 config 값을 그대로 쓴다. */
+const ECONOMY_MODE_OPTIONS: readonly { mode: EconomyMode; label: string; description: string }[] = [
+  {
+    mode: 'casual',
+    label: '캐주얼',
+    description: '파산이 없습니다. 적자는 빚으로 쌓이고 매주 이자가 붙습니다. 빚이 있으면 교배 예약 같은 임의 지출이 막힙니다.',
+  },
+  {
+    mode: 'legacy',
+    label: '레거시',
+    description: `자금이 마이너스인 상태가 ${LEGACY_BANKRUPT_WEEKS}주 연속이면 파산하고 게임이 멈춥니다.`,
+  },
+];
 
 
 /** 계통 id → 계통 표시명 (data/stallions/sire_lines.json) */
@@ -130,6 +145,7 @@ interface NewGamePanelProps {
 function NewGamePanel({ game, onDone, onCancel }: NewGamePanelProps): JSX.Element {
   const [playerName, setPlayerName] = useState('');
   const [seedText, setSeedText] = useState(DEFAULT_SEED_TEXT);
+  const [economyMode, setEconomyMode] = useState<EconomyMode>(DEFAULT_ECONOMY_MODE);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
@@ -146,7 +162,7 @@ function NewGamePanel({ game, onDone, onCancel }: NewGamePanelProps): JSX.Elemen
       return;
     }
     try {
-      game.newGame(seed, name);
+      game.newGame(seed, name, economyMode);
       onDone();
     } catch (err) {
       setError(messageOf(err));
@@ -187,6 +203,22 @@ function NewGamePanel({ game, onDone, onCancel }: NewGamePanelProps): JSX.Elemen
             onChange={(e) => setSeedText(e.target.value)}
           />
         </label>
+        <fieldset className="field">
+          <legend>경제 모드(새 게임 때만 고를 수 있습니다)</legend>
+          {ECONOMY_MODE_OPTIONS.map((option) => (
+            <label key={option.mode} className="field">
+              <input
+                type="radio"
+                name="economy-mode"
+                value={option.mode}
+                checked={economyMode === option.mode}
+                onChange={() => setEconomyMode(option.mode)}
+              />
+              <span>{option.label}</span>
+              <span className="hint">{option.description}</span>
+            </label>
+          ))}
+        </fieldset>
         {error !== null && <p className="notice notice--error" role="alert">{error}</p>}
         <div className="new-game__actions">
           <button type="submit" className="btn btn--primary">

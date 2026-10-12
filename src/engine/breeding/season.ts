@@ -9,6 +9,7 @@ import {
 } from '../config/breedingSeason';
 import { WEEKS_PER_YEAR } from '../config/game';
 import { recordMoney } from '../economy/ledger';
+import { canSpendDiscretionary } from '../economy/solvency';
 import { makeNameRegistry, namingContextFor, type MutableNameRegistry } from '../naming/context';
 import { nameForHorse } from '../naming/generate';
 import type { NamingData } from '../naming/types';
@@ -149,8 +150,9 @@ export function bookCovering(
   if (stallion === undefined || state.date.year < stallion.firstSeasonYear) return fail('stallion_not_available');
   if (stallion.bookedThisSeason >= stallion.bookLimit) return fail('book_full');
 
-  const payer = state.owners[ownerId];
-  if (payer === undefined || payer.funds < stallion.fee) return fail('insufficient_funds');
+  if (state.owners[ownerId] === undefined || !canSpendDiscretionary(state, stallion.fee, ownerId)) {
+    return fail('insufficient_funds');
+  }
 
   const next = structuredClone(state);
   const nextPayer = next.owners[ownerId];

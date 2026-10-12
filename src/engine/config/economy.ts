@@ -8,6 +8,22 @@ export const STARTING_REPUTATION = 10;
 /** 플레이어 장부 보존 기간(주). 이보다 오래된 항목은 prunePlayerLedger 가 지운다 */
 export const PLAYER_LEDGER_KEEP_WEEKS = 104;
 
+/** 캐주얼 모드: 빚 이자(주당, 빚 잔액에 곱해 반올림). 빚이 있는 주마다 붙는다 */
+export const DEBT_INTEREST_WEEKLY = 0.001;
+/** 캐주얼 모드: 자금이 이 액수를 넘으면 넘는 만큼 빚을 자동 상환한다(이 액수는 남긴다) */
+export const DEBT_REPAY_BUFFER = 50_000;
+/** 레거시 모드: 자금 마이너스가 이 주 연속이면 파산한다 */
+export const LEGACY_BANKRUPT_WEEKS = 12;
+/** 레거시 모드: 자금 마이너스 첫 주 경고 뒤, 이 간격(주)마다 경고를 다시 낸다 */
+export const LEGACY_WARNING_INTERVAL_WEEKS = 4;
+
+/** AI 급매 최저가(€) */
+export const DISTRESS_PRICE_MIN = 10_000;
+/** AI 급매 가격 기준 평가값(OR): 이 값 이하의 말은 최저가 */
+export const DISTRESS_PRICE_BASE_OR = 40;
+/** AI 급매 가격: 기준 평가값을 넘는 1점당 가격(€) */
+export const DISTRESS_PRICE_PER_OR = 1_500;
+
 /** 목장 유지비: 상태별 두당 주간 비용(€). 여기 없는 상태(현역·dead·historical 등)는 목장 유지비가 없다 */
 export const FARM_UPKEEP: Readonly<Partial<Record<HorseStatus, Money>>> = {
   broodmare: 200,

@@ -374,9 +374,10 @@ describe('저장 이주 v7 → v8 (M4-A2b)', () => {
 });
 
 describe('시스템 순서·재현성·저장 왕복 (M4-A2b)', () => {
-  it('11. createGameSystems 의 마지막 시스템은 costs 다(season 뒤)', () => {
+  it('11. createGameSystems 에서 costs 는 season 뒤, solvency(M4-A3) 앞이다', () => {
     const ids = createGameSystems(STATIC_GAME).map((s) => s.id);
-    expect(ids[ids.length - 1]).toBe('costs');
+    expect(ids[ids.length - 1]).toBe('solvency');
+    expect(ids[ids.length - 2]).toBe('costs');
     expect(ids.indexOf('season')).toBeLessThan(ids.indexOf('costs'));
   });
 

@@ -45,6 +45,9 @@ export function advanceWeek(
   state: GameState,
   systems: readonly WeeklySystem[] = DEFAULT_SYSTEMS,
 ): AdvanceResult {
+  // 레거시 모드 파산 뒤에는 날짜·상태를 그대로 두고 아무 일도 일어나지 않는다(M4-A3)
+  if (state.economy.bankrupt) return { state, events: [] };
+
   const draft: GameState = structuredClone(state);
   const currentDate: GameDate = { year: draft.date.year, week: draft.date.week };
   const rng = rngFromState(draft.rng);
