@@ -922,3 +922,24 @@ Opus 확인 요청:
 - npm test 전체: 1142 통과, 1 실패. 실패는 tests/engine/namingLandmarks.test.ts "빈 landmarks·workTitles 는 HEAD 와 같은 생성 결과" (SHA-256 대조). 원인: 같은 파일의 PARENT_NAMES 가 종마 이름 전체를 정렬한 목록(Object.values(getStallionNames()).sort())이라 종마 이름이 늘면 샘플의 부·모 이름이 바뀐다. HEAD 의 303개 이름으로 고정하면 기존 지문과 같다(확인함, 생성기 로직 변경 아님). 이 테스트 파일은 M2-02 수정 범위 밖이므로 고치지 않았다. 재고정 값: e9d60fbddca1007141b33b6e0a3f5af02edd4db876ed59eccd53919d2f35193b. Opus 판단 필요.
 - npm run typecheck: 통과(exit 0).
 - npm run lint: 저장소 루트 실행 시 .claude/worktrees 아래 여러 tsconfig 가 잡혀 파싱 오류 1186건(환경 문제, 데이터·테스트 코드와 무관). 같은 설정을 HEAD 사본(/tmp)에서 실행하면 통과. tests/data/stallions.test.ts 는 tsconfigRootDir 지정 시 통과.
+
+## M2-02 보강 — 사용자 제공 값 (2026-10-12)
+위키백과 문서가 없거나 털색이 빈 14두와 부계 조상 5두를 사용자 값으로 추가(confidence medium).
+| 종마 | 부 | 외조부 | 생년 | 털색 | 거리·표면 |
+| --- | --- | --- | --- | --- | --- |
+| Vekoma | Candy Ride | Speightstown | 2016 | ch | Mile → classic, dirt |
+| Twirling Candy | Candy Ride | Chester House(미수록) | 2007 | dkb → brown | Sprint → speed, dirt |
+| Maclean's Music | Distorted Humor | Unbridled's Song | 2008 | b | Sprint → speed, dirt |
+| Yaupon | Uncle Mo | Vindication | 2017 | dkb → brown | Sprint → speed, dirt |
+| Volatile | Violence | Unbridled's Song(위키) | 2016 | gr | Sprint(위키 경주 기록) → speed, dirt |
+| Cairo Prince | Pioneerof the Nile | Holy Bull | 2011 | gr/ro → grey | Mile~Intermediate → classic, dirt |
+| Audible | Into Mischief | Gilded Time(미수록) | 2015 | b | Intermediate → classic, dirt |
+| Maximus Mischief | Into Mischief | Songandaprayer(미수록) | 2016 | b | Intermediate → classic, dirt |
+| Flameaway | Scat Daddy | Fusaichi Pegasus(미수록) | 2015 | ch | Intermediate → classic, dirt |
+| Tapiture | Tapit | Olympio(미수록) | 2011 | ch | Mile → classic, dirt (캐나다 계류) |
+| The Factor | War Front | Miswaki | 2008 | gr/ro → grey | Sprint → speed, dirt(AW) |
+| Kantharos | Lion Heart | Southern Halo(미수록) | 2008 | ch | Sprint → speed, dirt |
+| Upstart | Flatter | Touch Gold(미수록) | 2012 | dkb → brown | Intermediate → classic, dirt |
+| Collected | City Zip | Johannesburg | 2013 | ch | Classic → classic, dirt |
+| 조상 | Lion Heart(2001, Tale of the Cat, ch) · Flatter(1999, A.P. Indy, b) · City Zip(1998, Carson City, ch) · Tale of the Cat(1994, Storm Cat, dkb → brown) · Carson City(1987, Mr. Prospector, ch) — status pensioned(계류·생존 미확인), 외조부 null |
+- 미수록 외조부는 null(외조부만을 위한 레코드는 만들지 않음).
