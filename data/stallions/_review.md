@@ -764,3 +764,63 @@ Vino Rosso classic/dirt · Mandaloun classic/dirt · Maxfield speed/dirt · Gold
 2. 추가 조상 거리·표면이 전부 speed/turf/low 폴백이다. 위키백과 우승 거리를 추출하는 후속 티켓이 필요한지.
 3. Tasleet 외조부 Cadeaux Genereux 연결(파일 추가 종마 연결)과 Kodiac 외조부 null 처리 확인.
 4. Tasleet "유럽 밖 계류" 처리: 비현역(pensioned) 유지.
+
+## M2-01f 외조부 확정값 반영 (haiku-data, 2026-10-12)
+
+### 결과 요약
+- 조상 레코드 29두 추가 (표 1, status historical/pensioned, marketTier 5, standsIn null, damsireKey null). names.json 29건 추가.
+- 외조부(damsireKey) 39건 설정 (표 2). 그중 기존 값 교체 8건(Perfect Power, Victor Ludorum, Gunite, Corniche, Blackbeard, Midshipman, Delacroix, Munnings), 기존 null에 신규 연결 25건, 기존 값 일치 6건(Footstepsinthesand, Tiz The Law, Ardad, Sioux Nation, Domestic Product, Mo Town).
+- 현역(active) 종마 외조부 채움: 123/123 (이전 98/123).
+- 테스트 파일 tests/data/stallions.test.ts: COUNTRY_CODES 에 'NZ' 추가 (So You Think 의 NZ 가 기존 하드코딩 목록에 없어 실패). 그 외 수정 없음.
+
+### 표 2 외조부 연결 (39건)
+
+| 종마 | 외조부 | 출처 |
+|---|---|---|
+| Dubawi | Deploy | wiki |
+| Nathaniel | Silver Hawk | wiki |
+| Medaglia d'Oro | Bailjumper | wiki |
+| Into Mischief | Tricky Creek | wiki |
+| Lope de Vega | Vettori | wiki |
+| Too Darn Hot | Singspiel | wiki |
+| Ghaiyyath | Galileo | wiki |
+| Daryz | Selkirk | wiki |
+| Raven's Pass | Lord At War | wiki |
+| Starspangledbanner | Made Of Gold | wiki |
+| Sealiway | Kendargent | wiki |
+| Perfect Power | Frozen Power | wiki |
+| Victor Ludorum | Kaldounevees | wiki |
+| Gunite | Cowboy Cal | wiki |
+| Corniche | Najran | wiki |
+| Blackbeard | Born To Sea | wiki |
+| Midshipman | Avenue of Flags | wiki |
+| Delacroix | Bernstein | wiki |
+| Kingman | Zamindar | user |
+| Zarak | Zamindar | user |
+| Camille Pissarro | Pivotal | user |
+| The Antarctic | Lawman | user |
+| Echo Town | Menifee | user |
+| Triple Time | Mark of Esteem | user |
+| Enticed | Mineshaft | user |
+| Proxy | Include | user |
+| Bated Breath | Distant View | user |
+| Puchkine | So You Think | user |
+| Stunning Spirit | Dynaformer | user |
+| Bradsell | Archipenko | user |
+| Aesterius | Hallowed Crown | user |
+| Kodiac | Kris | user |
+| Footstepsinthesand | Rainbow Quest | user |
+| Tiz The Law | Tiznow | user |
+| Ardad | Red Clubs | user |
+| Sioux Nation | Oasis Dream | user |
+| Domestic Product | Paynter | user |
+| Mo Town | Bernardini | user |
+| Munnings | Holy Bull | user |
+
+### 표 1 중 신뢰도 low 조상 (8두, Opus 검수 대상)
+
+Avenue of Flags, Bailjumper, Kaldounevees, Kendargent, Lord At War, Made Of Gold, Najran, Tricky Creek
+
+### 검증
+- 검증 스크립트: /tmp/m2_01f_check/verify.py (명세 표를 직접 파싱해 표 1 값, 표 2 39건, HEAD 대비 변경 범위 대조). 결과 오류 0건.
+- npm test 통과(43 files, 720 passed, 2 skipped), npm run typecheck 통과, npm run lint 통과.
