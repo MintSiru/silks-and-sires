@@ -6,6 +6,7 @@ import type { Rng, RngState } from './rng';
 import type { SeasonAwards, SeasonState, SeriesId } from './season';
 import type { CalendarPhaseId, GameDate, Season } from './time';
 import type { EconomyState, RelationsState } from './economy';
+import type { SalesState } from './sales';
 
 /** 주 진행 중 발생한 사건. M3 이후 종류가 늘어난다(판별 유니온에 추가). */
 export type GameEvent =
@@ -100,6 +101,8 @@ export interface GameState {
   economy: EconomyState;
   /** 관계·명성 (M4-B) */
   relations: RelationsState;
+  /** 세일 카탈로그·위탁·입찰·결과 (M4-C) */
+  sales: SalesState;
 }
 
 /** advanceWeek 가 각 시스템에 넘기는 문맥 */
