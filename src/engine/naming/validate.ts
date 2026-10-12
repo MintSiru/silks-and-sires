@@ -1,4 +1,4 @@
-import { INITIAL_MAX_LETTERS, NAME_MAX_LENGTH, NAME_MAX_SYLLABLES } from '../config/naming';
+import { BLOCKED_PLACE_MAX_WORDS, INITIAL_MAX_LETTERS, NAME_MAX_LENGTH, NAME_MAX_SYLLABLES } from '../config/naming';
 import { countSyllables } from './syllables';
 import type { NameRegistry, NameRejectReason, NameValidation } from './types';
 
@@ -16,18 +16,58 @@ export function normalizeName(name: string): string {
   return name.toLowerCase().replace(/[^a-z]/g, '');
 }
 
+/** 단어 하나의 비교용 형태: 소문자, 끝 소유격 's 를 떼고 영문자만 남긴다 (Ascot's → ascot, Cote d'Azur → dazur). */
+function normalizeWord(word: string): string {
+  return word.toLowerCase().replace(/'s$/, '').replace(/[^a-z]/g, '');
+}
+
+/** 차단 지명 토큰 정규화: 단어마다 normalizeWord, 단어 사이 한 칸. parseNamingData 가 쓴다. */
+export function normalizePlaceToken(token: string): string {
+  return token
+    .split(/\s+/)
+    .map(normalizeWord)
+    .filter((w) => w !== '')
+    .join(' ');
+}
+
+const NO_BLOCKED_TOKENS: ReadonlySet<string> = new Set<string>();
+
+/**
+ * 이름의 연속 1~BLOCKED_PLACE_MAX_WORDS 단어 묶음 중 차단 토큰과 같은 것이 있는지 본다.
+ * 조각 단위 비교라서 "Ascot Lady", "Santa Anita Dream" 이 걸린다. 공백 없이 붙인 이름은 호출부가 붙이기 전에 검사한다.
+ */
+export function hasBlockedPlaceToken(name: string, blocked: ReadonlySet<string>): boolean {
+  if (blocked.size === 0) {
+    return false;
+  }
+  const words = name
+    .split(/\s+/)
+    .map(normalizeWord)
+    .filter((w) => w !== '');
+  for (let i = 0; i < words.length; i++) {
+    for (let len = 1; len <= BLOCKED_PLACE_MAX_WORDS && i + len <= words.length; len++) {
+      if (blocked.has(words.slice(i, i + len).join(' '))) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 function reject(reason: NameRejectReason): NameValidation {
   return { ok: false, reason };
 }
 
 /**
- * 경주마 이름 등록 규칙 검사. 검사 순서: 길이 → 끝 숫자 → 문자 → 이니셜 → 음절 → 보호 명단 → 등록됨.
+ * 경주마 이름 등록 규칙 검사. 검사 순서: 길이 → 끝 숫자 → 문자 → 이니셜 → 음절 → 보호 명단 → 차단 지명 토큰 → 등록됨.
  * protectedNames 는 normalizeName 을 거친 집합이어야 한다.
+ * blockedPlaceTokens 는 normalizePlaceToken 을 거친 집합이다. 생략하면 차단 지명 검사를 하지 않는다.
  */
 export function validateHorseName(
   name: string,
   registry: NameRegistry,
   protectedNames: ReadonlySet<string>,
+  blockedPlaceTokens: ReadonlySet<string> = NO_BLOCKED_TOKENS,
 ): NameValidation {
   if (name.length > NAME_MAX_LENGTH) {
     return reject('tooLong');
@@ -48,6 +88,9 @@ export function validateHorseName(
   }
   const normalized = normalizeName(name);
   if (protectedNames.has(normalized)) {
+    return reject('protected');
+  }
+  if (hasBlockedPlaceToken(name, blockedPlaceTokens)) {
     return reject('protected');
   }
   if (registry.isTaken(normalized)) {

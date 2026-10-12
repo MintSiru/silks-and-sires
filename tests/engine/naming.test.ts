@@ -5,9 +5,15 @@ import { createRng } from '../../src/engine/rng';
 import { getNamingData, getStallionNames, parseNamingData } from '../../src/engine/data/staticData';
 import { extractKeywords, nameForHorse, pickOwnerStyle, suggestNames } from '../../src/engine/naming/generate';
 import { countSyllables, makeSyllableWord } from '../../src/engine/naming/syllables';
-import { normalizeName, validateHorseName } from '../../src/engine/naming/validate';
-import type { NameRegistry, NamingContext, NamingData, OwnerNamingStyle } from '../../src/engine/naming/types';
-import { NAME_MAX_LENGTH, NAME_MAX_SYLLABLES } from '../../src/engine/config/naming';
+import { hasBlockedPlaceToken, normalizeName, normalizePlaceToken, validateHorseName } from '../../src/engine/naming/validate';
+import type { NameLanguage, NameRegistry, NamingContext, NamingData, OwnerNamingStyle } from '../../src/engine/naming/types';
+import {
+  LANGUAGE_BY_COUNTRY,
+  NAME_MAX_LENGTH,
+  NAME_MAX_SYLLABLES,
+  NATIVE_CONNECTOR,
+  NATIVE_SHARE,
+} from '../../src/engine/config/naming';
 
 const NONE: NameRegistry = { isTaken: () => false };
 
@@ -21,7 +27,12 @@ const TRIBUTE_SURNAMES_MANY = [
 ];
 
 function contextFor(style: OwnerNamingStyle, tributeNames: readonly string[] = TRIBUTE_SURNAMES_FEW): NamingContext {
-  return { sireName: 'Sea The Stars', damName: 'Silver Tide', style, tributeNames };
+  return { sireName: 'Sea The Stars', damName: 'Silver Tide', style, tributeNames, language: 'en' };
+}
+
+/** 마주 국적 언어를 바꾼 문맥 (기본 contextFor 와 같은 부모·스타일) */
+function langContext(style: OwnerNamingStyle, language: NameLanguage): NamingContext {
+  return { ...contextFor(style), language };
 }
 
 function styleById(data: NamingData, id: string): OwnerNamingStyle {
@@ -176,7 +187,7 @@ describe('suggestNames', () => {
       }
       expect(hits / 1000, style.id).toBeGreaterThanOrEqual(0.95);
     }
-  });
+  }, 60_000);
 
   it('혈통 보충: 부모 키워드가 있으면 count 8 결과에 pedigree 후보가 항상 하나 이상 있다 (count 1 은 보충하지 않음)', () => {
     const style = styleById(data, 'terse-single');
@@ -330,9 +341,10 @@ describe('uniqueness and sources (10만 개)', () => {
 
   // 실제 게임 조건: 망아지마다 부모가 다르다. 부모 이름은 실명 종마 이름에서 아비·어미 자리를 엇갈려 뽑는다
   const parentNames = Object.values(getStallionNames()).sort();
-  function uniqueRatio(varyParents: boolean): number {
+  function sweep(varyParents: boolean): { ratio: number; blockedHits: number } {
     const seen = new Set<string>();
     let produced = 0;
+    let blockedHits = 0;
     for (let seed = 1; produced < 100_000; seed++) {
       const style = pickOwnerStyle(`owner-${seed % 500}`, null, data.styles);
       const base = contextFor(style, TRIBUTE_SURNAMES_MANY);
@@ -346,18 +358,176 @@ describe('uniqueness and sources (10만 개)', () => {
       for (const c of suggestNames(ctx, data, createRng(seed), 8, NONE)) {
         produced++;
         seen.add(normalizeName(c.name));
+        if (hasBlockedPlaceToken(c.name, data.blockedPlaceTokens)) {
+          blockedHits++;
+        }
       }
     }
-    return seen.size / produced;
+    return { ratio: seen.size / produced, blockedHits };
   }
 
-  it('10만 개, 부모가 바뀌는 실제 조건: 고유 비율 0.78 이상', () => {
-    expect(uniqueRatio(true)).toBeGreaterThanOrEqual(0.78);
+  it('10만 개, 부모가 바뀌는 실제 조건: 고유 비율 0.78 이상, 차단 지명 토큰 포함 이름 0', () => {
+    const result = sweep(true);
+    expect(result.ratio).toBeGreaterThanOrEqual(0.78);
+    expect(result.blockedHits).toBe(0);
   }, 120_000);
 
   it('10만 개, 부모 고정(최악 조건): 고유 비율 0.7 이상', () => {
-    expect(uniqueRatio(false)).toBeGreaterThanOrEqual(0.7);
+    expect(sweep(false).ratio).toBeGreaterThanOrEqual(0.7);
   }, 120_000);
+});
+
+describe('마주 국적별 언어와 실제 지명 (M3-C7d)', () => {
+  const data = getNamingData();
+  const NATIVE_LANGS = ['fr', 'de', 'it', 'ar'] as const;
+  /** 언어별 외국어 단어 비율 범위 (명세 수용 기준 2) */
+  const RATIO_RANGE: Record<(typeof NATIVE_LANGS)[number], [number, number]> = {
+    fr: [0.55, 0.85],
+    de: [0.5, 0.8],
+    it: [0.55, 0.85],
+    ar: [0.7, 0.95],
+  };
+  const lower = (words: readonly string[]): Set<string> => new Set(words.map((w) => w.toLowerCase()));
+  const realPlaceList = [...data.realPlaces.countries, ...data.realPlaces.regions, ...data.realPlaces.cities];
+  const realPlaceExact = new Set(realPlaceList);
+  const realPlaceNorm = realPlaceList.map((p) => normalizePlaceToken(p));
+
+  it('국적 → 언어 매핑과 모국어 확률 (en 은 0)', () => {
+    expect(LANGUAGE_BY_COUNTRY.FR).toBe('fr');
+    expect(LANGUAGE_BY_COUNTRY.DE).toBe('de');
+    expect(LANGUAGE_BY_COUNTRY.IT).toBe('it');
+    expect(LANGUAGE_BY_COUNTRY.AE).toBe('ar');
+    for (const c of ['GB', 'IE', 'US', 'AU', 'CA', 'NZ', 'JP', 'HK', 'AR'] as const) {
+      expect(LANGUAGE_BY_COUNTRY[c], c).toBe('en');
+    }
+    expect(NATIVE_SHARE.en).toBe(0);
+  });
+
+  it('같은 시드·같은 언어면 결과가 완전히 같다', () => {
+    for (const lang of NATIVE_LANGS) {
+      const style = pickOwnerStyle(`owner-det-${lang}`, null, data.styles);
+      const a = suggestNames(langContext(style, lang), data, createRng(9), 8, NONE);
+      const b = suggestNames(langContext(style, lang), data, createRng(9), 8, NONE);
+      expect(a, lang).toEqual(b);
+    }
+  });
+
+  for (const lang of NATIVE_LANGS) {
+    it(`${lang} 마주: 외국어 단어(연결어 포함)만으로 된 후보 비율이 범위 안에 있고 모두 검증을 통과한다 (1,000번×8)`, () => {
+      const allowed = lower([...data.lexicon.foreign[lang], NATIVE_CONNECTOR[lang]]);
+      let total = 0;
+      let native = 0;
+      let connectorHits = 0;
+      for (let seed = 1; seed <= 1000; seed++) {
+        const style = pickOwnerStyle(`owner-${seed}`, null, data.styles);
+        const out = suggestNames(langContext(style, lang), data, createRng(seed), 8, NONE);
+        for (const c of out) {
+          total++;
+          expect(validateHorseName(c.name, NONE, data.protectedNames, data.blockedPlaceTokens).ok, c.name).toBe(true);
+          const words = c.name.split(' ');
+          if (words.every((w) => allowed.has(w.toLowerCase()))) {
+            native++;
+          }
+          if (words.some((w) => w.toLowerCase() === NATIVE_CONNECTOR[lang].toLowerCase())) {
+            connectorHits++;
+          }
+        }
+      }
+      const [lo, hi] = RATIO_RANGE[lang];
+      const ratio = native / total;
+      expect(ratio, `${lang} ratio ${ratio.toFixed(3)}`).toBeGreaterThanOrEqual(lo);
+      expect(ratio, `${lang} ratio ${ratio.toFixed(3)}`).toBeLessThanOrEqual(hi);
+      expect(connectorHits, `${lang} connector`).toBeGreaterThan(0);
+    }, 60_000);
+  }
+
+  it('모국어 후보는 외국어 단어 이유 문장을 단다', () => {
+    const style = pickOwnerStyle('owner-note-fr', null, data.styles);
+    let found = false;
+    for (let seed = 1; seed <= 200 && !found; seed++) {
+      for (const c of suggestNames(langContext(style, 'fr'), data, createRng(seed), 8, NONE)) {
+        if (c.source === 'foreign' && c.name.split(' ').length === 1) {
+          expect(c.note).toMatch(/^프랑스어 단어 '[A-Za-z']+'$/);
+          found = true;
+        }
+      }
+    }
+    expect(found).toBe(true);
+  });
+
+  it('en 마주는 모국어 모드를 쓰지 않는다: 외국어 단어만으로 되고 영어 사전 단어가 없는 2단어 이상 후보 0 (1,000번×8)', () => {
+    // 모국어 모드 후보는 외국어 사전 단어와 연결어만 쓴다. 영어 모드 후보는 영어 사전 단어를 반드시 하나 이상 쓴다
+    // (외국어 사전과 겹치는 영어 수식어·명사, 예: Ardent, Wolf, 는 영어 모드 후보에 나올 수 있으므로 영어 사전 단어 유무로 가른다).
+    const foreign = lower([
+      ...data.lexicon.foreign.fr,
+      ...data.lexicon.foreign.it,
+      ...data.lexicon.foreign.de,
+      ...data.lexicon.foreign.ar,
+      'de',
+      'di',
+      'von',
+      'Al',
+    ]);
+    const english = lower([
+      ...data.lexicon.modifiers,
+      ...data.lexicon.nouns,
+      ...data.lexicon.verbs,
+      ...data.lexicon.abstract,
+      ...data.lexicon.places,
+      ...data.lexicon.culture,
+    ]);
+    let nativeLike = 0;
+    for (let seed = 1; seed <= 1000; seed++) {
+      const style = pickOwnerStyle(`owner-${seed}`, null, data.styles);
+      for (const c of suggestNames(contextFor(style), data, createRng(seed), 8, NONE)) {
+        const words = c.name.split(' ').map((w) => w.toLowerCase());
+        if (words.length >= 2 && words.every((w) => foreign.has(w) && !english.has(w))) {
+          nativeLike++;
+        }
+      }
+    }
+    expect(nativeLike).toBe(0);
+  }, 60_000);
+
+  it('en 마주: 1,000번 중 실제 지명을 포함한 후보가 나온 비율 0.3 이상, 지명 단독 이름(예: Illinois)이 나온다', () => {
+    let runsWithReal = 0;
+    let exactHits = 0;
+    for (let seed = 1; seed <= 1000; seed++) {
+      const style = pickOwnerStyle(`owner-${seed}`, null, data.styles);
+      const out = suggestNames(contextFor(style), data, createRng(seed), 8, NONE);
+      let hit = false;
+      for (const c of out) {
+        if (realPlaceExact.has(c.name)) {
+          exactHits++;
+        }
+        const padded = ` ${normalizePlaceToken(c.name)} `;
+        if (realPlaceNorm.some((p) => padded.includes(` ${p} `))) {
+          hit = true;
+        }
+      }
+      if (hit) {
+        runsWithReal++;
+      }
+    }
+    expect(runsWithReal / 1000).toBeGreaterThanOrEqual(0.3);
+    expect(exactHits).toBeGreaterThan(0);
+  }, 120_000);
+
+  it('차단 지명 토큰: 경마장 이름이 든 이름은 protected, 일반 지명은 통과', () => {
+    const blocked = data.blockedPlaceTokens;
+    for (const name of ['Ascot Lady', 'Lady Of Longchamp', 'Santa Anita Dream', "Ascot's Crown", 'Chester Star']) {
+      expect(validateHorseName(name, NONE, data.protectedNames, blocked), name).toEqual({ ok: false, reason: 'protected' });
+    }
+    expect(hasBlockedPlaceToken('Silver Ascot Gold', blocked)).toBe(true);
+    expect(validateHorseName('Illinois', NONE, data.protectedNames, blocked).ok).toBe(true);
+    expect(validateHorseName('Japan Star', NONE, data.protectedNames, blocked).ok).toBe(true);
+    expect(normalizePlaceToken("Cote d'Azur")).toBe('cote dazur');
+    expect(normalizePlaceToken('Hamilton   Park')).toBe('hamilton park');
+  });
+
+  it('차단 토큰을 주지 않으면 차단 검사를 하지 않는다 (기존 3인자 호출)', () => {
+    expect(validateHorseName('Ascot Lady', NONE, data.protectedNames).ok).toBe(true);
+  });
 });
 
 describe('engine purity (naming)', () => {
@@ -380,7 +550,16 @@ describe('parseNamingData (보호 명단 조립)', () => {
     expect(data.protectedNames.has('mrprospector')).toBe(true);
   });
 
+  it('실제 지명 목록과 차단 토큰 집합을 읽는다', () => {
+    const data = getNamingData();
+    expect(data.realPlaces.countries).toContain('Japan');
+    expect(data.realPlaces.regions).toContain('Illinois');
+    expect(data.realPlaces.cities).toContain('Los Angeles');
+    expect(data.blockedPlaceTokens.has('ascot')).toBe(true);
+    expect(data.blockedPlaceTokens.has('santa anita')).toBe(true);
+  });
+
   it('형식이 틀리면 Error', () => {
-    expect(() => parseNamingData({ version: 2 }, {}, {}, {}, {})).toThrow();
+    expect(() => parseNamingData({ version: 2 }, {}, {}, {}, {}, {})).toThrow();
   });
 });

@@ -13,6 +13,7 @@ import namingLexiconJson from '../../../data/naming/lexicon.en.json';
 import namingStylesJson from '../../../data/naming/owner-styles.json';
 import namingProtectedJson from '../../../data/naming/protected.json';
 import namingHistoricalJson from '../../../data/naming/historical.json';
+import namingRealPlacesJson from '../../../data/naming/real_places.json';
 import raceTemplatesJson from '../../../data/calendar/g1.json';
 import patternGbIeJson from '../../../data/calendar/pattern_gb_ie.json';
 import patternFrDeItJson from '../../../data/calendar/pattern_fr_de_it.json';
@@ -22,7 +23,7 @@ import { NAME_COUNTRIES, type CountryNamePool, type NameCountry, type NamePools 
 import type { PeopleStaticData, PlacesData } from '../people/generate';
 import type { NamePool } from '../race/sampleField';
 import type { HorseWords } from '../horse/generate';
-import { normalizeName } from '../naming/validate';
+import { normalizePlaceToken, normalizeName } from '../naming/validate';
 import type {
   ForeignLanguage,
   HistoricalField,
@@ -226,7 +227,7 @@ const NAME_TEMPLATES: readonly NameTemplate[] = [
   'prefix',
   'joined',
 ];
-const FOREIGN_LANGUAGES: readonly ForeignLanguage[] = ['fr', 'it', 'de'];
+const FOREIGN_LANGUAGES: readonly ForeignLanguage[] = ['fr', 'it', 'de', 'ar'];
 const HISTORICAL_FIELDS: readonly HistoricalField[] = ['artist', 'writer', 'composer', 'explorer', 'scientist'];
 
 function namingFail(message: string): never {
@@ -353,6 +354,29 @@ export function parseHistoricalPeople(raw: unknown): HistoricalPerson[] {
   });
 }
 
+/** real_places.json 원본을 검증해 지명 목록과 차단 지명 토큰 집합으로 바꾼다. */
+export function parseRealPlaces(raw: unknown): Pick<NamingData, 'realPlaces' | 'blockedPlaceTokens'> {
+  const o = namingRecord(raw, 'real_places');
+  if (o['version'] !== 1) {
+    namingFail('real_places.version 은 1 이어야 한다');
+  }
+  const blockedPlaceTokens = new Set<string>();
+  for (const token of namingStrings(o['blockedTokens'], 'real_places.blockedTokens')) {
+    const normalized = normalizePlaceToken(token);
+    if (normalized !== '') {
+      blockedPlaceTokens.add(normalized);
+    }
+  }
+  return {
+    realPlaces: {
+      countries: namingStrings(o['countries'], 'real_places.countries'),
+      regions: namingStrings(o['regions'], 'real_places.regions'),
+      cities: namingStrings(o['cities'], 'real_places.cities'),
+    },
+    blockedPlaceTokens,
+  };
+}
+
 /**
  * 명명 데이터 묶음을 검증해 만든다. 보호 명단은 protected.json 이름과 실명 종마 이름을
  * 합쳐 normalizeName 한 Set 이다. 테스트에서 직접 호출할 수 있게 export 한다.
@@ -363,6 +387,7 @@ export function parseNamingData(
   protectedFile: unknown,
   historical: unknown,
   stallionNames: unknown,
+  realPlaces: unknown,
 ): NamingData {
   const protectedList = namingStrings(namingRecord(protectedFile, 'protected')['names'], 'protected.names');
   const stallionList = namingStrings(Object.values(namingRecord(stallionNames, 'stallions/names')), 'stallions/names');
@@ -378,6 +403,7 @@ export function parseNamingData(
     styles: parseOwnerStyles(styles),
     protectedNames,
     historical: parseHistoricalPeople(historical),
+    ...parseRealPlaces(realPlaces),
   };
 }
 
@@ -392,6 +418,7 @@ export function getNamingData(): NamingData {
       namingProtectedJson,
       namingHistoricalJson,
       stallionNamesJson,
+      namingRealPlacesJson,
     );
   }
   return cachedNamingData;

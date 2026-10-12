@@ -25,7 +25,10 @@ export type NameTemplate =
   | 'joined';
 
 /** 외국어 사전 언어 */
-export type ForeignLanguage = 'fr' | 'it' | 'de';
+export type ForeignLanguage = 'fr' | 'it' | 'de' | 'ar';
+
+/** 마주 국적에 따른 이름 언어. 영어권(GB·IE·US 등)은 en. ar 은 로마자 아랍어. */
+export type NameLanguage = 'en' | 'fr' | 'de' | 'it' | 'ar';
 
 /** 어휘 사전 (data/naming/lexicon.en.json) */
 export interface NamingLexicon {
@@ -82,6 +85,14 @@ export interface NamingData {
   /** normalizeName 을 거친 보호 이름 집합 (protected.json + 실명 종마 이름) */
   protectedNames: ReadonlySet<string>;
   historical: HistoricalPerson[];
+  /** 실제 지명 목록 (data/naming/real_places.json). 장소 출처에서 실제 지명을 쓸 때 쓴다. */
+  realPlaces: {
+    countries: string[];
+    regions: string[];
+    cities: string[];
+  };
+  /** 차단 지명 토큰 집합. 소문자, 단어 사이 한 칸 (normalizePlaceToken 결과). 경마장 이름 등. */
+  blockedPlaceTokens: ReadonlySet<string>;
 }
 
 /** 생성 문맥 */
@@ -94,6 +105,8 @@ export interface NamingContext {
   style: OwnerNamingStyle;
   /** 게임 속 가상 인물의 성 (엔진이 넘긴다) */
   tributeNames: readonly string[];
+  /** 마주 국적에서 정한 이름 언어 (config LANGUAGE_BY_COUNTRY). 영어 모드는 en. */
+  language: NameLanguage;
 }
 
 /** 이름 후보 한 개 */

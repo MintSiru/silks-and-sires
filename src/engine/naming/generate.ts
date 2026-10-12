@@ -1,8 +1,23 @@
 import type { Rng } from '../types';
 import { cyrb128 } from '../rng/hash';
-import { ASSOCIATION_CHANCE, JOINED_MAX_WORDS, JOINED_MIN_WORDS, KEYWORD_MIN_LENGTH, NAME_CANDIDATE_ATTEMPTS, NAME_FALLBACK_ATTEMPTS, WORD_AS_NOUN_CHANCE } from '../config/naming';
+import {
+  AR_PREFIX_CONNECTOR_CHANCE,
+  ASSOCIATION_CHANCE,
+  JOINED_MAX_WORDS,
+  JOINED_MIN_WORDS,
+  KEYWORD_MIN_LENGTH,
+  NAME_CANDIDATE_ATTEMPTS,
+  NAME_FALLBACK_ATTEMPTS,
+  NATIVE_CONNECTOR,
+  NATIVE_SHARE,
+  NATIVE_TEMPLATE_WEIGHTS,
+  REAL_PLACE_SHARE,
+  WORD_AS_NOUN_CHANCE,
+  type NativeLanguage,
+  type NativeTemplate,
+} from '../config/naming';
 import { makeSyllableWord } from './syllables';
-import { normalizeName, validateHorseName } from './validate';
+import { hasBlockedPlaceToken, normalizeName, validateHorseName } from './validate';
 import type {
   ForeignLanguage,
   HistoricalField,
@@ -58,8 +73,20 @@ const POSSESSIVE_FORMS: Record<NameSource, readonly PossessiveForm[]> = {
   tribute: ['wordFirst'],
 };
 
-const FOREIGN_LANGUAGES: readonly ForeignLanguage[] = ['fr', 'it', 'de'];
-const FOREIGN_LABEL: Record<ForeignLanguage, string> = { fr: '프랑스어', it: '이탈리아어', de: '독일어' };
+/** 영어 모드의 외국어 출처 언어. ar 은 모국어 모드(아랍 계열 마주)에서만 쓴다. */
+const FOREIGN_LANGUAGES: readonly Exclude<ForeignLanguage, 'ar'>[] = ['fr', 'it', 'de'];
+const FOREIGN_LABEL: Record<ForeignLanguage, string> = { fr: '프랑스어', it: '이탈리아어', de: '독일어', ar: '아랍어' };
+/** 모국어 모드 구조 가중치를 고를 때의 순서 */
+/**
+ * 연결어 붙이기. 프랑스어 de·이탈리아어 di 는 모음(과 묵음 h)으로 시작하는 단어 앞에서
+ * 축약한다(Givre de Aube → Givre d'Aube, Melodia di Aquila → Melodia d'Aquila).
+ */
+function joinConnector(first: string, conn: string, second: string): string {
+  const elides = (conn === 'de' || conn === 'di') && /^[aeiouyh]/i.test(second);
+  return elides ? `${first} d'${second}` : `${first} ${conn} ${second}`;
+}
+
+const NATIVE_TEMPLATE_ORDER: readonly NativeTemplate[] = ['single', 'pair', 'connector'];
 const FIELD_LABEL: Record<HistoricalField, string> = {
   artist: '화가·조각가',
   writer: '작가',
@@ -84,6 +111,8 @@ interface Env {
   keywords: readonly Keyword[];
   /** 소문자 키워드 → 연상어 */
   associations: ReadonlyMap<string, readonly string[]>;
+  /** 실제 지명 전체(국가·지역·도시) */
+  realPlaces: readonly string[];
 }
 
 /** 출처 단어 한 개와 이유 문장 */
@@ -181,7 +210,8 @@ function buildEnv(ctx: NamingContext, data: NamingData): Env {
     const k = key.toLowerCase();
     associations.set(k, [...(associations.get(k) ?? []), ...list]);
   }
-  return { ctx, data, lex: data.lexicon, keywords, associations };
+  const realPlaces = [...data.realPlaces.countries, ...data.realPlaces.regions, ...data.realPlaces.cities];
+  return { ctx, data, lex: data.lexicon, keywords, associations, realPlaces };
 }
 
 /** 소유격 표기: s 로 끝나면 's 대신 ' 만 붙인다. */
@@ -221,6 +251,10 @@ function sourceWord(source: NameSource, env: Env, rng: Rng): SourcePick {
       return { word: w, note: `${FIELD_LABEL[person.field]} 역사 인물의 성 '${w}'` };
     }
     case 'place': {
+      if (rng.chance(REAL_PLACE_SHARE)) {
+        const real = rng.pick(env.realPlaces);
+        return { word: real, note: `실제 지명 '${real}'` };
+      }
       const w = rng.pick(lex.places);
       return { word: w, note: `지형·지명 어휘 '${w}'` };
     }
@@ -319,11 +353,72 @@ function buildName(template: NameTemplate, source: NameSource, word: string, env
       if (text === null) {
         return null;
       }
+      // 붙이기 전에 검사한다: "Ascot Lady" 는 "AscotLady" 가 되면 단어 검사를 피하므로
+      if (hasBlockedPlaceToken(text, env.data.blockedPlaceTokens)) {
+        return null;
+      }
       const wordCount = text.split(' ').length;
       if (wordCount < JOINED_MIN_WORDS || wordCount > JOINED_MAX_WORDS) {
         return null;
       }
       return joinWords(text);
+    }
+  }
+}
+
+/** 단어 목록에서 first 와 다른 단어를 하나 고른다. 목록이 한 단어뿐이면 그 단어를 쓴다. */
+function pickOther(words: readonly string[], first: string, rng: Rng): string {
+  const rest = words.filter((w) => w !== first);
+  return rng.pick(rest.length > 0 ? rest : words);
+}
+
+/**
+ * 모국어 모드 후보 한 장. 마주 언어의 외국어 단어만으로 이름을 만든다(출처 foreign).
+ * single = 단어 하나, pair = 단어 둘, connector = 연결어가 든 구조. 가중치는 NATIVE_TEMPLATE_WEIGHTS.
+ * 구조 종류는 NameTemplate 으로 옮긴다: single → single, pair → modifierNoun, connector → possessive.
+ * ar 연결 구조는 "Al {word}" 또는 "{word} Al {word}" 중 하나다.
+ */
+function nativeCandidate(lang: NativeLanguage, env: Env, rng: Rng): NameCandidate | null {
+  const weights = NATIVE_TEMPLATE_WEIGHTS[lang];
+  const kind = pickWeighted(
+    rng,
+    NATIVE_TEMPLATE_ORDER.map((t) => [t, weights[t]] as const),
+  );
+  if (kind === null) {
+    return null;
+  }
+  const words = env.lex.foreign[lang];
+  const label = FOREIGN_LABEL[lang];
+  const first = rng.pick(words);
+  switch (kind) {
+    case 'single':
+      return { name: first, template: 'single', source: 'foreign', note: `${label} 단어 '${first}'` };
+    case 'pair': {
+      const second = pickOther(words, first, rng);
+      return {
+        name: `${first} ${second}`,
+        template: 'modifierNoun',
+        source: 'foreign',
+        note: `${label} 단어 '${first}', '${second}'`,
+      };
+    }
+    case 'connector': {
+      const conn = NATIVE_CONNECTOR[lang];
+      if (lang === 'ar' && rng.chance(AR_PREFIX_CONNECTOR_CHANCE)) {
+        return {
+          name: `${conn} ${first}`,
+          template: 'possessive',
+          source: 'foreign',
+          note: `${label} 단어 '${first}' 앞에 연결어 '${conn}'`,
+        };
+      }
+      const second = pickOther(words, first, rng);
+      return {
+        name: joinConnector(first, conn, second),
+        template: 'possessive',
+        source: 'foreign',
+        note: `${label} 단어 '${first}', '${second}' 사이 연결어 '${conn}'`,
+      };
     }
   }
 }
@@ -351,6 +446,11 @@ function sampleCandidate(env: Env, rng: Rng, forcedSource?: NameSource): NameCan
   if (forcedSource !== undefined) {
     source = forcedSource;
   } else {
+    // 모국어 모드 추첨. en 은 NATIVE_SHARE 가 0 이라 난수를 쓰지 않는다(영어 모드 결과 유지).
+    const lang = env.ctx.language;
+    if (lang !== 'en' && NATIVE_SHARE[lang] > 0 && rng.chance(NATIVE_SHARE[lang])) {
+      return nativeCandidate(lang, env, rng);
+    }
     const sources = (Object.keys(ALLOWED_TEMPLATES) as NameSource[]).filter((s) => isSourceAvailable(s, env));
     source = pickWeighted(
       rng,
@@ -401,7 +501,7 @@ export function suggestNames(
       if (cand === null) {
         continue;
       }
-      const v = validateHorseName(cand.name, registry, data.protectedNames);
+      const v = validateHorseName(cand.name, registry, data.protectedNames, data.blockedPlaceTokens);
       if (!v.ok || seen.has(v.normalized)) {
         continue;
       }
@@ -421,7 +521,7 @@ export function suggestNames(
       if (cand === null) {
         continue;
       }
-      const v = validateHorseName(cand.name, registry, data.protectedNames);
+      const v = validateHorseName(cand.name, registry, data.protectedNames, data.blockedPlaceTokens);
       if (!v.ok || others.has(v.normalized)) {
         continue;
       }
@@ -443,7 +543,7 @@ export function nameForHorse(ctx: NamingContext, data: NamingData, rng: Rng, reg
   }
   for (let i = 0; i < NAME_FALLBACK_ATTEMPTS; i++) {
     const name = makeSyllableWord(data.lexicon, rng);
-    if (validateHorseName(name, registry, data.protectedNames).ok) {
+    if (validateHorseName(name, registry, data.protectedNames, data.blockedPlaceTokens).ok) {
       return name;
     }
   }
