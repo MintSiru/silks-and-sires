@@ -273,6 +273,7 @@ const LEDGER_CATEGORY_KO: Record<LedgerCategory, string> = {
   farm_upkeep: '목장 유지비',
   entry_fee: '출주 등록료',
   transport: '원정 운송비',
+  retainer_fee: '전속 계약료',
   sale_purchase: '세일 구매',
   sale_proceeds: '세일 판매',
   sale_commission: '세일 수수료',
@@ -327,6 +328,14 @@ export function countryKo(c: CountryCode): string {
   return COUNTRY_KO[c];
 }
 
+const RETAINER_CHANGE_KO: Record<'signed' | 'renewed' | 'declined' | 'lapsed' | 'terminated', string> = {
+  signed: '체결',
+  renewed: '갱신',
+  declined: '갱신 거절',
+  lapsed: '만료',
+  terminated: '해지',
+};
+
 /** 이벤트 한 줄 요약. 말 이름은 nameOf 로 바꿔 넣는다. */
 export function eventKo(e: GameEvent, nameOf: (id: HorseId) => string): string {
   switch (e.type) {
@@ -366,6 +375,8 @@ export function eventKo(e: GameEvent, nameOf: (id: HorseId) => string): string {
       return `${formatDateKo(e.date)} · 파산했습니다`;
     case 'horse_sold':
       return `${formatDateKo(e.date)} · 매각: ${nameOf(e.horseId)} (${feeKo(e.price)})`;
+    case 'retainer_changed':
+      return `${formatDateKo(e.date)} · 전속 ${e.kind === 'trainer' ? '조교사' : '기수'} 계약 ${RETAINER_CHANGE_KO[e.change]}${e.fee > 0 ? ` (${feeKo(e.fee)})` : ''}`;
     default:
       return assertNever(e);
   }

@@ -38,7 +38,19 @@ export type GameEvent =
   /** 레거시 모드 파산(M4-A3). 이후 진행 불가 */
   | { type: 'bankrupt'; date: GameDate }
   /** 말 소유 이전(M4-A3 AI 급매, M4-C 세일·개인 거래). price 는 유로 정수 */
-  | { type: 'horse_sold'; horseId: HorseId; fromOwnerId: OwnerId; toOwnerId: OwnerId; price: Money; date: GameDate };
+  | { type: 'horse_sold'; horseId: HorseId; fromOwnerId: OwnerId; toOwnerId: OwnerId; price: Money; date: GameDate }
+  /**
+   * 플레이어 전속 계약 변화(M4-B3). signed: 새 계약 / renewed: 연초 갱신 / declined: 연초 갱신 거절(관계 부족)
+   * / lapsed: 연초 갱신 실패(자금 부족·은퇴) / terminated: 플레이어 해지
+   */
+  | {
+      type: 'retainer_changed';
+      kind: 'trainer' | 'jockey';
+      personId: string;
+      change: 'signed' | 'renewed' | 'declined' | 'lapsed' | 'terminated';
+      fee: Money;
+      date: GameDate;
+    };
 
 /** 배합 관련 진행 상태 */
 export interface BreedingState {
