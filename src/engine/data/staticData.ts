@@ -9,6 +9,10 @@ import horseWordsJson from '../../../data/names/horse_words.json';
 import peoplePoolsJson from '../../../data/people/name_pools.json';
 import peopleBlockedJson from '../../../data/people/blocked_names.json';
 import peoplePlacesJson from '../../../data/people/places.json';
+import namingLexiconJson from '../../../data/naming/lexicon.en.json';
+import namingStylesJson from '../../../data/naming/owner-styles.json';
+import namingProtectedJson from '../../../data/naming/protected.json';
+import namingHistoricalJson from '../../../data/naming/historical.json';
 import raceTemplatesJson from '../../../data/calendar/g1.json';
 import patternGbIeJson from '../../../data/calendar/pattern_gb_ie.json';
 import patternFrDeItJson from '../../../data/calendar/pattern_fr_de_it.json';
@@ -18,6 +22,17 @@ import { NAME_COUNTRIES, type CountryNamePool, type NameCountry, type NamePools 
 import type { PeopleStaticData, PlacesData } from '../people/generate';
 import type { NamePool } from '../race/sampleField';
 import type { HorseWords } from '../horse/generate';
+import { normalizeName } from '../naming/validate';
+import type {
+  ForeignLanguage,
+  HistoricalField,
+  HistoricalPerson,
+  NamingData,
+  NamingLexicon,
+  NameSource,
+  NameTemplate,
+  OwnerNamingStyle,
+} from '../naming/types';
 import type {
   NickEntry,
   Race,
@@ -190,4 +205,194 @@ export function getPeopleData(): PeopleStaticData {
     cachedPeopleData = parsePeopleData(peoplePoolsJson, peopleBlockedJson, peoplePlacesJson);
   }
   return cachedPeopleData;
+}
+
+const NAME_SOURCES: readonly NameSource[] = [
+  'pedigree',
+  'tribute',
+  'historical',
+  'place',
+  'culture',
+  'foreign',
+  'abstract',
+  'ownerStyle',
+];
+const NAME_TEMPLATES: readonly NameTemplate[] = [
+  'single',
+  'modifierNoun',
+  'possessive',
+  'phrase',
+  'verb',
+  'prefix',
+  'joined',
+];
+const FOREIGN_LANGUAGES: readonly ForeignLanguage[] = ['fr', 'it', 'de'];
+const HISTORICAL_FIELDS: readonly HistoricalField[] = ['artist', 'writer', 'composer', 'explorer', 'scientist'];
+
+function namingFail(message: string): never {
+  throw new Error(`명명 데이터 형식 오류: ${message}`);
+}
+
+function namingStrings(value: unknown, where: string): string[] {
+  if (!Array.isArray(value) || value.length === 0 || !value.every((v) => typeof v === 'string' && v !== '')) {
+    namingFail(`${where} 는 비어 있지 않은 문자열 배열이어야 한다`);
+  }
+  return value as string[];
+}
+
+function namingRecord(value: unknown, where: string): Record<string, unknown> {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    namingFail(`${where} 는 객체여야 한다`);
+  }
+  return value as Record<string, unknown>;
+}
+
+/** 키 목록에 맞는 0 이상 수 레코드. 합계가 0 이면 실패(가중치 전부 0 은 고를 수 없다). */
+function namingWeights<K extends string>(value: unknown, keys: readonly K[], where: string): Record<K, number> {
+  const obj = namingRecord(value, where);
+  const out = {} as Record<K, number>;
+  let total = 0;
+  for (const key of keys) {
+    const w = obj[key];
+    if (typeof w !== 'number' || !Number.isFinite(w) || w < 0) {
+      namingFail(`${where}.${key} 는 0 이상의 수여야 한다`);
+    }
+    out[key] = w;
+    total += w;
+  }
+  if (total <= 0) {
+    namingFail(`${where} 의 가중치 합은 0 보다 커야 한다`);
+  }
+  return out;
+}
+
+/** lexicon.en.json 원본을 검증해 NamingLexicon 으로 바꾼다. */
+export function parseNamingLexicon(raw: unknown): NamingLexicon {
+  const o = namingRecord(raw, 'lexicon');
+  if (o['version'] !== 1) {
+    namingFail('lexicon.version 은 1 이어야 한다');
+  }
+  const foreignRaw = namingRecord(o['foreign'], 'lexicon.foreign');
+  const foreign = {} as Record<ForeignLanguage, string[]>;
+  for (const lang of FOREIGN_LANGUAGES) {
+    foreign[lang] = namingStrings(foreignRaw[lang], `lexicon.foreign.${lang}`);
+  }
+  const assocRaw = namingRecord(o['associations'], 'lexicon.associations');
+  const associations: Record<string, string[]> = {};
+  for (const [key, list] of Object.entries(assocRaw)) {
+    associations[key] = namingStrings(list, `lexicon.associations.${key}`);
+  }
+  const syl = namingRecord(o['syllables'], 'lexicon.syllables');
+  return {
+    version: 1,
+    modifiers: namingStrings(o['modifiers'], 'lexicon.modifiers'),
+    nouns: namingStrings(o['nouns'], 'lexicon.nouns'),
+    verbs: namingStrings(o['verbs'], 'lexicon.verbs'),
+    abstract: namingStrings(o['abstract'], 'lexicon.abstract'),
+    places: namingStrings(o['places'], 'lexicon.places'),
+    foreign,
+    culture: namingStrings(o['culture'], 'lexicon.culture'),
+    phrases: namingStrings(o['phrases'], 'lexicon.phrases'),
+    associations,
+    syllables: {
+      onsets: namingStrings(syl['onsets'], 'lexicon.syllables.onsets'),
+      vowels: namingStrings(syl['vowels'], 'lexicon.syllables.vowels'),
+      codas: namingStrings(syl['codas'], 'lexicon.syllables.codas'),
+    },
+    stopwords: namingStrings(o['stopwords'], 'lexicon.stopwords'),
+  };
+}
+
+/** owner-styles.json 원본을 검증해 스타일 목록으로 바꾼다. */
+export function parseOwnerStyles(raw: unknown): OwnerNamingStyle[] {
+  const o = namingRecord(raw, 'owner-styles');
+  if (o['version'] !== 1 || !Array.isArray(o['styles']) || o['styles'].length === 0) {
+    namingFail('owner-styles 는 version 1 과 비어 있지 않은 styles 배열이어야 한다');
+  }
+  return (o['styles'] as unknown[]).map((item, i) => {
+    const where = `owner-styles.styles[${i}]`;
+    const s = namingRecord(item, where);
+    if (typeof s['id'] !== 'string' || s['id'] === '' || typeof s['label'] !== 'string') {
+      namingFail(`${where} 의 id·label 은 문자열이어야 한다`);
+    }
+    const style: OwnerNamingStyle = {
+      id: s['id'] as string,
+      label: s['label'] as string,
+      sourceWeights: namingWeights(s['sourceWeights'], NAME_SOURCES, `${where}.sourceWeights`),
+      templateWeights: namingWeights(s['templateWeights'], NAME_TEMPLATES, `${where}.templateWeights`),
+    };
+    if (s['prefix'] !== undefined) {
+      if (typeof s['prefix'] !== 'string' || s['prefix'] === '') {
+        namingFail(`${where}.prefix 는 빈 문자열이 아닌 문자열이어야 한다`);
+      }
+      style.prefix = s['prefix'];
+    }
+    return style;
+  });
+}
+
+/** historical.json 원본을 검증해 역사 인물 목록으로 바꾼다. */
+export function parseHistoricalPeople(raw: unknown): HistoricalPerson[] {
+  const o = namingRecord(raw, 'historical');
+  if (!Array.isArray(o['people']) || o['people'].length === 0) {
+    namingFail('historical.people 은 비어 있지 않은 배열이어야 한다');
+  }
+  return (o['people'] as unknown[]).map((item, i) => {
+    const where = `historical.people[${i}]`;
+    const p = namingRecord(item, where);
+    if (typeof p['name'] !== 'string' || p['name'] === '') {
+      namingFail(`${where}.name 은 문자열이어야 한다`);
+    }
+    if (!HISTORICAL_FIELDS.includes(p['field'] as HistoricalField)) {
+      namingFail(`${where}.field 가 허용 분야가 아니다`);
+    }
+    if (typeof p['deathYear'] !== 'number') {
+      namingFail(`${where}.deathYear 는 숫자여야 한다`);
+    }
+    return { name: p['name'] as string, field: p['field'] as HistoricalField, deathYear: p['deathYear'] as number };
+  });
+}
+
+/**
+ * 명명 데이터 묶음을 검증해 만든다. 보호 명단은 protected.json 이름과 실명 종마 이름을
+ * 합쳐 normalizeName 한 Set 이다. 테스트에서 직접 호출할 수 있게 export 한다.
+ */
+export function parseNamingData(
+  lexicon: unknown,
+  styles: unknown,
+  protectedFile: unknown,
+  historical: unknown,
+  stallionNames: unknown,
+): NamingData {
+  const protectedList = namingStrings(namingRecord(protectedFile, 'protected')['names'], 'protected.names');
+  const stallionList = namingStrings(Object.values(namingRecord(stallionNames, 'stallions/names')), 'stallions/names');
+  const protectedNames = new Set<string>();
+  for (const name of [...protectedList, ...stallionList]) {
+    const normalized = normalizeName(name);
+    if (normalized !== '') {
+      protectedNames.add(normalized);
+    }
+  }
+  return {
+    lexicon: parseNamingLexicon(lexicon),
+    styles: parseOwnerStyles(styles),
+    protectedNames,
+    historical: parseHistoricalPeople(historical),
+  };
+}
+
+/** 이름 생성 정적 데이터 (data/naming/*.json + data/stallions/names.json). 검증 후 한 번만 만든다. */
+let cachedNamingData: NamingData | null = null;
+
+export function getNamingData(): NamingData {
+  if (cachedNamingData === null) {
+    cachedNamingData = parseNamingData(
+      namingLexiconJson,
+      namingStylesJson,
+      namingProtectedJson,
+      namingHistoricalJson,
+      stallionNamesJson,
+    );
+  }
+  return cachedNamingData;
 }

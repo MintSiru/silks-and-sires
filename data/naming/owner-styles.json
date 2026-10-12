@@ -15,7 +15,7 @@
         "ownerStyle": 1
       },
       "templateWeights": {
-        "single": 3,
+        "single": 0.54,
         "modifierNoun": 2,
         "possessive": 3,
         "phrase": 1,
@@ -38,7 +38,7 @@
         "ownerStyle": 1
       },
       "templateWeights": {
-        "single": 2,
+        "single": 0.36,
         "modifierNoun": 3,
         "possessive": 3,
         "phrase": 1,
@@ -62,7 +62,7 @@
         "ownerStyle": 1
       },
       "templateWeights": {
-        "single": 2,
+        "single": 0.36,
         "modifierNoun": 2,
         "possessive": 2,
         "phrase": 3,
@@ -85,7 +85,7 @@
         "ownerStyle": 1
       },
       "templateWeights": {
-        "single": 2,
+        "single": 0.36,
         "modifierNoun": 3,
         "possessive": 2,
         "phrase": 2,
@@ -108,7 +108,7 @@
         "ownerStyle": 1
       },
       "templateWeights": {
-        "single": 2,
+        "single": 0.36,
         "modifierNoun": 3,
         "possessive": 3,
         "phrase": 1,
@@ -132,7 +132,7 @@
         "ownerStyle": 9
       },
       "templateWeights": {
-        "single": 6,
+        "single": 1.08,
         "modifierNoun": 1,
         "possessive": 1,
         "phrase": 1,
@@ -155,7 +155,7 @@
         "ownerStyle": 8
       },
       "templateWeights": {
-        "single": 5,
+        "single": 0.9,
         "modifierNoun": 1,
         "possessive": 1,
         "phrase": 1,
@@ -179,7 +179,7 @@
         "ownerStyle": 1
       },
       "templateWeights": {
-        "single": 3,
+        "single": 0.54,
         "modifierNoun": 2,
         "possessive": 2,
         "phrase": 2,
@@ -203,7 +203,7 @@
         "ownerStyle": 1
       },
       "templateWeights": {
-        "single": 2,
+        "single": 0.36,
         "modifierNoun": 2,
         "possessive": 1,
         "phrase": 4,
@@ -226,7 +226,7 @@
         "ownerStyle": 1
       },
       "templateWeights": {
-        "single": 2,
+        "single": 0.36,
         "modifierNoun": 2,
         "possessive": 2,
         "phrase": 3,
@@ -249,7 +249,7 @@
         "ownerStyle": 1
       },
       "templateWeights": {
-        "single": 1,
+        "single": 0.18,
         "modifierNoun": 1,
         "possessive": 1,
         "phrase": 1,
@@ -273,7 +273,7 @@
         "ownerStyle": 2
       },
       "templateWeights": {
-        "single": 1,
+        "single": 0.18,
         "modifierNoun": 4,
         "possessive": 1,
         "phrase": 1,
@@ -320,7 +320,7 @@
         "ownerStyle": 1
       },
       "templateWeights": {
-        "single": 2,
+        "single": 0.36,
         "modifierNoun": 3,
         "possessive": 2,
         "phrase": 2,
@@ -343,7 +343,7 @@
         "ownerStyle": 1
       },
       "templateWeights": {
-        "single": 2,
+        "single": 0.36,
         "modifierNoun": 3,
         "possessive": 2,
         "phrase": 2,
@@ -367,7 +367,7 @@
         "ownerStyle": 1
       },
       "templateWeights": {
-        "single": 1,
+        "single": 0.18,
         "modifierNoun": 1,
         "possessive": 2,
         "phrase": 4,
@@ -390,7 +390,7 @@
         "ownerStyle": 1
       },
       "templateWeights": {
-        "single": 1,
+        "single": 0.18,
         "modifierNoun": 1,
         "possessive": 1,
         "phrase": 6,
