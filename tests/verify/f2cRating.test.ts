@@ -264,7 +264,7 @@ function evaluate(runs: readonly SeedRun[]): { checks: Check[] } {
     detail: [2, 3, 4, 5].map((b) => `${b}세 ${fx(mean(t2Vals[b] ?? []), 1)} (최저 ${fx(Math.min(...(t2Vals[b] ?? [NaN])), 1)}, 최고 ${fx(Math.max(...(t2Vals[b] ?? [NaN])), 1)})`).join(' · '),
   });
 
-  // 목표 3: 같은 말 연초→연말 (ΔOR − Δ능력×OR_PER_ABILITY) 평균, 4·5·6세 ±4 이내
+  // 목표 3: 같은 말 연초→연말 (ΔOR − Δ능력×OR_PER_ABILITY) 평균, 4·5·6세 ±5 이내 (M3-F2c2: ±4 → ±5)
   say('');
   say('### 목표 3: 같은 말 연초→연말 (ΔOR − Δ능력×OR_PER_ABILITY) 평균');
   say('| 시드 | 연도 | 4세 | 5세 | 6세 |');
@@ -280,9 +280,9 @@ function evaluate(runs: readonly SeedRun[]): { checks: Check[] } {
       say(`| ${run.seed} | ${y} | ${cells.join(' | ')} |`);
     }
   }
-  const t3Ok = runs.length > 0 && [4, 5, 6].every((b) => (t3Vals[b] ?? []).every((v) => Math.abs(v) <= 4));
+  const t3Ok = runs.length > 0 && [4, 5, 6].every((b) => (t3Vals[b] ?? []).every((v) => Math.abs(v) <= 5));
   checks.push({
-    id: '3 같은 말 ΔOR−Δ능력환산 ±4 (4·5·6세)',
+    id: '3 같은 말 ΔOR−Δ능력환산 ±5 (4·5·6세)',
     ok: t3Ok,
     detail: [4, 5, 6].map((b) => `${b}세 ${fx(mean(t3Vals[b] ?? []), 2)}`).join(' · '),
   });

@@ -11,6 +11,9 @@ import {
   HANDICAP_WIN_MIN_RISE,
   MAX_DROP,
   MAX_RISE,
+  PROGRESSION_LB_PER_WEEK,
+  PROGRESSION_MAX_AGE,
+  PROGRESSION_MAX_WEEKS,
   RACE_STANDARD,
   RATING_HISTORY_MAX,
 } from '../../src/engine/config/rating';
@@ -20,14 +23,16 @@ import {
   applyRatingsInPlace,
   nextRating,
   performanceRatings,
+  progressionBonus,
   raceLevel,
 } from '../../src/engine/season/handicapper';
 import { createGameSystems, type GameStaticData } from '../../src/engine/state/systems';
 import { bootstrapGame, type BootstrapData } from '../../src/engine/state/bootstrap';
 import { advanceWeek } from '../../src/engine/time/advance';
-import { ageInYear } from '../../src/engine/time/calendar';
+import { ageInYear, weeksBetween } from '../../src/engine/time/calendar';
 import type {
   Going,
+  GameDate,
   GameState,
   HorseId,
   Race,
@@ -484,6 +489,96 @@ describe('수용 기준 6: ratingHistory 최대 12건', () => {
     expect(hist).toHaveLength(RATING_HISTORY_MAX);
     expect(hist[0]?.raceId).toBe('old-1');
     expect(hist[hist.length - 1]).toEqual({ date: DATE, raceId: 'r-cap', from: 100, to: 104 });
+  });
+});
+
+describe('M3-F2c2 성장 보정: 2·3세, 지난 OR 변경 이후 주 수', () => {
+  /**
+   * 기준마 4두. w 의 나이는 wAge, b·c·d 는 4세(보정 없음).
+   * w 는 레이스 전 OR 90 이고, 보정 후 출발값 start 에 맞춰 b·c·d 의 OR 을 두었다(PR 이 OR 과 같아진다).
+   * 조건 레이스 1착이므로 w 의 PR = start 면 OR 은 start 그대로다.
+   */
+  function growthCase(
+    wAge: number,
+    lastChange: GameDate | null,
+  ): { state: GameState; w: HorseId; race: Race; result: RaceResult; start: number } {
+    const { state, ids } = freshState(4);
+    const [w, b, c, d] = ids as [HorseId, HorseId, HorseId, HorseId];
+    const bonus = lastChange === null ? 0 : progressionBonus(wAge, weeksBetween(lastChange, DATE));
+    const start = 90 + bonus;
+    for (const [id, age] of [
+      [w, wAge],
+      [b, 4],
+      [c, 4],
+      [d, 4],
+    ] as const) {
+      const h = state.horses[id];
+      if (h === undefined) throw new Error('말이 없다');
+      h.birthYear = DATE.year - age;
+    }
+    setOr(state, w, 90);
+    setOr(state, b, start - 3);
+    setOr(state, c, start - 6);
+    setOr(state, d, start - 9);
+    if (lastChange !== null) {
+      state.seasonState.ratingHistory[w] = [{ date: lastChange, raceId: 'r-prev', from: 80, to: 90 }];
+    }
+    const race = conditionsRace({ id: 'r-growth' });
+    const result = resultOf(race, [runner(w, 1, 0, 0), runner(b, 2, 1, -3), runner(c, 3, 2, -6), runner(d, 4, 3, -9)]);
+    return { state, w, race, result, start };
+  }
+
+  it('보정 공식: 나이 상한 밖 0, 주 수 0 이면 0, 주 수 상한 적용, 나이별 주당 값', () => {
+    expect(PROGRESSION_MAX_AGE).toBe(3);
+    expect(progressionBonus(4, 20)).toBe(0);
+    expect(progressionBonus(3, 0)).toBe(0);
+    expect(progressionBonus(3, 1000)).toBe(progressionBonus(3, PROGRESSION_MAX_WEEKS));
+    expect(progressionBonus(3, 12)).toBe(Math.round((PROGRESSION_LB_PER_WEEK[3] ?? 0) * 12));
+    expect(progressionBonus(2, 12)).toBe(Math.round((PROGRESSION_LB_PER_WEEK[2] ?? 0) * 12));
+  });
+
+  it('3세: 지난 OR 변경 12주 전이면 보정분만큼 출발값이 올라가고, 보정분도 from(보정 전)→to 로 기록된다', () => {
+    const lastChange: GameDate = { year: DATE.year - 1, week: 45 };
+    const { state, w, race, result, start } = growthCase(3, lastChange);
+    expect(weeksBetween(lastChange, DATE)).toBe(12);
+    const bonus = progressionBonus(3, 12);
+    expect(bonus).toBeGreaterThan(0);
+    expect(start).toBe(90 + bonus);
+
+    applyRatingsInPlace(state, race, result, DATE);
+    expect(orOf(state, w)).toBe(start);
+    const hist = state.seasonState.ratingHistory[w] ?? [];
+    expect(hist[hist.length - 1]).toEqual({ date: DATE, raceId: 'r-growth', from: 90, to: 90 + bonus });
+  });
+
+  it('3세: 지난 OR 변경이 1년 이상 전이면 주 수는 상한(PROGRESSION_MAX_WEEKS)으로 잘린다', () => {
+    const lastChange: GameDate = { year: DATE.year - 1, week: 1 };
+    expect(weeksBetween(lastChange, DATE)).toBeGreaterThan(PROGRESSION_MAX_WEEKS);
+    const { state, w, race, result } = growthCase(3, lastChange);
+    const capped = progressionBonus(3, PROGRESSION_MAX_WEEKS);
+    expect(capped).toBe(Math.round((PROGRESSION_LB_PER_WEEK[3] ?? 0) * PROGRESSION_MAX_WEEKS));
+
+    applyRatingsInPlace(state, race, result, DATE);
+    expect(orOf(state, w)).toBe(90 + capped);
+  });
+
+  it('4세: 같은 간격이어도 보정 없음, OR·이력 변화 없음', () => {
+    const lastChange: GameDate = { year: DATE.year - 1, week: 45 };
+    const { state, w, race, result, start } = growthCase(4, lastChange);
+    expect(start).toBe(90);
+
+    applyRatingsInPlace(state, race, result, DATE);
+    expect(orOf(state, w)).toBe(90);
+    expect(state.seasonState.ratingHistory[w]).toEqual([{ date: lastChange, raceId: 'r-prev', from: 80, to: 90 }]);
+  });
+
+  it('3세라도 지난 OR 변경 이력이 없으면 보정 없음', () => {
+    const { state, w, race, result, start } = growthCase(3, null);
+    expect(start).toBe(90);
+
+    applyRatingsInPlace(state, race, result, DATE);
+    expect(orOf(state, w)).toBe(90);
+    expect(state.seasonState.ratingHistory[w] ?? []).toEqual([]);
   });
 });
 

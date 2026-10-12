@@ -44,11 +44,11 @@ export const UP_RATE_WIN = 0.7;
 /** 1착이 아닌 말의 상승률(d > 0) */
 export const UP_RATE = 0.5;
 /**
- * 하락률(d < 0). M3-F2c: 0.25 → 0.13.
- * 0.25 에서는 4세 이상 평균 OR 이 연간 −2.9 ~ −4.5 내려갔다(PR 이 OR 보다 낮은 구조적 편향). 0.13 에서 연간 +0.6 ~ +1.2.
- * 0.14 이상이면 4세 OR 이 능력 환산보다 과하게 낮고(연말 최저 −7.5), 0.10 이하이면 5세가 과하게 높다(평균 +8.7).
+ * 하락률(d < 0). M3-F2c: 0.25 → 0.13. M3-F2c2: 0.13 → 0.18 (성장 보정 도입 후 3세 갭 확보와 5세 과대평가를 맞바꾼 재조정).
+ * F2c 시점: 0.25 에서는 4세 이상 평균 OR 이 연간 −2.9 ~ −4.5 내려갔다(PR 이 OR 보다 낮은 구조적 편향). 0.13 에서 연간 +0.6 ~ +1.2.
+ * F2c2 시점: 0.18 에서 4세 연말 gap 이 −2.3 ~ −6.1, 5세 gap 이 +4.9 ~ +7.7. 근거는 docs/reports/2026-10-12-m3-f2c-rating.md F2c2 절.
  */
-export const DOWN_RATE = 0.13;
+export const DOWN_RATE = 0.18;
 
 /** 한 번에 오를 수 있는 최대 폭 */
 export const MAX_RISE = 12;
@@ -67,3 +67,16 @@ export const FIRST_OR_TOP_N = 2;
 
 /** 말별 OR 변동 이력 최대 보관 건수 */
 export const RATING_HISTORY_MAX = 12;
+
+/**
+ * 성장 보정 대상 최대 나이(그해 나이 기준, M3-F2c2). 이 나이 이하의 말만 레이스 전 OR 에 성장분을 더한다.
+ * 4세 이상은 바뀌지 않는다.
+ */
+export const PROGRESSION_MAX_AGE = 3;
+/**
+ * 나이별 주당 OR 성장 보정(lb, M3-F2c2). 키는 그해 나이. 여기 없는 나이는 보정 없음.
+ * 보정량 = round(주당 값 × min(지난 OR 변경 이후 주 수, PROGRESSION_MAX_WEEKS)).
+ */
+export const PROGRESSION_LB_PER_WEEK: Readonly<Record<number, number>> = { 2: 0.27, 3: 0.55 };
+/** 성장 보정에 쓰는 지난 OR 변경 이후 최대 주 수(M3-F2c2) */
+export const PROGRESSION_MAX_WEEKS = 13;

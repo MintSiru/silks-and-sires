@@ -13,6 +13,9 @@ import {
   MAX_RISE,
   MIN_ANCHORS,
   NO_DROP_BEATEN_L,
+  PROGRESSION_LB_PER_WEEK,
+  PROGRESSION_MAX_AGE,
+  PROGRESSION_MAX_WEEKS,
   RACE_STANDARD,
   RATING_HISTORY_MAX,
   STANDARD_PRIOR_WEIGHT,
@@ -20,7 +23,7 @@ import {
   UP_RATE_WIN,
 } from '../config/rating';
 import { RATING_MAX, RATING_MIN } from '../config/population';
-import { ageInYear } from '../time/calendar';
+import { ageInYear, weeksBetween } from '../time/calendar';
 import type { GameDate, GameState, HorseId, Race, RaceResult } from '../types';
 
 function clamp(v: number, min: number, max: number): number {
@@ -34,6 +37,24 @@ function noNegZero(v: number): number {
 
 function clampRating(v: number): number {
   return clamp(v, RATING_MIN, RATING_MAX);
+}
+
+/**
+ * 성장 보정량(lb, M3-F2c2). 그해 나이가 PROGRESSION_MAX_AGE 이하이고 나이별 값이 있을 때만
+ * round(주당 값 × min(지난 OR 변경 이후 주 수, PROGRESSION_MAX_WEEKS)). 그 밖에는 0.
+ */
+export function progressionBonus(age: number, weeksSinceChange: number): number {
+  if (age > PROGRESSION_MAX_AGE) return 0;
+  const perWeek = PROGRESSION_LB_PER_WEEK[age];
+  if (perWeek === undefined || weeksSinceChange <= 0) return 0;
+  return Math.round(perWeek * Math.min(weeksSinceChange, PROGRESSION_MAX_WEEKS));
+}
+
+/** 말의 마지막 OR 변경 날짜(ratingHistory 마지막 항목). 이력이 없으면 null */
+function lastRatingChangeDate(draft: GameState, horseId: HorseId): GameDate | null {
+  const list = draft.seasonState.ratingHistory[horseId];
+  const last = list?.[list.length - 1];
+  return last === undefined ? null : last.date;
 }
 
 function median(sorted: readonly number[]): number {
@@ -154,6 +175,8 @@ function pushHistory(
 /**
  * 레이스 결과를 OR 에 반영한다(draft 를 고친다).
  * 레이스 전 OR 을 모두 읽어 PR 을 먼저 계산하므로, 같은 레이스 안에서 갱신된 OR 이 다른 말 계산에 쓰이지 않는다.
+ * OR 이 있는 말은 레이스 전 OR 에 성장 보정(progressionBonus)을 더한 값을 기준마 레벨과 nextRating 출발값으로 쓴다(M3-F2c2).
+ * 보정분도 OR 변화로 기록한다(from = 보정 전 OR, to = 갱신 OR).
  * 계산한 출주마별 PR 을 돌려준다(M3-E1a: 퍼포먼스 기록·레이스 레이팅 입력).
  */
 export function applyRatingsInPlace(
@@ -163,12 +186,23 @@ export function applyRatingsInPlace(
   date: GameDate,
 ): Map<HorseId, number> {
   const ratings = new Map<HorseId, number | null>();
+  const starts = new Map<HorseId, number>();
   const ages = new Map<HorseId, number>();
   for (const r of result.runners) {
     const horse = draft.horses[r.horseId];
     if (horse === undefined) throw new Error(`applyRatings: 말 ${r.horseId} 없음`);
-    ratings.set(r.horseId, horse.officialRating);
-    ages.set(r.horseId, ageInYear(horse.birthYear, date.year));
+    const age = ageInYear(horse.birthYear, date.year);
+    ages.set(r.horseId, age);
+    const or = horse.officialRating;
+    if (or === null) {
+      ratings.set(r.horseId, null);
+      continue;
+    }
+    const lastChange = lastRatingChangeDate(draft, r.horseId);
+    const bonus = lastChange === null ? 0 : progressionBonus(age, weeksBetween(lastChange, date));
+    const start = clampRating(or + bonus);
+    starts.set(r.horseId, start);
+    ratings.set(r.horseId, start);
   }
   const prs = performanceRatings(race, result, ratings, ages);
 
@@ -180,7 +214,8 @@ export function applyRatingsInPlace(
 
     if (horse.officialRating !== null) {
       const prev = horse.officialRating;
-      const to = nextRating(prev, pr, r.position, r.beatenLengths, race);
+      const start = starts.get(r.horseId) ?? prev;
+      const to = nextRating(start, pr, r.position, r.beatenLengths, race);
       if (to !== prev) pushHistory(draft, r.horseId, date, race.id, prev, to);
       horse.officialRating = to;
       continue;
