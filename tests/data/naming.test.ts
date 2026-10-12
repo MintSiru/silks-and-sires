@@ -267,12 +267,12 @@ describe('소유자 스타일 (수용 기준 4, 붙여 쓰기 보충)', () => {
   });
 });
 
-describe('보호 명단 protected.json (수용 기준 5)', () => {
-  it('300개 이상, 중복 없음(대소문자 무시), 문자 규칙', () => {
-    expect(protectedNames.length).toBeGreaterThanOrEqual(300);
+describe('보호 명단 protected.json (수용 기준 5, IFHA 국제 보호 마명 목록 2026 병합)', () => {
+  it('3,000개 이상, 중복 없음(대소문자 무시), 문자 규칙(실제 등록명이라 마침표·하이픈·숫자 허용)', () => {
+    expect(protectedNames.length).toBeGreaterThanOrEqual(3000);
     expect(noCaseDuplicates(protectedNames)).toBe(true);
     for (const n of protectedNames) {
-      expect(NAME_RE.test(n), n).toBe(true);
+      expect(/^[A-Za-z0-9'.\- ]+$/.test(n), n).toBe(true);
     }
   });
 });
@@ -312,10 +312,10 @@ describe('역사 인물 historical.json (수용 기준 6)', () => {
 });
 
 describe('실명 차단 (수용 기준 7)', () => {
-  it('어휘 단어가 보호 명단·종마 이름과 같지 않다', () => {
-    const blocked = new Set(
-      [...protectedNames, ...stallionNames].map((n) => n.toLowerCase()),
-    );
+  // 보호 명단(IFHA)에는 Aurora·Silver 같은 일반어 이름도 있어 어휘와 겹칠 수 있다.
+  // 그런 단어 하나만으로 된 이름은 생성기의 검증기(validateHorseName)가 'protected' 로 거절한다.
+  it('어휘 단어가 종마 이름과 같지 않다', () => {
+    const blocked = new Set(stallionNames.map((n) => n.toLowerCase()));
     for (const w of allLexiconWords()) {
       expect(blocked.has(w.toLowerCase()), w).toBe(false);
     }
@@ -324,8 +324,8 @@ describe('실명 차단 (수용 기준 7)', () => {
     }
   });
 
-  it('아랍어(ar) 단어는 보호 명단·종마 이름과 대소문자 무시로 같지 않다(M3-C7c)', () => {
-    const blocked = new Set([...protectedNames, ...stallionNames].map((n) => n.toLowerCase()));
+  it('아랍어(ar) 단어는 종마 이름과 대소문자 무시로 같지 않다(M3-C7c)', () => {
+    const blocked = new Set(stallionNames.map((n) => n.toLowerCase()));
     for (const w of lex.foreign.ar) {
       expect(blocked.has(w.toLowerCase()), w).toBe(false);
     }
