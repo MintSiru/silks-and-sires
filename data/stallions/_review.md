@@ -824,3 +824,12 @@ Avenue of Flags, Bailjumper, Kaldounevees, Kendargent, Lord At War, Made Of Gold
 ### 검증
 - 검증 스크립트: /tmp/m2_01f_check/verify.py (명세 표를 직접 파싱해 표 1 값, 표 2 39건, HEAD 대비 변경 범위 대조). 결과 오류 0건.
 - npm test 통과(43 files, 720 passed, 2 skipped), npm run typecheck 통과, npm run lint 통과.
+
+## M3-C6 털색 데이터 (2026-10-12)
+
+- 출처: 영어 위키백과 인포박스 colour(출생연도로 동일마 확인) 241두 + 사용자 제공 혈통표 18두 = 259두. 'Bay or brown'·'Dark bay or brown' 은 brown(흑갈색)으로 기록.
+- 털색 미확인 41두(엔진은 bay 로 처리, 사용자 확인 대기):
+
+  - active 33: Ace Impact(IE 2020), Aesterius(IE 2022), Ardad(IE 2014), Australia(GB 2011), Bated Breath(GB 2007), Bradsell(GB 2020), Camille Pissarro(IE 2022), Diego Velazquez(IE 2021), Domestic Product(US 2021), Echo Town(US 2017), Enticed(US 2015), Erevann(FR 2019), Galiway(GB 2011), Henri Matisse(IE 2022), Henry Longfellow(IE 2021), Iffraaj(GB 2001), Kodiac(GB 2001), Lead Artist(GB 2021), Los Angeles(IE 2021), Mehmas(IE 2014), Mo Town(US 2014), Munnings(US 2006), Mystic Guide(US 2017), Proxy(US 2018), Puchkine(FR 2021), Showcasing(GB 2007), Sioux Nation(US 2015), Speaker's Corner(US 2018), Stunning Spirit(GB 2014), Territories(IE 2012), The Antarctic(IE 2020), Triple Time(IE 2019), Zarak(FR 2013)
+  - pensioned 4: Constitution(US 2011), Hennessy(US 1993), Ride the Rails(US 1991), Tasleet(GB 2013)
+  - historical 4: Fortino II(FR 1959), Harlan(US 1989), Waajib(IE 1982), Warning(US 1985)

@@ -122,6 +122,14 @@ describe('값 범위', () => {
       expect(CONFIDENCES, s.key).toContain(s.confidence);
     }
   });
+
+  it('coatColour 는 생략하거나 6색 중 하나(M3-C6, 위키백과·사용자 혈통표 기준)', () => {
+    const colours = ['bay', 'brown', 'black', 'chestnut', 'grey', 'roan'];
+    for (const s of stallions) {
+      if (s.coatColour !== undefined) expect(colours, s.key).toContain(s.coatColour);
+    }
+    expect(stallions.filter((s) => s.coatColour !== undefined).length).toBeGreaterThanOrEqual(250);
+  });
 });
 
 describe('거리 프로필 4단계 (M2-14)', () => {
