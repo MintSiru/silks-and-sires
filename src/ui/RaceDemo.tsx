@@ -28,6 +28,8 @@ import type {
 } from '../engine/types';
 import RaceViewer from './race-viewer/RaceViewer';
 import type { ViewerInfo } from './race-viewer/viewModel';
+import { useWeightUnit } from './game/WeightUnitContext';
+import { formatWeight } from './game/units';
 
 // ── 데모 상수 (표시·시연용. 밸런스 상수는 engine/config 에 둔다) ─────────
 /** 데모 기준 날짜. 마장 추첨의 월(month)을 정한다. */
@@ -126,6 +128,7 @@ interface RunView {
 }
 
 export default function RaceDemo(): JSX.Element {
+  const { unit: weightUnit } = useWeightUnit();
   const [raceId, setRaceId] = useState<string>(RACE_LIST[0]?.id ?? '');
   const [goingChoice, setGoingChoice] = useState<GoingChoice>(AUTO);
   const [seedText, setSeedText] = useState<string>(String(DEFAULT_SEED));
@@ -325,7 +328,7 @@ export default function RaceDemo(): JSX.Element {
                 <th>게이트</th>
                 <th>마명</th>
                 <th>기수</th>
-                <th>부담중량(lb)</th>
+                <th>부담중량({weightUnit})</th>
                 <th>착차</th>
                 <th>타임</th>
                 <th>오즈</th>
@@ -344,7 +347,7 @@ export default function RaceDemo(): JSX.Element {
                     <td>{r.draw}</td>
                     <td>{name}</td>
                     <td>{jockeyName}</td>
-                    <td>{r.weightLb}</td>
+                    <td>{formatWeight(r.weightLb, weightUnit)}</td>
                     <td>{r.margin === null ? '-' : formatMarginKo(r.margin)}</td>
                     <td>{formatFinishTime(r.finishTime)}</td>
                     <td>{r.odds === null ? '-' : formatOdds(r.odds)}</td>

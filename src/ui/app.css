@@ -129,6 +129,37 @@ h3 {
   border-bottom-color: #2d64be;
 }
 
+.tabs-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  margin: 12px 0;
+}
+
+.tabs-row .tabs {
+  flex: 1;
+  margin: 0;
+}
+
+.unit-select {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-bottom: 6px;
+  color: #8b949e;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.unit-select select {
+  background: #0f1217;
+  color: #e8e8e8;
+  border: 1px solid #3a4350;
+  border-radius: 6px;
+  padding: 4px 6px;
+  font: inherit;
+}
+
 /* ── 새 게임 패널 ───────────────────────────────── */
 
 .new-game {
