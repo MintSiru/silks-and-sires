@@ -2,7 +2,9 @@
  * 플레이어 출주·조교사 API (M3-A6c). 모두 순수 함수: 입력 state 를 바꾸지 않고 복제본을 돌려준다.
  * 실패는 예외가 아니라 { ok: false, error } 로 돌려준다.
  */
+import { RETAINER_EXTRA_BOXES } from '../config/economy';
 import { PLAYER_TRAINING_START_AGE } from '../config/season';
+import { contractFor } from '../economy/contractQuery';
 import { ageInYear } from '../time/calendar';
 import type {
   GameDate,
@@ -128,6 +130,7 @@ export function withdrawPlayerHorse(
 
 /**
  * 플레이어 말을 조교사에게 맡긴다. 조교사 수용 두수(capacity)를 넘으면 실패한다.
+ * 그 조교사와 전속 계약 중이면 수용 한도는 capacity + RETAINER_EXTRA_BOXES(M4-B3a).
  * yearling 이고 나이가 PLAYER_TRAINING_START_AGE 이상이면 in_training 으로 바뀐다.
  */
 export function assignTrainer(
@@ -142,7 +145,9 @@ export function assignTrainer(
   const trainer = next.trainers[trainerId];
   if (trainer === undefined) return fail('trainer_not_found');
   if (!ASSIGNABLE_STATUSES.includes(horse.status)) return fail('invalid_status');
-  if (horse.trainerId !== trainerId && trainerLoad(next, trainerId, horseId) >= trainer.capacity) {
+  const limit =
+    contractFor(next, 'trainer', trainerId) !== undefined ? trainer.capacity + RETAINER_EXTRA_BOXES : trainer.capacity;
+  if (horse.trainerId !== trainerId && trainerLoad(next, trainerId, horseId) >= limit) {
     return fail('trainer_full');
   }
 

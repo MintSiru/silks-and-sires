@@ -23,9 +23,12 @@ import {
   REPUTATION_RANK_LIST_BONUS,
   REPUTATION_RANK_TOP,
   REPUTATION_RANK_TOP_BONUS,
+  RETAINER_RELATION_FLOOR,
+  RETAINER_RELATION_GAIN_MULT,
   TENURE_RELATION_CAP,
   TENURE_RELATION_WEEKLY,
 } from '../config/economy';
+import { isContractedKey } from './contractQuery';
 import type {
   GameEvent,
   GameState,
@@ -73,9 +76,15 @@ function setRelation(draft: GameState, key: RelationKey, value: number): void {
   }
 }
 
-/** 관계값을 delta 만큼 바꾼다(−100 ~ 100 으로 자르고 소수 둘째 자리로 반올림). 새 값을 돌려준다 */
+/**
+ * 관계값을 delta 만큼 바꾼다(−100 ~ 100 으로 자르고 소수 둘째 자리로 반올림). 새 값을 돌려준다.
+ * 계약 중 키(M4-B3a): 양수 delta 는 RETAINER_RELATION_GAIN_MULT 배, 결과는 RETAINER_RELATION_FLOOR 아래로 내리지 않는다.
+ */
 export function adjustRelation(draft: GameState, key: RelationKey, delta: number): number {
-  const next = clamp(roundValue(relationOf(draft, key) + delta), RELATION_MIN, RELATION_MAX);
+  const contracted = isContractedKey(draft, key);
+  const effective = contracted && delta > 0 ? delta * RETAINER_RELATION_GAIN_MULT : delta;
+  let next = clamp(roundValue(relationOf(draft, key) + effective), RELATION_MIN, RELATION_MAX);
+  if (contracted) next = Math.max(RETAINER_RELATION_FLOOR, next);
   setRelation(draft, key, next);
   return next;
 }
@@ -136,6 +145,22 @@ export function decayRelations(draft: GameState, exempt: ReadonlySet<RelationKey
   }
 }
 
+/** 계약 중 관계 키(정렬된 목록). 계약 목록의 (kind, personId) 에서 만든다 */
+function contractedKeys(draft: GameState): RelationKey[] {
+  const keys = draft.relations.contracts.map((c) => relationKey(c.kind, c.personId));
+  return [...new Set(keys)].sort() as RelationKey[];
+}
+
+/**
+ * 계약 중 키를 하한(RETAINER_RELATION_FLOOR)까지 올린다(주간 감소 단계, M4-B3a). 키가 없으면 만든다.
+ * 체결 때 이미 하한 이상이므로 정상 상태에서는 아무것도 바뀌지 않는다.
+ */
+export function enforceRetainerFloor(draft: GameState): void {
+  for (const key of contractedKeys(draft)) {
+    if (relationOf(draft, key) < RETAINER_RELATION_FLOOR) setRelation(draft, key, RETAINER_RELATION_FLOOR);
+  }
+}
+
 /** 명성 회귀(주간): REPUTATION_BASE 쪽으로 REPUTATION_DECAY_WEEKLY 만큼 옮긴다(넘지 않는다) */
 export function regressReputation(draft: GameState): void {
   const rep = draft.relations.reputation;
@@ -161,13 +186,18 @@ export function reputationFromLeadingOwners(draft: GameState, owners: readonly L
   }
 }
 
-/** 관계·명성 주간 시스템(id 'relations'). 순서: 위탁 → 감소 → 명성 회귀. 이벤트는 내지 않는다 */
+/**
+ * 관계·명성 주간 시스템(id 'relations'). 순서: 위탁 → 감소(위탁 중 조교사·계약 중 키 면제) → 계약 하한 → 명성 회귀.
+ * 이벤트는 내지 않는다
+ */
 export function createRelationsSystem(): WeeklySystem {
   return {
     id: 'relations',
     run(draft: GameState): GameEvent[] {
       const tenure = applyTenure(draft);
-      decayRelations(draft, tenure);
+      const exempt = new Set<RelationKey>([...tenure, ...contractedKeys(draft)]);
+      decayRelations(draft, exempt);
+      enforceRetainerFloor(draft);
       regressReputation(draft);
       return [];
     },

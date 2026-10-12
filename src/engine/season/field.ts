@@ -101,31 +101,51 @@ interface RiderPick {
 }
 
 /**
- * 기수 한 명 배정.
- * 1) 마주 전속 기수가 탈 수 있으면 그 기수(난수 소비 없음).
- * 2) 아니면 같은 나라 기수 중 skill 가중 무작위. 같은 나라에 없으면 전체 기수에서 같은 방식으로 고른다.
- * 3) 탈 수 있는 기수가 한 명도 없으면(과체중): 미사용 기수 중 최저 기승 체중이 가장 낮은 기수를 쓰고,
+ * 전속 예약(M4-B3a). 이 레이스에 선언한 마주의 retainedJockeyId 중, 그 마주의 선언마 하나 이상에 탈 수 있는 기수.
+ * - reserved: 예약 기수 집합. 다른 마주의 말은 이 기수를 무작위·과체중 대체 후보에서 뺀다.
+ * - byIndex: 선언 인덱스 → 그 말에 타는 예약 기수(마주의 첫 번째 탈 수 있는 선언마).
+ */
+interface RetainerReservation {
+  reserved: ReadonlySet<JockeyId>;
+  byIndex: ReadonlyMap<number, Jockey>;
+}
+
+function reserveRetainers(state: GameState, owners: readonly Owner[], weights: readonly number[]): RetainerReservation {
+  const reserved = new Set<JockeyId>();
+  const byIndex = new Map<number, Jockey>();
+  const doneOwners = new Set<OwnerId>();
+  owners.forEach((owner, i) => {
+    if (owner.retainedJockeyId === null || doneOwners.has(owner.id)) return;
+    const jockey = state.jockeys[owner.retainedJockeyId];
+    if (jockey === undefined || reserved.has(jockey.id)) return;
+    if (!rideable(jockey, at(weights, i), new Set<JockeyId>())) return;
+    doneOwners.add(owner.id);
+    reserved.add(jockey.id);
+    byIndex.set(i, jockey);
+  });
+  return { reserved, byIndex };
+}
+
+/**
+ * 기수 한 명 배정(예약 기수가 아닌 말).
+ * 1) 같은 나라 기수 중 skill 가중 무작위(예약 기수 제외). 같은 나라에 없으면 전체 기수에서 같은 방식으로 고른다.
+ * 2) 탈 수 있는 기수가 한 명도 없으면(과체중): 미사용·예약 제외 기수 중 최저 기승 체중이 가장 낮은 기수를 쓰고,
  *    실제 부담중량은 그 기수의 최저 기승 체중으로 올린다(overweight).
+ * 예약 기수 집합이 비면 전속 예약 도입 전과 같은 후보·같은 난수 소비다.
  */
 function pickJockey(
   jockeys: readonly Jockey[],
-  state: GameState,
   owner: Owner,
   weight: number,
   used: ReadonlySet<JockeyId>,
   raceCountry: CountryCode | null,
+  reserved: ReadonlySet<JockeyId>,
   rng: Rng,
 ): RiderPick {
-  const retained = owner.retainedJockeyId === null ? undefined : state.jockeys[owner.retainedJockeyId];
-  if (retained !== undefined && rideable(retained, weight, used)) {
-    return { jockey: retained, weightLb: weight };
-  }
-
-  let pool = jockeys.filter(
-    (j) => (raceCountry === null || j.country === raceCountry) && rideable(j, weight, used),
-  );
+  const free = (j: Jockey): boolean => !reserved.has(j.id) && rideable(j, weight, used);
+  let pool = jockeys.filter((j) => (raceCountry === null || j.country === raceCountry) && free(j));
   if (pool.length === 0) {
-    pool = jockeys.filter((j) => rideable(j, weight, used));
+    pool = jockeys.filter(free);
   }
   if (pool.length > 0) {
     const jockey = pickWeighted(
@@ -136,7 +156,7 @@ function pickJockey(
   }
 
   const lightest = jockeys
-    .filter((j) => !j.retired && !used.has(j.id))
+    .filter((j) => !j.retired && !used.has(j.id) && !reserved.has(j.id))
     .sort((a, b) => a.minRidingWeightLb - b.minRidingWeightLb || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))[0];
   if (lightest === undefined) {
     throw new Error(`buildRaceField: 기수가 부족해 배정할 수 없다(마주 ${owner.id})`);
@@ -193,11 +213,16 @@ export function buildRaceField(
   const jockeys = sortedJockeys(state);
   const noAllowance = race.kind === 'group' || race.kind === 'listed';
 
+  const reservation = reserveRetainers(state, owners, weights);
   const used = new Set<JockeyId>();
   const picked: Jockey[] = [];
   const actualWeights: number[] = [];
   declarations.forEach((_, i) => {
-    const rider = pickJockey(jockeys, state, at(owners, i), at(weights, i), used, raceCountry, rng);
+    const reservedJockey = reservation.byIndex.get(i);
+    const rider: RiderPick =
+      reservedJockey !== undefined
+        ? { jockey: reservedJockey, weightLb: at(weights, i) }
+        : pickJockey(jockeys, at(owners, i), at(weights, i), used, raceCountry, reservation.reserved, rng);
     used.add(rider.jockey.id);
     picked.push(rider.jockey);
     actualWeights.push(rider.weightLb);
