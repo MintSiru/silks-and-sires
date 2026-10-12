@@ -23,6 +23,7 @@ import { generateHorse } from '../horse/generate';
 import { makeNameRegistry, namingContextFor, type MutableNameRegistry } from '../naming/context';
 import { nameForHorse } from '../naming/generate';
 import type { NamingData } from '../naming/types';
+import { pickBreederFor } from '../people/breeders';
 import { sortStallionRecords } from '../state/stallionHorses';
 import { allocateHorseId } from '../state/world';
 import type {
@@ -296,11 +297,12 @@ export function spawnRacingHorse(
     familyId: null,
     sireLineId: sire.sireLineId,
     ownerId: owner.id,
-    breederId: owner.id,
     distanceBias,
   });
   horse.gelded = spec.sex === 'male' && spec.gelded;
   horse.trainerId = trainer.id;
+  // 생산자(M4-C0): 오너브리더 또는 같은 나라 상업 생산자. 플레이어 마주의 말은 오너브리더 단계를 건너뛴다.
+  horse.breederId = pickBreederFor(state, horse, owner.isPlayer ? null : owner);
 
   owner.horseIds.push(id);
   state.horses[id] = horse;
@@ -358,7 +360,7 @@ export function bootstrapRacingPopulation(
 /**
  * 새 게임 시작 현역마를 플레이어 마주에게 지급한다(STARTER_HORSES 두수·나이 대로, state 직접 수정).
  * 조교사는 spawnRacingHorse 가 고른 GB 조교사, 부는 STARTER_SIRE_TIER 종마 중에서 고른다.
- * breederId 는 null(플레이어 생산마가 아님). 3세 이상에는 초기 OR, 전 두수 fitness = STARTER_FITNESS.
+ * breederId 는 같은 나라 상업 생산자(M4-C0, 생산자가 없으면 null). 3세 이상에는 초기 OR, 전 두수 fitness = STARTER_FITNESS.
  * 반환값은 지급한 말 ID 목록(지급 순서).
  */
 export function grantStarterHorses(
@@ -392,7 +394,8 @@ export function grantStarterHorses(
         },
         records,
       );
-      horse.breederId = null;
+      // 생산자(M4-C0): 오너브리더 규칙 없이 같은 나라 상업 생산자(없으면 null)
+      horse.breederId = pickBreederFor(state, horse, null);
       horse.condition.fitness = STARTER_FITNESS;
       if (group.age >= POPULATION_RATING_MIN_AGE) {
         horse.officialRating = initialOfficialRating(horse);

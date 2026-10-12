@@ -298,7 +298,7 @@ function colorDistance(a: string, b: string): number {
 }
 
 /** 생산목장 이름 = 지역명 + 국가별 stud_suffixes (프·독·이·포어식 단어는 지명 앞) */
-function makeStudName(rng: Rng, ctx: PeopleContext, home: NameCountry): string {
+export function makeStudName(rng: Rng, ctx: PeopleContext, home: NameCountry): string {
   const base = rng.pick(ctx.places.regionNames[home]);
   const suffix = rng.pick(ctx.places.studSuffixes[home]);
   return STUD_WORDS_BEFORE_NAME.has(suffix) ? `${suffix} ${base}` : `${base} ${suffix}`;

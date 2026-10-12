@@ -70,7 +70,8 @@ describe('시작 현역마 지급 (grantStarterHorses / bootstrapGame)', () => {
       expect(BASE.trainers[h.trainerId ?? '']).toBeDefined();
       expect(owner?.horseIds).toContain(h.id);
       expect(h.ownerId).toBe(BASE.playerOwnerId);
-      expect(h.breederId).toBeNull();
+      // M4-C0: 지급마의 생산자는 같은 나라 상업 생산자
+      expect(BASE.breeders[h.breederId ?? '']?.country, `${h.id} 생산자`).toBe(STARTER_COUNTRY);
       expect(h.countryOfBirth).toBe(STARTER_COUNTRY);
       expect(h.condition.fitness).toBe(STARTER_FITNESS);
       if (START_YEAR - h.birthYear >= POPULATION_RATING_MIN_AGE) {

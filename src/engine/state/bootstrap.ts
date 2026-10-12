@@ -5,6 +5,7 @@ import { buildWeekMeetings } from '../season/meetings';
 import type { SeasonStaticData } from '../season/system';
 import { nextDate } from '../time/calendar';
 import type { GameState } from '../types';
+import { generateBreeders } from '../people/breeders';
 import { bootstrapRacingPopulation, grantStarterHorses, type RacingPopulationStaticData } from '../world/population';
 import { bootstrapPeople } from './people';
 import { createNewGame, type NewGameOptions } from './newGame';
@@ -19,8 +20,8 @@ export type BootstrapData = WorldStaticData & RacingPopulationStaticData & Peopl
 /**
  * 새 게임을 인물·세계·현역마까지 한 번에 만든다. 같은 시드·같은 데이터면 결과가 같다.
  * 순서: createNewGame → bootstrapWorld(fork 'world') → bootstrapPeople(fork 'people')
- *      → bootstrapRacingPopulation(fork 'population') → grantStarterHorses(fork 'starter')
- *      → lastPopulationYear 채움 → 다음 주 개최 생성.
+ *      → generateBreeders(fork 'breeders') → bootstrapRacingPopulation(fork 'population')
+ *      → grantStarterHorses(fork 'starter') → lastPopulationYear 채움 → 다음 주 개최 생성.
  * 다음 주 개최는 seasonState.meetings 에 넣어 두어 첫 주 진행 전에 플레이어가 출주를 접수할 수 있게 한다.
  */
 export function bootstrapGame(opts: BootstrapOptions, data: BootstrapData): GameState {
@@ -28,7 +29,8 @@ export function bootstrapGame(opts: BootstrapOptions, data: BootstrapData): Game
   const base = createNewGame(opts);
   const world = bootstrapWorld(base, data, createRng(seed).fork('world'));
   const people = bootstrapPeople(world, data, createRng(seed).fork('people'));
-  const population = bootstrapRacingPopulation(people, data, createRng(seed).fork('population'));
+  const withBreeders = generateBreeders(people, data, createRng(seed).fork('breeders'));
+  const population = bootstrapRacingPopulation(withBreeders, data, createRng(seed).fork('population'));
   grantStarterHorses(population, data, createRng(seed).fork('starter'));
 
   population.seasonState.lastPopulationYear = START_YEAR;
