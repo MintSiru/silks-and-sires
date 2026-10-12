@@ -96,3 +96,37 @@ export const REPUTATION_RANK_TOP = 3;
 export const REPUTATION_RANK_TOP_BONUS = 10;
 export const REPUTATION_RANK_LIST = 10;
 export const REPUTATION_RANK_LIST_BONUS = 5;
+
+// ── 전속 계약(M4-B3, 사용자 결정 2026-10-12: 관계 고정이 아니라 '계약 상태'로 특수 취급) ──
+/** 계약 종류별 동시 계약 상한(조교사 1, 기수 1 — Owner.retainedJockeyId 가 하나뿐) */
+export const RETAINER_MAX_PER_KIND = 1;
+/** 연간 계약금 = BASE + skill² × PER_SKILL_SQ (조교사·기수 별도) */
+export const RETAINER_JOCKEY_BASE_FEE = 15_000;
+export const RETAINER_JOCKEY_FEE_PER_SKILL_SQ = 12;
+export const RETAINER_TRAINER_BASE_FEE = 8_000;
+export const RETAINER_TRAINER_FEE_PER_SKILL_SQ = 6;
+/** 관계 할인: 계약금 × (1 − clamp(관계, 0, CAP) / DIVISOR). 관계 60 이상이면 최대 25% 할인 */
+export const RETAINER_RELATION_DISCOUNT_CAP = 60;
+export const RETAINER_RELATION_DISCOUNT_DIVISOR = 240;
+/** 젊은 사람: 기수 나이 ≤ JOCKEY, 조교사 나이 ≤ TRAINER 이면 계약금 × FEE_MULT, 요구 위상 −STATURE_DISCOUNT */
+export const RETAINER_YOUNG_JOCKEY_AGE = 25;
+export const RETAINER_YOUNG_TRAINER_AGE = 40;
+export const RETAINER_YOUTH_FEE_MULT = 0.8;
+export const RETAINER_YOUTH_STATURE_DISCOUNT = 15;
+/** 계약금 반올림 단위(€) */
+export const RETAINER_FEE_ROUND = 500;
+/** 수락 조건: 관계 ≥ MIN_RELATION 이고 (명성 + 관계 × RELATION_WEIGHT + STANDING_BASE) ≥ 요구 위상(skill − 젊음 할인) */
+export const RETAINER_MIN_RELATION = -10;
+export const RETAINER_STANDING_BASE = 35;
+export const RETAINER_STANDING_RELATION_WEIGHT = 0.5;
+/** 계약 중 관계 하한(체결 때 이 값까지 올리고, 그 아래로 떨어지지 않는다) */
+export const RETAINER_RELATION_FLOOR = 50;
+/** 계약 중 관계 상승 배수(양수 변화에만) */
+export const RETAINER_RELATION_GAIN_MULT = 1.5;
+/** 연초 갱신: 관계가 이 값 이상이어야 상대가 갱신을 받아들인다(하한 50 위로 성적으로 쌓아야 한다) */
+export const RETAINER_RENEW_MIN_RELATION = 55;
+/** 해지 위약금 = 연간 계약금 × RATE, 해지 후 관계 −RELATION_HIT */
+export const RETAINER_TERMINATION_PENALTY_RATE = 0.25;
+export const RETAINER_TERMINATION_RELATION_HIT = 40;
+/** 전속 조교사는 플레이어 말을 수용 두수 + EXTRA_BOXES 까지 받는다 */
+export const RETAINER_EXTRA_BOXES = 6;
