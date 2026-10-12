@@ -27,7 +27,9 @@ export type GameEvent =
     }
   | { type: 'series_completed'; seriesId: SeriesId; horseId: HorseId; date: GameDate }
   /** 플레이어 말 부상(M3-C1). AI 말 부상은 이벤트로 남기지 않는다 */
-  | { type: 'horse_injured'; horseId: HorseId; kind: InjuryKind; weeksOut: number; date: GameDate };
+  | { type: 'horse_injured'; horseId: HorseId; kind: InjuryKind; weeksOut: number; date: GameDate }
+  /** 지난 시즌 시상·순위 확정(연도 전환 때, M3-E1). 내용은 awardsHistory 의 마지막 항목 */
+  | { type: 'awards_announced'; year: number; date: GameDate };
 
 /** 배합 관련 진행 상태 */
 export interface BreedingState {
