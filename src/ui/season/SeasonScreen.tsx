@@ -13,6 +13,7 @@ import {
   withdrawErrorKo,
 } from '../game/text';
 import type { GameApi } from '../game/useGame';
+import ReplayPanel from './ReplayPanel';
 import {
   eligiblePlayerHorses,
   hasPendingPlayerRace,
@@ -344,6 +345,11 @@ function SeasonView({ state, game }: SeasonViewProps): JSX.Element {
             </tbody>
           </table>
         )}
+      </section>
+
+      <section className="panel">
+        <h2>다시보기</h2>
+        <ReplayPanel state={state} />
       </section>
     </>
   );

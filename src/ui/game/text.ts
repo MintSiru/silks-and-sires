@@ -12,6 +12,7 @@ import {
   type CommentKey,
   type CountryCode,
   type CoatColour,
+  type DistanceProfile,
   type FaceMarking,
   type Grade,
   type GameEvent,
@@ -19,6 +20,8 @@ import {
   type HorseId,
   type HorseStatus,
   type InjuryKind,
+  type LaurelCategory,
+  type LeadingCategory,
   type MatingPreview,
   type MatingRole,
   type Money,
@@ -474,4 +477,72 @@ const ASSIGN_TRAINER_ERROR_KO: Record<AssignTrainerError, string> = {
 /** 조교사 배정 실패 사유 → 한국어 */
 export function assignTrainerErrorKo(e: AssignTrainerError): string {
   return ASSIGN_TRAINER_ERROR_KO[e];
+}
+
+// ── 순위·시상 화면(M3-D3c) ──────────────────────────────────────
+
+const LAUREL_CATEGORY_KO: Record<LaurelCategory, string> = {
+  horse_of_the_year: '올해의 말',
+  older_horse: '최우수 고령마',
+  stayer: '최우수 장거리마',
+  sprinter: '최우수 단거리마',
+  two_year_old_colt: '최우수 2세 수말',
+  two_year_old_filly: '최우수 2세 암말',
+  three_year_old_colt: '최우수 3세 수말',
+  three_year_old_filly: '최우수 3세 암말',
+};
+
+/** Laurel 시상 부문명 한국어. 예: 'stayer' → '최우수 장거리마' (수말은 거세마 포함) */
+export function laurelCategoryKo(c: LaurelCategory): string {
+  return LAUREL_CATEGORY_KO[c];
+}
+
+const LEADING_CATEGORY_KO: Record<LeadingCategory, string> = {
+  sire: '종마(부)',
+  damsire: '외조부',
+  jockey: '기수',
+  trainer: '조교사',
+  owner: '마주',
+  breeder: '생산자',
+};
+
+/** 리딩 카테고리 한국어. 예: 'sire' → '종마(부)' */
+export function leadingCategoryKo(c: LeadingCategory): string {
+  return LEADING_CATEGORY_KO[c];
+}
+
+/** 가상 시리즈 이름(id 기준). data/calendar/series.json 의 15개 전부. 모르는 id 는 id 그대로 돌려준다. */
+const SERIES_NAME_KO: Record<string, string> = {
+  gb_triple_crown: '영국 3관',
+  ie_triple_crown: '아일랜드 3관',
+  fr_triple_crown: '프랑스 3관',
+  de_triple_crown: '독일 3관',
+  it_triple_crown: '이탈리아 3관',
+  gb_tiara: '영국 티아라',
+  ie_tiara: '아일랜드 티아라',
+  fr_tiara: '프랑스 티아라',
+  de_tiara: '독일 티아라',
+  it_tiara: '이탈리아 티아라',
+  european_derby_triple: '유럽 더비 3연관',
+  european_mile_triple: '유럽 마일 3연관',
+  british_oaks_triple: '영국 오크스 3연관',
+  european_stayers_series: '유럽 스테이어 시리즈',
+  european_sprint_series: '유럽 스프린트 포인트 시리즈',
+};
+
+/** 시리즈 이름 한국어. 예: 'gb_triple_crown' → '영국 3관' */
+export function seriesNameKo(seriesId: string): string {
+  return SERIES_NAME_KO[seriesId] ?? seriesId;
+}
+
+const DISTANCE_PROFILE_KO: Record<DistanceProfile, string> = {
+  speed: '스피드형(단거리)',
+  classic: '클래식형(마일·중거리)',
+  middle: '중장거리형',
+  cup: '스테이어형(장거리)',
+};
+
+/** 거리 적성 한국어. 예: 'cup' → '스테이어형(장거리)' */
+export function distanceProfileKo(p: DistanceProfile): string {
+  return DISTANCE_PROFILE_KO[p];
 }

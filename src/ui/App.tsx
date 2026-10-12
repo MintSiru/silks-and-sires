@@ -2,12 +2,14 @@ import { useState } from 'react';
 import BreedingScreen from './breeding/BreedingScreen';
 import RaceDemo from './RaceDemo';
 import SeasonScreen from './season/SeasonScreen';
+import StandingsScreen from './standings/StandingsScreen';
 import { useGame } from './game/useGame';
 
-type TabId = 'season' | 'breeding' | 'race';
+type TabId = 'season' | 'standings' | 'breeding' | 'race';
 
 const TABS: readonly { id: TabId; label: string }[] = [
   { id: 'season', label: '시즌' },
+  { id: 'standings', label: '순위·시상' },
   { id: 'breeding', label: '목장·배합' },
   { id: 'race', label: '레이스 데모' },
 ];
@@ -35,6 +37,7 @@ export default function App() {
         ))}
       </nav>
       {tab === 'season' && <SeasonScreen game={game} />}
+      {tab === 'standings' && <StandingsScreen game={game} />}
       {tab === 'breeding' && <BreedingScreen game={game} />}
       {tab === 'race' && <RaceDemo />}
     </main>
