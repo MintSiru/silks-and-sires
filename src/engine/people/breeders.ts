@@ -5,6 +5,7 @@
  */
 import {
   BREEDER_COUNT_BY_COUNTRY,
+  BREEDER_COUNTRY_ORDER,
   BREEDER_FUNDS_RANGE,
   BREEDER_ID_DIGITS,
   BREEDER_ID_PREFIX,
@@ -14,7 +15,6 @@ import {
   BREEDER_SCALE_SHARE,
   OWNER_BREEDER_SHARE,
 } from '../config/breeders';
-import { POPULATION_COUNTRY_ORDER } from '../config/population';
 import { createRng } from '../rng';
 import type {
   BreederId,
@@ -97,7 +97,7 @@ function drawStudName(
 
 /**
  * 상업 생산자 전체를 만든 새 상태를 돌려준다(원본 state 는 바꾸지 않는다, structuredClone).
- * 나라 순서(POPULATION_COUNTRY_ORDER) → 번호 순으로 ID 를 붙인다. 목장 이름은 마주 studName 과 겹치지 않는다.
+ * 나라 순서(BREEDER_COUNTRY_ORDER: 유럽 5개국 → 미국) → 번호 순으로 ID 를 붙인다. 목장 이름은 마주 studName 과 겹치지 않는다.
  * 이미 상업 생산자가 있으면 Error(이중 초기화 방지). 인물 초기화(bootstrapPeople) 뒤에 부른다.
  */
 export function generateBreeders(state: GameState, data: PeopleStaticData, rng: Rng): GameState {
@@ -113,7 +113,7 @@ export function generateBreeders(state: GameState, data: PeopleStaticData, rng: 
   }
 
   let no = 0;
-  for (const country of POPULATION_COUNTRY_ORDER) {
+  for (const country of BREEDER_COUNTRY_ORDER) {
     if (!isNameCountry(country)) {
       throw new RangeError(`상업 생산자: 이름 풀이 없는 국가 ${country}`);
     }

@@ -1,14 +1,24 @@
 /** 상업 생산자(M4-C0) 생성·생산자 배정 밸런스 상수. 초기값이며 Opus 가 조정한다. */
 import type { BreederScale, OwnerTier } from '../types';
-import type { PopulationCountry } from './population';
+import { POPULATION_COUNTRY_ORDER, type PopulationCountry } from './population';
 
-/** 나라별 상업 생산자 수(설정값). 나라 처리 순서는 POPULATION_COUNTRY_ORDER 를 쓴다 */
-export const BREEDER_COUNT_BY_COUNTRY: Readonly<Record<PopulationCountry, number>> = {
+/** 상업 생산자를 두는 나라: 유럽 현역마 나라 + 미국(미국 세일 판매자, M4-C2a) */
+export type BreederCountry = PopulationCountry | 'US';
+
+/**
+ * 생산자 나라 처리 순서(결정적 생성을 위해 고정). 유럽 5개국이 먼저이고 미국이 뒤에 온다
+ * (유럽 생산자 ID·이름·순서를 바꾸지 않으려고 뒤에 붙인다).
+ */
+export const BREEDER_COUNTRY_ORDER: readonly BreederCountry[] = [...POPULATION_COUNTRY_ORDER, 'US'];
+
+/** 나라별 상업 생산자 수(설정값). 나라 처리 순서는 BREEDER_COUNTRY_ORDER 를 쓴다 */
+export const BREEDER_COUNT_BY_COUNTRY: Readonly<Record<BreederCountry, number>> = {
   GB: 12,
   IE: 16,
   FR: 12,
   DE: 5,
   IT: 5,
+  US: 12,
 };
 
 /** 규모 순서(배분·출력 순서를 고정한다) */

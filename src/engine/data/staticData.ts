@@ -19,6 +19,7 @@ import patternGbIeJson from '../../../data/calendar/pattern_gb_ie.json';
 import patternFrDeItJson from '../../../data/calendar/pattern_fr_de_it.json';
 import g1ExtraJson from '../../../data/calendar/g1_extra.json';
 import seriesJson from '../../../data/calendar/series.json';
+import salesJson from '../../../data/sales/sales.json';
 import { getRacecourse as findRacecourse, loadRacecourses } from '../course/load';
 import { NAME_COUNTRIES, type CountryNamePool, type NameCountry, type NamePools } from '../people/names';
 import type { PeopleStaticData, PlacesData } from '../people/generate';
@@ -41,6 +42,7 @@ import type {
   RaceTemplate,
   Racecourse,
   RealStallionRecord,
+  SalesDataFile,
   SeriesDefinition,
   SireLine,
   StallionNameTable,
@@ -105,6 +107,11 @@ export function getSeriesDefinitions(): SeriesDefinition[] {
 /** 가상 이름 풀 (data/names.json). */
 export function getNamePool(): NamePool {
   return NAME_POOL;
+}
+
+/** 세일 캘린더 정적 데이터 (data/sales/sales.json: 가상 회사·세일·북). */
+export function getSalesData(): SalesDataFile {
+  return salesJson as SalesDataFile;
 }
 
 /** 실명 종마 레코드 (data/stallions/stallions.json). */

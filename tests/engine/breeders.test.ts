@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { beforeAll, describe, expect, it } from 'vitest';
-import { BREEDER_COUNT_BY_COUNTRY, BREEDER_FUNDS_RANGE, BREEDER_SCALE_SHARE, OWNER_BREEDER_SHARE } from '../../src/engine/config/breeders';
+import { BREEDER_COUNTRY_ORDER, BREEDER_COUNT_BY_COUNTRY, BREEDER_FUNDS_RANGE, BREEDER_SCALE_SHARE, OWNER_BREEDER_SHARE } from '../../src/engine/config/breeders';
 import { POPULATION_COUNTRY_ORDER } from '../../src/engine/config/population';
 import { STARTER_COUNTRY } from '../../src/engine/config/starter';
 import {
@@ -114,7 +114,7 @@ describe('상업 생산자 생성 (generateBreeders)', () => {
           expect(id).toMatch(/^brd_\d{6}$/);
           expect(id).toBe(`brd_${String(i + 1).padStart(6, '0')}`);
         });
-        const countries = POPULATION_COUNTRY_ORDER.flatMap((c) => Array(BREEDER_COUNT_BY_COUNTRY[c]).fill(c));
+        const countries = BREEDER_COUNTRY_ORDER.flatMap((c) => Array(BREEDER_COUNT_BY_COUNTRY[c]).fill(c));
         const orderedByNumber = Object.keys(stateOf(seed).breeders)
           .sort()
           .map((id) => stateOf(seed).breeders[id]?.country);

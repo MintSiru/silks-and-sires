@@ -104,3 +104,26 @@ export const SALE_MARE_NOISE_SD = 0.3;
 /** 화면 추정 범위: 평가값 × 이 배율 */
 export const SALE_RANGE_LOW = 0.7;
 export const SALE_RANGE_HIGH = 1.4;
+
+// ── 카탈로그 생성(M4-C2a) ─────────────────────────────────────
+
+/** 카탈로그 로트 수 = 북 lotsTarget × 이 값(반올림, 최소 1). 실제 규모 대비 축소 비율 */
+export const SALE_LOT_SCALE = 0.1;
+/** 상업 생산자 판매 로트·마주 판매 로트의 기본 유보가 = 평가값 × 이 값(SALE_VALUE_ROUND 단위 반올림) */
+export const SALE_RESERVE_SHARE = 0.6;
+/** 현역마 판매(horses_in_training): 공식 레이팅 하한·상한(양끝 포함) */
+export const SALE_HIT_OR_MIN = 50;
+export const SALE_HIT_OR_MAX = 95;
+/** 현역마 판매: 후보 최소 나이(세일 연도 기준, 이 나이 이상) */
+export const SALE_HIT_MIN_AGE = 3;
+/** 현역마 판매: 마주가 현역마 이 두수 이상일 때만 그 마주 말을 후보로 본다 */
+export const SALE_HIT_MIN_OWNER_HORSES = 3;
+/** 현역마 판매: 한 마주가 한 세일에 내놓는 최대 두수 */
+export const SALE_HIT_MAX_PER_OWNER = 2;
+/** 번식 암말 판매: 나이 하한·상한(양끝 포함, 세일 연도 기준) */
+export const SALE_MARE_AGE_MIN = 4;
+export const SALE_MARE_AGE_MAX = 12;
+/** 생성 로트의 부 선택: 같은 권역(유럽 5개국) 계류 종마 중 세일 나라 계류 종마의 가중치 배수 */
+export const SALE_HOME_SIRE_WEIGHT_MULT = 3;
+/** 플레이어 위탁 말의 부(父) 등급을 알 수 없을 때 쓰는 등급(가장 낮은 등급 = 마지막 북) */
+export const SALE_UNKNOWN_SIRE_TIER = 5;
