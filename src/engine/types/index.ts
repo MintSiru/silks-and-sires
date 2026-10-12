@@ -10,3 +10,4 @@ export * from './game';
 export * from './bloodline';
 export * from './breeding';
 export * from './season';
+export * from './economy';

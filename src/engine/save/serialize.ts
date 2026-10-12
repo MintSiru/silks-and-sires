@@ -1,4 +1,5 @@
 import { SAVE_SCHEMA_VERSION, WEEKS_PER_YEAR } from '../config/game';
+import { createEmptyEconomyState, createEmptyRelationsState } from '../economy/state';
 import { defaultCoat, neutralPersonality } from '../horse/traits';
 import { createEmptySeasonState } from '../season/state';
 import { SAVE_FORMAT } from '../types';
@@ -60,6 +61,12 @@ export const MIGRATIONS: Readonly<Record<number, Migration>> = {
   },
   /** v5 → v6 (M3-C4): 종마별 자마 성적 누적 */
   5: (state) => ({ ...state, sireStats: state.sireStats ?? {} }),
+  /** v6 → v7 (M4-A1): 경제·관계 상태. 이전 저장은 캐주얼 모드(파산 없음)로 이어간다 */
+  6: (state) => ({
+    ...state,
+    economy: state.economy ?? createEmptyEconomyState('casual'),
+    relations: state.relations ?? createEmptyRelationsState(),
+  }),
 };
 
 /** 구조 상수(형식 규칙). 밸런스 수치가 아니므로 여기 둔다. */

@@ -5,6 +5,7 @@ import type { RaceResult } from './race';
 import type { Rng, RngState } from './rng';
 import type { SeasonAwards, SeasonState, SeriesId } from './season';
 import type { CalendarPhaseId, GameDate, Season } from './time';
+import type { EconomyState, RelationsState } from './economy';
 
 /** 주 진행 중 발생한 사건. M3 이후 종류가 늘어난다(판별 유니온에 추가). */
 export type GameEvent =
@@ -75,6 +76,10 @@ export interface GameState {
   sireStats: Record<HorseId, OffspringStats>;
   /** 최근 이벤트 로그 (최대 길이는 config 에서) */
   eventLog: GameEvent[];
+  /** 경제: 모드·빚·장부·연간 요약 (M4-A) */
+  economy: EconomyState;
+  /** 관계·명성 (M4-B) */
+  relations: RelationsState;
 }
 
 /** advanceWeek 가 각 시스템에 넘기는 문맥 */

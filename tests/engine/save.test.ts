@@ -9,6 +9,7 @@ import {
 } from '../../src/engine/save/serialize';
 import type { GameState, Owner } from '../../src/engine/types';
 import { SAVE_FORMAT } from '../../src/engine/types';
+import { createEmptyEconomyState, createEmptyRelationsState } from '../../src/engine/economy/state';
 import { createEmptySeasonState } from '../../src/engine/season/state';
 
 const PLAYER_ID = 'owner-player';
@@ -61,6 +62,8 @@ function makeState(): GameState {
     awardsHistory: [],
     sireStats: {},
     eventLog: [{ type: 'week_started', date: { year: 2026, week: 7 } }],
+    economy: createEmptyEconomyState('casual'),
+    relations: createEmptyRelationsState(),
   };
 }
 
@@ -396,8 +399,26 @@ describe('저장 마이그레이션 v5 → v6 (M3-C4)', () => {
     const result = deserializeGame(json);
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(result.state.schemaVersion).toBe(6);
+      expect(result.state.schemaVersion).toBe(SAVE_SCHEMA_VERSION);
       expect(result.state.sireStats).toEqual({});
+    }
+  });
+});
+
+describe('저장 마이그레이션 v6 → v7 (M4-A1)', () => {
+  it('경제·관계가 없는 v6 저장본은 캐주얼 모드·빈 장부·초기 명성으로 이어진다', () => {
+    const v7 = makeState();
+    const { economy: _e, relations: _r, ...rest } = v7;
+    void _e;
+    void _r;
+    const v6 = { ...rest, schemaVersion: 6 };
+    const json = JSON.stringify({ format: 'silks-and-sires-save', schemaVersion: 6, savedAt: '2026-10-12T00:00:00.000Z', state: v6 });
+    const result = deserializeGame(json);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.state.schemaVersion).toBe(7);
+      expect(result.state.economy).toEqual(createEmptyEconomyState('casual'));
+      expect(result.state.relations).toEqual(createEmptyRelationsState());
     }
   });
 });

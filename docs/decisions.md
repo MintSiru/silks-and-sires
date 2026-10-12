@@ -216,3 +216,4 @@
 - 2026-10-12 | 기록 | F1 최종(모든 F2 반영, 미국 종마 335건): 3시드×5시즌, 인기 1위 33.1%(G1 30.2%), G1 평균 9.5두, 전체 평균 12.0두, 취소 811/20,670(3.9%), 동착 0.2%, 7세+ 4.3%, 4세+ OR 시즌 간 변화 −0.3~+2.6, 주당 290ms. 기준 이탈 1건(첫 시즌 최고 OR 123). M3 F 단계 완료.
 - 2026-10-12 | M3 완료 | 시즌 시스템·현역마·연출·시상·검증 완료(2a4f196). 사용자 승인 후 M4.
 - 2026-10-12 | 결정(사용자) | M4 방향: 경제 모드 둘(캐주얼 무파산·레거시 파산), 경매는 최대 입찰가 자동 입찰 + 원하는 로트만 실시간 호가, 관계는 개별 관계값 + 전체 명성, 종마는 직접 계류와 판매 모두 가능. M4 계획 docs/m4-plan.md.
+- 2026-10-12 | 기술 | M4-A1 공용 타입(Opus): types/economy.ts(EconomyMode, LedgerCategory·Entry·Totals, EconomyYearSummary, EconomyState, RelationKey, RelationsState), GameState.economy·relations, NewGameOptions.economyMode, economy/state.ts 빈 상태, config/economy.ts, 저장 v7 이주(이전 저장 = 캐주얼). 장부는 플레이어만 항목별, AI 는 연도 합계·연말 요약만(저장 크기). 세일·종마·시설 타입은 해당 단계 시작 때 추가.

@@ -4,9 +4,11 @@ import {
   START_YEAR,
   STARTING_FUNDS,
 } from '../config/game';
+import { DEFAULT_ECONOMY_MODE } from '../config/economy';
+import { createEmptyEconomyState, createEmptyRelationsState } from '../economy/state';
 import { createRng } from '../rng';
 import { seasonForYear } from '../time/calendar';
-import type { CountryCode, GameState, Owner, Silks } from '../types';
+import type { CountryCode, EconomyMode, GameState, Owner, Silks } from '../types';
 import { createEmptySeasonState } from '../season/state';
 
 export interface NewGameOptions {
@@ -15,6 +17,8 @@ export interface NewGameOptions {
   silks: Silks;
   country?: CountryCode;
   studName?: string | null;
+  /** 경제 모드(M4-A). 생략하면 DEFAULT_ECONOMY_MODE */
+  economyMode?: EconomyMode;
 }
 
 /** 새 게임 초기 상태. 2026년 1주, 플레이어 마주 1명, 나머지 레코드는 비어 있다. */
@@ -59,5 +63,7 @@ export function createNewGame(opts: NewGameOptions): GameState {
     awardsHistory: [],
     sireStats: {},
     eventLog: [],
+    economy: createEmptyEconomyState(opts.economyMode ?? DEFAULT_ECONOMY_MODE),
+    relations: createEmptyRelationsState(),
   };
 }
