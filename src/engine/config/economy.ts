@@ -3,8 +3,10 @@ import type { CountryCode, EconomyMode, HorseStatus, Money } from '../types';
 
 /** 새 게임 기본 경제 모드 */
 export const DEFAULT_ECONOMY_MODE: EconomyMode = 'casual';
+/** 명성 기준값(0~100): 새 게임 시작값이자 주간 회귀 목표(M4-B1) */
+export const REPUTATION_BASE = 10;
 /** 새 게임 플레이어 명성(0~100) */
-export const STARTING_REPUTATION = 10;
+export const STARTING_REPUTATION = REPUTATION_BASE;
 /** 플레이어 장부 보존 기간(주). 이보다 오래된 항목은 prunePlayerLedger 가 지운다 */
 export const PLAYER_LEDGER_KEEP_WEEKS = 104;
 
@@ -49,3 +51,48 @@ export const ENTRY_FEE_MIN = 40;
 export const TRANSPORT_FEE = { near: 1500, far: 3500 } as const;
 /** 근거리 운송 쌍(순서 무관). 이 밖의 다른 나라 쌍은 far */
 export const TRANSPORT_NEAR_PAIRS: readonly (readonly [CountryCode, CountryCode])[] = [['GB', 'IE']];
+
+// ── 관계·명성 (M4-B1). 초기값이며 Opus 가 조정한다 ──
+
+/** 관계값 하한·상한(−100 ~ 100). 없는 키 = 0 */
+export const RELATION_MIN = -100;
+export const RELATION_MAX = 100;
+/** 관계값·명성 저장 소수 자릿수(반올림) */
+export const RELATION_ROUND_DECIMALS = 2;
+/** 조교사 관계 변화: 1착 / 그룹 1착 / G1 1착 / 2~3착 */
+export const RELATION_TRAINER_WIN = 3;
+export const RELATION_TRAINER_GROUP_WIN = 6;
+export const RELATION_TRAINER_G1_WIN = 10;
+export const RELATION_TRAINER_PLACED = 1;
+/** 기수 관계 변화: 1착 / G1 1착 / 2~3착 */
+export const RELATION_JOCKEY_WIN = 4;
+export const RELATION_JOCKEY_G1_WIN = 8;
+export const RELATION_JOCKEY_PLACED = 1;
+/** 위탁 지속: 매주 현역마(in_training·resting)를 맡은 조교사마다 더하는 값 */
+export const TENURE_RELATION_WEEKLY = 0.1;
+/** 위탁으로 쌓는 관계의 상한. 이미 넘어 있는 값은 위탁이 줄이지 않는다 */
+export const TENURE_RELATION_CAP = 40;
+/** 시간 감소: 매주 모든 관계값이 0 쪽으로 이동하는 양(0 을 넘지 않는다) */
+export const RELATION_DECAY_WEEKLY = 0.15;
+/** 관계 등급 경계. cold: ≤ TIER_COLD / cool: < TIER_COOL / neutral: ≤ TIER_NEUTRAL / warm: ≤ TIER_WARM / close: ≤ TIER_CLOSE / 그 밖 trusted */
+export const RELATION_TIER_COLD = -40;
+export const RELATION_TIER_COOL = -10;
+export const RELATION_TIER_NEUTRAL = 10;
+export const RELATION_TIER_WARM = 40;
+export const RELATION_TIER_CLOSE = 70;
+
+/** 명성 하한·상한(0 ~ 100) */
+export const REPUTATION_MIN = 0;
+export const REPUTATION_MAX = 100;
+/** 명성 주간 회귀량(REPUTATION_BASE 쪽으로) */
+export const REPUTATION_DECAY_WEEKLY = 0.03;
+/** 명성 증가: 플레이어 말 그룹 1착 / G1 1착 / 클래식 1착 추가 / 시리즈 달성 */
+export const REPUTATION_GROUP_WIN = 2;
+export const REPUTATION_G1_WIN = 5;
+export const REPUTATION_CLASSIC_WIN = 3;
+export const REPUTATION_SERIES = 5;
+/** 연말 리딩 마주(유럽 합산) 순위 보너스: 상위 REPUTATION_RANK_TOP 안 / 상위 REPUTATION_RANK_LIST 안 */
+export const REPUTATION_RANK_TOP = 3;
+export const REPUTATION_RANK_TOP_BONUS = 10;
+export const REPUTATION_RANK_LIST = 10;
+export const REPUTATION_RANK_LIST_BONUS = 5;

@@ -24,6 +24,8 @@ export interface RunMeetingContext {
   series: readonly SeriesDefinition[];
   /** 닉스 표(그룹 우승 때 성적 공개 판정, M3-C4) */
   nicks: readonly NickEntry[];
+  /** 클래식 레이스 템플릿 id(명성 보너스, M4-B1). 생략하면 없음 */
+  classicTemplateIds?: readonly string[];
 }
 
 export interface RunMeetingInPlaceOutput {
@@ -118,6 +120,7 @@ export function runMeetingInPlace(
         series: ctx.series,
         country: course.country,
         nicks: ctx.nicks,
+        classicTemplateIds: ctx.classicTemplateIds,
       }),
     );
     results.push(result);

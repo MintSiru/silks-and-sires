@@ -1,5 +1,6 @@
 import commentsJson from '../../../data/text/comments.ko.json';
 import { cyrb128 } from '../../engine/rng/hash';
+import { relationTier, type RelationTier } from '../../engine/economy/relations';
 import { formatDateKo } from '../../engine/time/calendar';
 import type { BookingError } from '../../engine/breeding/season';
 import type { TrainerReportKey } from '../../engine/horse/conditioning';
@@ -13,6 +14,7 @@ import {
   type CountryCode,
   type CoatColour,
   type DistanceProfile,
+  type EconomyMode,
   type FaceMarking,
   type Grade,
   type GameEvent,
@@ -22,6 +24,7 @@ import {
   type InjuryKind,
   type LaurelCategory,
   type LeadingCategory,
+  type LedgerCategory,
   type MatingPreview,
   type MatingRole,
   type Money,
@@ -248,9 +251,59 @@ const BOOKING_ERROR_KO: Record<BookingError, string> = {
   insufficient_funds: '자금이 부족해 종부료를 낼 수 없습니다.',
 };
 
-/** 교배 예약 실패 사유 → 한국어 */
-export function bookingErrorKo(e: BookingError): string {
+const DEBT_BOOKING_KO = '빚을 갚기 전에는 종부료를 낼 수 없습니다.';
+
+/**
+ * 교배 예약 실패 사유 → 한국어. inDebt 는 캐주얼 모드에서 빚이 남아 있는지(호출자가 state 로 계산해 넘긴다).
+ * 빚이 있을 때의 자금 부족(insufficient_funds)은 '빚을 갚기 전에는…' 문구로 바꾼다.
+ */
+export function bookingErrorKo(e: BookingError, inDebt = false): string {
+  if (e === 'insufficient_funds' && inDebt) return DEBT_BOOKING_KO;
   return BOOKING_ERROR_KO[e];
+}
+
+// ── 경제 화면(M4-A4) ────────────────────────────────────────────
+
+const LEDGER_CATEGORY_KO: Record<LedgerCategory, string> = {
+  prize: '레이스 상금',
+  series_bonus: '시리즈 보너스',
+  stud_fee_paid: '종부료 지출',
+  stud_fee_received: '종부료 수입',
+  training_fee: '조교료',
+  farm_upkeep: '목장 유지비',
+  entry_fee: '출주 등록료',
+  transport: '원정 운송비',
+  sale_purchase: '세일 구매',
+  sale_proceeds: '세일 판매',
+  sale_commission: '세일 수수료',
+  private_sale: '개인 거래',
+  facility: '목장 시설',
+  interest: '빚 이자',
+  other: '기타',
+};
+
+/** 장부 종류 한국어. 예: 'farm_upkeep' → '목장 유지비' */
+export function ledgerCategoryKo(c: LedgerCategory): string {
+  return LEDGER_CATEGORY_KO[c];
+}
+
+const ECONOMY_MODE_KO: Record<EconomyMode, string> = {
+  casual: '캐주얼(파산 없음, 적자는 빚으로)',
+  legacy: '레거시(연속 적자 시 파산)',
+};
+
+/** 경제 모드 한국어. 예: 'legacy' → '레거시(연속 적자 시 파산)' */
+export function economyModeKo(m: EconomyMode): string {
+  return ECONOMY_MODE_KO[m];
+}
+
+/** 자금 경고 문구(배너·경제 화면). weeksLeft 가 있으면 파산까지 남은 주를 붙인다. */
+export function fundsWarningKo(w: { kind: 'debt' | 'negative' | 'bankrupt'; weeksLeft: number | null }): string {
+  if (w.kind === 'bankrupt') return '파산 — 더 진행할 수 없습니다';
+  if (w.kind === 'debt') {
+    return '빚이 남아 있습니다. 자금이 넉넉해지면 자동으로 갚으며, 갚기 전에는 종부료를 낼 수 없습니다.';
+  }
+  return `자금이 마이너스입니다${w.weeksLeft === null ? '' : ` (${w.weeksLeft}주 더 마이너스면 파산)`}`;
 }
 
 const COUNTRY_KO: Record<CountryCode, string> = {
@@ -553,4 +606,18 @@ const DISTANCE_PROFILE_KO: Record<DistanceProfile, string> = {
 /** 거리 적성 한국어. 예: 'cup' → '스테이어형(장거리)' */
 export function distanceProfileKo(p: DistanceProfile): string {
   return DISTANCE_PROFILE_KO[p];
+}
+
+const RELATION_TIER_KO: Record<RelationTier, string> = {
+  cold: '냉랭',
+  cool: '서먹',
+  neutral: '보통',
+  warm: '우호',
+  close: '친밀',
+  trusted: '신뢰',
+};
+
+/** 관계값(−100 ~ 100) 등급 한국어. 예: 45 → '친밀' */
+export function relationTierKo(value: number): string {
+  return RELATION_TIER_KO[relationTier(value)];
 }

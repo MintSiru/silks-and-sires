@@ -1,5 +1,6 @@
 import { createBreedingSystem, type BreedingStaticData } from '../breeding/season';
 import { createCostsSystem } from '../economy/costs';
+import { createRelationsSystem } from '../economy/relations';
 import { createSolvencySystem } from '../economy/solvency';
 import { growthSystem } from '../horse/growth';
 import { createSeasonSystem, type SeasonStaticData } from '../season/system';
@@ -12,7 +13,7 @@ import { createPopulationSystem } from '../world/populationSystem';
 export type GameStaticData = BreedingStaticData & SeasonStaticData & RacingPopulationStaticData;
 
 /**
- * 게임 주 시스템 목록. 실행 순서: 달력 → 성장 → 교배 → 연간 교체(population) → 시즌(season) → 정기 비용(costs) → 자금 판정(solvency).
+ * 게임 주 시스템 목록. 실행 순서: 달력 → 성장 → 교배 → 연간 교체(population) → 시즌(season) → 정기 비용(costs) → 자금 판정(solvency) → 관계·명성(relations).
  * 시스템 객체는 내부 상태가 없으므로 매번 새 배열을 만들어도 결과는 같다.
  */
 export function createGameSystems(data: GameStaticData): WeeklySystem[] {
@@ -24,5 +25,6 @@ export function createGameSystems(data: GameStaticData): WeeklySystem[] {
     createSeasonSystem(data),
     createCostsSystem(),
     createSolvencySystem(),
+    createRelationsSystem(),
   ];
 }

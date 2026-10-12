@@ -17,6 +17,20 @@ import { nickValue } from '../breeding/nicks';
 import type { SampleField } from '../race/sampleField';
 import { recordMoney } from '../economy/ledger';
 import { chargeRaceCosts } from '../economy/costs';
+import { adjustRelation, adjustReputation, relationKey } from '../economy/relations';
+import {
+  REPUTATION_CLASSIC_WIN,
+  REPUTATION_G1_WIN,
+  REPUTATION_GROUP_WIN,
+  REPUTATION_SERIES,
+  RELATION_JOCKEY_G1_WIN,
+  RELATION_JOCKEY_PLACED,
+  RELATION_JOCKEY_WIN,
+  RELATION_TRAINER_G1_WIN,
+  RELATION_TRAINER_GROUP_WIN,
+  RELATION_TRAINER_PLACED,
+  RELATION_TRAINER_WIN,
+} from '../config/economy';
 import { applyRatingsInPlace } from './handicapper';
 import { emptyLeadingTables } from './state';
 import type {
@@ -56,6 +70,8 @@ export interface ApplyRaceResultArgs {
   country: CountryCode;
   /** 닉스 표(data/breeding/nicks.json). 그룹 우승 때 성적 공개 판정에 쓴다(M3-C4). 테스트는 [] 또는 테스트 표 */
   nicks: readonly NickEntry[];
+  /** 태그 classic 인 레이스 템플릿 id 목록(M4-B1 명성 클래식 보너스). 생략하면 클래식 보너스는 없다 */
+  classicTemplateIds?: readonly string[];
 }
 
 export interface ApplyRaceResultOutput {
@@ -113,6 +129,50 @@ function payoutsOf(race: Race, runners: readonly RunnerResult[]): number[] {
     i = j;
   }
   return out;
+}
+
+/**
+ * 플레이어 말 한 두의 출주 결과를 조교사·기수 관계와 명성에 반영한다(M4-B1).
+ * 조교사: 1착(일반·그룹·G1 단계), 2~3착. 기수: 1착(G1 단계), 2~3착. 명성: 그룹 1착·G1 1착·클래식 1착 추가.
+ */
+function applyPlayerRunRelations(
+  next: GameState,
+  race: Race,
+  runner: RunnerResult,
+  decl: Declaration,
+  classic: boolean,
+): void {
+  const pos = runner.position;
+  const won = pos === 1;
+  const placed = pos <= PLACED_MAX_POSITION;
+  const isGroup = race.grade !== null && race.grade !== 'L';
+  const isG1 = race.grade === 'G1';
+
+  if (decl.trainerId !== null) {
+    const trainerKey = relationKey('trainer', decl.trainerId);
+    if (won) {
+      const delta = isG1 ? RELATION_TRAINER_G1_WIN : isGroup ? RELATION_TRAINER_GROUP_WIN : RELATION_TRAINER_WIN;
+      adjustRelation(next, trainerKey, delta);
+    } else if (placed) {
+      adjustRelation(next, trainerKey, RELATION_TRAINER_PLACED);
+    }
+  }
+
+  const jockeyKey = relationKey('jockey', runner.jockeyId);
+  if (won) {
+    adjustRelation(next, jockeyKey, isG1 ? RELATION_JOCKEY_G1_WIN : RELATION_JOCKEY_WIN);
+  } else if (placed) {
+    adjustRelation(next, jockeyKey, RELATION_JOCKEY_PLACED);
+  }
+
+  if (won) {
+    if (isG1) {
+      adjustReputation(next, REPUTATION_G1_WIN);
+    } else if (isGroup) {
+      adjustReputation(next, REPUTATION_GROUP_WIN);
+    }
+    if (classic) adjustReputation(next, REPUTATION_CLASSIC_WIN);
+  }
 }
 
 /** 리딩 한 줄에 출주 한 번을 더한다 */
@@ -253,6 +313,13 @@ export function applyRaceResultInPlace(state: GameState, args: ApplyRaceResultAr
     date,
   );
 
+  // 1-관계. 플레이어 말 출주: 조교사·기수 관계, 명성(M4-B1)
+  const classic = templateId !== null && (args.classicTemplateIds ?? []).includes(templateId);
+  for (const runner of result.runners) {
+    if (!playerIds.has(runner.horseId)) continue;
+    applyPlayerRunRelations(next, race, runner, requireDeclaration(scheduled, runner.horseId), classic);
+  }
+
   // 1a. 닉스 공개(M3-C4): 그룹(G1~G3) 1착 말의 부 계통 × 모부 계통이 좋은 닉스(값 ≥ 기준)이고 처음 공개되면 이벤트
   if (race.grade !== null && NICK_REVEAL_GRADES.includes(race.grade)) {
     for (const runner of result.runners) {
@@ -338,6 +405,7 @@ export function applyRaceResultInPlace(state: GameState, args: ApplyRaceResultAr
           const owner = next.owners[winnerDecl.ownerId];
           if (owner === undefined) throw new Error(`applyRaceResult: 마주 ${winnerDecl.ownerId} 없음`);
           recordMoney(next, winnerDecl.ownerId, 'series_bonus', def.bonus, date, winner.horseId);
+          if (winnerDecl.ownerId === next.playerOwnerId) adjustReputation(next, REPUTATION_SERIES);
           events.push({ type: 'series_completed', seriesId: def.id, horseId: winner.horseId, date: { ...date } });
         }
       } else {

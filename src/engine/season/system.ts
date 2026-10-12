@@ -22,6 +22,8 @@ import type {
   WeeklySystem,
 } from '../types';
 import { closeEconomyYear, prunePlayerLedger, recordMoney } from '../economy/ledger';
+import { adjustReputation, reputationFromLeadingOwners } from '../economy/relations';
+import { REPUTATION_SERIES } from '../config/economy';
 import { computeSeasonAwards, hadRacesIn } from './awards';
 import { declareAiRunners } from './declarations';
 import type { CourseCountryLookup } from './eligibility';
@@ -79,6 +81,7 @@ function closePointsSeries(
     const owner = ownerId === null ? undefined : draft.owners[ownerId];
     if (ownerId !== null && owner !== undefined) {
       recordMoney(draft, ownerId, 'series_bonus', def.bonus, date, champion);
+      if (ownerId === draft.playerOwnerId) adjustReputation(draft, REPUTATION_SERIES);
     }
     events.push({ type: 'series_completed', seriesId: def.id, horseId: champion, date: { ...date } });
   }
@@ -99,7 +102,9 @@ function startNewSeason(
   closePointsSeries(draft, series, date, events);
   const prevYear = draft.seasonState.year;
   if (hadRacesIn(draft, prevYear)) {
-    draft.awardsHistory.push(computeSeasonAwards(draft, prevYear, awardsRng));
+    const awards = computeSeasonAwards(draft, prevYear, awardsRng);
+    draft.awardsHistory.push(awards);
+    reputationFromLeadingOwners(draft, awards.leading.owner);
     events.push({ type: 'awards_announced', year: prevYear, date: { ...date } });
   }
   draft.seasonState.leading = emptyLeadingTables();
@@ -112,6 +117,16 @@ function startNewSeason(
   // 연말 경제 요약(M4-A2a): 시리즈 보너스까지 지난해 합계에 들어간 뒤에 닫는다
   closeEconomyYear(draft, prevYear);
   prunePlayerLedger(draft, date);
+}
+
+/** 'classic' 태그가 붙은 템플릿 id (명성 보너스, M4-B1). 템플릿 배열이 같으면 다시 계산하지 않는다 */
+const classicIdsCache = new WeakMap<readonly RaceTemplate[], readonly string[]>();
+function classicIdsOf(templates: readonly RaceTemplate[]): readonly string[] {
+  const hit = classicIdsCache.get(templates);
+  if (hit !== undefined) return hit;
+  const ids = templates.filter((t) => t.tags.includes('classic')).map((t) => t.id);
+  classicIdsCache.set(templates, ids);
+  return ids;
 }
 
 /**
@@ -135,7 +150,7 @@ function runThisWeek(
     const out = runMeetingInPlace(
       draft,
       meeting,
-      { courses: data.courses, series: data.series, nicks: data.nicks },
+      { courses: data.courses, series: data.series, nicks: data.nicks, classicTemplateIds: classicIdsOf(data.templates) },
       rng.fork('meeting:' + meeting.id),
     );
     events.push(...out.events);

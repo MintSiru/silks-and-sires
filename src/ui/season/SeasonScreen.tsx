@@ -61,10 +61,12 @@ function raceKey(meetingId: string, raceId: string): string {
 
 interface SeasonScreenProps {
   game: GameApi;
+  /** true 면 진행 버튼을 막는다(레거시 파산). 새 게임·불러오기와는 무관하다. */
+  locked?: boolean;
 }
 
 /** 게임이 없으면 안내만, 있으면 시즌 화면을 보인다. 새 게임은 '목장·배합' 탭에서 시작한다. */
-export default function SeasonScreen({ game }: SeasonScreenProps): JSX.Element {
+export default function SeasonScreen({ game, locked = false }: SeasonScreenProps): JSX.Element {
   if (game.state === null) {
     return (
       <section className="panel">
@@ -73,7 +75,7 @@ export default function SeasonScreen({ game }: SeasonScreenProps): JSX.Element {
       </section>
     );
   }
-  return <SeasonView state={game.state} game={game} />;
+  return <SeasonView state={game.state} game={game} locked={locked} />;
 }
 
 // ── 시즌 진행 화면 ──────────────────────────────────────────────
@@ -81,9 +83,10 @@ export default function SeasonScreen({ game }: SeasonScreenProps): JSX.Element {
 interface SeasonViewProps {
   state: GameState;
   game: GameApi;
+  locked: boolean;
 }
 
-function SeasonView({ state, game }: SeasonViewProps): JSX.Element {
+function SeasonView({ state, game, locked }: SeasonViewProps): JSX.Element {
   const [notice, setNotice] = useState<Notice | null>(null);
   /** 레이스별로 고른 출주 말(키: raceKey) */
   const [racePicks, setRacePicks] = useState<Record<string, HorseId>>({});
@@ -222,6 +225,7 @@ function SeasonView({ state, game }: SeasonViewProps): JSX.Element {
           <button
             type="button"
             className="btn"
+            disabled={locked}
             onClick={() => runAction(() => game.advance(1), '1주 진행했습니다.')}
           >
             1주 진행
@@ -229,11 +233,12 @@ function SeasonView({ state, game }: SeasonViewProps): JSX.Element {
           <button
             type="button"
             className="btn"
+            disabled={locked}
             onClick={() => runAction(() => game.advance(4), '4주 진행했습니다.')}
           >
             4주 진행
           </button>
-          <button type="button" className="btn btn--primary" onClick={handleAdvanceToResults}>
+          <button type="button" className="btn btn--primary" disabled={locked} onClick={handleAdvanceToResults}>
             출주한 레이스 결과까지
           </button>
         </div>

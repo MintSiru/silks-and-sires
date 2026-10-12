@@ -116,10 +116,12 @@ function matchesStallion(row: StallionRow, query: string): boolean {
 
 interface BreedingScreenProps {
   game: GameApi;
+  /** true 면 진행 버튼을 막는다(레거시 파산). 새 게임·저장·불러오기는 막지 않는다. */
+  locked?: boolean;
 }
 
 /** 게임이 없거나 '새 게임' 을 골랐으면 시작 패널만, 아니면 목장·배합 화면을 보인다. */
-export default function BreedingScreen({ game }: BreedingScreenProps): JSX.Element {
+export default function BreedingScreen({ game, locked = false }: BreedingScreenProps): JSX.Element {
   const [showNewGame, setShowNewGame] = useState(false);
 
   if (game.state === null || showNewGame) {
@@ -131,7 +133,9 @@ export default function BreedingScreen({ game }: BreedingScreenProps): JSX.Eleme
       />
     );
   }
-  return <BreedingView state={game.state} game={game} onNewGame={() => setShowNewGame(true)} />;
+  return (
+    <BreedingView state={game.state} game={game} locked={locked} onNewGame={() => setShowNewGame(true)} />
+  );
 }
 
 // ── 새 게임 시작 패널 ───────────────────────────────────────────
@@ -243,10 +247,12 @@ function NewGamePanel({ game, onDone, onCancel }: NewGamePanelProps): JSX.Elemen
 interface BreedingViewProps {
   state: GameState;
   game: GameApi;
+  /** 진행 버튼을 막는다(레거시 파산) */
+  locked: boolean;
   onNewGame: () => void;
 }
 
-function BreedingView({ state, game, onNewGame }: BreedingViewProps): JSX.Element {
+function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JSX.Element {
   const [mareId, setMareId] = useState<HorseId | null>(null);
   const [stallionId, setStallionId] = useState<HorseId | null>(null);
   const [query, setQuery] = useState('');
@@ -318,7 +324,9 @@ function BreedingView({ state, game, onNewGame }: BreedingViewProps): JSX.Elemen
       // 예약 이벤트는 useGame 이 eventLog 에 이미 붙였다. 여기서는 알림만 띄운다.
       setNotice({ tone: 'ok', text: `${nameOf(mareId)} 교배 예약 완료 (종마 ${nameOf(stallionId)})` });
     } else {
-      setNotice({ tone: 'error', text: bookingErrorKo(result.error) });
+      // 캐주얼 모드에서 빚이 남아 있으면 자금 부족 대신 '빚을 갚기 전에는…' 문구를 보인다
+      const casualDebt = state.economy.mode === 'casual' && state.economy.debt > 0;
+      setNotice({ tone: 'error', text: bookingErrorKo(result.error, casualDebt) });
     }
   };
 
@@ -412,22 +420,33 @@ function BreedingView({ state, game, onNewGame }: BreedingViewProps): JSX.Elemen
           <span>자금 {feeKo(owner?.funds ?? 0)}</span>
         </div>
         <div className="topbar__buttons">
-          <button type="button" className="btn" onClick={() => runAction(() => game.advance(1), '1주 진행했습니다.')}>
+          <button
+            type="button"
+            className="btn"
+            disabled={locked}
+            onClick={() => runAction(() => game.advance(1), '1주 진행했습니다.')}
+          >
             1주 진행
           </button>
-          <button type="button" className="btn" onClick={() => runAction(() => game.advance(4), '4주 진행했습니다.')}>
+          <button
+            type="button"
+            className="btn"
+            disabled={locked}
+            onClick={() => runAction(() => game.advance(4), '4주 진행했습니다.')}
+          >
             4주 진행
           </button>
           <button
             type="button"
             className="btn"
+            disabled={locked}
             onClick={() =>
               runAction(() => game.advanceToPhase('breeding'), `${phaseKo('breeding')} 시작 주까지 진행했습니다.`)
             }
           >
             종부 시즌까지
           </button>
-          <button type="button" className="btn" onClick={handleAdvanceToFoaling}>
+          <button type="button" className="btn" disabled={locked} onClick={handleAdvanceToFoaling}>
             출산 시즌까지
           </button>
           <button type="button" className="btn" onClick={() => void handleSave()}>
