@@ -6,13 +6,17 @@ import {
   JOINED_MAX_WORDS,
   JOINED_MIN_WORDS,
   KEYWORD_MIN_LENGTH,
+  LANDMARK_SHARE,
   NAME_CANDIDATE_ATTEMPTS,
   NAME_FALLBACK_ATTEMPTS,
+  NAME_MAX_LENGTH,
   NATIVE_CONNECTOR,
   NATIVE_SHARE,
   NATIVE_TEMPLATE_WEIGHTS,
   REAL_PLACE_SHARE,
+  TITLE_JOINED_CHANCE,
   WORD_AS_NOUN_CHANCE,
+  WORK_TITLE_SHARE,
   type NativeLanguage,
   type NativeTemplate,
 } from '../config/naming';
@@ -103,6 +107,18 @@ interface Keyword {
   parent: string;
 }
 
+/** 명승고적·작품 제목 한 개. joined 는 공백을 뺀 붙여 쓰기 형태(NAME_MAX_LENGTH 를 넘으면 null). */
+interface TitleEntry {
+  text: string;
+  joined: string | null;
+}
+
+/** 명승고적 목록과 작품 제목 목록 (보호 명단·차단 지명 토큰과 겹치는 항목은 뺀 뒤) */
+interface TitlePools {
+  place: readonly TitleEntry[];
+  culture: readonly TitleEntry[];
+}
+
 /** suggestNames 한 번 동안 쓰는 준비물 */
 interface Env {
   ctx: NamingContext;
@@ -113,12 +129,18 @@ interface Env {
   associations: ReadonlyMap<string, readonly string[]>;
   /** 실제 지명 전체(국가·지역·도시) */
   realPlaces: readonly string[];
+  /** 명승고적·작품 제목 풀 */
+  titles: TitlePools;
 }
 
-/** 출처 단어 한 개와 이유 문장 */
+/**
+ * 출처 단어 한 개와 이유 문장. title 이 있으면 명승고적·작품 제목을 고른 것이다:
+ * 템플릿을 무시하고 title 로 이름을 만든다(word 는 원문 제목).
+ */
 interface SourcePick {
   word: string;
   note: string;
+  title?: TitleEntry;
 }
 
 /** 가중치 항목 목록에서 하나를 고른다. 가중치 0 이하는 제외. 전부 0 이면 null. */
@@ -192,10 +214,11 @@ export function extractKeywords(name: string, lex: NamingLexicon): string[] {
   return out;
 }
 
-/** NamingData 에서만 파생되는 값: 연상 맵(소문자 키)과 실제 지명 전체 목록 */
+/** NamingData 에서만 파생되는 값: 연상 맵(소문자 키), 실제 지명 전체 목록, 명승고적·작품 제목 풀 */
 interface DerivedNaming {
   associations: ReadonlyMap<string, readonly string[]>;
   realPlaces: readonly string[];
+  titles: TitlePools;
 }
 
 /** 데이터 객체별 파생 값 캐시. 같은 NamingData 면 한 번만 만든다(말 한 마리마다 다시 만들지 않도록). */
@@ -211,9 +234,18 @@ function derivedOf(data: NamingData): DerivedNaming {
     const k = key.toLowerCase();
     associations.set(k, [...(associations.get(k) ?? []), ...list]);
   }
+  // 차단 지명 토큰이 든 제목은 풀에서 뺀다. 붙여 쓴 형태는 여기서 한 번만 만든다(이름마다 다시 만들지 않는다).
+  const toTitleEntries = (names: readonly string[]): TitleEntry[] =>
+    names
+      .filter((text) => !hasBlockedPlaceToken(text, data.blockedPlaceTokens))
+      .map((text) => {
+        const joined = joinWords(text);
+        return { text, joined: joined.length <= NAME_MAX_LENGTH ? joined : null };
+      });
   const derived: DerivedNaming = {
     associations,
     realPlaces: [...data.realPlaces.countries, ...data.realPlaces.regions, ...data.realPlaces.cities],
+    titles: { place: toTitleEntries(data.landmarks), culture: toTitleEntries(data.workTitles) },
   };
   derivedCache.set(data, derived);
   return derived;
@@ -232,8 +264,8 @@ function buildEnv(ctx: NamingContext, data: NamingData): Env {
   addParent(ctx.sireName, '아비');
   addParent(ctx.damName, '어미');
 
-  const { associations, realPlaces } = derivedOf(data);
-  return { ctx, data, lex: data.lexicon, keywords, associations, realPlaces };
+  const { associations, realPlaces, titles } = derivedOf(data);
+  return { ctx, data, lex: data.lexicon, keywords, associations, realPlaces, titles };
 }
 
 /** 소유격 표기: s 로 끝나면 's 대신 ' 만 붙인다. */
@@ -257,6 +289,18 @@ function pedigreeWord(env: Env, rng: Rng): SourcePick {
   return { word: kw.word, note: `${kw.role} ${kw.parent} 의 '${kw.word}' 에서` };
 }
 
+/**
+ * 제목 풀에서 확률 share 로 하나를 고른다. 풀이 비어 있으면 난수를 쓰지 않는다(빈 풀이면 기존 결과와 같다).
+ */
+function pickTitleEntry(pool: readonly TitleEntry[], share: number, rng: Rng): TitleEntry | null {
+  return pool.length > 0 && rng.chance(share) ? rng.pick(pool) : null;
+}
+
+/** 명승고적·작품 제목을 고른 출처 단어. 이유 문장은 kind 에 따라 'Swan Lake' 형태로 단다. */
+function titlePick(entry: TitleEntry, kind: '명승고적' | '작품 제목'): SourcePick {
+  return { word: entry.text, note: `${kind} '${entry.text}' 에서`, title: entry };
+}
+
 /** 출처에 맞는 단어 하나와 이유 문장을 고른다. */
 function sourceWord(source: NameSource, env: Env, rng: Rng): SourcePick {
   const lex = env.lex;
@@ -273,14 +317,23 @@ function sourceWord(source: NameSource, env: Env, rng: Rng): SourcePick {
       return { word: w, note: `${FIELD_LABEL[person.field]} 역사 인물의 성 '${w}'` };
     }
     case 'place': {
+      // 실제 지명을 먼저 추첨한다. 실제 지명이 아닌 경우에만 명승고적을 추첨하고, 나머지는 기존 어휘 장소.
       if (rng.chance(REAL_PLACE_SHARE)) {
         const real = rng.pick(env.realPlaces);
         return { word: real, note: `실제 지명 '${real}'` };
+      }
+      const landmark = pickTitleEntry(env.titles.place, LANDMARK_SHARE, rng);
+      if (landmark !== null) {
+        return titlePick(landmark, '명승고적');
       }
       const w = rng.pick(lex.places);
       return { word: w, note: `지형·지명 어휘 '${w}'` };
     }
     case 'culture': {
+      const work = pickTitleEntry(env.titles.culture, WORK_TITLE_SHARE, rng);
+      if (work !== null) {
+        return titlePick(work, '작품 제목');
+      }
       const w = rng.pick(lex.culture);
       return { word: w, note: `음악·문학 용어 '${w}'` };
     }
@@ -492,11 +545,30 @@ function sampleCandidate(env: Env, rng: Rng, forcedSource?: NameSource): NameCan
     return null;
   }
   const pick = sourceWord(source, env, rng);
+  if (pick.title !== undefined) {
+    return titleCandidate(source, pick.title, pick.note, rng);
+  }
   const name = buildName(template, source, pick.word, env, rng);
   if (name === null) {
     return null;
   }
   return { name, template, source, note: pick.note };
+}
+
+/**
+ * 명승고적·작품 제목 후보. 골라 둔 템플릿은 무시한다. 공백 포함 NAME_MAX_LENGTH 를 넘는 제목은 항상 붙여 쓴다.
+ * 그 밖의 제목은 TITLE_JOINED_CHANCE 에 걸리고 붙여 쓴 길이가 NAME_MAX_LENGTH 이하면 붙여 쓴 형태('joined'),
+ * 아니면 제목 그대로('single').
+ */
+function titleCandidate(source: NameSource, entry: TitleEntry, note: string, rng: Rng): NameCandidate | null {
+  if (entry.text.length > NAME_MAX_LENGTH) {
+    // 띄어 쓰면 등록 길이를 넘는 제목은 항상 붙여 쓴다(이때 rng.chance 를 부르지 않는다). 붙여도 길면 후보 없음.
+    return entry.joined === null ? null : { name: entry.joined, template: 'joined', source, note };
+  }
+  if (rng.chance(TITLE_JOINED_CHANCE) && entry.joined !== null) {
+    return { name: entry.joined, template: 'joined', source, note };
+  }
+  return { name: entry.text, template: 'single', source, note };
 }
 
 /**

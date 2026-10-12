@@ -93,6 +93,10 @@ export interface NamingData {
   };
   /** 차단 지명 토큰 집합. 소문자, 단어 사이 한 칸 (normalizePlaceToken 결과). 경마장 이름 등. */
   blockedPlaceTokens: ReadonlySet<string>;
+  /** 명승고적 이름 목록 (data/naming/landmarks.json landmarks[].name, 보호 명단과 겹치는 항목 제외). */
+  landmarks: string[];
+  /** 작품 제목 목록 (data/naming/landmarks.json works[].name, 보호 명단과 겹치는 항목 제외). */
+  workTitles: string[];
 }
 
 /** 생성 문맥 */

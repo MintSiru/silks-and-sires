@@ -13,6 +13,7 @@ import namingStylesJson from '../../../data/naming/owner-styles.json';
 import namingProtectedJson from '../../../data/naming/protected.json';
 import namingHistoricalJson from '../../../data/naming/historical.json';
 import namingRealPlacesJson from '../../../data/naming/real_places.json';
+import namingLandmarksJson from '../../../data/naming/landmarks.json';
 import raceTemplatesJson from '../../../data/calendar/g1.json';
 import patternGbIeJson from '../../../data/calendar/pattern_gb_ie.json';
 import patternFrDeItJson from '../../../data/calendar/pattern_fr_de_it.json';
@@ -23,6 +24,7 @@ import { NAME_COUNTRIES, type CountryNamePool, type NameCountry, type NamePools 
 import type { PeopleStaticData, PlacesData } from '../people/generate';
 import type { NamePool } from '../race/sampleField';
 import { normalizePlaceToken, normalizeName } from '../naming/validate';
+import { NAME_MAX_LENGTH } from '../config/naming';
 import type {
   ForeignLanguage,
   HistoricalField,
@@ -373,6 +375,34 @@ export function parseRealPlaces(raw: unknown): Pick<NamingData, 'realPlaces' | '
 }
 
 /**
+ * landmarks.json 원본을 검증해 명승고적 이름 목록과 작품 제목 목록으로 바꾼다.
+ * 이름이 보호 명단(normalizeName 집합)에 있는 항목은 뺀다. 공백 포함 18자를 넘는 제목은 붙여 쓴 길이가 18자 이하일 때만 넣는다.
+ * 빈 목록은 허용한다(생성기가 그 출처를 건너뛴다).
+ */
+export function parseLandmarks(raw: unknown, protectedNames: ReadonlySet<string>): Pick<NamingData, 'landmarks' | 'workTitles'> {
+  const o = namingRecord(raw, 'landmarks');
+  if (o['version'] !== 1 || !Array.isArray(o['landmarks']) || !Array.isArray(o['works'])) {
+    namingFail('landmarks 는 version 1 과 landmarks·works 배열을 가져야 한다');
+  }
+  const pickNames = (list: unknown[], where: string): string[] =>
+    list
+      .map((item, i) => {
+        const entry = namingRecord(item, `${where}[${i}]`);
+        if (typeof entry['name'] !== 'string' || entry['name'] === '') {
+          namingFail(`${where}[${i}].name 은 빈 문자열이 아닌 문자열이어야 한다`);
+        }
+        return entry['name'] as string;
+      })
+      .filter((name) => !protectedNames.has(normalizeName(name)))
+      // 공백 포함 18자 넘는 제목은 붙여 쓴 길이가 18자 이하일 때만 넣는다(joinedOnly 필드 없이 길이로 판정)
+      .filter((name) => name.length <= NAME_MAX_LENGTH || name.replace(/\s+/g, '').length <= NAME_MAX_LENGTH);
+  return {
+    landmarks: pickNames(o['landmarks'] as unknown[], 'landmarks.landmarks'),
+    workTitles: pickNames(o['works'] as unknown[], 'landmarks.works'),
+  };
+}
+
+/**
  * 명명 데이터 묶음을 검증해 만든다. 보호 명단은 protected.json 이름과 실명 종마 이름을
  * 합쳐 normalizeName 한 Set 이다. 테스트에서 직접 호출할 수 있게 export 한다.
  */
@@ -383,6 +413,7 @@ export function parseNamingData(
   historical: unknown,
   stallionNames: unknown,
   realPlaces: unknown,
+  landmarks: unknown,
 ): NamingData {
   const protectedList = namingStrings(namingRecord(protectedFile, 'protected')['names'], 'protected.names');
   const stallionList = namingStrings(Object.values(namingRecord(stallionNames, 'stallions/names')), 'stallions/names');
@@ -399,6 +430,7 @@ export function parseNamingData(
     protectedNames,
     historical: parseHistoricalPeople(historical),
     ...parseRealPlaces(realPlaces),
+    ...parseLandmarks(landmarks, protectedNames),
   };
 }
 
@@ -414,6 +446,7 @@ export function getNamingData(): NamingData {
       namingHistoricalJson,
       stallionNamesJson,
       namingRealPlacesJson,
+      namingLandmarksJson,
     );
   }
   return cachedNamingData;

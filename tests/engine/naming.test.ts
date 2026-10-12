@@ -560,6 +560,6 @@ describe('parseNamingData (보호 명단 조립)', () => {
   });
 
   it('형식이 틀리면 Error', () => {
-    expect(() => parseNamingData({ version: 2 }, {}, {}, {}, {}, {})).toThrow();
+    expect(() => parseNamingData({ version: 2 }, {}, {}, {}, {}, {}, {})).toThrow();
   });
 });

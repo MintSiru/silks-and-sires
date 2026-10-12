@@ -103,3 +103,12 @@ export const REAL_PLACE_SHARE = 0.5;
 
 /** 차단 지명 토큰의 최대 단어 수 (이름의 연속 단어 묶음 길이) */
 export const BLOCKED_PLACE_MAX_WORDS = 3;
+
+/* ---- M3-C7f2: 명승고적·작품 제목 출처 ---- */
+
+/** 장소 출처에서 실제 지명이 뽑히지 않았을 때 명승고적 이름을 쓸 확률. 나머지는 어휘 장소(지형어·가상 지명). */
+export const LANDMARK_SHARE = 0.2;
+/** 문화 출처 후보에서 작품 제목을 쓸 확률. 나머지는 기존 음악·문학 용어. */
+export const WORK_TITLE_SHARE = 0.15;
+/** 명승고적·작품 제목을 고른 후보를 붙여 쓰기로 만들 확률 (붙여 쓴 길이가 NAME_MAX_LENGTH 이하일 때만) */
+export const TITLE_JOINED_CHANCE = 0.3;
