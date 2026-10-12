@@ -32,7 +32,13 @@ export type GameEvent =
   /** 성적으로 닉스가 확인됨(그 배합의 말이 그룹 레이스 우승, M3-C4) */
   | { type: 'nick_revealed'; sireLineId: SireLineId; damsireLineId: SireLineId; horseId: HorseId; date: GameDate }
   /** 지난 시즌 시상·순위 확정(연도 전환 때, M3-E1). 내용은 awardsHistory 의 마지막 항목 */
-  | { type: 'awards_announced'; year: number; date: GameDate };
+  | { type: 'awards_announced'; year: number; date: GameDate }
+  /** 플레이어 자금 경고(M4-A3). debt_started: 캐주얼 모드에서 빚이 생김 / negative_funds: 레거시 모드 자금 마이너스(weeksLeft 주 뒤 파산) */
+  | { type: 'economy_warning'; kind: 'debt_started' | 'negative_funds'; weeksLeft: number | null; date: GameDate }
+  /** 레거시 모드 파산(M4-A3). 이후 진행 불가 */
+  | { type: 'bankrupt'; date: GameDate }
+  /** 말 소유 이전(M4-A3 AI 급매, M4-C 세일·개인 거래). price 는 유로 정수 */
+  | { type: 'horse_sold'; horseId: HorseId; fromOwnerId: OwnerId; toOwnerId: OwnerId; price: Money; date: GameDate };
 
 /** 배합 관련 진행 상태 */
 export interface BreedingState {

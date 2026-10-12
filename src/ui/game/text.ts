@@ -305,6 +305,14 @@ export function eventKo(e: GameEvent, nameOf: (id: HorseId) => string): string {
       return `${formatDateKo(e.date)} · ${e.year}년 시상·순위 발표`;
     case 'horse_injured':
       return `${formatDateKo(e.date)} · 부상: ${nameOf(e.horseId)} (${injuryKo(e.kind)}, 약 ${e.weeksOut}주)`;
+    case 'economy_warning':
+      return e.kind === 'debt_started'
+        ? `${formatDateKo(e.date)} · 자금이 바닥나 빚이 생겼습니다`
+        : `${formatDateKo(e.date)} · 자금이 마이너스입니다${e.weeksLeft === null ? '' : ` (${e.weeksLeft}주 뒤 파산)`}`;
+    case 'bankrupt':
+      return `${formatDateKo(e.date)} · 파산했습니다`;
+    case 'horse_sold':
+      return `${formatDateKo(e.date)} · 매각: ${nameOf(e.horseId)} (${feeKo(e.price)})`;
     default:
       return assertNever(e);
   }
