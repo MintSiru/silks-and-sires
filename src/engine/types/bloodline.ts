@@ -47,6 +47,11 @@ export interface RealStallionRecord {
   coatColour?: CoatColour;
   /** 데이터 확신도 (계류 상태·혈통 관계 기준) */
   confidence: 'high' | 'medium' | 'low';
+  /**
+   * 해외 단기 임대 등으로 이 연도부터 standsIn 에서 교배 가능(그 전 시즌은 교배 불가).
+   * 예: American Pharoah 2025~2026 일본 임대 → 2027. 생략하면 제한 없음.
+   */
+  availableFromYear?: number;
 }
 
 /** key → 표시 이름 */
