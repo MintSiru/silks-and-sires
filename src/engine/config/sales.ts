@@ -1,5 +1,5 @@
 /** 세일 가치 평가(C3) 밸런스 상수. 초기값이며 Opus 가 조정한다. */
-import type { Money, SaleKind } from '../types';
+import type { CountryCode, Money, OwnerTier, SaleKind } from '../types';
 
 /** 평가값 반올림 단위(€) */
 export const SALE_VALUE_ROUND = 100;
@@ -110,7 +110,7 @@ export const SALE_RANGE_HIGH = 1.4;
 /** 카탈로그 로트 수 = 북 lotsTarget × 이 값(반올림, 최소 1). 실제 규모 대비 축소 비율 */
 export const SALE_LOT_SCALE = 0.1;
 /** 상업 생산자 판매 로트·마주 판매 로트의 기본 유보가 = 평가값 × 이 값(SALE_VALUE_ROUND 단위 반올림) */
-export const SALE_RESERVE_SHARE = 0.6;
+export const SALE_RESERVE_SHARE = 1.0;
 /** 현역마 판매(horses_in_training): 공식 레이팅 하한·상한(양끝 포함) */
 export const SALE_HIT_OR_MIN = 50;
 export const SALE_HIT_OR_MAX = 95;
@@ -138,3 +138,37 @@ export const SALE_CATALOGUE_KEEP_WEEKS = 8;
 export const SALE_HISTORY_YEARS = 3;
 /** 화면용 세일 일정 목록 최대 개수 */
 export const SALE_UPCOMING_LIMIT = 12;
+
+// ── AI 입찰·경매·낙찰 후 처리(M4-C4) ─────────────────────────
+
+/** 마주 규모별 입찰 예산 비율: 자금 × 이 값 = 한 로트에 쓸 수 있는 상한 예산 */
+export const SALE_BUDGET_SHARE: Readonly<Record<OwnerTier, number>> = { major: 0.25, mid: 0.15, small: 0.1 };
+/** 예산이 평가값 × 이 값보다 적은 마주는 그 로트의 입찰 후보에서 뺀다 */
+export const SALE_MIN_BUDGET_RATIO = 0.5;
+/** 로트당 관심 마주 수 범위(양끝 포함, 추첨) */
+export const SALE_INTEREST_MIN = 1;
+export const SALE_INTEREST_MAX = 8;
+/** 북 1 로트는 관심 마주 수에 이 값을 더한다(후보 수가 상한) */
+export const SALE_INTEREST_BOOK1_BONUS = 2;
+/** 관심 마주 추첨 가중치(규모별) */
+export const SALE_INTEREST_WEIGHT: Readonly<Record<OwnerTier, number>> = { major: 4, mid: 2, small: 1 };
+/** 입찰 상한의 로그 노이즈 SD: 상한 = 평가값 × exp(normal(0, SD)) × 명예 보정 */
+export const SALE_BID_SPREAD = 0.35;
+/** 명예 보정 폭: 1 + (prestige − 0.5) × PULL × (북 1 이면 BOOK1, 아니면 OTHER) */
+export const SALE_PRESTIGE_PULL = 0.4;
+export const SALE_PRESTIGE_PULL_BOOK1 = 1;
+export const SALE_PRESTIGE_PULL_OTHER = 0.3;
+/** 로트에 저장하는 AI 입찰 상위 수 */
+export const SALE_AI_BIDS_STORED = 3;
+/** 호가 단위 표: 낙찰가가 below 미만인 첫 항목의 increment 를 쓴다(오름차순, 마지막은 Infinity) */
+export const SALE_BID_LADDER: readonly { below: Money; increment: Money }[] = [
+  { below: 10_000, increment: 500 },
+  { below: 50_000, increment: 1_000 },
+  { below: 200_000, increment: 5_000 },
+  { below: 1_000_000, increment: 10_000 },
+  { below: Number.POSITIVE_INFINITY, increment: 25_000 },
+];
+/** 판매자 수수료율(마주 판매·상업 생산자 판매 공통): 낙찰가 × 이 값 */
+export const SALE_VENDOR_COMMISSION = 0.05;
+/** 세일 나라 밖 AI 마주 중 major 만 입찰할 수 있는 나라(유럽 5개국 + AE) */
+export const SALE_OPEN_BUYER_COUNTRIES: readonly CountryCode[] = ['GB', 'IE', 'FR', 'DE', 'IT', 'AE'];

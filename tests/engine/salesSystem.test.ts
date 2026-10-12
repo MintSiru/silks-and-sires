@@ -191,11 +191,17 @@ describe('발표 (수용 1)', () => {
       expect(ev.year, event.id).toBe(YEAR);
       expect(ev.date, event.id).toEqual({ year: YEAR, week: event.week - SALE_CATALOGUE_LEAD_WEEKS });
 
+      // 세일별 카탈로그 존재는 위 발표 이벤트로 확인한다. 마감 뒤 보존 기간(마지막 북 + KEEP 주)이 지나면 카탈로그가 지워지므로
+      // 남아 있는 카탈로그만 상태(closed 또는 catalogued)와 로트 수를 확인한다.
       const catalogues = state.sales.catalogues.filter((c) => c.saleId === event.id && c.year === YEAR);
-      expect(catalogues, event.id).toHaveLength(1);
-      expect(ev.lots, event.id).toBe(catalogues[0]?.lots.length);
+      expect(catalogues.length, event.id).toBeLessThanOrEqual(1);
+      for (const c of catalogues) {
+        expect(['closed', 'catalogued'], event.id).toContain(c.status);
+        expect(ev.lots, event.id).toBe(c.lots.length);
+      }
     }
-    expect(state.sales.catalogues).toHaveLength(15);
+    expect(state.sales.catalogues.length).toBeLessThanOrEqual(15);
+    for (const c of state.sales.catalogues) expect(['closed', 'catalogued']).toContain(c.status);
   }, RUN_TIMEOUT);
 
   it('sales 데이터 없이 만든 시스템 목록으로 52주 진행하면 state.sales 는 그대로이고 발표도 없다', () => {

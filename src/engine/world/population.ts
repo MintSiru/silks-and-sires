@@ -165,7 +165,7 @@ export function buildMarket(state: GameState): PopulationMarket {
 }
 
 /** 같은 나라 조교사 중 수용 여유가 남은 사람을 skill 가중으로 고르고 부하를 1 올린다. */
-function pickTrainer(rng: Rng, market: PopulationMarket, country: PopulationCountry): Trainer {
+export function pickTrainer(rng: Rng, market: PopulationMarket, country: PopulationCountry): Trainer {
   const eligible = market.trainers[country].filter(
     (t) => (market.load.get(t.id) ?? 0) < t.capacity,
   );
