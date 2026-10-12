@@ -338,7 +338,7 @@ describe('저장 마이그레이션 v2 → v3 (M3-C3)', () => {
 describe('저장 마이그레이션 v3 → v4 (M3-C5·C6)', () => {
   it('성격·털색이 없는 말에 중립 성격과 기본 털색을 채운다', () => {
     const v4 = makeState();
-    const horses: Record<string, unknown> = {};
+    const horses: Record<string, unknown> = { h_old: { id: 'h_old', name: 'Old Save Horse' } };
     for (const [id, h] of Object.entries(v4.horses)) {
       const { personality: _p, coat: _c, ...rest } = h;
       void _p;
@@ -351,6 +351,7 @@ describe('저장 마이그레이션 v3 → v4 (M3-C5·C6)', () => {
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.state.schemaVersion).toBe(4);
+      expect(Object.keys(result.state.horses)).toContain('h_old');
       for (const h of Object.values(result.state.horses)) {
         expect(h.personality).toEqual(neutralPersonality());
         expect(h.coat).toEqual(defaultCoat());
