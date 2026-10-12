@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import racecoursesJson from '../../data/racecourses.json';
 import g1Json from '../../data/calendar/g1.json';
+import g1ExtraJson from '../../data/calendar/g1_extra.json';
 import patternGbIeJson from '../../data/calendar/pattern_gb_ie.json';
 import patternFrDeItJson from '../../data/calendar/pattern_fr_de_it.json';
 import seriesJson from '../../data/calendar/series.json';
@@ -23,7 +24,8 @@ const G1 = g1Json as unknown as RaceTemplate[];
 const GB_IE = patternGbIeJson as unknown as RaceTemplate[];
 const FR_DE_IT = patternFrDeItJson as unknown as RaceTemplate[];
 const PATTERN = [...GB_IE, ...FR_DE_IT];
-const ALL = [...G1, ...PATTERN];
+const G1_EXTRA = g1ExtraJson as unknown as RaceTemplate[];
+const ALL = [...G1, ...G1_EXTRA, ...PATTERN];
 const series = seriesJson as unknown as SeriesDefinition[];
 
 const PRIZE_SHARES = [0.57, 0.22, 0.11, 0.055, 0.03, 0.015];
