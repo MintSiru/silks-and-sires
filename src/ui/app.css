@@ -484,3 +484,11 @@ h3 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* 시즌 탭 레이스 행 머리: 이름·등급·거리·상태 사이 간격(붙어서 '클래스 4' + '2,012m' 가 '42,012m' 처럼 보이던 문제) */
+.season-race__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+}
