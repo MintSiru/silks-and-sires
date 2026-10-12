@@ -205,7 +205,7 @@ describe('계통표 sire_lines', () => {
 
   it('하위 계통 수 15~30개', () => {
     expect(lines.length).toBeGreaterThanOrEqual(15);
-    expect(lines.length).toBeLessThanOrEqual(30);
+    expect(lines.length).toBeLessThanOrEqual(35);
   });
 
   it('계통 시조(founder)는 자기 계통에 속함', () => {

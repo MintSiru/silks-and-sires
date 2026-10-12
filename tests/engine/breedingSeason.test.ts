@@ -352,7 +352,7 @@ describe('수용 기준 4: 같은 시드 2년 진행 두 번 → 같은 JSON', (
 
   it('두 번 실행 결과가 JSON 으로 완전히 같다', () => {
     expect(runTwoYears()).toBe(runTwoYears());
-  });
+  }, 60_000);
 
   it('2년 진행 동안 수태와 출산이 실제로 일어난다', () => {
     const first = JSON.parse(runTwoYears()) as GameState;

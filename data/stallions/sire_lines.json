@@ -176,7 +176,13 @@
   {
     "id": "sl_intentionally",
     "label": "Intentionally line",
-    "parentLineId": null,
+    "parentLineId": "sl_man_o_war",
     "founderKey": "stl_intentionally"
+  },
+  {
+    "id": "sl_man_o_war",
+    "label": "Man o' War line",
+    "parentLineId": null,
+    "founderKey": "stl_man_o_war"
   }
 ]
