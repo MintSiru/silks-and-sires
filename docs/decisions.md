@@ -245,3 +245,4 @@
 - 2026-10-12 | 승인 | M4-C5 플레이어 입찰 API(sales/bidding.ts: setMaxBid·clearMaxBid·lotView(평가값·AI 상한 숨김)·liveAuctionSteps(마지막 단계 = resolveLot, 600건 일치)·saleCalendarView). Opus 수정: 입찰자 판정을 auction.ts collectBidders 하나로 통일(중복 제거), upcomingSales 에서 마감 뒤 정리된 올해 세일이 'upcoming' 으로 되돌아가던 버그 수정(+회귀 테스트).
 - 2026-10-12 | 승인 | M4-C6 조교사 상마안 적용: 내 말 소견 정확도 = 맡은 조교사 eye(+전속 15, 최대 100, 조교사 없으면 50), 세일 동행 검사(sales/inspection.ts: 전속 또는 관계 ≥ 10 조교사, eye 비공개). 1세마 100로트 평균 등급 오차 eye 20 → 0.30, eye 90 → 0.19. trainerAssessorSkill export 승인.
 - 2026-10-12 | 승인 | M4-C10a 세일·인맥 뷰 함수(ui/sales/salesView.ts, ui/staff/staffView.ts, 숨김 값 미노출 테스트)와 GameApi 행동 6개(위탁·입찰·전속). Opus 수정: 세일 일정 표시 한도 12 → 20(한 해 15개 전부), 로트 어미 이름은 기록이 있으면 표시.
+- 2026-10-12 | 결정(사용자) | 승부복 편집기(E0a): 몸통·소매·모자마다 바탕색 + 무늬 층 최대 2개, 무늬 목록 확장(몸통 26종·소매 13종·모자 11종).
