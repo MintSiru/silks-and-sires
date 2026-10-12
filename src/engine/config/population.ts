@@ -17,14 +17,18 @@ export const POPULATION_IN_TRAINING: Readonly<Record<PopulationCountry, number>>
   IT: 200,
 };
 
-/** 초기 나이 분포(합 1). 나이 = 현재 연도 - birthYear */
+/**
+ * 초기 나이 분포(합 1). 나이 = 현재 연도 - birthYear.
+ * 연간 교체 규칙(M3-F2d)의 정상 상태 분포(시드 20261011, 2033~2037 시즌 종료 평균)에 맞춘다.
+ * 이전 값(30/30/18/11/7/4)은 정상 상태까지 약 6년의 과도기가 있었다.
+ */
 export const POPULATION_AGE_SHARES: readonly { age: number; share: number }[] = [
-  { age: 2, share: 0.3 },
-  { age: 3, share: 0.3 },
-  { age: 4, share: 0.18 },
-  { age: 5, share: 0.11 },
-  { age: 6, share: 0.07 },
-  { age: 7, share: 0.04 },
+  { age: 2, share: 0.26 },
+  { age: 3, share: 0.24 },
+  { age: 4, share: 0.207 },
+  { age: 5, share: 0.157 },
+  { age: 6, share: 0.091 },
+  { age: 7, share: 0.045 },
 ];
 /** 신규 진입 나이(연간 교체에서 새로 넣는 말의 나이) */
 export const POPULATION_ENTRY_AGE = 2;
@@ -36,14 +40,59 @@ export const POPULATION_GELDING_SHARE = 0.35;
 export const POPULATION_GELDING_MIN_AGE = 4;
 
 /**
- * 연간 교체: 신규 2세 투입 두수 = 그 해 그 나라에서 은퇴한 두수(8세 이상 전부 + 4세 이상 하위 CUT_SHARE).
+ * 연간 교체: 신규 2세 투입 두수 = 그 해 그 나라에서 은퇴한 두수(조기 은퇴 + 나이별 하위 정리 + 8세 이상 전원).
  * 그래서 나라별 두수가 설정값으로 유지된다.
  */
 /** 연간 교체: 이 나이 이상은 전부 은퇴 */
 export const POPULATION_RETIRE_AGE = 8;
-/** 연간 교체: 이 나이 이상 중 하위 비율을 은퇴(나라별 적용) */
-export const POPULATION_CUT_MIN_AGE = 4;
-export const POPULATION_CUT_SHARE = 0.15;
+
+/**
+ * 연간 교체: 나라·나이별 하위 정리 비율(선발 기준값 하위, 나라·나이 그룹마다 적용). 8세 이상은 전원 은퇴이므로 없다.
+ * 나이 = 연초 교체 후의 새 나이(나이 오름차순).
+ */
+export const POPULATION_CUT_SHARE_BY_AGE: readonly { age: number; share: number }[] = [
+  { age: 3, share: 0.08 },
+  { age: 4, share: 0.12 },
+  { age: 5, share: 0.15 },
+  { age: 6, share: 0.25 },
+  { age: 7, share: 0.4 },
+];
+
+/**
+ * 조기 은퇴 밴드. 나이·평가값으로 밴드를 고르며 첫 번째로 맞는 밴드의 확률을 쓴다(목록 순서가 우선순위).
+ * 맞는 밴드가 없으면 은퇴하지 않는다. 평가값은 선발 기준값(OR, 없으면 능력 환산).
+ * minValue 는 이 값 이상이라는 뜻이다. 나이 상한이 없으면 Infinity.
+ */
+export interface EarlyRetireBand {
+  minAge: number;
+  maxAge: number;
+  minValue: number;
+  chance: number;
+}
+
+/** 조기 은퇴: 수말(거세 안 함). 새 나이 3·4·5·6 이상. 거세마는 이 표를 쓰지 않는다. */
+export const POPULATION_STUD_RETIRE_BANDS: readonly EarlyRetireBand[] = [
+  { minAge: 3, maxAge: 3, minValue: 110, chance: 0.25 },
+  { minAge: 4, maxAge: 4, minValue: 110, chance: 0.75 },
+  { minAge: 4, maxAge: 4, minValue: 100, chance: 0.4 },
+  { minAge: 5, maxAge: 5, minValue: 105, chance: 0.7 },
+  { minAge: 5, maxAge: 5, minValue: 95, chance: 0.35 },
+  { minAge: 6, maxAge: Number.POSITIVE_INFINITY, minValue: 100, chance: 0.8 },
+];
+
+/** 조기 은퇴: 암말(번식). 새 나이 4·5·6·7 이상. */
+export const POPULATION_BROODMARE_RETIRE_BANDS: readonly EarlyRetireBand[] = [
+  { minAge: 4, maxAge: 4, minValue: 100, chance: 0.35 },
+  { minAge: 4, maxAge: 4, minValue: 90, chance: 0.2 },
+  { minAge: 5, maxAge: 5, minValue: 95, chance: 0.6 },
+  { minAge: 5, maxAge: 5, minValue: 85, chance: 0.35 },
+  { minAge: 5, maxAge: 5, minValue: Number.NEGATIVE_INFINITY, chance: 0.15 },
+  { minAge: 6, maxAge: 6, minValue: 90, chance: 0.8 },
+  { minAge: 6, maxAge: 6, minValue: Number.NEGATIVE_INFINITY, chance: 0.5 },
+  { minAge: 7, maxAge: Number.POSITIVE_INFINITY, minValue: Number.NEGATIVE_INFINITY, chance: 0.8 },
+];
+
+
 /** 공식 레이팅을 부여하는 최소 나이(그 미만은 null) */
 export const POPULATION_RATING_MIN_AGE = 3;
 

@@ -30,7 +30,10 @@ import {
 } from '../../src/engine/config/rating';
 import { RATING_MAX, RATING_MIN } from '../../src/engine/config/population';
 import { START_YEAR, WEEKS_PER_YEAR } from '../../src/engine/config/game';
-import { POPULATION_CUT_MIN_AGE, POPULATION_CUT_SHARE, POPULATION_RETIRE_AGE } from '../../src/engine/config/population';
+import { POPULATION_RETIRE_AGE } from '../../src/engine/config/population';
+/** F1b 조사 시점(M3-F2d 이전) 은퇴 규칙 값. F2d 에서 나이별 정리로 바뀌어 config 에서 지웠다 */
+const POPULATION_CUT_MIN_AGE = 4;
+const POPULATION_CUT_SHARE = 0.15;
 import { MARKET_NOISE_SD, MARKET_TEMPERATURE } from '../../src/engine/config/raceday';
 import { SUMMARY_NOISE_SD } from '../../src/engine/config/season';
 import { buildRacePath } from '../../src/engine/course/path';
