@@ -32,3 +32,9 @@ data/naming/landmarks.json 의 명승고적·작품 제목이 실제 마명 후�
 
 ## 금지
 src/engine/types 수정 금지. data/ 수정 금지. UI 수정 금지. git commit 금지.
+
+## 추가 (사용자 결정 2026-10-12) — 18자 초과 제목
+- landmarks.json 항목에 `joinedOnly: true`(공백 포함 18자 초과, 공백 제거 시 18자 이하)가 생긴다(C7f1 보강, 데이터 에이전트가 동시에 추가 중).
+- getNamingData: 공백 포함 길이가 NAME_MAX_LENGTH 이하인 제목은 지금처럼, 넘는 제목은 붙여 쓴 길이가 NAME_MAX_LENGTH 이하일 때만 넣는다(joinedOnly 필드가 없어도 길이로 판정).
+- 생성기: 고른 제목이 공백 포함 NAME_MAX_LENGTH 를 넘으면 TITLE_JOINED_CHANCE 와 상관없이 붙여 쓰기로 만든다(이때 rng.chance 는 호출하지 않는다).
+- 테스트: 긴 제목(예: "Save the Last Dance")만 넣은 NamingData 로 생성하면 "Savethelastdance" 가 나온다.

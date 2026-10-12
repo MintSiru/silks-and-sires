@@ -43,3 +43,9 @@
 ## 금지
 기존 data/naming/*.json 수정 금지. src/ 수정 금지. 웹 조회 금지(기억으로 작성하고 불확실한 것은 _review 에 표시). git commit 금지.
 다른 에이전트가 동시에 src/engine/naming·world·state·breeding·data/staticData.ts 와 data/calendar 를 수정 중이다. 그쪽 작업 때문에 깨지는 테스트는 보고만 한다.
+
+## 추가 (사용자 결정 2026-10-12) — 18자 초과 제목
+- 공백 포함 18자를 넘는 제목도 **공백을 뺀 길이가 18자 이하**면 넣는다(예: Save the Last Dance → 생성기에서는 항상 붙여 쓰기 "Savethelastdance"). 이런 항목에는 `"joinedOnly": true` 를 붙인다.
+- 형식 검사: 공백을 뺀 길이 ≤ 18. joinedOnly 는 공백 포함 길이 > 18 인 항목에만 있어야 한다.
+- 보호 명단·종마·real_places 겹침 검사는 정규화(공백 제거) 기준이므로 그대로 적용된다.
+- 앞서 18자 때문에 뺀 후보(Save the Last Dance 등)와 축약한 제목은 원제로 되돌릴 수 있으면 되돌린다(붙여 쓴 길이 ≤ 18 일 때만). 추가 개수 목표: 30개 이상.
