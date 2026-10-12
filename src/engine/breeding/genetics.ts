@@ -1,4 +1,4 @@
-import { defaultCoat } from '../horse/traits';
+import { inheritCoat } from '../horse/coat';
 import { deriveStyle, inheritPersonality } from '../horse/personality';
 import type {
   Abilities,
@@ -406,7 +406,7 @@ export function breed(rng: Rng, args: BreedArgs): Horse {
     sireLineId: sire.sireLineId,
     soundness,
     personality,
-    coat: defaultCoat(),
+    coat: inheritCoat(rng.fork('coat'), sire.coat, dam.coat),
     record: zeroRecord(),
   };
 }

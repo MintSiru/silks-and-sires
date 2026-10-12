@@ -1,4 +1,4 @@
-import { defaultCoat } from './traits';
+import { generateCoat } from './coat';
 import { deriveStyle, generatePersonality } from './personality';
 import type {
   Abilities,
@@ -212,7 +212,7 @@ export function generateHorse(rng: Rng, opts: GenerateHorseOptions): Horse {
     sireLineId: opts.sireLineId ?? null,
     soundness,
     personality,
-    coat: defaultCoat(),
+    coat: generateCoat(rng.fork('coat')),
     record: zeroRecord(),
   };
 }

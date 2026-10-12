@@ -12,6 +12,7 @@ import {
   TIER_LEVEL,
   TIER_POPULARITY,
 } from '../config/world';
+import { coatFromColour } from '../horse/coat';
 import { generateHorse } from '../horse/generate';
 import type {
   Horse,
@@ -68,7 +69,7 @@ export function createRealStallionHorses(
       throw new Error(`실명 종마 이름이 ${NAME_MAX_LENGTH}자를 넘는다: ${name}`);
     }
 
-    const horse = generateHorse(rng, {
+    const generated = generateHorse(rng, {
       id: rec.key,
       name,
       sex: 'male',
@@ -85,6 +86,11 @@ export function createRealStallionHorses(
       distanceBias: PROFILE_DISTANCE[rec.distanceProfile],
       surfaceBias: rec.surfaceProfile === 'dirt' ? 'dirt' : undefined,
     });
+    // 털색은 데이터 coatColour 에서 정한다(없으면 bay). 키별 fork 로 종마 순서와 무관하게 고정
+    const horse: Horse = {
+      ...generated,
+      coat: coatFromColour(rec.coatColour, rng.fork('coat:' + rec.key)),
+    };
     horses.push(horse);
 
     if (rec.status === 'active') {

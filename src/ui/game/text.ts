@@ -8,6 +8,8 @@ import {
   type CalendarPhaseId,
   type CommentKey,
   type CountryCode,
+  type CoatColour,
+  type FaceMarking,
   type Grade,
   type GameEvent,
   type GrowthProfile,
@@ -180,6 +182,33 @@ const GELDED_KO = '거세마';
 export function sexKo(sex: Sex, gelded: boolean): string {
   if (sex === 'male' && gelded) return GELDED_KO;
   return SEX_KO[sex];
+}
+
+const COAT_COLOUR_KO: Record<CoatColour, string> = {
+  bay: '갈색(베이)',
+  brown: '흑갈색',
+  black: '흑색',
+  chestnut: '밤색',
+  grey: '회색',
+  roan: '조모',
+};
+
+/** 표시 털색 한국어. 예: 'chestnut' → '밤색' */
+export function coatColourKo(c: CoatColour): string {
+  return COAT_COLOUR_KO[c];
+}
+
+const FACE_MARKING_KO: Record<FaceMarking, string> = {
+  none: '없음',
+  star: '별',
+  snip: '코끝 흰 점',
+  stripe: '가는 줄',
+  blaze: '넓은 흰 줄',
+};
+
+/** 얼굴 흰 반점 한국어. 예: 'blaze' → '넓은 흰 줄' */
+export function faceMarkingKo(f: FaceMarking): string {
+  return FACE_MARKING_KO[f];
 }
 
 /** 마체 평가 6항목(종합 제외 포함) 키. ConformationReport 에서 stage 를 뺀 키다. */
