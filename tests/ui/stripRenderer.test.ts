@@ -207,16 +207,44 @@ describe('drawStrip', () => {
     expect(countOf(calls, 'save')).toBe(countOf(calls, 'restore'));
   });
 
-  it('3착 통과 후 사진 판정이면 PHOTO 를 그린다', () => {
+  it('승자 통과 후 2초 동안 사진 판정 컷을 그린다', () => {
+    // 승자 결승 60s, 컷 60~62s
     const { ctx, calls } = recordingCtx();
-    drawStrip(ctx, modelAt(62));
-    expect(texts(calls)).toContain('PHOTO');
+    drawStrip(ctx, modelAt(61));
+    expect(texts(calls)).toContain('사진 판정');
   });
 
-  it('결승 전에는 PHOTO 를 그리지 않는다', () => {
+  it('결승 전에는 사진 판정 컷을 그리지 않는다', () => {
     const { ctx, calls } = recordingCtx();
     drawStrip(ctx, modelAt(10));
-    expect(texts(calls)).not.toContain('PHOTO');
+    expect(texts(calls)).not.toContain('사진 판정');
+  });
+
+  it('컷이 끝나고 3착도 통과하면 결과판(머리글 SP·착차)을 그린다', () => {
+    const { ctx, calls } = recordingCtx();
+    drawStrip(ctx, modelAt(62));
+    const all = texts(calls);
+    expect(all).toContain('SP');
+    expect(all).toContain('착차');
+    expect(all).not.toContain('사진 판정');
+  });
+
+  it('결승 전 실시간 순위에는 결과판 머리글을 그리지 않는다', () => {
+    const { ctx, calls } = recordingCtx();
+    drawStrip(ctx, modelAt(10));
+    expect(texts(calls)).not.toContain('SP');
+  });
+
+  it('프레임당 그리기 평균이 2ms 이하(60프레임, 사진 컷·결과판 구간 포함)', () => {
+    const models = Array.from({ length: 60 }, (_, k) => modelAt(55 + (k * 10) / 59));
+    // 워밍업 한 번
+    drawStrip(recordingCtx().ctx, models[0]!);
+    const t0 = performance.now();
+    for (const m of models) {
+      drawStrip(recordingCtx().ctx, m);
+    }
+    const perFrame = (performance.now() - t0) / models.length;
+    expect(perFrame).toBeLessThanOrEqual(2);
   });
 
   it('플레이어(금색 링) 원판에 링을 추가로 그린다', () => {

@@ -5,19 +5,23 @@
 import type {
   Going,
   HexColor,
+  Margin,
   PathPoint,
   RaceEntry,
   RaceGrade,
   RacePath,
   RaceReplay,
   RaceResult,
+  RunnerResult,
   ReplayFrame,
+  Silks,
   Surface,
 } from '../../engine/types';
 import { formatMarginKo, marginFromLengths } from '../../engine/race/results';
 import { formatOdds } from '../../engine/race/odds';
 import { goingLabel } from '../../engine/going/going';
 import { SECTIONAL_STEP_M } from '../../engine/config/results';
+import { PHOTO_MARGIN_LABELS } from '../../engine/config/commentary';
 import { timeToReach } from '../../engine/commentary/events';
 
 // ── UI 상수 (밸런스 상수가 아닌 표시 상수) ─────────────────────────────
@@ -55,10 +59,14 @@ const LOW_CONTRAST_RATIO = 1.6;
 const LEFT_PANEL_W = 250;
 /** 우측 패널 폭(px) */
 const RIGHT_PANEL_W = 290;
-/** 3착 통과 후 사진 판정 표시 시간(s) */
-const PHOTO_HOLD_S = 2;
+/** 결승 직후 사진 판정 컷 표시 시간(s). 이 뒤에 결과판이 나온다. */
+export const PHOTO_HOLD_S = 2;
+/** 결과판 행 수(상위 두수) */
+export const BOARD_COUNT = 6;
 /** m/s → km/h */
 const KMH_PER_MPS = 3.6;
+/** 음수 기호(U+2212). OR 변동 표기에 쓴다. */
+const MINUS_SIGN = '−';
 
 // ── 타입 ───────────────────────────────────────────────────────────────
 export interface ViewerInfo {
@@ -72,6 +80,8 @@ export interface ViewerInfo {
   entries: RaceEntry[];
   /** index = runner index */
   horseNames: string[];
+  /** 결과판용 OR 변동(선택). 없으면 결과판에서 OR 열을 생략한다. */
+  ratingChanges?: Record<number /*runner index*/, { from: number | null; to: number }>;
 }
 
 export interface CameraWindow {
@@ -83,9 +93,36 @@ export interface StandingRow {
   runnerIndex: number;
   saddleCloth: number;
   silksPrimary: HexColor;
+  silks: Silks;
   horseName: string;
   marginText: string;
   oddsText: string;
+}
+
+/** 결과판 한 줄. 착차·SP·OR 변동은 표기 문자열로 준다. */
+export interface BoardRow {
+  position: number;
+  runnerIndex: number;
+  saddleCloth: number;
+  silks: Silks;
+  isPlayer: boolean;
+  horseName: string;
+  /** 1착은 '1착', 동착은 '동착', 그 밖은 formatMarginKo */
+  marginText: string;
+  /** SP 분수 오즈. 없으면 '-' */
+  oddsText: string;
+  /** OR 변동 표기("+3", "−2", "첫 OR 98", "±0"). ratingChanges 가 없으면 null */
+  ratingText: string | null;
+}
+
+/** 사진 판정 컷. t0 = 승자 결승 통과 시각(s). gapM = 1·2착 결승 시각 차 × 승자 속도(m). */
+export interface PhotoCut {
+  t0: number;
+  /** runner index */
+  winner: number;
+  /** runner index */
+  second: number;
+  gapM: number;
 }
 
 export interface DiscPlacement {
@@ -93,6 +130,7 @@ export interface DiscPlacement {
   x: number;
   y: number;
   fill: HexColor;
+  silks: Silks;
   textColor: string;
   border: HexColor;
   label: string;
@@ -128,14 +166,18 @@ export interface StripModel {
     finishX: number | null;
     /** 선두가 지난 마지막 펄롱 구간 시간("12.6s"). 첫 구간을 다 지나기 전이면 null */
     split: string | null;
+    /** 사진 판정 컷. 사진 판정 레이스이고 t0 ≤ t < t0 + PHOTO_HOLD_S 일 때만 값이 있다. */
+    photoCut: PhotoCut | null;
   };
   right: {
+    /** 실시간 순위(결승 전) 또는 확정 순위 상위 3두 */
     rows: StandingRow[];
+    /** 결과판(상위 BOARD_COUNT두). 사진 컷이 끝나고 3착까지 통과한 뒤에만 값이 있다. */
+    board: BoardRow[] | null;
     raceName: string;
     gradeBadge: string | null;
     courseName: string;
     finished: boolean;
-    photo: boolean;
   };
 }
 
@@ -267,6 +309,7 @@ export function liveStandings(frame: ReplayFrame, info: ViewerInfo, count = 3): 
       runnerIndex,
       saddleCloth: entry.saddleCloth,
       silksPrimary: entry.silks.primary,
+      silks: entry.silks,
       horseName: horseNameOf(info, runnerIndex),
       marginText,
       oddsText: entry.odds === null ? '-' : formatOdds(entry.odds),
@@ -276,23 +319,77 @@ export function liveStandings(frame: ReplayFrame, info: ViewerInfo, count = 3): 
   return rows;
 }
 
+/** 확정 착차 문구. 1착은 '1착', 동착(margin null)은 '동착', 그 밖은 formatMarginKo. */
+function finalMarginText(rr: RunnerResult): string {
+  if (rr.position === 1) return '1착';
+  if (rr.margin === null) return '동착';
+  return formatMarginKo(rr.margin);
+}
+
 /** 확정 결과 상위 count 두. result.runners 순서를 따른다. */
 export function finalStandings(result: RaceResult, info: ViewerInfo, count = 3): StandingRow[] {
   return result.runners.slice(0, count).map((rr) => {
     const entry = requireEntry(info, rr.runnerIndex);
-    let marginText: string;
-    if (rr.position === 1) marginText = '1착';
-    else if (rr.margin === null) marginText = '동착';
-    else marginText = formatMarginKo(rr.margin);
     return {
       runnerIndex: rr.runnerIndex,
       saddleCloth: rr.saddleCloth,
       silksPrimary: entry.silks.primary,
+      silks: entry.silks,
       horseName: horseNameOf(info, rr.runnerIndex),
-      marginText,
+      marginText: finalMarginText(rr),
       oddsText: rr.odds === null ? '-' : formatOdds(rr.odds),
     };
   });
+}
+
+/** OR 변동 표기. 첫 OR 은 "첫 OR 98", 변동은 "+3", "−2", 0 은 "±0". */
+export function formatRatingChange(change: { from: number | null; to: number }): string {
+  if (change.from === null) return `첫 OR ${change.to}`;
+  const delta = change.to - change.from;
+  if (delta === 0) return '±0';
+  return delta > 0 ? `+${delta}` : `${MINUS_SIGN}${-delta}`;
+}
+
+/** 결과판 상위 count 두. result.runners 순서를 따른다. 착차·SP 는 확정 기록, OR 변동은 info.ratingChanges. */
+export function resultBoard(result: RaceResult, info: ViewerInfo, count = BOARD_COUNT): BoardRow[] {
+  return result.runners.slice(0, count).map((rr) => {
+    const entry = requireEntry(info, rr.runnerIndex);
+    const change = info.ratingChanges?.[rr.runnerIndex];
+    return {
+      position: rr.position,
+      runnerIndex: rr.runnerIndex,
+      saddleCloth: rr.saddleCloth,
+      silks: entry.silks,
+      isPlayer: entry.isPlayer,
+      horseName: horseNameOf(info, rr.runnerIndex),
+      marginText: finalMarginText(rr),
+      oddsText: rr.odds === null ? '-' : formatOdds(rr.odds),
+      ratingText: change === undefined ? null : formatRatingChange(change),
+    };
+  });
+}
+
+/** 1·2착 착차가 사진 판정 라벨이거나 동착(margin null)이면 사진 판정 레이스. 아니면 null. */
+export function isPhotoMargin(margin: Margin | null): boolean {
+  return margin === null || PHOTO_MARGIN_LABELS.includes(margin.label);
+}
+
+/**
+ * 레이스 단위 사진 판정 정보. 시간과 무관하다(화면에 보일지는 buildStripModel 이 정한다).
+ * t0 = 승자 결승 통과 시각. gapM = (2착 결승 시각 − 승자 결승 시각) × 승자 결승 시점 속도.
+ */
+export function photoCutFor(replay: RaceReplay, result: RaceResult): PhotoCut | null {
+  const winner = result.runners[0];
+  const second = result.runners[1];
+  if (winner === undefined || second === undefined) return null;
+  if (!isPhotoMargin(second.margin)) return null;
+  const speed = frameAt(replay, winner.finishTime).speed[winner.runnerIndex] ?? 0;
+  return {
+    t0: winner.finishTime,
+    winner: winner.runnerIndex,
+    second: second.runnerIndex,
+    gapM: (second.finishTime - winner.finishTime) * speed,
+  };
 }
 
 // ── 색 ────────────────────────────────────────────────────────────────
@@ -401,6 +498,7 @@ export function placeDiscs(
       x: d.x,
       y: d.y,
       fill,
+      silks: entry.silks,
       textColor: textColorFor(fill),
       border: discBorderFor(fill),
       label: String(entry.saddleCloth),
@@ -574,20 +672,19 @@ export function buildStripModel(args: {
   );
   const split = sectionSplit(replay, distance, leaderProgress);
 
-  // 우측
+  // 우측·사진 판정 시각
   const runners = result.runners;
   const last = runners[runners.length - 1];
   if (last === undefined) throw new RangeError('buildStripModel: 결과에 주자가 없다');
   const third = runners[2] ?? last;
   const finished = frame.t >= third.finishTime;
-  const second = runners[1];
-  const photo =
-    finished &&
-    second !== undefined &&
-    (second.margin === null ||
-      second.margin.label === 'nose' ||
-      second.margin.label === 'short_head') &&
-    frame.t < third.finishTime + PHOTO_HOLD_S;
+  const photoRace = photoCutFor(replay, result);
+  const photoOn =
+    photoRace !== null && frame.t >= photoRace.t0 && frame.t < photoRace.t0 + PHOTO_HOLD_S;
+  // 결과판: 3착 통과 후이고, 사진 판정 컷이 있었다면 컷이 끝난 뒤
+  const boardAt =
+    photoRace === null ? third.finishTime : Math.max(third.finishTime, photoRace.t0 + PHOTO_HOLD_S);
+  const boardOn = frame.t >= boardAt;
 
   return {
     width,
@@ -608,14 +705,15 @@ export function buildStripModel(args: {
       poles,
       finishX,
       split,
+      photoCut: photoOn && photoRace !== null ? photoRace : null,
     },
     right: {
       rows: finished ? finalStandings(result, info) : liveStandings(frame, info),
+      board: boardOn ? resultBoard(result, info) : null,
       raceName: info.raceName,
       gradeBadge: gradeBadgeOf(info.grade),
       courseName: info.courseName,
       finished,
-      photo,
     },
   };
 }

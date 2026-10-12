@@ -4,6 +4,7 @@ import { buildRacePath } from '../../src/engine/course/path';
 import { getRacecourse, loadRacecourses } from '../../src/engine/course/load';
 import type {
   FractionalOdds,
+  Margin,
   RaceEntry,
   RaceReplay,
   RaceResult,
@@ -11,6 +12,7 @@ import type {
   ReplayFrame,
   RunnerResult,
 } from '../../src/engine/types';
+import { formatMarginKo } from '../../src/engine/race/results';
 import {
   buildStripModel,
   cameraWindow,
@@ -19,12 +21,16 @@ import {
   elevationProfile,
   finalStandings,
   formatDistanceLabel,
+  formatRatingChange,
   formatRemaining,
   frameAt,
+  isPhotoMargin,
   liveStandings,
+  photoCutFor,
   placeDiscs,
   relativeLuminance,
   replayDuration,
+  resultBoard,
   sectionBoundaries,
   sectionSplit,
   speedKmh,
@@ -393,9 +399,23 @@ describe('buildStripModel', () => {
     expect(done.center.finishX).not.toBeNull();
   });
 
-  it('2착이 코 차이면 3착 통과 후 2초 동안 PHOTO', () => {
-    expect(build(62).right.photo).toBe(true);
-    expect(build(64).right.photo).toBe(false);
+  it('2착이 코 차이면 승자 통과(60s)부터 2초 동안 사진 판정 컷', () => {
+    expect(build(59.9).center.photoCut).toBeNull();
+    expect(build(60).center.photoCut).not.toBeNull();
+    expect(build(61.9).center.photoCut).not.toBeNull();
+    expect(build(62).center.photoCut).toBeNull();
+  });
+
+  it('결과판은 사진 컷이 끝난 뒤(62s)에만 나온다', () => {
+    expect(build(61.9).right.board).toBeNull();
+    expect(build(62).right.board).not.toBeNull();
+  });
+
+  it('live 순위와 확정 순위 행, 원판에 승부복(silks)이 실린다', () => {
+    const live = build(10);
+    expect(live.right.rows[0]?.silks).toEqual(makeEntries()[0]?.silks);
+    expect(live.center.discs[0]?.silks).toBeDefined();
+    expect(build(62).right.rows[0]?.silks).toEqual(makeEntries()[0]?.silks);
   });
 
   it('등급 배지: L 은 Listed, null 은 null', () => {
@@ -511,5 +531,199 @@ describe('sectionSplit', () => {
     // 평탄 경로: 모든 점의 y 가 같다(수평)
     const ys = new Set(model.left.profile.points.map((p) => p.y.toFixed(6)));
     expect(ys.size).toBe(1);
+  });
+});
+
+// ── 결과판 · 사진 판정 컷 · OR 변동 ─────────────────────────────────────
+const MINUS = '−';
+
+/** n두(= speeds.length) 합성 레이스. 착순은 결승 시각(= 속도) 순, 마번은 게이트 순 1..n. */
+function fieldFixture(
+  speeds: number[],
+  secondMargin: Margin | null,
+): { replay: RaceReplay; result: RaceResult; info: ViewerInfo } {
+  const n = speeds.length;
+  const frames: ReplayFrame[] = [];
+  for (let k = 0; k <= 900; k++) {
+    const t = k * 0.1;
+    frames.push({
+      t: Math.round(t * 10) / 10,
+      progress: speeds.map((v) => v * t),
+      lane: speeds.map(() => 0),
+      speed: [...speeds],
+    });
+  }
+  const entries: RaceEntry[] = [];
+  for (let i = 0; i < n; i++) {
+    entries.push({
+      horseId: `h${i}`,
+      saddleCloth: i + 1,
+      draw: i + 1,
+      jockeyId: `j${i}`,
+      weightLb: 126,
+      tactic: 'prominent',
+      silks: { primary: PRIMARIES[i % PRIMARIES.length] ?? '#000000', secondary: '#ffffff', pattern: 'hoops' },
+      isPlayer: i === 0,
+      odds: i === 0 ? { num: 3, den: 1 } : null,
+    });
+  }
+  const order = speeds.map((_, i) => i).sort((a, b) => (speeds[b] ?? 0) - (speeds[a] ?? 0));
+  const runners = order.map((ri, k): RunnerResult => {
+    const entry = entries[ri];
+    if (entry === undefined) throw new Error('fixture');
+    let margin: Margin | null = { label: 'lengths', lengths: 1 };
+    if (k === 0) margin = null;
+    else if (k === 1) margin = secondMargin;
+    return {
+      runnerIndex: ri,
+      horseId: entry.horseId,
+      saddleCloth: entry.saddleCloth,
+      draw: entry.draw,
+      jockeyId: entry.jockeyId,
+      weightLb: entry.weightLb,
+      position: k + 1,
+      finishTime: DISTANCE / (speeds[ri] ?? 1),
+      margin,
+      beatenLengths: 0,
+      sectionals: [],
+      performanceFigure: 0,
+      odds: entry.odds,
+    };
+  });
+  const result: RaceResult = {
+    raceId: 'sample-race',
+    racecourseId: 'sample-course',
+    date: { year: 2026, week: 10 },
+    going: 'good',
+    distance: DISTANCE,
+    seed: 1,
+    winningTime: runners[0]?.finishTime ?? 0,
+    sectionalMarks: [],
+    runners,
+  };
+  const info: ViewerInfo = {
+    raceName: 'Sample Stakes',
+    grade: null,
+    courseName: 'Sample Park',
+    surface: 'turf',
+    distance: DISTANCE,
+    going: 'good',
+    entries,
+    horseNames: entries.map((_, i) => `Horse ${i}`),
+  };
+  return { replay: { tickSeconds: 0.1, horseIds: entries.map((e) => e.horseId), frames }, result, info };
+}
+
+/** 7두 필드. 속도 20 → 19.8 → … 로 결승 순서가 마번 1..7 과 같다. */
+const SEVEN = [20, 19.8, 19.5, 19.2, 18.9, 18.6, 18];
+
+describe('formatRatingChange', () => {
+  it('양수는 +, 음수는 − (U+2212), 0 은 ±0, 첫 OR 은 "첫 OR N"', () => {
+    expect(formatRatingChange({ from: 95, to: 98 })).toBe('+3');
+    expect(formatRatingChange({ from: 90, to: 88 })).toBe(`${MINUS}2`);
+    expect(formatRatingChange({ from: 80, to: 80 })).toBe('±0');
+    expect(formatRatingChange({ from: null, to: 98 })).toBe('첫 OR 98');
+  });
+});
+
+describe('resultBoard', () => {
+  it('상위 6두만, 착순 순서대로', () => {
+    const { result, info } = fieldFixture(SEVEN, { label: 'nose', lengths: 0 });
+    const board = resultBoard(result, info);
+    expect(board).toHaveLength(6);
+    expect(board.map((r) => r.position)).toEqual([1, 2, 3, 4, 5, 6]);
+    expect(board.map((r) => r.runnerIndex)).toEqual(result.runners.slice(0, 6).map((r) => r.runnerIndex));
+  });
+
+  it('착차 문구는 formatMarginKo 와 같고, 1착은 "1착"', () => {
+    const margin: Margin = { label: 'short_head', lengths: 0 };
+    const { result, info } = fieldFixture(SEVEN, margin);
+    const board = resultBoard(result, info);
+    expect(board[0]?.marginText).toBe('1착');
+    expect(board[1]?.marginText).toBe(formatMarginKo(margin));
+    expect(board[2]?.marginText).toBe(formatMarginKo({ label: 'lengths', lengths: 1 }));
+  });
+
+  it('SP 는 분수 오즈, 없으면 "-"', () => {
+    const { result, info } = fieldFixture(SEVEN, { label: 'nose', lengths: 0 });
+    const board = resultBoard(result, info);
+    const first = board.find((r) => r.runnerIndex === 0);
+    expect(first?.oddsText).toBe('3/1');
+    expect(board.find((r) => r.runnerIndex === 1)?.oddsText).toBe('-');
+  });
+
+  it('ratingChanges 가 없으면 ratingText 는 null, 있으면 형식대로', () => {
+    const { result, info } = fieldFixture(SEVEN, { label: 'nose', lengths: 0 });
+    expect(resultBoard(result, info).every((r) => r.ratingText === null)).toBe(true);
+
+    const withRatings: ViewerInfo = {
+      ...info,
+      ratingChanges: {
+        0: { from: 95, to: 98 },
+        1: { from: 90, to: 88 },
+        2: { from: null, to: 98 },
+        3: { from: 80, to: 80 },
+      },
+    };
+    const byIndex = new Map(resultBoard(result, withRatings).map((r) => [r.runnerIndex, r.ratingText]));
+    expect(byIndex.get(0)).toBe('+3');
+    expect(byIndex.get(1)).toBe(`${MINUS}2`);
+    expect(byIndex.get(2)).toBe('첫 OR 98');
+    expect(byIndex.get(3)).toBe('±0');
+    expect(byIndex.get(4)).toBeNull();
+  });
+
+  it('buildStripModel: 3착 통과 후(사진 없음) 결과판이 나온다', () => {
+    const { replay, result, info } = fieldFixture(SEVEN, { label: 'lengths', lengths: 2 });
+    const at = (t: number) =>
+      buildStripModel({ replay, t, path: makePath(), info, result, width: 1200, height: 240 });
+    // 3착 = 1200/19.5 ≈ 61.54s
+    expect(at(61.4).right.board).toBeNull();
+    expect(at(61.6).right.board).toHaveLength(6);
+    expect(at(61.6).center.photoCut).toBeNull();
+  });
+});
+
+describe('photoCutFor / 사진 판정 컷', () => {
+  it('라벨 nose, short_head, head, 동착(null) 이면 사진 판정', () => {
+    expect(isPhotoMargin({ label: 'nose', lengths: 0 })).toBe(true);
+    expect(isPhotoMargin({ label: 'short_head', lengths: 0 })).toBe(true);
+    expect(isPhotoMargin({ label: 'head', lengths: 0 })).toBe(true);
+    expect(isPhotoMargin(null)).toBe(true);
+    expect(isPhotoMargin({ label: 'neck', lengths: 0 })).toBe(false);
+    expect(isPhotoMargin({ label: 'lengths', lengths: 1 })).toBe(false);
+  });
+
+  it('사진 판정이 아니면 null', () => {
+    const { replay, result } = fieldFixture(SEVEN, { label: 'lengths', lengths: 1 });
+    expect(photoCutFor(replay, result)).toBeNull();
+  });
+
+  it('사진 판정이면 t0 = 승자 결승, gapM = (2착 − 승자 결승 시각) × 승자 속도 (±0.1m)', () => {
+    const { replay, result } = fieldFixture(SEVEN, { label: 'nose', lengths: 0 });
+    const cut = photoCutFor(replay, result);
+    expect(cut).not.toBeNull();
+    expect(cut?.t0).toBeCloseTo(DISTANCE / SEVEN[0]!, 9);
+    expect(cut?.winner).toBe(0);
+    expect(cut?.second).toBe(1);
+    const expected = (DISTANCE / SEVEN[1]! - DISTANCE / SEVEN[0]!) * SEVEN[0]!;
+    expect(Math.abs((cut?.gapM ?? NaN) - expected)).toBeLessThanOrEqual(0.1);
+  });
+
+  it('동착(2착 margin null)도 사진 판정', () => {
+    const { replay, result } = fieldFixture(SEVEN, null);
+    expect(photoCutFor(replay, result)).not.toBeNull();
+  });
+
+  it('buildStripModel 의 photoCut 은 t0 ≤ t < t0 + 2 동안만 값이 있다', () => {
+    const { replay, result, info } = fieldFixture(SEVEN, { label: 'nose', lengths: 0 });
+    const at = (t: number) =>
+      buildStripModel({ replay, t, path: makePath(), info, result, width: 1200, height: 240 });
+    expect(at(59).center.photoCut).toBeNull();
+    expect(at(60.5).center.photoCut?.winner).toBe(0);
+    expect(at(62.5).center.photoCut).toBeNull();
+    // 사진 컷이 끝나야 결과판이 나온다(3착 61.54s < 62s)
+    expect(at(61.9).right.board).toBeNull();
+    expect(at(62).right.board).not.toBeNull();
   });
 });
