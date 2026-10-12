@@ -264,7 +264,7 @@ describe('bookingErrorKo', () => {
 
 describe('countryKo', () => {
   it('CountryCode 전부에 한국어 국가명을 준다', () => {
-    const all: CountryCode[] = ['GB', 'IE', 'FR', 'DE', 'IT', 'JP', 'US', 'AU', 'HK', 'AE', 'CA', 'AR'];
+    const all: CountryCode[] = ['GB', 'IE', 'FR', 'DE', 'IT', 'JP', 'US', 'AU', 'HK', 'AE', 'CA', 'AR', 'NZ'];
     for (const c of all) {
       expect(countryKo(c).length).toBeGreaterThan(0);
     }

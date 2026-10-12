@@ -229,6 +229,7 @@ const COUNTRY_KO: Record<CountryCode, string> = {
   AE: '아랍에미리트',
   CA: '캐나다',
   AR: '아르헨티나',
+  NZ: '뉴질랜드',
 };
 
 /** 국가 코드 → 국가 한국어 명 */
