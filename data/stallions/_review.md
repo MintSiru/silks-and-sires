@@ -840,4 +840,4 @@ Avenue of Flags, Bailjumper, Kaldounevees, Kendargent, Lord At War, Made Of Gold
 - Intentionally ← Intent(US 1948, 외조부 Bubbling Over) ← War Relic(US 1938) ← Man o' War(US 1917). 출처: 사용자.
 - sl_man_o_war(루트) 신설, sl_intentionally 의 parentLineId 를 sl_man_o_war 로. 하위 계통 수 31(테스트 상한 30 → 35).
 - Bubbling Over 는 계통 자료가 없어 레코드를 만들지 않고 Intent 의 damsireKey 는 null(이 메모로만 기록).
-- 털색: Man o' War·War Relic·Intent 모두 chestnut(Opus 기억값, 사용자 확인 대기).
+- 털색: Man o' War·War Relic·Intent 모두 chestnut(사용자 확인 2026-10-12).
