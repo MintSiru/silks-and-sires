@@ -21,8 +21,11 @@ import type { GameState, Horse, Owner } from '../../src/engine/types';
 
 const SEED = 20261011;
 const SILKS = { primary: '#1d4e89', secondary: '#ffd23f', pattern: 'hoops' } as const;
-/** 앞 6개 나라(GB·IE·FR·DE·IT·US) 인물의 해시. AE 추가 전(HEAD) 같은 시드 결과로 고정했다. */
-const SIX_COUNTRY_PEOPLE_HASH = 'b3cd98bcfd22eaceb188b12543a3b05046e0120ba23207f327334721ea44947c';
+/**
+ * 앞 6개 나라(GB·IE·FR·DE·IT·US) 인물의 해시. AE 추가 전 고정값(b3cd…)에서, 주당 조교료 조정(M4-A2b, 1500→180)으로
+ * 조교사 weeklyFee 만 바뀌었다(등급 × 1500 으로 되돌리면 옛 해시와 같음을 확인). 인물 생성 순서·나머지 필드는 그대로다.
+ */
+const SIX_COUNTRY_PEOPLE_HASH = 'd57aa4a8fa68535c4f271ed052a7296118fe90bbf0aaaec8737cf399e4f93f30';
 const SIX_COUNTRY_OWNER_COUNT = 274;
 
 /** 현역마 집단 비율 범위(명세 수용 기준 3) */

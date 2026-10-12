@@ -416,7 +416,7 @@ describe('저장 마이그레이션 v6 → v7 (M4-A1)', () => {
     const result = deserializeGame(json);
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(result.state.schemaVersion).toBe(7);
+      expect(result.state.schemaVersion).toBe(SAVE_SCHEMA_VERSION);
       expect(result.state.economy).toEqual(createEmptyEconomyState('casual'));
       expect(result.state.relations).toEqual(createEmptyRelationsState());
     }

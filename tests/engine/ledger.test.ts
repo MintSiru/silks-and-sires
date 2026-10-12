@@ -501,7 +501,12 @@ describe('장부 기록 지점 (상금·시리즈 보너스·종부료·환불)'
     expect(prizes).toEqual([{ date: DATE, category: 'prize', amount: 200000, horseId: racer.horseId }]);
     const bonuses = entriesOf(after, 'series_bonus');
     expect(bonuses).toEqual([{ date: DATE, category: 'series_bonus', amount: CROWN_BONUS, horseId: racer.horseId }]);
-    expect(after.owners[after.playerOwnerId]?.funds).toBe(fundsBefore + 200000 + CROWN_BONUS);
+    // 등록료: 총상금 320000 × 1% = 3200(M4-A2b). 조교사가 없는 말이라 운송비는 없다
+    expect(entriesOf(after, 'entry_fee')).toEqual([
+      { date: DATE, category: 'entry_fee', amount: -3200, horseId: racer.horseId },
+    ]);
+    expect(entriesOf(after, 'transport')).toEqual([]);
+    expect(after.owners[after.playerOwnerId]?.funds).toBe(fundsBefore + 200000 + CROWN_BONUS - 3200);
     // AI 2·3착 상금(70000 + 35000)은 AI 합계에만 들어간다
     expect(after.economy.currentYear.aiTotals.prize).toBe(aiPrizeBefore + 70000 + 35000);
   });
@@ -631,7 +636,8 @@ describe('한 해 진행과 재현성', () => {
     const summary = state.economy.yearSummaries[0];
     if (summary === undefined) throw new Error('연말 요약이 없다');
 
-    const ledgerTotal = sumAmounts(state.economy.playerLedger);
+    // 연말 요약은 2026년 항목만 담는다(2027년 1~2주 항목은 다음 해 몫)
+    const ledgerTotal = sumAmounts(state.economy.playerLedger.filter((e) => e.date.year === START_YEAR));
     expect(ledgerTotalsSum(summary.player)).toBe(ledgerTotal);
 
     const prizeTotal = sumAmounts(entriesOf(state, 'prize'));
@@ -639,8 +645,13 @@ describe('한 해 진행과 재현성', () => {
     expect(prizeTotal).toBe(state.horses[ready.horseId]?.record.earnings ?? -1);
     expect(prizeTotal).toBeGreaterThan(0);
     expect(summary.aiTotals.prize ?? 0).toBeGreaterThan(0);
-    expect(summary.playerFunds).toBe(state.owners[state.playerOwnerId]?.funds ?? -1);
-    expect(state.economy.currentYear.player).toEqual({});
+    // 연말 요약의 자금은 연초 자금 + 그해 장부 합(정기 비용 포함). 요약은 1월 1주 처리 전에 닫히므로 현재 자금과는 다르다
+    const startFunds = BASE.owners[BASE.playerOwnerId]?.funds ?? 0;
+    const year2026 = state.economy.playerLedger.filter((e) => e.date.year === START_YEAR);
+    expect(summary.playerFunds).toBe(startFunds + sumAmounts(year2026));
+    // 올해 합계는 연말에 비워졌고, 이후 2027년 1~2주 항목만 들어 있다
+    const year2027 = state.economy.playerLedger.filter((e) => e.date.year === START_YEAR + 1);
+    expect(ledgerTotalsSum(state.economy.currentYear.player)).toBe(sumAmounts(year2027));
   }, MID_TIMEOUT);
 
   it('13. 같은 시드로 플레이어 말 진행을 두 번 하면 최종 state 가 toEqual 이다', () => {

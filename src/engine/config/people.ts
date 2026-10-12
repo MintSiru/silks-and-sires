@@ -73,8 +73,8 @@ export const FACILITY_GRADE_MAX = 5;
 /** staminaBias ~ N(0, SD), ±LIMIT 로 자른다 */
 export const TRAINER_STAMINA_BIAS_SD = 0.4;
 export const TRAINER_STAMINA_BIAS_LIMIT = 1;
-/** 주당 조교료 = 시설 등급 × 이 값(€) */
-export const WEEKLY_FEE_PER_FACILITY_GRADE = 1500;
+/** 주당 조교료 = 시설 등급 × 이 값(€). 시설 1~5등급 → 주당 €180~900 */
+export const WEEKLY_FEE_PER_FACILITY_GRADE = 180;
 /** 조교사 성향 판정 기준: juvenileFocus ≥ 이 값 → early_juveniles */
 export const TRAINER_JUVENILE_STYLE_MIN = 0.7;
 /** staminaBias ≥ 이 값 → stayers, ≤ −이 값 → sprinters */

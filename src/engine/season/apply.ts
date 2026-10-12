@@ -16,6 +16,7 @@ import { emptyOffspringStats, recordOffspringRun } from '../breeding/offspring';
 import { nickValue } from '../breeding/nicks';
 import type { SampleField } from '../race/sampleField';
 import { recordMoney } from '../economy/ledger';
+import { chargeRaceCosts } from '../economy/costs';
 import { applyRatingsInPlace } from './handicapper';
 import { emptyLeadingTables } from './state';
 import type {
@@ -242,6 +243,15 @@ export function applyRaceResultInPlace(state: GameState, args: ApplyRaceResultAr
       addBoth('breeder', horse.breederId);
     }
   }
+
+  // 1-비용. 출주마 등록료·운송비(M4-A2b). 경마장 나라(country)와 조교사 나라로 운송비를 정한다
+  chargeRaceCosts(
+    next,
+    race,
+    country,
+    result.runners.map((r) => requireDeclaration(scheduled, r.horseId)),
+    date,
+  );
 
   // 1a. 닉스 공개(M3-C4): 그룹(G1~G3) 1착 말의 부 계통 × 모부 계통이 좋은 닉스(값 ≥ 기준)이고 처음 공개되면 이벤트
   if (race.grade !== null && NICK_REVEAL_GRADES.includes(race.grade)) {

@@ -75,9 +75,9 @@ afterEach(() => {
 });
 
 describe('createGameSystems', () => {
-  it('실행 순서는 달력 → 성장 → 교배 → 연간 교체 → 시즌이다', () => {
+  it('실행 순서는 달력 → 성장 → 교배 → 연간 교체 → 시즌 → 정기 비용이다', () => {
     const systems = createGameSystems(gameData());
-    expect(systems.map((s) => s.id)).toEqual(['calendar', 'growth', 'breeding', 'population', 'season']);
+    expect(systems.map((s) => s.id)).toEqual(['calendar', 'growth', 'breeding', 'population', 'season', 'costs']);
   });
 
   it('52주 진행 시 세 시스템이 모두 주마다 한 번씩 실행되고 순서대로 호출된다', () => {

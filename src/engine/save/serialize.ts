@@ -5,6 +5,9 @@ import { createEmptySeasonState } from '../season/state';
 import { SAVE_FORMAT } from '../types';
 import type { GameState, LoadResult, SaveEnvelope, SaveErrorCode } from '../types';
 
+/** v7 → v8 이주에서 쓰는 조교료 기준값(이주 시점 고정값) */
+const V8_WEEKLY_FEE_PER_GRADE = 180;
+
 /** key n = 버전 n → n+1 변환 함수. 순수 함수여야 한다. */
 export type Migration = (state: Record<string, unknown>) => Record<string, unknown>;
 
@@ -67,6 +70,23 @@ export const MIGRATIONS: Readonly<Record<number, Migration>> = {
     economy: state.economy ?? createEmptyEconomyState('casual'),
     relations: state.relations ?? createEmptyRelationsState(),
   }),
+  /**
+   * v7 → v8 (M4-A2b): 조교사 주당 조교료를 시설 등급 × 180 으로 다시 계산한다.
+   * 이주는 그 버전 당시 값으로 고정한다(나중에 config 의 WEEKLY_FEE_PER_FACILITY_GRADE 를 바꿔도 이 이주 결과는 같다).
+   */
+  7: (state) => {
+    const trainers = state.trainers as Record<string, Record<string, unknown>> | undefined;
+    if (trainers === undefined) return state;
+    const next: Record<string, Record<string, unknown>> = {};
+    for (const [id, t] of Object.entries(trainers)) {
+      const grade = t.facilityGrade;
+      next[id] = {
+        ...t,
+        weeklyFee: typeof grade === 'number' ? grade * V8_WEEKLY_FEE_PER_GRADE : t.weeklyFee,
+      };
+    }
+    return { ...state, trainers: next };
+  },
 };
 
 /** 구조 상수(형식 규칙). 밸런스 수치가 아니므로 여기 둔다. */

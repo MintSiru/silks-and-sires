@@ -21,6 +21,7 @@ import { declareAiRunners } from '../../src/engine/season/declarations';
 import type { CourseCountryLookup } from '../../src/engine/season/eligibility';
 import { summarizeRace } from '../../src/engine/season/summary';
 import { applyRaceResult } from '../../src/engine/season/apply';
+import { entryFeeFor, transportFeeBetween } from '../../src/engine/economy/costs';
 import { runMeeting, type RunMeetingContext } from '../../src/engine/season/raceday';
 import { buildEntries, drawStalls, type EntryRequest } from '../../src/engine/race/setup';
 import {
@@ -393,6 +394,27 @@ function ownerFundsTotal(state: GameState): number {
   return Object.values(state.owners).reduce((sum, o) => sum + o.funds, 0);
 }
 
+/** 등록료·운송비 장부 합계(음수). 플레이어·AI 올해 합계 기준(M4-A2b) */
+function raceCostTotal(state: GameState): number {
+  let total = 0;
+  for (const t of [state.economy.currentYear.player, state.economy.currentYear.aiTotals]) {
+    total += (t.entry_fee ?? 0) + (t.transport ?? 0);
+  }
+  return total;
+}
+
+/** 상금 증가분: 자금 증가 합에서 등록료·운송비 증가분을 뺀다(M4-A2b 이후 자금 = 상금 + 정기 비용) */
+function prizeOnlyFundsDelta(before: GameState, after: GameState): number {
+  return ownerFundsTotal(after) - ownerFundsTotal(before) - (raceCostTotal(after) - raceCostTotal(before));
+}
+
+/** 출주 한 번의 등록료 + 운송비(기대값 계산용). 조교사 나라 ≠ 경마장 나라면 운송비 */
+function legCostOf(state: GameState, trainerId: string | null, courseCountry: 'GB' | 'IE' | 'FR', race: Race): number {
+  const trainerCountry = trainerId === null ? undefined : state.trainers[trainerId]?.country;
+  const transport = trainerCountry === undefined ? 0 : transportFeeBetween(trainerCountry, courseCountry);
+  return entryFeeFor(race) + transport;
+}
+
 function sumLeadingWins(table: Record<string, { wins: number }>): number {
   return Object.values(table).reduce((sum, e) => sum + e.wins, 0);
 }
@@ -586,9 +608,8 @@ describe('M3-A6b 개최일 실행 · 결과 반영', () => {
 
   it('4. 한 개최일의 마주 funds 증가 합 = 착순별 상금 합(출주 두수까지)', () => {
     const meeting = busiestMeeting(declared);
-    const before = ownerFundsTotal(state);
     const out = runMeeting(state, meeting, ctx, createRng(RUN_SEED + 17));
-    const paid = ownerFundsTotal(out.state) - before;
+    const paid = prizeOnlyFundsDelta(state, out.state);
 
     let expected = 0;
     for (const result of out.results) {
@@ -765,8 +786,11 @@ describe('M3-A6b 결과 반영 단위 (합성 결과)', () => {
       legs: ['leg-a', 'leg-b'],
       bonus: 10000,
     };
-    const legA = legInput(syntheticRace('leg-a', 'G3', [0, 0]), 'leg-a', [x, y]);
+    const legRace = syntheticRace('leg-a', 'G3', [0, 0]);
+    const legA = legInput(legRace, 'leg-a', [x, y]);
     const legB = legInput(syntheticRace('leg-b', 'G3', [0, 0]), 'leg-b', [x, y]);
+    /** 상금은 0 이므로 자금 변화 = 보너스 + 두 레그의 등록료·운송비(M4-A2b) */
+    const costPerLeg = legCostOf(state, x.trainerId, 'GB', legRace);
 
     const ownerX = state.owners[x.ownerId];
     if (ownerX === undefined) throw new Error('마주 없음');
@@ -780,12 +804,12 @@ describe('M3-A6b 결과 반영 단위 (합성 결과)', () => {
     expect(b.state.seasonState.series['run-test-crown']?.champion).toBe(x.id);
     const completed = [...a.events, ...b.events].filter((e) => e.type === 'series_completed');
     expect(completed).toEqual([{ type: 'series_completed', seriesId: 'run-test-crown', horseId: x.id, date: DATE }]);
-    expect((b.state.owners[x.ownerId]?.funds ?? 0) - fundsBefore).toBe(10000);
+    expect((b.state.owners[x.ownerId]?.funds ?? 0) - fundsBefore).toBe(10000 - 2 * costPerLeg);
 
-    // 이미 달성된 뒤 같은 말이 또 이겨도 보너스는 다시 주지 않는다
+    // 이미 달성된 뒤 같은 말이 또 이겨도 보너스는 다시 주지 않는다(자금 변화는 이번 레그의 정기 비용뿐)
     const c = applyRaceResult(b.state, { meeting: meetingStub, country: 'GB', nicks: [], ...legB, series: [series] });
     expect(c.events.filter((e) => e.type === 'series_completed')).toHaveLength(0);
-    expect((c.state.owners[x.ownerId]?.funds ?? 0) - (b.state.owners[x.ownerId]?.funds ?? 0)).toBe(0);
+    expect((c.state.owners[x.ownerId]?.funds ?? 0) - (b.state.owners[x.ownerId]?.funds ?? 0)).toBe(-costPerLeg);
   });
 
   it('6b. points 시리즈: 착순 포인트 누적, champion 은 설정하지 않는다(시즌 종료 시 A6c)', () => {
@@ -869,8 +893,8 @@ describe('M3-A6b 결과 반영 단위 (합성 결과)', () => {
     expect(gain(c.id)).toBe(15000);
     expect(gain(d.id)).toBe(5000);
 
-    const fundsBefore = ownerFundsTotal(before);
-    expect(ownerFundsTotal(out.state) - fundsBefore).toBe(95000);
+    // 자금 증가 중 상금 부분만(등록료·운송비 제외) 점유 착순 상금 합과 같다
+    expect(prizeOnlyFundsDelta(before, out.state)).toBe(95000);
 
     // 홀수 상금: 1착 동착 두 마리가 10001 을 나누면 앞 주자가 1원 더 받는다
     const odd = legInput(syntheticRace('dh-odd', 'G3', [10001, 0]), null, [a, b]);
