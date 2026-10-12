@@ -28,8 +28,8 @@ export const FATIGUE_EFFECT = 0.02;
 export const MENTAL_EFFECT = 0.01;
 /** 기수: 1 + JOCKEY_EFFECT × (skill - 50)/50 */
 export const JOCKEY_EFFECT = 0.004;
-/** 당일 폼 배수 표준편차 (현실형 변동성의 핵심 손잡이) */
-export const FORM_SD = 0.010;
+/** 당일 폼 배수 표준편차 (현실형 변동성의 핵심 손잡이). M3-F2a 2차 격자로 0.010 → 0.015 (docs/reports/2026-10-12-m3-f2a-variance.md) */
+export const FORM_SD = 0.015;
 /** 스태미나 총량 = (BASE + RANGE × stamina/100) × (FLOOR + (1-FLOOR) × fitness/100) */
 export const STAMINA_BASE = 50;
 export const STAMINA_RANGE = 180;

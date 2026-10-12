@@ -1,8 +1,8 @@
 import type { HexColor, RunningStyle, SilksPattern } from '../types';
-/** 시장 인식 오차 표준편차. strength 단위 = 필드 평균 대비 예상 주파 시간 % (relativeStrengths) */
-export const MARKET_NOISE_SD = 0.7;
-/** softmax 온도 (초) */
-export const MARKET_TEMPERATURE = 0.8;
+/** 시장 인식 오차 표준편차. strength 단위 = 필드 평균 대비 예상 주파 시간 % (relativeStrengths). M3-F2a 2차 격자로 0.7 → 1.6 */
+export const MARKET_NOISE_SD = 1.6;
+/** softmax 온도 (초). M3-F2a: 0.8 → 2.2 (F2b 공급 변경 후 재측정에서 인기 평균 오즈 약 3.0·오즈 보정 ±5%p 안) */
+export const MARKET_TEMPERATURE = 2.2;
 /** 북메이커 오버라운드 */
 export const MARKET_OVERROUND = 1.18;
 /** 표준 분수 오즈 사다리 [num, den], 짧은 → 긴 순 */

@@ -4,8 +4,8 @@ import type { RaceGrade } from '../types';
 /** 시뮬레이션(0.1초 틱)으로 돌리는 등급. 플레이어 말이 나오면 등급과 무관하게 시뮬레이션한다 */
 export const SIMULATE_GRADES: readonly RaceGrade[] = ['G1', 'G2', 'G3', 'L'];
 
-/** 요약 모드 예상 시간 노이즈(예상 시간 대비 표준편차 비율) */
-export const SUMMARY_NOISE_SD = 0.006;
+/** 요약 모드 예상 시간 노이즈(예상 시간 대비 표준편차 비율). M3-F2a 2차 격자로 0.006 → 0.010 (+15 능력 테스트 상한 때문에 0.0105 이하) (docs/reports/2026-10-12-m3-f2a-variance.md) */
+export const SUMMARY_NOISE_SD = 0.010;
 
 /** 출주 후 피로 증가량. 거리(m)가 maxDistance 이하이면 gain. 어느 구간에도 안 들면 FATIGUE_GAIN_LONG */
 export const FATIGUE_GAIN_BY_DISTANCE: readonly { maxDistance: number; gain: number }[] = [

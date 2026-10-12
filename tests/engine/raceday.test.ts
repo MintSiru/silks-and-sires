@@ -133,7 +133,9 @@ describe('수용 기준 3: 시장 확률', () => {
     expect(marketProbabilities(createRng(1), [])).toEqual([]);
   });
 
-  it('+3초 강한 말이 100회 중 95회 이상 확률 최대', () => {
+  // 완화 이유(M3-F2a, 2026-10-12, 사용자 결정): 시장은 진짜 능력이 아니라 MARKET_NOISE_SD(1.6) 오차가 섞인
+  // 인식으로 오즈를 매긴다. 그래서 +3초 말이 인기 1위가 되는 비율이 95 → 75 로 낮아진다(MARKET_TEMPERATURE 2.5 와 함께).
+  it('+3초 강한 말이 100회 중 75회 이상 확률 최대', () => {
     const strengths = [3, 0, 0, 0, 0];
     let top = 0;
     for (let s = 0; s < 100; s++) {
@@ -141,7 +143,7 @@ describe('수용 기준 3: 시장 확률', () => {
       const max = Math.max(...p);
       if (p[0] === max) top++;
     }
-    expect(top).toBeGreaterThanOrEqual(95);
+    expect(top).toBeGreaterThanOrEqual(75);
   });
 });
 
