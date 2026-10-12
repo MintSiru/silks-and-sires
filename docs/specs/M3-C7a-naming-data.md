@@ -36,7 +36,7 @@ interface OwnerNamingStyleFile {
   styles: Array<{
     id: string; label: string;   // label 은 한국어 설명
     sourceWeights: Record<'pedigree'|'tribute'|'historical'|'place'|'culture'|'foreign'|'abstract'|'ownerStyle', number>;
-    templateWeights: Record<'single'|'modifierNoun'|'possessive'|'phrase'|'verb'|'prefix', number>;
+    templateWeights: Record<'single'|'modifierNoun'|'possessive'|'phrase'|'verb'|'prefix'|'joined', number>;
     prefix?: string;
   }>;
 }
@@ -61,3 +61,8 @@ interface HistoricalNamesFile {
 
 ## 금지
 src/ 수정 금지. data/names/horse_words.json 은 지우지 않는다(C7b 가 교체 후 정리). git commit 금지.
+
+## 보충 (2026-10-12, 사용자 요청)
+- 붙여 쓰기 이름(Henrythenavigator·Starspangledbanner 형): templateWeights 에 'joined' 추가. 대부분 스타일 0.05~0.15, '붙여 쓰기 애호가'형 2개는 0.3 이상.
+- phrases 에 붙여 쓰기용 3~4단어 구절 틀 20개 이상(실존 경주마와 같아지는 고정 구절 금지).
+- 생성 규칙(C7b): 구절·합성어·역사 인물+일반어("{Historical} The {Noun}")를 만든 뒤 공백을 지우고 첫 글자만 대문자. 18자·7음절 제한, 3단어 이상에서만.
