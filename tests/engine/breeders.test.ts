@@ -41,10 +41,11 @@ const BOOT_DATA: BootstrapData = {
  * 생산자 배정은 집단 rng 를 쓰지 않으므로 이 값이 바뀌면 기존 결과가 바뀐 것이다.
  * 2026-10-12 재고정: 유럽 밖·더트 종마 가중치 보정(SIRE_OVERSEAS_WEIGHT_MULT·SIRE_DIRT_WEIGHT_MULT)으로 부 선택이 바뀜.
  * 2026-10-15 재고정: 독일 계류 종마 4두 추가(M2-10 일부)로 부 후보가 바뀜.
+ * 2026-10-15 재고정: 독일·이탈리아 종마 20두 추가와 어휘 'Destino' 삭제(같은 이름 실존 종마)로 바뀜.
  */
 const PRE_CHANGE_PROJECTION_SHA: Record<number, string> = {
-  20261011: '85a876a45cb7dbca8be252a3d059df00dc02a88e8262a480b5f31b1795f3f4e5',
-  7: '49df6e40f7a6730e0e6efd8dc6aadac62ef9ae443b176a2fddeda7b2627dbc39',
+  20261011: 'd62c25f140320f116d13ec033c9262270e91822b41222fda3d90b545e61d8b4d',
+  7: '04d23c1a7c0f3bbce26236b595e6b11c027eeb7945058cab3ad8700172a03948',
 };
 
 function boot(seed: number): GameState {

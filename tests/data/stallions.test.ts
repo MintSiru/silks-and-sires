@@ -280,7 +280,10 @@ describe('종마 역할 studRole (M2-01d)', () => {
  * 부계 사슬이 5대(자신 포함) 미만인 현역 종마 예외 목록. M2-01e: 사용자 제공 혈통(Galiway, Showcasing,
  * Tasleet, Mehmas, Kodiac)으로 미확인 고리가 모두 해소되어 빈 목록. 예외가 생기면 여기에 이름을 추가한다.
  */
-const UNVERIFIED_CHAIN_ACTIVE_EXCEPTIONS: readonly string[] = [];
+const UNVERIFIED_CHAIN_ACTIVE_EXCEPTIONS: readonly string[] = [
+  // 2026-10-15: Windstoss → Shirocco → Monsun → Königsstuhl 다음 고리(Dschingis Khan) 미확인(위키백과 조회 차단)
+  'Windstoss',
+];
 
 describe('현역 종마 부계 사슬 깊이', () => {
   it('현역 종마는 부계 사슬 깊이 ≥ 5 (자신 포함) 이거나 미확인 고리 예외 목록에 있다', () => {
