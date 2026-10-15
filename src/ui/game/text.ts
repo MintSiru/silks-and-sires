@@ -335,6 +335,7 @@ const COUNTRY_KO: Record<CountryCode, string> = {
   AR: '아르헨티나',
   NZ: '뉴질랜드',
   ZA: '남아공',
+  CL: '칠레',
 };
 
 /** 국가 코드 → 국가 한국어 명 */

@@ -27,7 +27,7 @@ const lines = sireLinesJson as SireLine[];
 const byKey = new Map(stallions.map((s) => [s.key, s] as const));
 const lineById = new Map(lines.map((l) => [l.id, l] as const));
 
-const COUNTRY_CODES: CountryCode[] = ['GB', 'IE', 'FR', 'DE', 'IT', 'JP', 'US', 'AU', 'HK', 'AE', 'CA', 'AR', 'NZ', 'ZA'];
+const COUNTRY_CODES: CountryCode[] = ['GB', 'IE', 'FR', 'DE', 'IT', 'JP', 'US', 'AU', 'HK', 'AE', 'CA', 'AR', 'NZ', 'ZA', 'CL'];
 const STATUSES: RealStallionStatus[] = ['active', 'pensioned', 'historical'];
 const DISTANCES: DistanceProfile[] = ['speed', 'classic', 'middle', 'cup'];
 const SURFACES: SurfaceProfile[] = ['turf', 'dirt', 'both'];

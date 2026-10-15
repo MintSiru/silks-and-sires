@@ -65,6 +65,7 @@ export const LANGUAGE_BY_COUNTRY: Record<CountryCode, NameLanguage> = {
   HK: 'en',
   AR: 'en',
   ZA: 'en',
+  CL: 'en',
   FR: 'fr',
   DE: 'de',
   IT: 'it',

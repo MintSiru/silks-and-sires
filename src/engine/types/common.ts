@@ -12,7 +12,7 @@ export type RaceId = string;
 export type SireLineId = string;
 
 /** ISO 3166-1 alpha-2 기반. 실명 허용 대상(국가). */
-export type CountryCode = 'GB' | 'IE' | 'FR' | 'DE' | 'IT' | 'JP' | 'US' | 'AU' | 'HK' | 'AE' | 'CA' | 'AR' | 'NZ' | 'ZA';
+export type CountryCode = 'GB' | 'IE' | 'FR' | 'DE' | 'IT' | 'JP' | 'US' | 'AU' | 'HK' | 'AE' | 'CA' | 'AR' | 'NZ' | 'ZA' | 'CL';
 
 /** 유로 정수. 소수 금지. */
 export type Money = number;

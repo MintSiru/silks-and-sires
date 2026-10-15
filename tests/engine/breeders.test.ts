@@ -53,10 +53,11 @@ const BOOT_DATA: BootstrapData = {
  * 2026-10-15 재고정: 5대 혈통 4회차(조상 28두 추가)와 어휘 'Venture' 삭제·'Effort' 추가로 바뀜.
  * 2026-10-15 재고정: 유럽 1~2티어 마지막 정리 회차(조상 12두 추가)로 바뀜.
  * 2026-10-15 재고정: 5회차(유럽 밖 1~2티어 ①, 조상 27두 추가)와 Venture 털색 정정으로 바뀜.
+ * 2026-10-15 재고정: 6회차(조상 34두)·독일 3두 티어 통일(Torquator Tasso 3→4, Japan·Fantastic Moon 4→5)로 바뀜.
  */
 const PRE_CHANGE_PROJECTION_SHA: Record<number, string> = {
-  20261011: '90b19cc2411f3873858b374911d3d3a755e2072a7c15ad2202247b237e9c61c3',
-  7: '8b64d13be7334b5112b3f44d3185a68481cdca7618bcd9ad5f84c6be415664ea',
+  20261011: 'd7f9deed284a20fc2c67855ec64191c3ed001ae247ec98a5df6ac76669154de2',
+  7: '38e94cb0f31b9bbaaad33591299cf8bf005de3469928b525fde7a14a4cdb8941',
 };
 
 function boot(seed: number): GameState {
