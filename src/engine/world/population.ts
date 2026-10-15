@@ -50,6 +50,7 @@ import type {
   TrainerId,
 } from '../types';
 import { initialOfficialRating } from './rating';
+import { sirePoolFor, tierFromFee } from './sirePool';
 import { coverYearForFoal, europeanSireWeightMult, filterSiresForCover } from './sireWindow';
 
 /** 현역마 집단 생성·교체에 필요한 정적 데이터 */
@@ -216,28 +217,6 @@ function sireCandidates(records: readonly RealStallionRecord[], birthYear: numbe
 }
 
 /**
- * 죽은 종마 제외(M4-D9): 교배 연도(출생 − 1)가 사망 연도보다 늦은 기록은 뺀다.
- * 죽은 종마가 없으면 records 를 그대로 돌려준다(같은 결과).
- */
-function liveSireRecords(
-  state: GameState,
-  records: readonly RealStallionRecord[],
-  birthYear: number,
-): readonly RealStallionRecord[] {
-  const coverYear = coverYearForFoal(birthYear);
-  const diedYearOf = (r: RealStallionRecord): number | undefined => state.horses[r.key]?.diedYear;
-  const anyDead = records.some((r) => {
-    const diedYear = diedYearOf(r);
-    return diedYear !== undefined && coverYear > diedYear;
-  });
-  if (!anyDead) return records;
-  return records.filter((r) => {
-    const diedYear = diedYearOf(r);
-    return diedYear === undefined || coverYear <= diedYear;
-  });
-}
-
-/**
  * 부(父) 한 마리: marketTier 가중, 계류국이 같은 나라면 배수.
  * sireTier 가 주어지면 그 marketTier 후보로 먼저 한정한다(해당 후보가 없으면 제한 없이).
  */
@@ -309,25 +288,19 @@ export function spawnRacingHorse(
     }
     sireId = spec.sireHorseId;
     sireLineId = stallion.sireLineId;
-    tier = 1;
-    let closest = Infinity;
-    for (const candidate of [1, 2, 3, 4, 5] as const) {
-      const distance = Math.abs(Math.log(stallion.fee / TIER_FEE[candidate]));
-      if (distance < closest) {
-        closest = distance;
-        tier = candidate;
-      }
-    }
+    tier = tierFromFee(stallion.fee);
     sireDistance = sireHorse.aptitude.distanceOptimum;
   } else {
-    const sire = pickSire(rng, liveSireRecords(state, records, spec.birthYear), spec.birthYear, spec.country, spec.sireTier);
+    const sire = pickSire(rng, sirePoolFor(state, records, coverYearForFoal(spec.birthYear)), spec.birthYear, spec.country, spec.sireTier);
     if (state.horses[sire.key] === undefined) {
       throw new Error(`현역마 집단: 부(父) ${sire.key} 가 세계 초기화(bootstrapWorld)에 없다`);
     }
     sireId = sire.key;
     sireLineId = sire.sireLineId;
     tier = sire.marketTier;
-    sireDistance = PROFILE_DISTANCE[sire.distanceProfile];
+    sireDistance = state.stallions[sire.key]?.aiEntrant
+      ? state.horses[sire.key]!.aptitude.distanceOptimum
+      : PROFILE_DISTANCE[sire.distanceProfile];
   }
   let owner: Owner;
   if (spec.ownerId === undefined) {

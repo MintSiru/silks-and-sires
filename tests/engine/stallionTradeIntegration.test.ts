@@ -309,10 +309,10 @@ it('판매·임대·교배권 없는 시드 20261011의 52주 결과는 변경 �
   expect(first.stud.leases).toEqual([]);
   expect(first.stud.nominations).toEqual([]);
   expect(first.raceResults.length).toBeGreaterThan(0);
-  // 구현 전 HEAD의 같은 bootstrapGame·전체 주간 시스템으로 측정한 SHA-256. raceResults 는 2026-10-15 11회차 어휘 정리(이름 변화), fees 는 13회차 데이터로 재고정.
+  // 구현 전 HEAD의 같은 bootstrapGame·전체 주간 시스템으로 측정한 SHA-256. raceResults 는 2026-10-15 11회차 어휘 정리(이름 변화), fees 는 M4-D7 고령 은퇴(28주 은퇴 종마는 재산정 제외)로 재고정.
   expect(hashes(first)).toEqual({
     raceResults: 'ac708ee83465e0f5a102ccc05d0b481e44fda4f3174df81003d1dfdd4eb6be59',
-    fees: 'a13ad28ccd0353cbc350f3532e3fdbcba09fd8b579d6aa867a495e14171b23d7',
+    fees: '0ba24de55e44db9db03291ed2b9d6ae89b7164e4fa0be680e04f4db6cdd8cdc3',
     ledger: 'a85b7d8e7c1d430fad4a3923522654b34d260d4d2fbf14fb1c07c75ab17a427f',
   });
   expect(simulate()).toEqual(first);

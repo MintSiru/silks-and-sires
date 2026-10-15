@@ -62,6 +62,7 @@ import type {
 import { drawSexAndGelding, racingHorseIds } from '../world/population';
 import { meanAbility, ratingFromAbility } from '../world/rating';
 import { coverYearForFoal, filterSiresForCover } from '../world/sireWindow';
+import { sirePoolFor, tierFromFee } from '../world/sirePool';
 import { valueLot } from './valuation';
 
 /** 카탈로그 생성에 필요한 정적 데이터 */
@@ -184,7 +185,7 @@ function sireCandidatesFor(ctx: Context, coverYear: number): SireCandidate[] {
   const cached = ctx.sireByCover.get(coverYear);
   if (cached !== undefined) return cached;
   const list: SireCandidate[] = [];
-  for (const record of filterSiresForCover(ctx.activeRecords, coverYear)) {
+  for (const record of filterSiresForCover(sirePoolFor(ctx.state, ctx.activeRecords, coverYear), coverYear)) {
     const stallion = ctx.state.stallions[record.key];
     if (stallion === undefined || stallion.firstSeasonYear > coverYear) continue;
     list.push({ record, stallion });
@@ -371,11 +372,13 @@ function pickInTraining(ctx: Context, year: number, total: number, rng: Rng): Hi
   return picked;
 }
 
-/** 말의 부 시장 등급. 실명 레코드가 없으면 SALE_UNKNOWN_SIRE_TIER */
+/** 말의 부 시장 등급. 정적 레코드가 없는 종마는 현재 종부료로 환산한다. */
 function sireTierOf(ctx: Context, sireId: HorseId | null): number {
   if (sireId === null) return SALE_UNKNOWN_SIRE_TIER;
   const record = ctx.data.stallionRecords.find((r) => r.key === sireId);
-  return record === undefined ? SALE_UNKNOWN_SIRE_TIER : record.marketTier;
+  if (record !== undefined) return record.marketTier;
+  const stallion = ctx.state.stallions[sireId];
+  return stallion === undefined ? SALE_UNKNOWN_SIRE_TIER : tierFromFee(stallion.fee);
 }
 
 /** 종류에 맞는 위탁 말인가(나이·상태·성별) */

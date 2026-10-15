@@ -7,6 +7,7 @@ import { createGameSystems } from '../../src/engine/state/systems';
 import { accrualProgress, createStudBooksSystem, seasonDemand } from '../../src/engine/stud/books';
 import { advanceWeek } from '../../src/engine/time/advance';
 import type { GameState } from '../../src/engine/types';
+import { tierFromFee } from '../../src/engine/world/sirePool';
 
 const data = {
   stallionRecords: dataSource.getStallionRecords(), stallionNames: dataSource.getStallionNames(),
@@ -41,7 +42,8 @@ it('티어별 마감률·마감 주와 이른 예약·늦은 예약을 검증한
   const systems = createGameSystems(data);
   const closed = new Map<string, number>();
   const mare = Object.values(state.horses).find(h => h.ownerId === state.playerOwnerId && h.status === 'broodmare')!;
-  const tierOf = (id: string) => data.stallionRecords.find(r => r.key === state.stallions[id]!.realKey)!.marketTier;
+  const tierOf = (id: string) => data.stallionRecords.find(r => r.key === state.stallions[id]!.realKey)?.marketTier
+    ?? tierFromFee(state.stallions[id]!.fee); // M4-D7b: 정적 레코드가 없는 AI 편입 종마도 포함한다.
   for (let index = 0; index < 35; index++) {
     const year = index < 9 ? 2026 : 2027;
     const week = index < 9 ? index + 44 : index - 8;

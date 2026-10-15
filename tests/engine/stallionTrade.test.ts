@@ -135,7 +135,8 @@ describe('종마 판매', () => {
     const next = result.state;
     expect(next.horses[horseId]).toMatchObject({ ownerId: null, trainerId: null,
       status: mode === 'domestic' ? 'stud' : 'retired' });
-    expect(next.stallions[horseId]).toEqual(before.stallions[horseId]);
+    expect(next.stallions[horseId]).toEqual(mode === 'domestic' ? before.stallions[horseId]
+      : { ...before.stallions[horseId], lastSeasonYear: year });
     expect(next.owners[next.playerOwnerId]!.horseIds).not.toContain(horseId);
     expect(next.owners[next.playerOwnerId]!.funds).toBe(before.owners[state.playerOwnerId]!.funds + price);
     expect(next.economy.playerLedger.at(-1)).toEqual({ category: 'stallion_sale', amount: price,

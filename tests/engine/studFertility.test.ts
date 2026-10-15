@@ -190,16 +190,19 @@ it('은퇴: 연속 두 시즌 미달인 AI 종마는 은퇴하고, 내 종마는
   const aiRetire = setupRetire({ owner: 'ai', history: twoBelow, realKey: null });
   const aiEvents = createStudFertilitySystem().run(aiRetire.state, ctxAt(year, config.FERTILITY_RECORD_WEEK));
   expect(aiRetire.state.horses[aiRetire.id]!.status).toBe('retired');
+  expect(aiRetire.state.stallions[aiRetire.id]!.lastSeasonYear).toBe(year);
   expect(aiEvents).toEqual([]);
 
   const realRetire = setupRetire({ owner: 'ai', history: twoBelow, realKey: 'real-stallion-key' });
   const realEvents = createStudFertilitySystem().run(realRetire.state, ctxAt(year, config.FERTILITY_RECORD_WEEK));
   expect(realRetire.state.horses[realRetire.id]!.status).toBe('retired');
+  expect(realRetire.state.stallions[realRetire.id]!.lastSeasonYear).toBe(year);
   expect(realEvents.map((e) => e.type)).toEqual(['horse_status_changed', 'stallion_pensioned']);
 
   const playerStay = setupRetire({ owner: 'player', history: twoBelow, realKey: 'real-stallion-key' });
   const playerEvents = createStudFertilitySystem().run(playerStay.state, ctxAt(year, config.FERTILITY_RECORD_WEEK));
   expect(playerStay.state.horses[playerStay.id]!.status).toBe('stud');
+  expect(playerStay.state.stallions[playerStay.id]!.lastSeasonYear).toBeUndefined();
   expect(playerEvents).toHaveLength(1);
   expect(playerEvents[0]).toMatchObject({ type: 'stallion_fertility_warning', stallionId: playerStay.id });
   if (playerEvents[0]?.type === 'stallion_fertility_warning') {
@@ -238,6 +241,7 @@ it('내 종마 은퇴: 거래 창(28~44주) 안에서만 성공하고 종마사 
   if (!result.ok) return;
   expect(state).toEqual(before);
   expect(result.state.horses[id]).toMatchObject({ status: 'retired', ownerId: null });
+  expect(result.state.stallions[id]!.lastSeasonYear).toBe(state.date.year);
   expect(result.state.owners[pid]!.horseIds).not.toContain(id);
   expect(result.state.owners[pid]!.horseIds).toHaveLength(before.owners[pid]!.horseIds.length - 1);
   expect(stud(result.state)).toBe(stud(before) - 1);

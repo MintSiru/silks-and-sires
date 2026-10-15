@@ -46,6 +46,11 @@ export const POPULATION_GELDING_MIN_AGE = 4;
 /** 연간 교체: 이 나이 이상은 전부 은퇴 */
 export const POPULATION_RETIRE_AGE = 8;
 
+/** 종마 밴드로 조기 은퇴한 비거세 수말의 연간 종마 편입 상한 */
+export const POPULATION_AI_STALLION_ENTRY_PER_YEAR = 10;
+/** AI 종마 편입 최소 선발 기준값(OR 척도) */
+export const POPULATION_AI_STALLION_MIN_VALUE = 100;
+
 /**
  * 연간 교체: 나라·나이별 하위 정리 비율(선발 기준값 하위, 나라·나이 그룹마다 적용). 8세 이상은 전원 은퇴이므로 없다.
  * 나이 = 연초 교체 후의 새 나이(나이 오름차순).

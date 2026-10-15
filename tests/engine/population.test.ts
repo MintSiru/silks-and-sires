@@ -254,7 +254,10 @@ describe('연간 교체 (createPopulationSystem)', () => {
     for (const e of retiredEvents) {
       if (e.type === 'horse_status_changed') {
         expect(e.to).toBe('retired');
-        expect(draft.horses[e.horseId]?.status).toBe('retired');
+        // AI 종마 편입은 기존 은퇴 이벤트를 보존하고 최종 상태만 stud 로 올린다(M4-D7b).
+        const aiEntrant = draft.stallions[e.horseId]?.aiEntrant === true;
+        expect(draft.horses[e.horseId]?.status).toBe(aiEntrant ? 'stud' : 'retired');
+        if (aiEntrant) expect(draft.horses[e.horseId]?.ownerId).toBeNull();
       }
     }
     expect(racingHorses(draft).some((h) => START_YEAR + 1 - h.birthYear >= 8)).toBe(false);

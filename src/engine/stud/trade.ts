@@ -76,6 +76,8 @@ export function applyStallionSale(
   }
   const from = horse.status;
   horse.status = mode === 'domestic' ? 'stud' : 'retired';
+  const stallion = draft.stallions[horseId];
+  if (mode === 'overseas' && stallion !== undefined) stallion.lastSeasonYear = date.year;
   horse.ownerId = null;
   horse.trainerId = null;
   owner.horseIds = owner.horseIds.filter((id) => id !== horseId);

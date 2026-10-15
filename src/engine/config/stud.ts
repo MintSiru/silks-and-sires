@@ -117,6 +117,19 @@ export const PUBLIC_FERTILITY_FULL_SAMPLE = 40;
 /** 기록이 없을 때와 구간 표시는 5%p 단위로 맞춘다. */
 export const PUBLIC_FERTILITY_STEP = 0.05;
 
+/** 시즌 정산 다음 주에 관측 수태 기록과 함께 고령 은퇴를 판정한다. */
+export const STUD_PENSION_CHECK_WEEK = 28;
+/** 20·23·26세부터 은퇴 확률을 높여 고령 종마가 시장에 누적되지 않게 한다. */
+export const STUD_PENSION_BY_AGE: readonly (readonly [minAge: number, chance: number])[] = [
+  [20, 0.15], [23, 0.3], [26, 0.6],
+];
+/** AI 편입 종마의 시장 이탈 기준을 종부료 2천 유로 이하로 둔다. */
+export const STUD_PENSION_LOW_FEE = 2_000;
+/** 저종부료 은퇴는 신참을 보호하기 위해 12세부터 적용한다. */
+export const STUD_PENSION_LOW_FEE_MIN_AGE = 12;
+/** 저종부료 노장 AI 종마는 해마다 30% 확률로 은퇴한다. */
+export const STUD_PENSION_LOW_FEE_CHANCE = 0.3;
+
 /** 종부료의 200배를 국내 예상 수입 약 3년치로 평가한다. */
 export const STALLION_SALE_FEE_MULT = 200;
 /** 열 살까지 판매 가치 전액을 인정한다. */

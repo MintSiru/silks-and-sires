@@ -2,6 +2,8 @@ import { PLAYER_SIRE_CROP_PER_CONCEPTION } from '../config/stud';
 import { createRng } from '../rng';
 import { makeNameRegistry } from '../naming/context';
 import {
+  POPULATION_AI_STALLION_ENTRY_PER_YEAR,
+  POPULATION_AI_STALLION_MIN_VALUE,
   POPULATION_BROODMARE_RETIRE_BANDS,
   POPULATION_COUNTRY_ORDER,
   POPULATION_CUT_SHARE_BY_AGE,
@@ -15,6 +17,7 @@ import {
   type PopulationCountry,
 } from '../config/population';
 import { sortStallionRecords } from '../state/stallionHorses';
+import { buildStallionRecord } from '../stud/stand';
 import type { GameDate, GameEvent, GameState, Horse, HorseStatus, Rng, WeeklySystem } from '../types';
 import {
   ageOf,
@@ -181,6 +184,7 @@ export function createPopulationSystem(data: RacingPopulationStaticData): Weekly
 
       // 3. 상위마 조기 은퇴 (나라 순서 → 말 ID 오름차순, 확률 판정마다 rng 를 한 번 쓴다)
       const afterGelding = racingHorseIds(draft);
+      const studEntrants: Horse[] = [];
       for (const country of POPULATION_COUNTRY_ORDER) {
         for (const id of afterGelding) {
           const horse = draft.horses[id];
@@ -190,8 +194,23 @@ export function createPopulationSystem(data: RacingPopulationStaticData): Weekly
           const chance = earlyRetireChance(bands, ageOf(horse, year), selectionValue(horse));
           if (chance > 0 && ctx.rng.chance(chance)) {
             retireHorse(draft, horse, date, events, retiredByCountry);
+            if (horse.sex === 'male' && !horse.gelded && selectionValue(horse) >= POPULATION_AI_STALLION_MIN_VALUE) {
+              studEntrants.push(horse);
+            }
           }
         }
+      }
+
+      // 종마 편입은 난수를 쓰지 않는다. 수태율은 buildStallionRecord 의 독립 스트림으로 정한다.
+      studEntrants.sort((a, b) => selectionValue(b) - selectionValue(a) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+      for (const horse of studEntrants.slice(0, POPULATION_AI_STALLION_ENTRY_PER_YEAR)) {
+        const country = racingCountryOf(draft, horse);
+        draft.stallions[horse.id] = { ...buildStallionRecord(draft, horse.id, year, country), aiEntrant: true };
+        const owner = horse.ownerId === null ? undefined : draft.owners[horse.ownerId];
+        if (owner !== undefined) owner.horseIds = owner.horseIds.filter((id) => id !== horse.id);
+        horse.status = 'stud';
+        horse.ownerId = null;
+        horse.trainerId = null;
       }
 
       // 4. 나라·나이별 하위 정리 (선발 기준값 오름차순, 동점은 ID 순). 조기 은퇴마는 이미 빠져 있다.

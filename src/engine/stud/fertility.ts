@@ -83,6 +83,7 @@ export function retirePlayerStallion(state: GameState, horseId: HorseId): {
   const target = draft.horses[horseId]!;
   const from = target.status;
   target.status = 'retired';
+  draft.stallions[horseId]!.lastSeasonYear = state.date.year;
   target.ownerId = null;
   target.trainerId = null;
   const owner = draft.owners[draft.playerOwnerId];
@@ -138,6 +139,7 @@ function judgeRetirement(state: GameState, stallionId: HorseId, year: number, ev
   }
   const from = horse.status;
   horse.status = 'retired';
+  stallion.lastSeasonYear = year;
   const notable = (stallion.realKey ?? null) !== null
     || state.stud.sales.some((sale) => sale.stallionId === stallionId && sale.mode === 'domestic');
   if (notable) {
