@@ -278,3 +278,4 @@
 - 2026-10-15 M4-D2a 승인(Codex): stud/value.ts 첫 종부료 추정(최고 OR 표·그룹 우승·혈통·유행, 가격 사다리), stud/stand.ts 계류(독립 rng 수태율), 자기 종마 교배 무료·불수태 환불 없음.
 - 2026-10-15 M4-D1a(Opus 직접): GameState.yearEnd·stud 초기화, 저장 v15(옛 저장본은 저장 연도 정산 완료 처리), yearEndPending·advanceWeekGated.
 - 2026-10-15 5대 혈통 2회차 반영(조상 29두 + Acropolis): Espresso 출생국 GB·1984 사망 정정(사용자 확인). Blushing Groom·Rainbow Quest·Rahy·Noverre 가 Storm Cat 계로 잘못 적혀 있어 Blushing Groom 계 신설. 국가 코드 ZA(남아공) 추가(Hawaii 출생국). 부계 연결 시 자리표시 계통(sl_phalaris)은 부 계통으로 맞춤.
+- 2026-10-15 사용자 결정: 북 마감은 주간 점진 마감(11월부터 AI 예약이 매주 쌓임, 모든 종마), 내 종마 초과 수요는 그해 마감 + 다음 해 종부료 자동 인상(D8). D3 명세에 반영 예정.
