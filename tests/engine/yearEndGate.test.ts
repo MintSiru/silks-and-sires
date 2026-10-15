@@ -53,7 +53,15 @@ describe('연말 정산 게이트 (M4-D1a)', () => {
     expect(out.ok).toBe(true);
     if (!out.ok) return;
     expect(out.state.yearEnd).toEqual({ lastSubmittedYear: 2031, declinedRenewals: [] });
-    expect(out.state.stud).toEqual({ slots: STUD_BASE_SLOTS, seasons: [], nominations: [], leases: [], sales: [] });
+    expect(out.state.stud).toEqual({ slots: STUD_BASE_SLOTS, seasons: [] });
+  });
+
+  it('v16 → v17 마이그레이션: 교배권·임대·판매 기록 빈 목록 (M4-D4)', () => {
+    const old = { stud: { slots: 2, seasons: [] } } as Record<string, unknown>;
+    const out = applyMigrations(old, 16, 17, MIGRATIONS);
+    expect(out.ok).toBe(true);
+    if (!out.ok) return;
+    expect(out.state.stud).toEqual({ slots: 2, seasons: [], nominations: [], leases: [], sales: [] });
   });
 
   it('v15 → v16 마이그레이션: 종마에 예약 시즌(저장 연도)·AI 예약 0 (M4-D3)', () => {
