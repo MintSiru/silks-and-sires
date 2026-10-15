@@ -57,10 +57,11 @@ const BOOT_DATA: BootstrapData = {
  * 2026-10-15 재고정: 7회차·티어 통일 18두·새 현역 26두(+외조부 17두)로 바뀜.
  * 2026-10-15 재고정: 8회차(조상 23두, Turn-to IE·Deputy Minister brown)로 바뀜.
  * 2026-10-15 재고정: M4-ST1 지급마 능력 상향·성장형 고정(플레이어 지급마의 ability·potential·growth·officialRating 만 바뀜, AI 말 불변 확인).
+ * 2026-10-15 재고정: 5대 혈통 9회차(조상 24두)로 바뀜.
  */
 const PRE_CHANGE_PROJECTION_SHA: Record<number, string> = {
-  20261011: 'f8f41dfa4f74f08dd51e4a7543fc1c93062c51a326713612feae7d1a7ee4f069',
-  7: '964a75699003043872e2138273dad73ca7e720b0903602d1cb0140c45558b7a1',
+  20261011: 'df36ef9c2815f1c3f74f2a875d81cd979ba617103d82426e12d6e4aa9fd978dc',
+  7: '86ab8a6c7b7f05fe221b5267771b83e5dfe5961486a58ead75f5cfbb01af2626',
 };
 
 function boot(seed: number): GameState {
