@@ -68,8 +68,10 @@ export function assessorSkillFor(state: GameState, horse: Horse): number {
 /**
  * 플레이어 시점 평가. 현재 주(state.date) 기준 단서를 만든다.
  * assessorSkill 을 주지 않으면 assessorSkillFor(state, horse) 를 쓴다(주면 그 값).
- * rng 는 `assess:${horseId}:${year}:${week}` 로 새로 만들며 state.rng 를 소비하지 않는다.
- * 같은 주에 다시 보면 같은 결과, 주가 바뀌면 달라질 수 있다.
+ * rng 는 `assess:${horseId}:${year}:${stage}:${skill}` 로 새로 만들며 state.rng 를 소비하지 않는다.
+ * 같은 해·같은 단계·같은 평가자 능력(조교사 상마안) 동안에는 인식 오차가 고정돼 의견이 주마다 흔들리지 않는다
+ * (사용자 피드백 2026-10-15). 해가 바뀌거나, 성장 단계가 바뀌거나, 평가자 능력이 바뀌면(조교사 교체·전속) 새로 본다.
+ * 실제 능력 변화(성장·현재 능력)는 그대로 반영된다.
  */
 export function assessForPlayer(
   state: GameState,
@@ -82,8 +84,9 @@ export function assessForPlayer(
   }
   const date = state.date;
   const skill = assessorSkill ?? assessorSkillFor(state, horse);
-  const rng = createRng(`assess:${horseId}:${date.year}:${date.week}`);
-  return assessHorse(horse, stageFor(horse, date), skill, date, rng);
+  const stage = stageFor(horse, date);
+  const rng = createRng(`assess:${horseId}:${date.year}:${stage}:${skill}`);
+  return assessHorse(horse, stage, skill, date, rng);
 }
 
 /** 플레이어 마주가 보유한 말(owner.horseIds 기준), id 오름차순. */

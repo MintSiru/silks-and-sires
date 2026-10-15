@@ -170,14 +170,22 @@ describe('assessForPlayer', () => {
     expect(assessForPlayer(state, id)).toEqual(assessForPlayer(state, id, PLAYER_ASSESSOR_SKILL));
   });
 
-  it('주가 바뀌면 결과가 달라질 수 있다(여러 주에 걸쳐 서로 다른 결과가 나온다)', () => {
+  it('같은 해·같은 단계·같은 평가자면 주가 바뀌어도 등급·코멘트가 흔들리지 않는다(사용자 피드백 2026-10-15)', () => {
     const state = boot();
     const id = firstPlayerHorse(state).id;
-    const weeks = Array.from({ length: 10 }, (_, i) => i + 1);
+    const opinion = (week: number): string => {
+      const a = assessForPlayer({ ...state, date: { year: START_YEAR, week } }, id);
+      return JSON.stringify({ conformation: a.conformation, comments: a.comments, distanceHint: a.distanceHint });
+    };
+    const base = opinion(2);
+    for (const week of [3, 4, 5, 6]) expect(opinion(week)).toBe(base);
+  });
+
+  it('평가자 능력(조교사)이 바뀌면 다시 본다', () => {
+    const state = boot();
+    const id = firstPlayerHorse(state).id;
     const variants = new Set(
-      weeks.map((week) =>
-        JSON.stringify(assessForPlayer({ ...state, date: { year: START_YEAR, week } }, id)),
-      ),
+      [20, 35, 50, 65, 80].map((skill) => JSON.stringify(assessForPlayer(state, id, skill).conformation)),
     );
     expect(variants.size).toBeGreaterThan(1);
   });
