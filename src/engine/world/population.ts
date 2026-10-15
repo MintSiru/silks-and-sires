@@ -18,7 +18,7 @@ import {
 } from '../config/population';
 import { FOREIGN_OWNER_SHARE } from '../config/people';
 import { STARTER_COUNTRY, STARTER_FITNESS, STARTER_HORSES, STARTER_SIRE_TIER } from '../config/starter';
-import { PROFILE_DISTANCE } from '../config/world';
+import { PROFILE_DISTANCE, TIER_FEE } from '../config/world';
 import { generateHorse } from '../horse/generate';
 import { makeNameRegistry, namingContextFor, type MutableNameRegistry } from '../naming/context';
 import { nameForHorse } from '../naming/generate';
@@ -243,6 +243,8 @@ export interface RacingHorseSpec {
   ownerId?: OwnerId;
   /** 주면 부 후보를 이 marketTier 로 한정한다(후보가 없으면 제한 없음) */
   sireTier?: 1 | 2 | 3 | 4 | 5;
+  /** 지정 종마를 부로 쓴다. 부 선택 난수는 소비하지 않는다. */
+  sireHorseId?: HorseId;
 }
 
 /**
@@ -259,9 +261,37 @@ export function spawnRacingHorse(
   spec: RacingHorseSpec,
   records: readonly RealStallionRecord[],
 ): Horse {
-  const sire = pickSire(rng, records, spec.birthYear, spec.country, spec.sireTier);
-  if (state.horses[sire.key] === undefined) {
-    throw new Error(`현역마 집단: 부(父) ${sire.key} 가 세계 초기화(bootstrapWorld)에 없다`);
+  let sireId: HorseId;
+  let sireLineId: Horse['sireLineId'];
+  let tier: keyof typeof TIER_FEE;
+  let sireDistance: number;
+  if (spec.sireHorseId !== undefined) {
+    const stallion = state.stallions[spec.sireHorseId];
+    const sireHorse = state.horses[spec.sireHorseId];
+    if (stallion === undefined || sireHorse === undefined) {
+      throw new Error(`현역마 집단: 지정 종마 ${spec.sireHorseId} 가 없다`);
+    }
+    sireId = spec.sireHorseId;
+    sireLineId = stallion.sireLineId;
+    tier = 1;
+    let closest = Infinity;
+    for (const candidate of [1, 2, 3, 4, 5] as const) {
+      const distance = Math.abs(Math.log(stallion.fee / TIER_FEE[candidate]));
+      if (distance < closest) {
+        closest = distance;
+        tier = candidate;
+      }
+    }
+    sireDistance = sireHorse.aptitude.distanceOptimum;
+  } else {
+    const sire = pickSire(rng, records, spec.birthYear, spec.country, spec.sireTier);
+    if (state.horses[sire.key] === undefined) {
+      throw new Error(`현역마 집단: 부(父) ${sire.key} 가 세계 초기화(bootstrapWorld)에 없다`);
+    }
+    sireId = sire.key;
+    sireLineId = sire.sireLineId;
+    tier = sire.marketTier;
+    sireDistance = PROFILE_DISTANCE[sire.distanceProfile];
   }
   let owner: Owner;
   if (spec.ownerId === undefined) {
@@ -276,11 +306,11 @@ export function spawnRacingHorse(
   const trainer = pickTrainer(rng, market, spec.country);
 
   const id = allocateHorseId(state);
-  const naming = namingContextFor(state, { ownerId: owner.id, sireId: sire.key, damId: null }, data);
+  const naming = namingContextFor(state, { ownerId: owner.id, sireId, damId: null }, data);
   const name = nameForHorse(naming, data.naming, rng, registry);
   registry.add(name);
   const distanceBias =
-    POPULATION_DISTANCE_SIRE_WEIGHT * PROFILE_DISTANCE[sire.distanceProfile] +
+    POPULATION_DISTANCE_SIRE_WEIGHT * sireDistance +
     (1 - POPULATION_DISTANCE_SIRE_WEIGHT) * POPULATION_DISTANCE_DEFAULT_MEDIAN;
 
   const horse = generateHorse(rng, {
@@ -291,12 +321,12 @@ export function spawnRacingHorse(
     currentYear: spec.currentYear,
     countryOfBirth: spec.country,
     status: 'in_training',
-    level: POPULATION_TIER_LEVEL[sire.marketTier],
+    level: POPULATION_TIER_LEVEL[tier],
     spread: POPULATION_ABILITY_SPREAD,
-    sireId: sire.key,
+    sireId,
     damId: null,
     familyId: null,
-    sireLineId: sire.sireLineId,
+    sireLineId,
     ownerId: owner.id,
     distanceBias,
   });

@@ -58,3 +58,6 @@ export const BOOK_ACCRUAL_END_WEEK = 16;
 export const BOOK_ACCRUAL_SHAPE = 2;
 /** 저장 크기를 제한하면서 최근 종마 시즌 기록 60건을 보존한다. */
 export const STUD_SEASON_HISTORY_LIMIT = 60;
+
+/** 연간 2세 유입 약 635두 표본: 수태 150 → 약 9두, 69 → 약 4두(2026-10-15 측정). */
+export const PLAYER_SIRE_CROP_PER_CONCEPTION = 0.06;

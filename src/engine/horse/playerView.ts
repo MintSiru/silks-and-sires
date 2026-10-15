@@ -5,6 +5,7 @@ import {
   STAGE_FOAL_MAX_AGE,
   STAGE_YEARLING_MAX_AGE,
 } from '../config/playerView';
+import { bookingSeasonOf } from '../breeding/season';
 import { contractFor } from '../economy/contractQuery';
 import { createRng } from '../rng';
 import type {
@@ -110,16 +111,20 @@ export function playerHorses(state: GameState): Horse[] {
  * 이름도 같으면 horseId 오름차순(전순서 보장).
  */
 export function availableStallions(state: GameState): { horse: Horse; stallion: Stallion }[] {
-  // 아직 교배 시작 전(첫 시즌·임대 복귀 전)인 종마는 목록에서 뺀다
+  // 예약 창이 열려 있으면 그 시즌 기준, 닫혀 있으면 현재 연도 기준으로 교배 시작 전(첫 시즌·임대 복귀 전) 종마를 뺀다.
+  // 사망·은퇴한 말(status 가 'stud' 가 아님)도 뺀다.
+  const season = bookingSeasonOf(state.date);
+  const seasonYear = season ?? state.date.year;
   const rows = Object.values(state.stallions)
-    .filter((stallion) => stallion.firstSeasonYear <= state.date.year)
+    .filter((stallion) => stallion.firstSeasonYear <= seasonYear)
     .map((stallion) => {
       const horse = state.horses[stallion.horseId];
       if (horse === undefined) {
         throw new Error(`종마 Horse 레코드가 없음: ${stallion.horseId}`);
       }
       return { horse, stallion };
-    });
+    })
+    .filter((row) => row.horse.status === 'stud');
   rows.sort(
     (a, b) =>
       b.stallion.fee - a.stallion.fee ||

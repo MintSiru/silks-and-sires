@@ -336,7 +336,8 @@ h3 {
 .stallion-head,
 .stallion-row {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) 56px 88px minmax(0, 1.6fr);
+  /* 종마·계류국·종부료·계통·북(M4-D3c) */
+  grid-template-columns: minmax(0, 1.4fr) 56px 88px minmax(0, 1.4fr) minmax(0, 1.6fr);
   gap: 8px;
   align-items: center;
 }

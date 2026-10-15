@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import type { FormEvent, JSX } from 'react';
 import { DEFAULT_ECONOMY_MODE, LEGACY_BANKRUPT_WEEKS } from '../../engine/config/economy';
 import { INBREED_EXCESS_FROM } from '../../engine/config/genetics';
@@ -6,7 +6,7 @@ import { totalBloodPercent } from '../../engine/breeding/inbreeding';
 import { buildMatingPedigree, type PedigreeLookup } from '../../engine/breeding/pedigree';
 import { buildMatingPreview } from '../../engine/breeding/preview';
 import { createPedigreeLookup, isAnonDamId } from '../../engine/breeding/realPedigree';
-import { damsireLineOf } from '../../engine/breeding/season';
+import { bookingSeasonOf, damsireLineOf } from '../../engine/breeding/season';
 import { getNicks, getSireLines, getStallionRecords } from '../../engine/data/staticData';
 import { assessForPlayer, availableStallions, playerHorses } from '../../engine/horse/playerView';
 import { ageInYear, formatDateKo } from '../../engine/time/calendar';
@@ -34,6 +34,7 @@ import {
   phaseKo,
 } from '../game/text';
 import type { GameApi } from '../game/useGame';
+import { bookingWindowKo, bookStatusOf, mareBookingKo, myStudView, STUD_EMPTY_KO } from './bookView';
 import HorseCard from './HorseCard';
 import PedigreeView from './PedigreeView';
 
@@ -277,6 +278,8 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
   }, [state, horses]);
 
   const stallionRows = useMemo(() => availableStallions(state), [state]);
+  const windowOpen = bookingSeasonOf(state.date) !== null;
+  const studView = useMemo(() => myStudView(state), [state]);
   const visibleStallions = useMemo(
     () => stallionRows.filter((row) => matchesStallion(row, query)),
     [stallionRows, query],
@@ -292,6 +295,7 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
   const mare = mareId === null ? null : (state.horses[mareId] ?? null);
   const sire = stallionId === null ? null : (state.horses[stallionId] ?? null);
   const stallion = stallionId === null ? undefined : state.stallions[stallionId];
+  const selectedFull = stallion === undefined ? false : bookStatusOf(state, stallion).full;
 
   const matingView = useMemo(() => {
     if (mare === null || sire === null || stallion === undefined) return null;
@@ -492,23 +496,27 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
               if (assessment === undefined) return null;
               const dam = horse.damId === null ? undefined : state.horses[horse.damId];
               const selectable = horse.sex === 'female' && horse.status === 'broodmare';
+              const mareRecord = state.mares[horse.id];
+              const bookingKo = mareRecord === undefined ? null : mareBookingKo(mareRecord, nameOf);
               return (
-                <HorseCard
-                  key={horse.id}
-                  horse={horse}
-                  assessment={assessment}
-                  ageYears={ageInYear(horse.birthYear, state.date.year)}
-                  parentage={{
-                    sire: nameOrDash(horse.sireId),
-                    dam: nameOrDash(horse.damId),
-                    damsire: nameOrDash(dam?.sireId ?? null),
-                  }}
-                  lineLabel={lineLabelOf(horse.sireLineId)}
-                  selected={horse.id === mareId}
-                  onSelect={
-                    selectable ? () => setMareId(horse.id === mareId ? null : horse.id) : undefined
-                  }
-                />
+                <Fragment key={horse.id}>
+                  <HorseCard
+                    horse={horse}
+                    assessment={assessment}
+                    ageYears={ageInYear(horse.birthYear, state.date.year)}
+                    parentage={{
+                      sire: nameOrDash(horse.sireId),
+                      dam: nameOrDash(horse.damId),
+                      damsire: nameOrDash(dam?.sireId ?? null),
+                    }}
+                    lineLabel={lineLabelOf(horse.sireLineId)}
+                    selected={horse.id === mareId}
+                    onSelect={
+                      selectable ? () => setMareId(horse.id === mareId ? null : horse.id) : undefined
+                    }
+                  />
+                  {bookingKo !== null && <p className="hint">{bookingKo}</p>}
+                </Fragment>
               );
             })}
           </div>
@@ -516,6 +524,7 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
 
         <section className="panel">
           <h2>종마 ({visibleStallions.length}두)</h2>
+          <p className="hint">{bookingWindowKo(state)}</p>
           <input
             type="search"
             className="search"
@@ -528,22 +537,27 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
             <span>계류국</span>
             <span>종부료</span>
             <span>계통</span>
+            <span>북</span>
           </div>
           <ul className="stallion-list">
             {visibleStallions.map((row) => {
               const selected = row.horse.id === stallionId;
+              const book = bookStatusOf(state, row.stallion);
               return (
                 <li key={row.horse.id}>
                   <button
                     type="button"
                     className={selected ? 'stallion-row stallion-row--selected' : 'stallion-row'}
                     aria-pressed={selected}
+                    disabled={book.full}
+                    title={book.full ? '북 마감' : undefined}
                     onClick={() => setStallionId(selected ? null : row.horse.id)}
                   >
                     <span>{row.horse.name}</span>
                     <span>{countryKo(row.stallion.standsIn)}</span>
                     <span>{feeKo(row.stallion.fee)}</span>
                     <span>{lineLabelOf(row.stallion.sireLineId)}</span>
+                    <span>{book.labelKo}</span>
                   </button>
                 </li>
               );
@@ -615,13 +629,79 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
               </p>
             )}
             <div className="preview__actions">
-              <button type="button" className="btn btn--primary" onClick={handleBook}>
+              <button
+                type="button"
+                className="btn btn--primary"
+                disabled={!windowOpen || selectedFull}
+                title={!windowOpen ? '예약 창 닫힘' : selectedFull ? '북 마감' : undefined}
+                onClick={handleBook}
+              >
                 교배 예약
               </button>
             </div>
             <h3>가상 혈통표</h3>
             <PedigreeView root={matingView.root} nameOf={nameOf} />
           </>
+        )}
+      </section>
+
+      <section className="panel">
+        <h2>내 종마 ({studView.stallions.length}두)</h2>
+        <p className="hint">{studView.slotsKo}</p>
+        {studView.stallions.length === 0 ? (
+          <p className="hint">{STUD_EMPTY_KO}</p>
+        ) : (
+          <div className="table-scroll">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>종마</th>
+                  <th>종부료</th>
+                  <th>북</th>
+                  <th>첫 시즌</th>
+                </tr>
+              </thead>
+              <tbody>
+                {studView.stallions.map((row) => (
+                  <tr key={row.horseId}>
+                    <td>{row.name}</td>
+                    <td>{row.feeKo}</td>
+                    <td>{row.bookKo}</td>
+                    <td>{`${row.firstSeasonYear} 시즌`}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        <h3>최근 정산</h3>
+        {studView.seasons.length === 0 ? (
+          <p className="hint">아직 정산 기록이 없습니다.</p>
+        ) : (
+          <div className="table-scroll">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>연도</th>
+                  <th>종마</th>
+                  <th>외부 교배</th>
+                  <th>수태</th>
+                  <th>수입</th>
+                </tr>
+              </thead>
+              <tbody>
+                {studView.seasons.map((row, index) => (
+                  <tr key={`${row.year}-${row.name}-${index}`}>
+                    <td>{row.year}</td>
+                    <td>{row.name}</td>
+                    <td>{row.outsideCovers}</td>
+                    <td>{row.conceptions}</td>
+                    <td>{row.incomeKo}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </section>
     </>

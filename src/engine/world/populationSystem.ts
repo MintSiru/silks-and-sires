@@ -1,3 +1,5 @@
+import { PLAYER_SIRE_CROP_PER_CONCEPTION } from '../config/stud';
+import { createRng } from '../rng';
 import { makeNameRegistry } from '../naming/context';
 import {
   POPULATION_BROODMARE_RETIRE_BANDS,
@@ -220,11 +222,33 @@ export function createPopulationSystem(data: RacingPopulationStaticData): Weekly
       const market = buildMarket(draft);
       const enrolled = enrollSaleHorses(draft, year, market, ctx.rng);
 
-      // 6. 나라별 신규 2세 투입 = 그 해 그 나라 은퇴 두수 − 세일 출신 편입 두수(0 이하면 없음)
       const registry = makeNameRegistry(draft);
       const records = sortStallionRecords(data.stallionRecords);
+      // 5b. 교배 3년 뒤 내 종마 자마를 편입한다. 두수 추첨은 독립 스트림을 쓴다.
+      const crops = new Map<PopulationCountry, number>();
+      const seasons = draft.stud.seasons
+        .filter((season) => season.year === year - 3)
+        .sort((a, b) => a.stallionId < b.stallionId ? -1 : a.stallionId > b.stallionId ? 1 : 0);
+      for (const season of seasons) {
+        const { stallionId, conceptions } = season;
+        const stallion = draft.stallions[stallionId];
+        if (stallion === undefined || draft.horses[stallionId] === undefined) continue;
+        const rng = createRng(`${draft.initialSeed}:player-sire-crop:${stallionId}:${year}`);
+        const expected = conceptions * PLAYER_SIRE_CROP_PER_CONCEPTION;
+        const count = Math.floor(expected) + (rng.next() < expected - Math.floor(expected) ? 1 : 0);
+        const country = isPopulationCountry(stallion.standsIn) ? stallion.standsIn : 'GB';
+        for (let i = 0; i < count; i++) {
+          const { sex, gelded } = drawSexAndGelding(ctx.rng, POPULATION_ENTRY_AGE);
+          spawnRacingHorse(draft, data, ctx.rng, market, registry,
+            { country, birthYear: year - POPULATION_ENTRY_AGE, currentYear: year, sex, gelded, sireHorseId: stallionId },
+            records);
+        }
+        crops.set(country, (crops.get(country) ?? 0) + count);
+      }
+
+      // 6. 내 종마 자마만큼 일반 신규 투입을 줄인다.
       for (const country of POPULATION_COUNTRY_ORDER) {
-        const count = Math.max(0, (retiredByCountry.get(country) ?? 0) - (enrolled.get(country) ?? 0));
+        const count = Math.max(0, (retiredByCountry.get(country) ?? 0) - (enrolled.get(country) ?? 0) - (crops.get(country) ?? 0));
         for (let i = 0; i < count; i++) {
           const { sex, gelded } = drawSexAndGelding(ctx.rng, POPULATION_ENTRY_AGE);
           spawnRacingHorse(
