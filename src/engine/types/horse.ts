@@ -251,6 +251,20 @@ export interface Stallion {
    * 없거나 null 이면 임대 중 아님
    */
   leasedAwayUntil?: number | null;
+  /**
+   * 시즌별 관측 수태 기록(M4-D5, 최근 기록이 끝, 최대 config 개수). 공개 수태율·저수태 은퇴 판정에 쓴다.
+   * 없으면 기록 없음(옛 저장본·첫 시즌 전)
+   */
+  fertilityHistory?: StallionFertilitySeason[];
+}
+
+/** 종마 한 시즌의 관측 수태 기록(M4-D5) */
+export interface StallionFertilitySeason {
+  year: number;
+  /** 그 시즌 교배 수(북에 오른 암말) */
+  covers: number;
+  /** 그중 수태 수 */
+  conceptions: number;
 }
 
 /** 번식 암말 프로필. Horse 레코드(horseId)에 붙는 확장 레코드. */

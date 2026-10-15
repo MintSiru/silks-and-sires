@@ -413,6 +413,12 @@ export function eventKo(e: GameEvent, nameOf: (id: HorseId) => string): string {
       return `${formatDateKo(e.date)} · 베팅 정산: ${nameOf(e.horseId)} — ${e.returned > 0 ? `${feeKo(e.returned)} 회수 (건 돈 ${feeKo(e.outlay)})` : `${feeKo(e.outlay)} 잃음`}`;
     case 'private_offer':
       return `${formatDateKo(e.date)} · 내부거래 ${PRIVATE_OFFER_CHANGE_KO[e.change]}: ${nameOf(e.horseId)} (${feeKo(e.price)})`;
+    case 'stallion_subfertile':
+      return `${formatDateKo(e.date)} · 저수태 판명: ${nameOf(e.stallionId)} (수태율 약 ${Math.round(e.fertility * 100)}%)`;
+    case 'stallion_fertility_warning':
+      return `${formatDateKo(e.date)} · 수태율 경고: ${nameOf(e.stallionId)} 최근 관측 수태율 ${Math.round(e.rate * 100)}% — 은퇴를 검토하세요`;
+    case 'stallion_pensioned':
+      return `${formatDateKo(e.date)} · 종마 은퇴: ${nameOf(e.stallionId)}${e.reason === 'fertility' ? ' (저수태)' : ''}`;
     case 'horse_died':
       return `${formatDateKo(e.date)} · 사망: ${nameOf(e.horseId)} (${e.cause === 'age' ? '노령' : e.cause === 'accident' ? '사고' : '질병'})`;
     case 'stud_fee_set':

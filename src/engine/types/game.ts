@@ -19,6 +19,12 @@ export type GameEvent =
   | { type: 'horse_status_changed'; horseId: HorseId; from: HorseStatus; to: HorseStatus; date: GameDate }
   /** 종마·번식 암말 사망(M4-D9). 플레이어 말과 현역 실명 종마만 이벤트로 남긴다 */
   | { type: 'horse_died'; horseId: HorseId; cause: 'age' | 'accident' | 'illness'; date: GameDate }
+  /** M4-D5: 첫 시즌에 저수태가 판명됨(플레이어 종마·실명 종마만 기록) */
+  | { type: 'stallion_subfertile'; stallionId: HorseId; fertility: number; date: GameDate }
+  /** M4-D5: 관측 수태율이 기준 미달로 연속됨 — 내 종마는 경고(은퇴는 플레이어 선택) */
+  | { type: 'stallion_fertility_warning'; stallionId: HorseId; rate: number; date: GameDate }
+  /** M4-D5: 저수태로 종마 은퇴(AI·실명·국내 판매 종마는 자동, 플레이어 종마는 직접 선택) */
+  | { type: 'stallion_pensioned'; stallionId: HorseId; reason: 'fertility' | 'player'; date: GameDate }
   /** 종부료 연간 재산정(M4-D8). 플레이어 종마만 이벤트로 남긴다 */
   | { type: 'stud_fee_set'; stallionId: HorseId; season: number; fee: Money; prevFee: Money; date: GameDate }
   /** M4-D4: 플레이어 종마(또는 종마로 은퇴하는 수말) 판매 */
