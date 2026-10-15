@@ -40,10 +40,11 @@ const BOOT_DATA: BootstrapData = {
  * 투영은 breederId 를 뺀 말 전체 + 마주(id·이름·horseIds) + 조교사(id·이름·수용 두수)다.
  * 생산자 배정은 집단 rng 를 쓰지 않으므로 이 값이 바뀌면 기존 결과가 바뀐 것이다.
  * 2026-10-12 재고정: 유럽 밖·더트 종마 가중치 보정(SIRE_OVERSEAS_WEIGHT_MULT·SIRE_DIRT_WEIGHT_MULT)으로 부 선택이 바뀜.
+ * 2026-10-15 재고정: 독일 계류 종마 4두 추가(M2-10 일부)로 부 후보가 바뀜.
  */
 const PRE_CHANGE_PROJECTION_SHA: Record<number, string> = {
-  20261011: 'b30913894980ff9c0df6ddc913e65e5345ffae6143701b0fb47f41e74a13a649',
-  7: 'c5eb69bc717a95474e9fa2f7158260d09f70eef0b9f483928397b5c5f84fab8b',
+  20261011: '85a876a45cb7dbca8be252a3d059df00dc02a88e8262a480b5f31b1795f3f4e5',
+  7: '49df6e40f7a6730e0e6efd8dc6aadac62ef9ae443b176a2fddeda7b2627dbc39',
 };
 
 function boot(seed: number): GameState {
