@@ -184,5 +184,17 @@
     "label": "Man o' War line",
     "parentLineId": null,
     "founderKey": "stl_man_o_war"
+  },
+  {
+    "id": "sl_bahram",
+    "label": "Bahram line",
+    "parentLineId": null,
+    "founderKey": "stl_bahram"
+  },
+  {
+    "id": "sl_monsun",
+    "label": "Monsun line",
+    "parentLineId": "sl_bahram",
+    "founderKey": "stl_monsun"
   }
 ]

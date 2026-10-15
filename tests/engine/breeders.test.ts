@@ -44,10 +44,11 @@ const BOOT_DATA: BootstrapData = {
  * 2026-10-15 재고정: 독일·이탈리아 종마 20두 추가와 어휘 'Destino' 삭제(같은 이름 실존 종마)로 바뀜.
  * 2026-10-15 재고정: 독일·이탈리아 종마 10두와 조상·외조부 추가, 어휘 'Helmet' 삭제로 바뀜.
  * 2026-10-15 재고정: Elegant Air·Super Concorde 의 부(Shirley Heights·Bold Reasoning) 연결로 바뀜.
+ * 2026-10-15 재고정: Königsstuhl 부계(Bahram 계) 추가, Monsun 계 신설·Monsun 거리 classic 으로 바뀜.
  */
 const PRE_CHANGE_PROJECTION_SHA: Record<number, string> = {
-  20261011: '1f9e90d216ad16e6036edd649b9253d8aa23583b5ce26d6a018f05fbc7307e4e',
-  7: '26da5951a8e5970726e7f81b312366d4846673d8958011e3683d36f90a877103',
+  20261011: '92a037b03d42cab0f41455e71b27194c5fb253bb4f8817aa25f06a023e5e92e2',
+  7: '2a2a297a553c2ec20f522987fbbec8ba69367c5fc56821531d5e8613a1c525a1',
 };
 
 function boot(seed: number): GameState {
