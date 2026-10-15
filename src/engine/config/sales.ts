@@ -182,3 +182,13 @@ export const SALE_LIVE_MAX_STEPS = 200;
 
 /** 세일 동행 검사 가능 관계 하한(이상이면 동행 가능). 전속 조교사는 관계와 무관하게 가능 */
 export const SALE_INSPECT_MIN_RELATION = 10;
+
+// ── 세일 후원 등급(M4-C8a) ─────────────────────────
+
+/** 올해·지난해 낙찰가 합계 기준(€) */
+export const SALE_PATRON_SILVER_SPEND = 1_000_000;
+export const SALE_PATRON_GOLD_SPEND = 3_000_000;
+/** 후원 등급별 구매 수수료율 할인 */
+export const SALE_PATRON_PREMIUM_DISCOUNT = { none: 0, silver: 0.01, gold: 0.02 } as const;
+/** 후원 등급별 위탁 북 우대 */
+export const SALE_PATRON_BOOK_BONUS = { none: 0, silver: 1, gold: 1 } as const;

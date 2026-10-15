@@ -4,6 +4,7 @@
  * 난수는 쓰지 않는다. 입찰자 판정은 auction.ts 의 collectBidders 를 그대로 쓴다.
  * 경매 결과는 항상 resolveLot 을 그대로 쓴다. 실시간 단계의 마지막 가격·선두가 resolveLot 과 어긋나지 않게 하려는 것이다.
  */
+import { playerPremiumRate } from './patron';
 import { SALE_LIVE_MAX_STEPS } from '../config/sales';
 import { canSpendDiscretionary } from '../economy/solvency';
 import type { PlayerResult } from '../season/player';
@@ -137,7 +138,7 @@ export function setMaxBid(
   if (compareDates(saleWeekOf(event, year, lot), state.date) < 0) return fail('too_late');
   if (isOwnConsignment(state, lot)) return fail('own_lot');
   if (!Number.isInteger(maxBid) || maxBid < event.minimumBid) return fail('invalid_amount');
-  if (!canSpendDiscretionary(state, Math.round(maxBid * (1 + event.buyerPremiumRate)))) {
+  if (!canSpendDiscretionary(state, Math.round(maxBid * (1 + playerPremiumRate(state, event))))) {
     return fail('insufficient_funds');
   }
 

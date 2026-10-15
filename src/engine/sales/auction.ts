@@ -3,6 +3,7 @@
  * computeAiBids·resolveLot·bidIncrement·playerBidValid·summarizeCatalogue 는 순수 함수(난수는 인자 rng 만).
  * settleLot 만 draft 를 바꾼다(돈·소유 이전·세계에서 빼기·이벤트). 호출 순서(로트 번호 순)는 sales/system 이 정한다.
  */
+import { playerPremiumRate } from './patron';
 import {
   SALE_AI_BIDS_STORED,
   SALE_BID_LADDER,
@@ -141,7 +142,7 @@ export function playerBidValid(state: GameState, event: SaleEventDef, lot: SaleL
   if (vendorOwnerId(lot.vendor) === state.playerOwnerId) return false;
   const max = Math.floor(playerMax);
   if (!(max >= event.minimumBid)) return false;
-  return canSpendDiscretionary(state, max * (1 + event.buyerPremiumRate));
+  return canSpendDiscretionary(state, max * (1 + playerPremiumRate(state, event)));
 }
 
 /** 말이 아직 판매할 수 있는가: 말이 있고, dead·retired 가 아니며, 소유자가 판매자와 같다(breeder 판매자면 무소속) */
@@ -355,7 +356,7 @@ function settleMoney(
   buyerIsPlayer: boolean,
   date: GameDate,
 ): void {
-  const buyerFee = Math.round(price * event.buyerPremiumRate);
+  const buyerFee = Math.round(price * (buyerIsPlayer ? playerPremiumRate(draft, event) : event.buyerPremiumRate));
   const vendorFee = Math.round(price * SALE_VENDOR_COMMISSION);
   recordMoney(draft, buyer.id, 'sale_purchase', -price, date, lot.horseId);
   recordMoney(draft, buyer.id, 'sale_commission', -buyerFee, date, lot.horseId);

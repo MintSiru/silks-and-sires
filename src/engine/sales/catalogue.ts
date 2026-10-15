@@ -4,6 +4,7 @@
  * 난수는 인자로 받은 rng 와 로트별 가치 평가 스트림(createRng)만 쓴다. 같은 draft·같은 rng → 같은 카탈로그.
  * 설계: docs/m4-sales-design.md 1·2장.
  */
+import { patronView } from './patron';
 import { BREEDER_PICK_WEIGHT } from '../config/breeders';
 import {
   POPULATION_ABILITY_SPREAD,
@@ -20,6 +21,7 @@ import {
   SALE_HIT_OR_MAX,
   SALE_HIT_OR_MIN,
   SALE_LOT_SCALE,
+  SALE_PATRON_BOOK_BONUS,
   SALE_MARE_AGE_MAX,
   SALE_MARE_AGE_MIN,
   SALE_RESERVE_SHARE,
@@ -409,7 +411,7 @@ function consignedLots(ctx: Context, event: SaleEventDef, year: number): Pending
     if (horse === undefined || horse.ownerId !== playerId || !fitsKind(horse, event.kind, year)) continue;
     used.add(c.horseId);
     out.push({
-      bookNo: bookForSire(event, sireTierOf(ctx, horse.sireId)),
+      bookNo: Math.max(1, bookForSire(event, sireTierOf(ctx, horse.sireId)) - SALE_PATRON_BOOK_BONUS[patronView(ctx.state).tier]),
       horse,
       vendor: { kind: 'owner', id: playerId },
       consignedReserve: c.reserve,
