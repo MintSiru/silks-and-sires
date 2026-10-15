@@ -284,3 +284,4 @@
 - 2026-10-15 M4-D1b 승인(Codex + Opus 브라우저 확인): 연말 정산 대기 중이면 탭 내용 대신 YearEndScreen, 진행 API 3종 advanceWeekGated 로 막힘 시 중단, 2단계 확인 제출. Opus 수정: 제목을 끝난 해 기준(새해−1)으로, 오류 문구 클래스 통일. 브라우저: 새 게임 → 52주 → 정산 화면 → 은퇴 1두 제출 → 목장 목록에서 빠짐·1주 진행 확인.
 - 2026-10-15 5대 혈통 4회차 반영(사용자 표 1~51): 조상 28두 추가. 'Bold Lad (IRE)' 는 국가 접미사 금지 규칙으로 'Bold Lad' 로 저장. Nearctic 출생국 CA·Seattle Slew·Halo 털색 brown 정정(사용자 표). Busted 는 bay 유지(사용자 확인: JBIS·Pedigree Query 일치). 어휘 'Venture' 삭제(실존 종마), 연상어 Endeavour 에 'Effort' 보충.
 - 2026-10-15 saleBidding 실시간 호가 테스트: 단계가 SALE_LIVE_MAX_STEPS 로 잘린 로트(€3M 낙찰)는 첫 단계 = 최저가 검사에서 제외(설계 규칙대로 앞쪽을 버림). 낙찰가 호가 단위 불일치(€3,018,789)는 기존 백로그.
+- 2026-10-15 5대 혈통 유럽 1~2티어 마지막 정리 회차 반영(20칸, 조상 12두 추가). The Axe II 사망 1982·grey, Venture 사망 1979 보충(Venture 털색은 기존 bay 유지, 이번 표 dark bay/brown 과 달라 확인 대기). 유럽 1~2티어 16두 수컷 칸 완료. 사용자 결정: 다음은 유럽 밖 1~2티어 → 3티어.

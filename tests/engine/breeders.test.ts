@@ -51,10 +51,11 @@ const BOOT_DATA: BootstrapData = {
  * 2026-10-15 재고정: 5대 혈통 2회차(조상 29두 추가, Blushing Groom 계 분리)로 바뀜.
  * 2026-10-15 재고정: 5대 혈통 3회차(조상 35두 추가, Waajib 생년 정정, 지명 'Persepolis' 삭제)로 바뀜.
  * 2026-10-15 재고정: 5대 혈통 4회차(조상 28두 추가)와 어휘 'Venture' 삭제·'Effort' 추가로 바뀜.
+ * 2026-10-15 재고정: 유럽 1~2티어 마지막 정리 회차(조상 12두 추가)로 바뀜.
  */
 const PRE_CHANGE_PROJECTION_SHA: Record<number, string> = {
-  20261011: '90ae48508af5011d3e635b2e5c6663d277a4daf338b466fd544ed0cb0781c4ca',
-  7: 'fdcd38b54683a68f60e0684da3dcd13cca004cb38358c809aef189063da9dc56',
+  20261011: '1d9443bad38ad1a510bd1db748b08c33a77c4c5c8d827378e08caaf1c61b2d83',
+  7: '2e4e44e59e7457c12bf7c86a4acca2db1ca9796ee4103474d53771832c5ed012',
 };
 
 function boot(seed: number): GameState {
