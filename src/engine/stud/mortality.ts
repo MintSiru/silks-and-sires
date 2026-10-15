@@ -11,7 +11,7 @@ import {
 } from '../config/mortality';
 import { recordMoney } from '../economy/ledger';
 import { createRng } from '../rng';
-import type { GameDate, GameEvent, GameState, HorseId, WeeklySystem } from '../types';
+import type { GameDate, GameEvent, GameState, HorseId, Money, WeeklySystem } from '../types';
 
 /** 나이별 연간 사망 확률(MORTALITY_BY_AGE 계단식). 최소 나이 미만이면 0 */
 export function annualDeathChance(age: number): number {
@@ -24,19 +24,20 @@ export function annualDeathChance(age: number): number {
 
 /**
  * 종부료 환불. 암말 소유자가 종마 소유자와 다를 때만 돌려준다(장부 stud_fee_paid +fee).
- * 종부료는 종마의 현재 fee 로 한다(기존 예약 환불 규칙과 같다).
+ * 기록된 실제 납부액을 돌려주며, 0 이면 장부를 남기지 않는다.
  */
 function refundStudFee(
   draft: GameState,
   stallionId: HorseId,
   mareId: HorseId,
   date: GameDate,
+  fee: Money,
 ): void {
   const stallion = draft.stallions[stallionId];
   const payer = draft.horses[mareId]?.ownerId ?? null;
   if (stallion === undefined || payer === null) return;
   if (payer === (draft.horses[stallionId]?.ownerId ?? null)) return;
-  recordMoney(draft, payer, 'stud_fee_paid', stallion.fee, date, mareId);
+  if (fee > 0) recordMoney(draft, payer, 'stud_fee_paid', fee, date, mareId);
 }
 
 /** 사망한 종마에 걸린 미수태 교배·사전 예약을 지우고 환불한다. 임신 중인 암말의 교배는 건드리지 않는다. */
@@ -45,12 +46,15 @@ function clearStallionBookings(draft: GameState, stallionId: HorseId, date: Game
     const mare = draft.mares[mareId];
     if (mare === undefined) continue;
     if (mare.coveredBy === stallionId && !mare.pregnant) {
-      refundStudFee(draft, stallionId, mareId, date);
+      refundStudFee(draft, stallionId, mareId, date,
+        mare.coveredFee ?? draft.stallions[stallionId]?.fee ?? 0);
       mare.coveredBy = null;
+      mare.coveredFee = null;
       mare.coveredWeek = null;
     }
     if (mare.bookedFor?.stallionId === stallionId) {
-      refundStudFee(draft, stallionId, mareId, date);
+      refundStudFee(draft, stallionId, mareId, date,
+        mare.bookedFor.feePaid ?? draft.stallions[stallionId]?.fee ?? 0);
       mare.bookedFor = null;
     }
   }
@@ -67,14 +71,18 @@ function clearMareBookings(draft: GameState, mareId: HorseId, date: GameDate): v
     mare.pregnant = false;
     mare.dueWeek = null;
     mare.coveredBy = null;
+    mare.coveredFee = null;
     mare.coveredWeek = null;
   } else if (mare.coveredBy !== null) {
-    refundStudFee(draft, mare.coveredBy, mareId, date);
+    refundStudFee(draft, mare.coveredBy, mareId, date,
+      mare.coveredFee ?? draft.stallions[mare.coveredBy]?.fee ?? 0);
     mare.coveredBy = null;
+    mare.coveredFee = null;
     mare.coveredWeek = null;
   }
   if (mare.bookedFor != null) {
-    refundStudFee(draft, mare.bookedFor.stallionId, mareId, date);
+    refundStudFee(draft, mare.bookedFor.stallionId, mareId, date,
+      mare.bookedFor.feePaid ?? draft.stallions[mare.bookedFor.stallionId]?.fee ?? 0);
     mare.bookedFor = null;
   }
 }

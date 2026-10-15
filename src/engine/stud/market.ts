@@ -90,6 +90,10 @@ export function createFeeReviewSystem(): WeeklySystem {
         const stallion = state.stallions[id]!;
         const horse = state.horses[stallion.horseId];
         if (horse?.status !== 'stud') continue;
+        if (stallion.leasedAwayUntil != null && date.year + 1 < stallion.leasedAwayUntil) {
+          stallion.fertility = reviewFee(state, id, date.year).fertility;
+          continue;
+        }
         const prevFee = stallion.fee;
         Object.assign(stallion, reviewFee(state, id, date.year), { prevFee });
         if (horse.ownerId === state.playerOwnerId) events.push({

@@ -97,3 +97,36 @@ export const POPULARITY_MAX = 95;
 export const FERTILITY_DECLINE_FROM_AGE = 16;
 export const FERTILITY_DECLINE_PER_YEAR = 0.01;
 export const FERTILITY_FLOOR = 0.5;
+
+/** 종부료의 200배를 국내 예상 수입 약 3년치로 평가한다. */
+export const STALLION_SALE_FEE_MULT = 200;
+/** 열 살까지 판매 가치 전액을 인정한다. */
+export const STALLION_SALE_FULL_AGE = 10;
+/** 열 살 이후에는 매년 판매 가치의 8%를 낮춘다. */
+export const STALLION_SALE_AGE_DECAY = 0.08;
+/** 고령 종마도 기본 가치의 30%는 보장한다. */
+export const STALLION_SALE_AGE_FLOOR = 0.3;
+/** 세계에서 빠지는 해외 판매는 국내 가치의 65%로 평가한다. */
+export const STALLION_SALE_OVERSEAS_MULT = 0.65;
+/** 국내 판매 후 남기는 무료 교배권은 시즌당 두 번까지다. */
+export const NOMINATION_MAX_PER_SEASON = 2;
+/** 보유 교배권 한 장마다 종부료 여섯 번만큼 판매가에서 공제한다. */
+export const NOMINATION_PRICE_FEE_MULT = 6;
+/** 남반구 한 시즌 셔틀 임대료는 종부료의 20배다. */
+export const SHUTTLE_RENT_FEE_MULT = 20;
+/** 장기 임대의 연 임대료는 종부료의 50배다. */
+export const LONG_LEASE_RENT_FEE_MULT = 50;
+/** 북반구에서 비우는 시즌 수를 최대 다섯 번으로 제한한다. */
+export const LONG_LEASE_MAX_SEASONS = 5;
+/** 번식 시즌 정산 다음 주부터 종마 거래를 허용한다. */
+export const STUD_DEAL_FIRST_WEEK = 28;
+/** 다음 시즌 예약 창이 열리기 전에 종마 거래를 끝낸다. */
+export const STUD_DEAL_LAST_WEEK = BOOKING_OPEN_WEEK - 1;
+/** 남반구 시즌이 끝나는 연말에 셔틀 임대료를 지급한다. */
+export const SHUTTLE_RENT_PAY_WEEK = 52;
+/** 북반구 번식 시즌 정산 주에 장기 임대료를 지급한다. */
+export const LONG_LEASE_PAY_WEEK = 27;
+/** 최근 종마 판매 기록 60건만 보존한다. */
+export const STALLION_SALE_HISTORY_LIMIT = 60;
+/** 종마 판매가와 임대료는 종부료 사다리 대신 천 유로 단위로 반올림한다. */
+export const STUD_DEAL_MONEY_STEP = 1_000;

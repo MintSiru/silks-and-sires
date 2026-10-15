@@ -43,7 +43,8 @@ describe('사전 예약 창과 시즌 전환', () => {
     const original = structuredClone(state);
     const booked = reserve(state, mareId, stallionId);
     expect(state).toEqual(original);
-    expect(booked.mares[mareId]!.bookedFor).toEqual({ stallionId, season: 2027 });
+    expect(booked.mares[mareId]!.bookedFor).toEqual({ stallionId, season: 2027,
+      feePaid: state.stallions[stallionId]!.fee });
     expect(funds(booked)).toBe(funds(state) - state.stallions[stallionId]!.fee);
     expect(booked.economy).not.toEqual(state.economy);
     expect(booked.stallions[stallionId]).toMatchObject({ bookingSeason: 2027, bookedThisSeason: 1 });

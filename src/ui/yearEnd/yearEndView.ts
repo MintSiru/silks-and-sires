@@ -43,6 +43,7 @@ const ERRORS: Record<YearEndError, string> = {
   missing_horse: '진로를 정하지 않은 말이 있습니다.', duplicate_horse: '같은 말의 진로가 중복되었습니다.',
   unknown_horse: '정산 대상이 아닌 말입니다.', choice_not_allowed: '선택할 수 없는 진로입니다.',
   no_free_slot: '종마사 빈 칸이 부족합니다.', retainer_mismatch: '갱신 대상 계약을 모두 확인해 주세요.',
+  invalid_nominations: '교배권 수는 국내 판매에서만 0~2개로 정할 수 있습니다.',
 };
 
 export function yearEndErrorKo(error: YearEndError): string {

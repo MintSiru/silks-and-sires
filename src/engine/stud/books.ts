@@ -47,6 +47,7 @@ export function createStudBooksSystem(): WeeklySystem {
         if (horse?.status !== 'stud') continue;
         if (season !== null && season >= stallion.firstSeasonYear) {
           rollBookingSeason(stallion, season);
+          if (stallion.leasedAwayUntil != null && season < stallion.leasedAwayUntil) continue;
           if (stallion.aiDemand === 0) stallion.aiDemand = Math.max(1, seasonDemand(state, id, season));
           const progress = accrualProgress(date, season);
           const target = Math.floor(stallion.aiDemand * (1 - (1 - progress) ** config.BOOK_ACCRUAL_SHAPE));
@@ -55,7 +56,11 @@ export function createStudBooksSystem(): WeeklySystem {
           stallion.aiBooked = Math.max(stallion.aiBooked, newAi);
           stallion.bookedThisSeason = stallion.aiBooked + playerBooked;
         }
-        if (date.week !== settlementWeek || horse.ownerId !== state.playerOwnerId
+        const owned = horse.ownerId === state.playerOwnerId;
+        const soldDomestic = horse.ownerId === null && state.stud.sales.some((sale) =>
+          sale.stallionId === id && sale.mode === 'domestic');
+        if (date.week !== settlementWeek || (!owned && !soldDomestic)
+          || (stallion.leasedAwayUntil != null && date.year < stallion.leasedAwayUntil)
           || stallion.bookingSeason !== date.year
           || state.stud.seasons.some((record) => record.stallionId === id && record.year === date.year)) continue;
         const rng = createRng(`${state.initialSeed}:stud-settle:${id}:${date.year}`);
@@ -63,13 +68,13 @@ export function createStudBooksSystem(): WeeklySystem {
         for (let i = 0; i < stallion.aiBooked; i++) {
           if (rng.chance(stallion.fertility)) conceptions++;
         }
-        const income = conceptions * stallion.fee;
+        const income = owned ? conceptions * stallion.fee : 0;
         if (income > 0) recordMoney(state, state.playerOwnerId, 'stud_fee_received', income, date, id);
         state.stud.seasons.push({ stallionId: id, year: date.year, fee: stallion.fee,
           outsideCovers: stallion.aiBooked, ownCovers: stallion.bookedThisSeason - stallion.aiBooked,
           conceptions, income });
         state.stud.seasons = state.stud.seasons.slice(-config.STUD_SEASON_HISTORY_LIMIT);
-        events.push({ type: 'stud_season_settled', stallionId: id, year: date.year,
+        if (owned) events.push({ type: 'stud_season_settled', stallionId: id, year: date.year,
           outsideCovers: stallion.aiBooked, conceptions, income, date: { ...date } });
       }
       return events;

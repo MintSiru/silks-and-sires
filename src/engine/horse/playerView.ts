@@ -117,6 +117,7 @@ export function availableStallions(state: GameState): { horse: Horse; stallion: 
   const seasonYear = season ?? state.date.year;
   const rows = Object.values(state.stallions)
     .filter((stallion) => stallion.firstSeasonYear <= seasonYear)
+    .filter((stallion) => stallion.leasedAwayUntil == null || seasonYear >= stallion.leasedAwayUntil)
     .map((stallion) => {
       const horse = state.horses[stallion.horseId];
       if (horse === undefined) {

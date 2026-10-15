@@ -96,6 +96,12 @@ export function rollBookingSeason(stallion: Stallion, season: number): void {
   stallion.aiDemand = 0;
 }
 
+/** 플레이어가 해당 예약 시즌에 쓸 수 있는 무료 교배권 수. 상태는 바꾸지 않는다. */
+export function nominationsLeft(state: GameState, stallionId: HorseId, season: number): number {
+  const right = state.stud.nominations.find((right) => right.stallionId === stallionId);
+  return right === undefined ? 0 : Math.max(0, right.perSeason - (right.season === season ? right.used : 0));
+}
+
 function dateOf(d: GameDate): GameDate {
   return { year: d.year, week: d.week };
 }
@@ -188,14 +194,20 @@ export function bookCovering(
   }
 
   const stallion = state.stallions[stallionId];
-  if (stallion === undefined || season < stallion.firstSeasonYear) return fail('stallion_not_available');
+  if (stallion === undefined || season < stallion.firstSeasonYear ||
+    (stallion.leasedAwayUntil != null && season < stallion.leasedAwayUntil)) {
+    return fail('stallion_not_available');
+  }
   const seasonStallion = { ...stallion };
   rollBookingSeason(seasonStallion, season);
   if (seasonStallion.bookedThisSeason >= seasonStallion.bookLimit) return fail('book_full');
 
   const ownStallion = state.horses[stallionId]?.ownerId === ownerId;
-  const fee = ownStallion ? 0 : stallion.fee;
-  if (!ownStallion && (state.owners[ownerId] === undefined || !canSpendDiscretionary(state, fee, ownerId))) {
+  const useNomination = !ownStallion && ownerId === state.playerOwnerId &&
+    nominationsLeft(state, stallionId, season) > 0;
+  const fee = ownStallion || useNomination ? 0 : stallion.fee;
+  if (!ownStallion && !useNomination &&
+    (state.owners[ownerId] === undefined || !canSpendDiscretionary(state, fee, ownerId))) {
     return fail('insufficient_funds');
   }
 
@@ -207,13 +219,19 @@ export function bookCovering(
     throw new Error('bookCovering: 복제 상태에 필요한 레코드가 없다');
   }
 
-  if (!ownStallion) recordMoney(next, ownerId, 'stud_fee_paid', -fee, dateOf(state.date), mareId);
+  if (fee > 0) recordMoney(next, ownerId, 'stud_fee_paid', -fee, dateOf(state.date), mareId);
+  if (useNomination) {
+    const right = next.stud.nominations.find((right) => right.stallionId === stallionId)!;
+    right.used = right.season === season ? right.used + 1 : 1;
+    right.season = season;
+  }
   if (isInPhase(state.date.week, BREEDING_PHASE) && season === state.date.year &&
     !nextMare.pregnant && nextMare.coveredBy === null && nextMare.bookedFor == null) {
     nextMare.coveredBy = stallionId;
+    nextMare.coveredFee = fee;
     nextMare.coveredWeek = weekKey(state.date);
   } else {
-    nextMare.bookedFor = { stallionId, season };
+    nextMare.bookedFor = { stallionId, season, feePaid: fee };
   }
   rollBookingSeason(nextStallion, season);
   nextStallion.bookedThisSeason += 1;
@@ -242,6 +260,7 @@ function resetSeason(state: GameState, mareIds: readonly HorseId[]): void {
     if (mare === undefined || mare.pregnant || mare.coveredBy === null) continue;
     if (mare.coveredWeek !== null && mare.coveredWeek < firstWeek) {
       mare.coveredBy = null;
+      mare.coveredFee = null;
       mare.coveredWeek = null;
     }
   }
@@ -255,6 +274,7 @@ function processPrebookings(state: GameState, mareIds: readonly HorseId[], date:
     if (mare === undefined || booking == null || booking.season !== date.year) continue;
     if (isInPhase(date.week, BREEDING_PHASE) && !mare.pregnant && mare.coveredBy === null) {
       mare.coveredBy = booking.stallionId;
+      mare.coveredFee = booking.feePaid ?? null;
       mare.coveredWeek = weekKey(date);
       mare.bookedFor = null;
     } else if (date.week === BREEDING_END_WEEK + 1) {
@@ -262,7 +282,12 @@ function processPrebookings(state: GameState, mareIds: readonly HorseId[], date:
       const horse = state.horses[mareId];
       if (stallion === undefined || horse === undefined) throw new Error('사전 예약 레코드 없음');
       if (horse.ownerId !== null && horse.ownerId !== state.horses[stallion.horseId]?.ownerId) {
-        recordMoney(state, horse.ownerId, 'stud_fee_paid', stallion.fee, dateOf(date), mareId);
+        const fee = booking.feePaid ?? stallion.fee;
+        if (fee > 0) recordMoney(state, horse.ownerId, 'stud_fee_paid', fee, dateOf(date), mareId);
+        if (booking.feePaid === 0 && horse.ownerId === state.playerOwnerId) {
+          const right = state.stud.nominations.find((right) => right.stallionId === booking.stallionId);
+          if (right?.season === booking.season) right.used = Math.max(0, right.used - 1);
+        }
       }
       if (stallion.bookingSeason === date.year) stallion.bookedThisSeason -= 1;
       mare.bookedFor = null;
@@ -299,10 +324,12 @@ function judgeConceptions(
       mare.dueWeek = weekKey(addWeeks(ctx.date, GESTATION_WEEKS));
     } else {
       if (horse.ownerId !== null && horse.ownerId !== state.horses[stallion.horseId]?.ownerId) {
-        recordMoney(state, horse.ownerId, 'stud_fee_paid', stallion.fee, dateOf(ctx.date), mareId);
+        const fee = mare.coveredFee ?? stallion.fee;
+        if (fee > 0) recordMoney(state, horse.ownerId, 'stud_fee_paid', fee, dateOf(ctx.date), mareId);
       }
       if (stallion.bookingSeason === ctx.date.year) stallion.bookedThisSeason -= 1;
       mare.coveredBy = null;
+      mare.coveredFee = null;
     }
     events.push({
       type: 'conception',
@@ -382,6 +409,7 @@ function deliverFoals(
     mare.foals.push(foal.id);
     mare.pregnant = false;
     mare.coveredBy = null;
+    mare.coveredFee = null;
     mare.coveredWeek = null;
     mare.dueWeek = null;
 

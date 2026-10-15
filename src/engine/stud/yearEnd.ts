@@ -8,10 +8,11 @@ import type { AdvanceResult, GameState, WeeklySystem } from '../types';
 
 import { POPULATION_RETIRE_AGE } from '../config/population';
 import { MARE_MIN_BREEDING_AGE } from '../config/breedingSeason';
-import { YEAR_END_GELDING_MAX_AGE } from '../config/stud';
+import { NOMINATION_MAX_PER_SEASON, STUD_MIN_AGE, YEAR_END_GELDING_MAX_AGE } from '../config/stud';
 import type { GameEvent, HorseId, Money, RetainerContract, YearEndChoice, YearEndSubmission } from '../types';
 import { canStandAtStud, freeStudSlots, standPlayerStallion } from './stand';
 import { estimateStudFee } from './value';
+import { applyStallionSale, salePriceQuote } from './trade';
 
 /** 연말 정산 대기 중인지: 새해 1주(아직 처리 전)이고 올해 제출 기록이 없다 */
 export function yearEndPending(state: GameState): boolean {
@@ -33,6 +34,7 @@ export interface YearEndCandidate {
   allowed: YearEndChoice[];
   recommended: YearEndChoice;
   studFeeEstimate: Money | null;
+  salePrice: { domestic: Money; overseas: Money } | null;
 }
 
 /** 조회는 상태·난수를 바꾸지 않는다. 위탁마는 매각 절차를 위해 현역을 유지한다. */
@@ -55,12 +57,17 @@ export function yearEndCandidates(state: GameState): YearEndCandidate[] {
           allowed.push('geld');
         }
         if (canStandAtStud(state, horse.id, year) === null) allowed.push('stud');
+        if (horse.sex === 'male' && !horse.gelded && newAge >= STUD_MIN_AGE) {
+          allowed.push('sell_domestic', 'sell_overseas');
+        }
         if (horse.sex === 'female' && newAge >= MARE_MIN_BREEDING_AGE) allowed.push('broodmare');
         allowed.push('retire');
       }
       const recommended = (['continue', 'stud', 'broodmare', 'retire'] as const)
         .find((choice) => allowed.includes(choice)) ?? 'retire';
+      const quote = allowed.includes('sell_domestic') ? salePriceQuote(state, horse.id) : null;
       return { horseId: horse.id, newAge, allowed, recommended,
+        salePrice: quote === null ? null : { domestic: quote.domestic, overseas: quote.overseas },
         studFeeEstimate: allowed.includes('stud') ? estimateStudFee(state, horse.id).fee : null };
     });
 }
@@ -72,7 +79,7 @@ export function retainerRenewalsDue(state: GameState): RetainerContract[] {
 }
 
 export type YearEndError = 'not_pending' | 'wrong_year' | 'missing_horse' | 'duplicate_horse'
-  | 'unknown_horse' | 'choice_not_allowed' | 'no_free_slot' | 'retainer_mismatch';
+  | 'unknown_horse' | 'choice_not_allowed' | 'no_free_slot' | 'retainer_mismatch' | 'invalid_nominations';
 
 /** 전체 제출을 검증한 뒤에만 복제본에 적용한다. eventLog 추가는 호출자가 맡는다. */
 export function submitYearEnd(
@@ -96,7 +103,11 @@ export function submitYearEnd(
   for (const { horseId } of candidates) {
     if (!seen.has(horseId)) return { ok: false, error: 'missing_horse', horseId };
   }
-  for (const { horseId, choice } of submission.horses) {
+  for (const { horseId, choice, nominations = 0 } of submission.horses) {
+    if (!Number.isInteger(nominations) || nominations < 0 || nominations > NOMINATION_MAX_PER_SEASON
+      || (choice !== 'sell_domestic' && nominations > 0)) {
+      return { ok: false, error: 'invalid_nominations', horseId };
+    }
     if (!byId.get(horseId)?.allowed.includes(choice)) {
       return { ok: false, error: 'choice_not_allowed', horseId };
     }
@@ -116,11 +127,15 @@ export function submitYearEnd(
   const date = { year, week: 1 };
   const decisions = [...submission.horses].sort((a, b) =>
     a.horseId < b.horseId ? -1 : a.horseId > b.horseId ? 1 : 0);
-  for (const { horseId, choice } of decisions) {
+  for (const { horseId, choice, nominations = 0 } of decisions) {
     const horse = draft.horses[horseId];
     if (horse === undefined) throw new Error(`submitYearEnd: 말 없음: ${horseId}`);
     if (choice === 'geld') horse.gelded = true;
     if (choice === 'stud') events.push(...standPlayerStallion(draft, horseId, year));
+    if (choice === 'sell_domestic' || choice === 'sell_overseas') {
+      events.push(...applyStallionSale(draft, horseId,
+        choice === 'sell_domestic' ? 'domestic' : 'overseas', nominations, date));
+    }
     if (choice === 'broodmare' || choice === 'retire') {
       const from = horse.status;
       horse.status = choice === 'broodmare' ? 'broodmare' : 'retired';
