@@ -5,8 +5,9 @@ import { INBREED_EXCESS_FROM } from '../../engine/config/genetics';
 import { totalBloodPercent } from '../../engine/breeding/inbreeding';
 import { buildMatingPedigree, type PedigreeLookup } from '../../engine/breeding/pedigree';
 import { buildMatingPreview } from '../../engine/breeding/preview';
+import { createPedigreeLookup, isAnonDamId } from '../../engine/breeding/realPedigree';
 import { damsireLineOf } from '../../engine/breeding/season';
-import { getNicks, getSireLines } from '../../engine/data/staticData';
+import { getNicks, getSireLines, getStallionRecords } from '../../engine/data/staticData';
 import { assessForPlayer, availableStallions, playerHorses } from '../../engine/horse/playerView';
 import { ageInYear, formatDateKo } from '../../engine/time/calendar';
 import type {
@@ -259,7 +260,9 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
   const [notice, setNotice] = useState<Notice | null>(null);
   const [watch, setWatch] = useState<FoalingWatch | null>(null);
 
-  const nameOf = (id: HorseId): string => state.horses[id]?.name ?? id;
+  /** 이름 없는 모마 칸(~dam)은 미상 이름('—')으로 보인다 */
+  const nameOf = (id: HorseId): string =>
+    isAnonDamId(id) ? NO_VALUE : (state.horses[id]?.name ?? id);
   const nameOrDash = (id: HorseId | null): string =>
     id === null ? NO_VALUE : (state.horses[id]?.name ?? NO_VALUE);
 
@@ -292,7 +295,7 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
 
   const matingView = useMemo(() => {
     if (mare === null || sire === null || stallion === undefined) return null;
-    const lookup: PedigreeLookup = (id) => state.horses[id];
+    const lookup: PedigreeLookup = createPedigreeLookup(state.horses, getStallionRecords());
     const damsire = mare.sireId === null ? null : (state.horses[mare.sireId] ?? null);
     const preview = buildMatingPreview({
       sire,

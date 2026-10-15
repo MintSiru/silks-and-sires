@@ -23,6 +23,7 @@ import type {
   HorseId,
   NickEntry,
   OwnerId,
+  RealStallionRecord,
   SireLineId,
   WeekContext,
   WeeklySystem,
@@ -30,7 +31,8 @@ import type {
 import { breed, ownComplement, type HorseLookup } from './genetics';
 import { dominantCrosses, findInbreeding, ownBloodPercent } from './inbreeding';
 import { nickKey } from './nicks';
-import { buildMatingPedigree } from './pedigree';
+import { buildMatingPedigree, type PedigreeLookup } from './pedigree';
+import { createPedigreeLookup } from './realPedigree';
 
 /** 교배 예약 실패 사유 */
 export type BookingError =
@@ -55,6 +57,21 @@ export interface BreedingStaticData {
   naming: NamingData;
   /** 종마 key → 표시 이름(부·모 이름 연상에 쓴다) */
   stallionNames: Record<string, string>;
+  /**
+   * 실명 종마 레코드(모계 연결 혈통표용: 모마 칸을 조회 시점에 만든다). 생략하면 모계 칸 없이 계산한다.
+   * 게임 정적 데이터(GameStaticData)는 항상 넘긴다.
+   */
+  stallionRecords?: readonly RealStallionRecord[];
+}
+
+/** 레코드를 넘기지 않은 경우의 빈 표 */
+const NO_STALLION_RECORDS: readonly RealStallionRecord[] = [];
+
+/** 말 자신의 모계 연결을 실명 종마 모마 칸까지 반영한 사본(ownBloodPercent 용). 원본은 바꾸지 않는다 */
+function withPedigreeDam(pedigree: PedigreeLookup, horse: Horse): Horse {
+  const self = pedigree(horse.id);
+  if (self === undefined || self.damId === horse.damId) return horse;
+  return { ...horse, damId: self.damId };
 }
 
 const BREEDING_PHASE = 'breeding' as const;
@@ -271,7 +288,8 @@ function deliverFoals(
     }
 
     const lookup: HorseLookup = (id) => state.horses[id];
-    const root = buildMatingPedigree(lookup, sire.id, dam.id);
+    const pedigree = createPedigreeLookup(state.horses, data.stallionRecords ?? NO_STALLION_RECORDS);
+    const root = buildMatingPedigree(pedigree, sire.id, dam.id);
     const inbreeding = dominantCrosses(root, findInbreeding(root));
 
     if (registry === null) {
@@ -296,8 +314,8 @@ function deliverFoals(
       countryOfBirth: dam.countryOfBirth,
       ownerId: dam.ownerId,
       breederId: dam.ownerId,
-      sireOwnBloodPercent: ownBloodPercent(lookup, sire),
-      damOwnBloodPercent: ownBloodPercent(lookup, dam),
+      sireOwnBloodPercent: ownBloodPercent(pedigree, withPedigreeDam(pedigree, sire)),
+      damOwnBloodPercent: ownBloodPercent(pedigree, withPedigreeDam(pedigree, dam)),
       damsire: damsireOf(state, dam),
       sireOwnComplement: ownComplement(lookup, sire),
       damOwnComplement: ownComplement(lookup, dam),

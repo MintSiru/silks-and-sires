@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import type { JSX } from 'react';
 import { dominantCrosses, findInbreeding } from '../../engine/breeding/inbreeding';
 import { DEFAULT_PEDIGREE_DEPTH } from '../../engine/breeding/pedigree';
+import { isAnonDamId } from '../../engine/breeding/realPedigree';
 import type { HorseId, PedigreeNode } from '../../engine/types';
 
 /** 표시 대수(부·모 = 1대). 엔진 기본 깊이와 같다. */
@@ -77,11 +78,13 @@ export default function PedigreeView({ root, nameOf }: PedigreeViewProps): JSX.E
         ))}
         {slots.map((slot) => {
           const id = slot.node?.horseId ?? null;
+          // 이름 미기록 암말(실명 종마의 모마 칸)은 빈칸과 같은 모양으로 보인다(원칙 1)
+          const blank = id === null || isAnonDamId(id);
           const inbred = id !== null && inbredIds.has(id);
           const classes = [
             'pedigree__cell',
             slot.start < HALF_ROWS ? 'pedigree__cell--sire' : 'pedigree__cell--dam',
-            id === null ? 'pedigree__cell--unknown' : '',
+            blank ? 'pedigree__cell--unknown' : '',
             inbred ? 'pedigree__cell--inbred' : '',
           ]
             .filter(Boolean)
@@ -95,7 +98,7 @@ export default function PedigreeView({ root, nameOf }: PedigreeViewProps): JSX.E
                 gridRow: `${slot.start + 2} / span ${slot.span}`,
               }}
             >
-              {id === null ? '—' : nameOf(id)}
+              {blank || id === null ? '—' : nameOf(id)}
             </div>
           );
         })}
