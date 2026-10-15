@@ -252,4 +252,10 @@ export interface Mare {
   foals: HorseId[];
   /** 자손의 블랙타입 입상 누계 (명문 모계 판정용) */
   blackTypeProduce: number;
+  /**
+   * 다음(또는 이번) 번식 시즌 사전 예약(M4-D3). 종부료는 예약 때 이미 냈다.
+   * 그 시즌 번식 주에 임신 중이 아니고 coveredBy 가 비면 coveredBy·coveredWeek 로 바뀐다.
+   * 시즌이 끝날 때까지 바뀌지 못하면 환불하고 지운다. 없으면 키 생략(옛 저장본 호환).
+   */
+  bookedFor?: { stallionId: HorseId; season: number } | null;
 }
