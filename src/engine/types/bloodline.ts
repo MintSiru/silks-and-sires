@@ -33,6 +33,11 @@ export interface RealStallionRecord {
   sireKey: string | null;
   /** 모부(母父, damsire). 모르면 null. 암말 이름은 저장하지 않는다 */
   damsireKey: string | null;
+  /**
+   * 모계 쪽 윗대 수말(5대 혈통표 채우기, 2026-10-15 사용자 결정). 암말 이름은 저장하지 않고 그 암말들의 부만 적는다.
+   * [0] = 2대 모부(어미의 어미의 부), [1] = 3대 모부, [2] = 4대 모부. 모르면 null 또는 배열을 짧게. 생략 가능.
+   */
+  femaleLineSireKeys?: (string | null)[];
   sireLineId: SireLineId;
   status: RealStallionStatus;
   /** 2026 시즌 계류 국가. active 일 때만 값, 그 외 null */
