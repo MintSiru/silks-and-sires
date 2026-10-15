@@ -75,7 +75,7 @@ afterEach(() => {
 });
 
 describe('createGameSystems', () => {
-  it('실행 순서는 달력 → 성장 → 교배 → 연간 교체 → 시즌 → 세일 → 전속 계약 → 정기 비용 → 자금 판정 → 관계·명성이다', () => {
+  it('실행 순서는 달력 → 성장 → 교배 → 연간 교체 → 시즌 → 세일 → 내부거래 → 전속 계약 → 정기 비용 → 자금 판정 → 관계·명성이다', () => {
     const systems = createGameSystems(gameData());
     expect(systems.map((s) => s.id)).toEqual([
       'calendar',
@@ -84,6 +84,7 @@ describe('createGameSystems', () => {
       'population',
       'season',
       'sales',
+      'private_trade',
       'contracts',
       'costs',
       'solvency',

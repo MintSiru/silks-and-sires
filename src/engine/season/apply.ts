@@ -18,6 +18,7 @@ import type { SampleField } from '../race/sampleField';
 import { recordMoney } from '../economy/ledger';
 import { chargeRaceCosts } from '../economy/costs';
 import { adjustRelation, adjustReputation, relationKey } from '../economy/relations';
+import { OWNER_RELATION_BRED_G1_WIN, OWNER_RELATION_BRED_WIN } from '../config/privateTrade';
 import {
   REPUTATION_CLASSIC_WIN,
   REPUTATION_G1_WIN,
@@ -172,6 +173,15 @@ function applyPlayerRunRelations(
       adjustReputation(next, REPUTATION_GROUP_WIN);
     }
     if (classic) adjustReputation(next, REPUTATION_CLASSIC_WIN);
+  }
+
+  // 1-생산. 플레이어 말이 AI 마주가 생산한 말로 이기면 그 생산 마주 관계(M4-C7a). 상업 생산자·플레이어 생산이면 변화 없음
+  if (won) {
+    const breederId = requireHorse(next, runner.horseId).breederId;
+    const breeder = breederId === null ? undefined : next.owners[breederId];
+    if (breeder !== undefined && !breeder.isPlayer && breeder.id !== next.playerOwnerId) {
+      adjustRelation(next, relationKey('owner', breeder.id), isG1 ? OWNER_RELATION_BRED_G1_WIN : OWNER_RELATION_BRED_WIN);
+    }
   }
 }
 
