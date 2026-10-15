@@ -61,3 +61,39 @@ export const STUD_SEASON_HISTORY_LIMIT = 60;
 
 /** 연간 2세 유입 약 635두 표본: 수태 150 → 약 9두, 69 → 약 4두(2026-10-15 측정). */
 export const PLAYER_SIRE_CROP_PER_CONCEPTION = 0.06;
+
+/** 예약 창 직전 주에 다음 시즌 가격을 정한다. */
+export const FEE_REVIEW_WEEK = BOOKING_OPEN_WEEK - 1;
+/** 자마 5두부터 평균 상금을 평가하고 제곱근으로 격차를 완화한다. */
+export const FEE_PROGENY_MIN_STARTERS = 5;
+export const FEE_PROGENY_EXPONENT = 0.5;
+/** 자마 성적 효과는 60~180%로 제한한다(그룹 우승은 상금에 이미 반영). 같은 가격대 비교 대상 최소 3두 */
+export const FEE_PROGENY_MULT_MIN = 0.6;
+export const FEE_PROGENY_MULT_MAX = 1.8;
+export const FEE_PROGENY_MIN_PEERS = 3;
+/** 기대 수요 대비 편차의 절반을 가격에 반영하되 75~130%로 제한한다. */
+export const FEE_DEMAND_SLOPE = 0.5;
+export const FEE_DEMAND_MULT_MIN = 0.75;
+export const FEE_DEMAND_MULT_MAX = 1.3;
+/** 20세 이상과 수태율 75% 미만은 각각 10% 할인한다. */
+export const FEE_OLD_AGE = 20;
+export const FEE_OLD_MULT = 0.9;
+export const FEE_LOW_FERTILITY = 0.75;
+export const FEE_LOW_FERTILITY_MULT = 0.9;
+/** 급격한 시장 변동을 연 ±50%로 제한한다. */
+export const FEE_YEARLY_CHANGE_MAX = 0.5;
+/** 자마 성적만 기준 가치를 완만하게 움직여 수요·가격의 되먹임을 억제한다. */
+export const FEE_BASE_DRIFT_EXPONENT = 0.35;
+/** 목표 가격까지 연간 격차의 절반을 로그 척도로 조정한다. */
+export const FEE_ADJUST_SPEED = 0.5;
+/** 기존 티어의 6천 유로·인기 30과 15만 유로·인기 90을 로그 척도로 잇는다. */
+export const POPULARITY_REF_LOW_FEE = 6_000;
+export const POPULARITY_REF_HIGH_FEE = 150_000;
+export const POPULARITY_AT_LOW = 30;
+export const POPULARITY_AT_HIGH = 90;
+export const POPULARITY_MIN = 10;
+export const POPULARITY_MAX = 95;
+/** 16세부터 수태율이 매년 1%p 하락하되 50%를 보장한다. */
+export const FERTILITY_DECLINE_FROM_AGE = 16;
+export const FERTILITY_DECLINE_PER_YEAR = 0.01;
+export const FERTILITY_FLOOR = 0.5;

@@ -5,14 +5,19 @@ import { recordMoney } from '../economy/ledger';
 import { createRng } from '../rng';
 import type { GameDate, GameEvent, GameState, HorseId, WeeklySystem } from '../types';
 
+/** 인기에 따른 기본 수요 비율(북 대비). 인기 30 → 0.65, 90 → 1.3 선형, [MIN, MAX] 로 자름 */
+export function baseDemandRatio(popularity: number): number {
+  const linear = config.BOOK_DEMAND_RATIO_AT_POP30
+    + (popularity - 30) / (90 - 30)
+    * (config.BOOK_DEMAND_RATIO_AT_POP90 - config.BOOK_DEMAND_RATIO_AT_POP30);
+  return Math.max(config.BOOK_DEMAND_RATIO_MIN, Math.min(config.BOOK_DEMAND_RATIO_MAX, linear));
+}
+
 /** 종마·시즌별 독립 스트림으로 가상 외부 예약 수요를 계산한다. */
 export function seasonDemand(state: GameState, stallionId: HorseId, season: number): number {
   const stallion = state.stallions[stallionId]!;
   const horse = state.horses[stallionId]!;
-  const linear = config.BOOK_DEMAND_RATIO_AT_POP30
-    + (stallion.popularity - 30) / (90 - 30)
-    * (config.BOOK_DEMAND_RATIO_AT_POP90 - config.BOOK_DEMAND_RATIO_AT_POP30);
-  const ratio = Math.max(config.BOOK_DEMAND_RATIO_MIN, Math.min(config.BOOK_DEMAND_RATIO_MAX, linear));
+  const ratio = baseDemandRatio(stallion.popularity);
   const freshman = season - stallion.firstSeasonYear < config.BOOK_FRESHMAN_SEASONS
     ? config.BOOK_FRESHMAN_MULT : 1;
   const old = season - horse.birthYear >= config.BOOK_OLD_AGE ? config.BOOK_OLD_MULT : 1;
