@@ -43,10 +43,11 @@ const BOOT_DATA: BootstrapData = {
  * 2026-10-15 재고정: 독일 계류 종마 4두 추가(M2-10 일부)로 부 후보가 바뀜.
  * 2026-10-15 재고정: 독일·이탈리아 종마 20두 추가와 어휘 'Destino' 삭제(같은 이름 실존 종마)로 바뀜.
  * 2026-10-15 재고정: 독일·이탈리아 종마 10두와 조상·외조부 추가, 어휘 'Helmet' 삭제로 바뀜.
+ * 2026-10-15 재고정: Elegant Air·Super Concorde 의 부(Shirley Heights·Bold Reasoning) 연결로 바뀜.
  */
 const PRE_CHANGE_PROJECTION_SHA: Record<number, string> = {
-  20261011: 'e369a3a026b0a3b899762efd6f916c640f1c2295c5bacb1dc5644d42b089ed8a',
-  7: '695aa636850d30629ebe82e4fc36023a61f6b9f5638d8e562f29cd9744c2ea0a',
+  20261011: '1f9e90d216ad16e6036edd649b9253d8aa23583b5ce26d6a018f05fbc7307e4e',
+  7: '26da5951a8e5970726e7f81b312366d4846673d8958011e3683d36f90a877103',
 };
 
 function boot(seed: number): GameState {

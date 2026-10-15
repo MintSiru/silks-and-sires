@@ -5715,7 +5715,7 @@
     "key": "stl_elegant_air",
     "foaled": 1981,
     "countryOfBirth": "GB",
-    "sireKey": null,
+    "sireKey": "stl_shirley_heights",
     "damsireKey": null,
     "sireLineId": "sl_phalaris",
     "status": "historical",
@@ -5724,6 +5724,7 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "studRole": "flat",
+    "coatColour": "bay",
     "confidence": "low",
     "lastCoverYear": 1990
   },
@@ -5763,7 +5764,7 @@
     "key": "stl_super_concorde",
     "foaled": 1975,
     "countryOfBirth": "US",
-    "sireKey": null,
+    "sireKey": "stl_bold_reasoning",
     "damsireKey": null,
     "sireLineId": "sl_phalaris",
     "status": "historical",
@@ -5772,6 +5773,7 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "studRole": "flat",
+    "coatColour": "brown",
     "confidence": "low",
     "lastCoverYear": 1987
   },

@@ -286,11 +286,6 @@ describe('종마 역할 studRole (M2-01d)', () => {
 const UNVERIFIED_CHAIN_ACTIVE_EXCEPTIONS: readonly string[] = [
   // 2026-10-15: Windstoss → Shirocco → Monsun → Königsstuhl 다음 고리(Dschingis Khan) 미확인(위키백과 조회 차단)
   'Windstoss',
-  // 2026-10-15: Isfahan → Lord of England → Dashing Blade → Elegant Air 의 부 미확인(사용자 확인 대기)
-  'Isfahan',
-  // 2026-10-15: Alson·Rubaiyat → Areion → Big Shuffle → Super Concorde 의 부 미확인(사용자 확인 대기)
-  'Alson',
-  'Rubaiyat',
 ];
 
 describe('현역 종마 부계 사슬 깊이', () => {
