@@ -271,3 +271,4 @@
 - 2026-10-15 M2-10 마무리: 독일·이탈리아 현역 종마 10두(Alson·Rubaiyat·Isfahan·Counterattack·Best of Lips·Guiliani·Earl of Tinsdal·Dragon Pulse·Havana Cigar·Cantocorale)와 조상 15·외조부 12 추가(사용자 제공 값). 현역 DE 25·IT 10. 어휘 'Helmet' 삭제. 부계 미확인 예외 Isfahan·Alson·Rubaiyat(Elegant Air·Super Concorde 부 미입력). 해시 재고정, 오너브리더 비율 하한 23%·장부 테스트 플레이어 상금>0 단정 완화(데이터 의존).
 - 2026-10-15 부계 보완: Elegant Air ← Shirley Heights, Super Concorde ← Bold Reasoning(사용자 제공, 털색 bay·brown). 부계 미확인 예외에서 Isfahan·Alson·Rubaiyat 삭제(남은 예외 Windstoss). 투영 해시 재고정.
 - 2026-10-15 Windstoss 부계 보완: Königsstuhl ← Dschingis Khan ← Tamerlane ← Persian Gulf ← Bahram 추가(사용자 제공). 계통 sl_bahram(뿌리)·sl_monsun(Monsun·Shirocco·Windstoss) 신설, Monsun·Königsstuhl 의 잘못된 Sadler's Wells 계 표기 수정. Monsun 거리 speed→classic(10~12f G1 실적), Königsstuhl 털색 brown. 부계 예외 목록 비움. 해시 재고정.
+- 2026-10-15 Königsstuhl 거리 speed→classic(사용자 결정). 해시 재고정. 5대 혈통 채우기는 1안(종마 3~4두씩 빈 칸 표로 사용자에게 요청)으로 진행, 1회차 Dubawi·Frankel·Kingman·Lope de Vega 44칸.

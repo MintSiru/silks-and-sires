@@ -4018,7 +4018,7 @@
     "sireLineId": "sl_bahram",
     "status": "historical",
     "standsIn": null,
-    "distanceProfile": "speed",
+    "distanceProfile": "classic",
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "brown",
