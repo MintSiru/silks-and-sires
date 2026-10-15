@@ -1,6 +1,18 @@
 import { useState } from 'react';
 import type { GameApi } from '../game/useGame';
-import { defaultSubmission, yearEndErrorKo, yearEndView } from './yearEndView';
+import { NOMINATION_MAX_PER_SEASON } from '../../engine/config/stud';
+import type { YearEndChoice, YearEndHorseDecision } from '../../engine/types';
+import { defaultSubmission, salePriceWithNominationsKo, yearEndErrorKo, yearEndView } from './yearEndView';
+
+/** 국내 판매 때 고를 수 있는 교배권 수(0~엔진 상한) */
+const NOMINATION_CHOICES: readonly number[] = Array.from({ length: NOMINATION_MAX_PER_SEASON + 1 }, (_, i) => i);
+
+/** 진로를 바꾼다. 국내 판매가 아니면 교배권 수를 지워 0 초과가 제출에 남지 않게 한다. */
+function withChoice(decision: YearEndHorseDecision, choice: YearEndChoice): YearEndHorseDecision {
+  const next: YearEndHorseDecision = { ...decision, choice };
+  if (choice !== 'sell_domestic') delete next.nominations;
+  return next;
+}
 
 export default function YearEndScreen({ game }: { game: GameApi }) {
   const state = game.state!;
@@ -26,17 +38,36 @@ export default function YearEndScreen({ game }: { game: GameApi }) {
     <p>{view.freeSlotsKo}</p>
     {view.horses.length === 0 ? <p>현역마가 없습니다</p> : <table>
       <thead><tr>{['이름', '성별', '새해 나이', '통산 성적', '진로 선택'].map((label) => <th key={label}>{label}</th>)}</tr></thead>
-      <tbody>{view.horses.map((horse) => <tr key={horse.horseId}>
-        <td>{horse.name}</td><td>{horse.sexKo}</td><td>{horse.newAge}세</td><td>{horse.careerKo}</td>
-        <td><select aria-label={`${horse.name} 진로`} disabled={confirming}
-          value={submission.horses.find((h) => h.horseId === horse.horseId)!.choice}
-          onChange={(event) => {
-            const choice = horse.options.find((option) => option.choice === event.target.value)!.choice;
-            setSubmission((current) => ({ ...current, horses: current.horses.map((h) => h.horseId === horse.horseId ? { ...h, choice } : h) }));
-          }}>
-          {horse.options.map((option) => <option key={option.choice} value={option.choice}>{option.labelKo}</option>)}
-        </select></td>
-      </tr>)}</tbody>
+      <tbody>{view.horses.map((horse) => {
+        const decision = submission.horses.find((h) => h.horseId === horse.horseId)!;
+        const nominations = decision.nominations ?? 0;
+        return <tr key={horse.horseId}>
+          <td>{horse.name}</td><td>{horse.sexKo}</td><td>{horse.newAge}세</td><td>{horse.careerKo}</td>
+          <td>
+            <select aria-label={`${horse.name} 진로`} disabled={confirming}
+              value={decision.choice}
+              onChange={(event) => {
+                const choice = horse.options.find((option) => option.choice === event.target.value)!.choice;
+                setSubmission((current) => ({ ...current, horses: current.horses.map((h) => h.horseId === horse.horseId ? withChoice(h, choice) : h) }));
+              }}>
+              {horse.options.map((option) => <option key={option.choice} value={option.choice}>{option.labelKo}</option>)}
+            </select>
+            {decision.choice === 'sell_domestic' && <div>
+              <label>교배권{' '}
+                <select aria-label={`${horse.name} 교배권`} disabled={confirming} value={nominations}
+                  onChange={(event) => {
+                    const count = Number(event.target.value);
+                    setSubmission((current) => ({ ...current, horses: current.horses.map((h) => h.horseId === horse.horseId ? { ...h, nominations: count } : h) }));
+                  }}>
+                  {NOMINATION_CHOICES.map((count) => <option key={count} value={count}>{`${count}개`}</option>)}
+                </select>
+              </label>
+              {horse.nominationCostKo !== null && <p className="hint">{horse.nominationCostKo}</p>}
+              <p>{`국내 판매가 ${salePriceWithNominationsKo(state, horse.horseId, nominations)}`}</p>
+            </div>}
+          </td>
+        </tr>;
+      })}</tbody>
     </table>}
     <h3>전속 계약</h3>
     {view.retainers.length === 0 ? <p>갱신할 계약이 없습니다</p> : <table>

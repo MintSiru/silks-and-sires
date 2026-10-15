@@ -1,5 +1,14 @@
-import { bookingSeasonOf } from '../../engine/breeding/season';
+import { bookingSeasonOf, nominationsLeft } from '../../engine/breeding/season';
+import {
+  LONG_LEASE_RENT_FEE_MULT,
+  NOMINATION_MAX_PER_SEASON,
+  SHUTTLE_RENT_FEE_MULT,
+  STUD_DEAL_FIRST_WEEK,
+  STUD_DEAL_LAST_WEEK,
+  STUD_DEAL_MONEY_STEP,
+} from '../../engine/config/stud';
 import { freeStudSlots } from '../../engine/stud/stand';
+import { salePriceQuote, type TradeError } from '../../engine/stud/trade';
 import { isInPhase } from '../../engine/time/calendar';
 import type { GameState, HorseId, Mare, Stallion } from '../../engine/types';
 import { feeKo } from '../game/text';
@@ -9,6 +18,8 @@ export const STUD_EMPTY_KO = '아직 종마가 없습니다. 연말 정산에서
 
 /** 정산 기록 표시 최대 건수(최신순) */
 const SEASON_ROWS_LIMIT = 10;
+/** 판매 기록 표시 최대 건수(최신순) */
+const SALE_ROWS_LIMIT = 10;
 
 /** 종마 북 현황 */
 export interface BookStatus {
@@ -60,6 +71,30 @@ export interface MyStudStallionRow {
   feeKo: string;
   bookKo: string;
   firstSeasonYear: number;
+  /** 임대 중이면 '셔틀 임대 중(N 시즌 복귀)' 또는 '장기 임대 중(N 시즌 복귀)', 아니면 null */
+  leaseKo: string | null;
+  /** 교배권 0개 기준 판매가(국내·해외). 견적이 없으면 null */
+  salePrice: { domesticKo: string; overseasKo: string } | null;
+  /** 거래 창 안이고 임대 중이 아니면 true */
+  canDeal: boolean;
+  /** 셔틀 임대료(한 번) */
+  shuttleRentKo: string;
+  /** 장기 임대료(연간, '/년' 포함) */
+  longRentKo: string;
+}
+
+/** 남긴 교배권 한 줄(판매한 종마 포함) */
+export interface NominationRow {
+  name: string;
+  leftKo: string;
+}
+
+/** 종마 판매 기록 한 줄 */
+export interface SoldRow {
+  year: number;
+  name: string;
+  modeKo: '국내' | '해외';
+  priceKo: string;
 }
 
 /** 플레이어 정산 기록 한 행 */
@@ -76,12 +111,55 @@ export interface MyStudView {
   slotsKo: string;
   stallions: MyStudStallionRow[];
   seasons: MyStudSeasonRow[];
+  /** 거래 창 안내 한 줄 */
+  dealWindowKo: string;
+  /** 판매하며 남긴 교배권(종마 이름과 이번 예약 시즌 남은 수) */
+  nominations: NominationRow[];
+  /** 종마 판매 기록(최신순, 최대 10건) */
+  soldRows: SoldRow[];
 }
 
 function compareText(a: string, b: string): number {
   if (a < b) return -1;
   if (a > b) return 1;
   return 0;
+}
+
+/** 천 유로 단위 반올림(엔진 거래 가격과 같은 단위) */
+function roundDealMoney(value: number): number {
+  return Math.round(value / STUD_DEAL_MONEY_STEP) * STUD_DEAL_MONEY_STEP;
+}
+
+/** 거래 창(28~43주) 안인지 */
+function dealWindowOpen(state: GameState): boolean {
+  return state.date.week >= STUD_DEAL_FIRST_WEEK && state.date.week <= STUD_DEAL_LAST_WEEK;
+}
+
+/** 거래 창 안내 한 줄 */
+function dealWindowTextKo(state: GameState): string {
+  return dealWindowOpen(state)
+    ? `종마 거래 가능(${STUD_DEAL_LAST_WEEK}주까지)`
+    : `종마 판매·임대는 ${STUD_DEAL_FIRST_WEEK}~${STUD_DEAL_LAST_WEEK}주에만 할 수 있습니다`;
+}
+
+/** 거래 오류 사유를 한국어 문구로 바꾼다 */
+export function tradeErrorKo(error: TradeError): string {
+  switch (error) {
+    case 'not_found':
+      return '말을 찾을 수 없습니다.';
+    case 'not_player_stallion':
+      return '내 종마만 판매하거나 임대할 수 있습니다.';
+    case 'outside_deal_window':
+      return `종마 판매·임대는 ${STUD_DEAL_FIRST_WEEK}~${STUD_DEAL_LAST_WEEK}주에만 할 수 있습니다.`;
+    case 'leased':
+      return '임대 중인 종마는 판매할 수 없습니다. 임대가 끝난 뒤 다시 시도하세요.';
+    case 'invalid_nominations':
+      return `교배권은 국내 판매에서만 0~${NOMINATION_MAX_PER_SEASON}개로 정할 수 있습니다.`;
+    case 'already_leased':
+      return '이미 임대 중인 종마입니다.';
+    case 'invalid_return_season':
+      return '장기 임대 복귀 시즌이 허용 범위를 벗어났습니다. 다시 고르세요.';
+  }
 }
 
 /** 내 종마 화면: 플레이어 소유·status 'stud' 종마와 최근 정산 기록(최신순, 최대 10건) */
@@ -94,12 +172,20 @@ export function myStudView(state: GameState): MyStudView {
     .flatMap((horse) => {
       const stallion = state.stallions[horse.id];
       if (stallion === undefined) return [];
+      const lease = state.stud.leases.find((entry) => entry.stallionId === horse.id);
+      const quote = salePriceQuote(state, horse.id);
       return [{
         horseId: horse.id,
         name: horse.name,
         feeKo: feeKo(stallion.fee),
         bookKo: bookStatusOf(state, stallion).labelKo,
         firstSeasonYear: stallion.firstSeasonYear,
+        leaseKo: lease === undefined ? null
+          : `${lease.kind === 'shuttle' ? '셔틀 임대 중' : '장기 임대 중'}(${lease.returnSeason} 시즌 복귀)`,
+        salePrice: quote === null ? null : { domesticKo: feeKo(quote.domestic), overseasKo: feeKo(quote.overseas) },
+        canDeal: dealWindowOpen(state) && lease === undefined,
+        shuttleRentKo: feeKo(roundDealMoney(stallion.fee * SHUTTLE_RENT_FEE_MULT)),
+        longRentKo: `${feeKo(roundDealMoney(stallion.fee * LONG_LEASE_RENT_FEE_MULT))}/년`,
       }];
     })
     .sort((a, b) => compareText(a.name, b.name) || compareText(a.horseId, b.horseId));
@@ -115,7 +201,30 @@ export function myStudView(state: GameState): MyStudView {
       incomeKo: feeKo(record.income),
     }));
 
-  return { slotsKo: `종마사 ${used}/${state.stud.slots}칸 사용`, stallions, seasons };
+  const season = bookingSeasonOf(state.date) ?? state.date.year + 1;
+  const nominations: NominationRow[] = state.stud.nominations.map((right) => ({
+    name: nameOf(right.stallionId),
+    leftKo: `이번 예약 시즌 남은 교배권 ${nominationsLeft(state, right.stallionId, season)}/${right.perSeason}`,
+  }));
+
+  const soldRows: SoldRow[] = [...state.stud.sales]
+    .reverse()
+    .slice(0, SALE_ROWS_LIMIT)
+    .map((record) => ({
+      year: record.year,
+      name: nameOf(record.stallionId),
+      modeKo: record.mode === 'domestic' ? '국내' : '해외',
+      priceKo: feeKo(record.price),
+    }));
+
+  return {
+    slotsKo: `종마사 ${used}/${state.stud.slots}칸 사용`,
+    stallions,
+    seasons,
+    dealWindowKo: dealWindowTextKo(state),
+    nominations,
+    soldRows,
+  };
 }
 
 /**

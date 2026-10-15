@@ -5,9 +5,10 @@ import { WEEKS_PER_YEAR, EVENT_LOG_LIMIT } from '../../engine/config/game';
 import { createGameSystems, type GameStaticData } from '../../engine/state/systems';
 import { bootstrapGame, type BootstrapData } from '../../engine/state/bootstrap';
 import { advanceWeekGated, submitYearEnd } from '../../engine/stud/yearEnd';
-import type { YearEndSubmission } from '../../engine/types/stud';
+import type { StallionSaleMode, YearEndSubmission } from '../../engine/types/stud';
 import { isInPhase } from '../../engine/time/calendar';
 import { bookCovering, type BookingResult } from '../../engine/breeding/season';
+import { leaseStallion, sellStallion } from '../../engine/stud/trade';
 import { deserializeGame, serializeGame } from '../../engine/save/serialize';
 import {
   getBookmakers,
@@ -68,6 +69,10 @@ export interface GameApi {
   advanceUntil(stop: (s: GameState) => boolean, maxWeeks: number): void;  // 매 주 진행 후 stop(state) 가 true 면 멈춤(최대 maxWeeks 주)
   submitYearEnd(submission: YearEndSubmission): ReturnType<typeof submitYearEnd>;
   book(mareId: HorseId, stallionId: HorseId): BookingResult;   // 성공 시 state 갱신
+  /** 내 종마를 판다(국내는 교배권 0~2, 해외는 0). 성공 시 state 갱신·이벤트 기록, 실패하면 사유를 돌려준다 */
+  sellStallion(horseId: HorseId, mode: StallionSaleMode, nominations: number): ReturnType<typeof sellStallion>;
+  /** 내 종마를 셔틀(returnSeason 생략) 또는 장기(returnSeason 필수) 임대한다. 성공 시 state 갱신·이벤트 기록 */
+  leaseStallion(horseId: HorseId, kind: 'shuttle' | 'long', returnSeason?: number): ReturnType<typeof leaseStallion>;
   /** 플레이어 말 출주 접수(성공 시 state 갱신). meetingId 는 seasonState.meetings 의 개최 id */
   declarePlayerHorse(meetingId: string, raceId: RaceId, horseId: HorseId): PlayerResult<DeclareError>;
   withdrawPlayerHorse(meetingId: string, raceId: RaceId, horseId: HorseId): PlayerResult<WithdrawError>;
@@ -89,6 +94,13 @@ export interface GameApi {
   declinePrivateOffer(offerId: string): PlayerResult<DeclinePrivateOfferError>;
   save(): Promise<void>;            // createIndexedDbSaveStore, 슬롯 id 'autosave'
   load(): Promise<boolean>;
+}
+
+/** 거래 이벤트를 eventLog 끝에 붙이고 상한으로 자른다(book 과 같은 방식). */
+function appendEvents(state: GameState, events: GameEvent[]): GameState {
+  const merged = [...state.eventLog, ...events];
+  const trimmed = merged.length > EVENT_LOG_LIMIT ? merged.slice(merged.length - EVENT_LOG_LIMIT) : merged;
+  return { ...state, eventLog: trimmed };
 }
 
 /** 플레이어 승부복(고정). 띠 뷰어 원판 색은 primary. */
@@ -227,6 +239,30 @@ export function useGame(): GameApi {
       stateRef.current = current;
       setState(current);
       setLastEvents(events);
+    },
+    [requireState],
+  );
+
+  const sellStallionWith = useCallback(
+    (horseId: HorseId, mode: StallionSaleMode, nominations: number): ReturnType<typeof sellStallion> => {
+      const result = sellStallion(requireState(), horseId, mode, nominations);
+      if (!result.ok) return result;
+      const next = appendEvents(result.state, result.events);
+      stateRef.current = next;
+      setState(next);
+      return { ok: true, state: next, events: result.events };
+    },
+    [requireState],
+  );
+
+  const leaseStallionWith = useCallback(
+    (horseId: HorseId, kind: 'shuttle' | 'long', returnSeason?: number): ReturnType<typeof leaseStallion> => {
+      const result = leaseStallion(requireState(), horseId, kind, returnSeason);
+      if (!result.ok) return result;
+      const next = appendEvents(result.state, result.events);
+      stateRef.current = next;
+      setState(next);
+      return { ok: true, state: next, events: result.events };
     },
     [requireState],
   );
@@ -382,6 +418,8 @@ export function useGame(): GameApi {
     advanceToPhase,
     advanceUntil,
     book,
+    sellStallion: sellStallionWith,
+    leaseStallion: leaseStallionWith,
     submitYearEnd: submitYearEndWith,
     declarePlayerHorse: declarePlayer,
     withdrawPlayerHorse: withdrawPlayer,

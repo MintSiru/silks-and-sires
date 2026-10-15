@@ -11,6 +11,12 @@ import {
   getStallionRecords,
 } from '../../src/engine/data/staticData';
 import { bootstrapGame } from '../../src/engine/state/bootstrap';
+import {
+  LONG_LEASE_RENT_FEE_MULT,
+  SHUTTLE_RENT_FEE_MULT,
+  STUD_DEAL_MONEY_STEP,
+} from '../../src/engine/config/stud';
+import { sellStallion, type TradeError } from '../../src/engine/stud/trade';
 import type { GameState, HorseId, Mare, Stallion } from '../../src/engine/types';
 import {
   bookingWindowKo,
@@ -18,6 +24,7 @@ import {
   mareBookingKo,
   myStudView,
   STUD_EMPTY_KO,
+  tradeErrorKo,
 } from '../../src/ui/breeding/bookView';
 import { feeKo } from '../../src/ui/game/text';
 
@@ -147,18 +154,96 @@ describe('내 종마 화면', () => {
     const view = myStudView(state);
     expect(view.slotsKo).toBe(`종마사 1/${state.stud.slots}칸 사용`);
     expect(view.stallions).toEqual([
-      {
+      expect.objectContaining({
         horseId: horse.id,
         name: horse.name,
         feeKo: feeKo(stallion.fee),
         bookKo: bookStatusOf(state, stallion).labelKo,
         firstSeasonYear: stallion.firstSeasonYear,
-      },
+        leaseKo: null,
+        canDeal: false,
+      }),
     ]);
     expect(view.seasons).toEqual([
       { year: 2026, name: horse.name, outsideCovers: 40, conceptions: 25, incomeKo: feeKo(25 * stallion.fee) },
       { year: 2025, name: horse.name, outsideCovers: 30, conceptions: 18, incomeKo: feeKo(18 * stallion.fee) },
     ]);
+  });
+});
+
+/** horseId 오름차순 첫 종마를 플레이어 소유 계류 종마로 바꾼 복제 상태(주 지정) */
+function playerStudState(week: number): GameState {
+  const state = structuredClone(base);
+  state.date = { year: 2026, week };
+  const stallion = pickStallion(state);
+  const horse = state.horses[stallion.horseId];
+  const owner = state.owners[state.playerOwnerId];
+  if (horse === undefined || owner === undefined) throw new Error('테스트 전제 위반');
+  horse.ownerId = state.playerOwnerId;
+  horse.status = 'stud';
+  owner.horseIds.push(horse.id);
+  return state;
+}
+
+describe('종마 판매·임대 화면', () => {
+  it('28~43주 안에서만 거래할 수 있고, 창 밖이면 안내 문구와 거래 불가가 된다', () => {
+    const open = myStudView(playerStudState(30));
+    expect(open.dealWindowKo).toBe('종마 거래 가능(43주까지)');
+    expect(open.stallions[0]!.canDeal).toBe(true);
+    expect(open.stallions[0]!.salePrice).not.toBeNull();
+
+    const closed = myStudView(playerStudState(10));
+    expect(closed.dealWindowKo).toBe('종마 판매·임대는 28~43주에만 할 수 있습니다');
+    expect(closed.stallions[0]!.canDeal).toBe(false);
+  });
+
+  it('장기 임대 중인 종마는 임대 문구를 보이고 거래할 수 없다', () => {
+    const state = playerStudState(30);
+    const row0 = myStudView(state).stallions[0]!;
+    const fee = state.stallions[row0.horseId]!.fee;
+    state.stud.leases.push({ stallionId: row0.horseId, kind: 'long', year: 2026, returnSeason: 2029,
+      rent: fee * LONG_LEASE_RENT_FEE_MULT, paidSeasons: 0 });
+    const row = myStudView(state).stallions[0]!;
+    expect(row.leaseKo).toBe('장기 임대 중(2029 시즌 복귀)');
+    expect(row.canDeal).toBe(false);
+  });
+
+  it('임대료는 종부료의 배수를 천 유로 단위로 반올림한 값이다', () => {
+    const state = playerStudState(30);
+    const row = myStudView(state).stallions[0]!;
+    const fee = state.stallions[row.horseId]!.fee;
+    const round = (value: number): number => Math.round(value / STUD_DEAL_MONEY_STEP) * STUD_DEAL_MONEY_STEP;
+    expect(row.shuttleRentKo).toBe(feeKo(round(fee * SHUTTLE_RENT_FEE_MULT)));
+    expect(row.longRentKo).toBe(`${feeKo(round(fee * LONG_LEASE_RENT_FEE_MULT))}/년`);
+  });
+
+  it('국내 판매(교배권 1) 뒤에는 종마 목록에서 빠지고 판매 기록과 남은 교배권 1/1 이 보인다', () => {
+    const state = playerStudState(30);
+    const horseId = myStudView(state).stallions[0]!.horseId;
+    const name = state.horses[horseId]!.name;
+    const result = sellStallion(state, horseId, 'domestic', 1);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    const view = myStudView(result.state);
+    expect(view.stallions.some((row) => row.horseId === horseId)).toBe(false);
+    const sale = result.state.stud.sales[result.state.stud.sales.length - 1]!;
+    expect(view.soldRows[0]).toEqual({ year: 2026, name, modeKo: '국내', priceKo: feeKo(sale.price) });
+    expect(view.nominations).toHaveLength(1);
+    expect(view.nominations[0]!.name).toBe(name);
+    expect(view.nominations[0]!.leftKo).toContain('1/1');
+  });
+});
+
+describe('거래 오류 문구', () => {
+  it('오류 7종은 모두 비지 않은 서로 다른 한국어 문구를 준다', () => {
+    const errors: TradeError[] = [
+      'not_found', 'not_player_stallion', 'outside_deal_window', 'leased',
+      'invalid_nominations', 'already_leased', 'invalid_return_season',
+    ];
+    const texts = errors.map((error) => tradeErrorKo(error));
+    for (const text of texts) expect(text.length).toBeGreaterThan(0);
+    expect(new Set(texts).size).toBe(errors.length);
   });
 });
 

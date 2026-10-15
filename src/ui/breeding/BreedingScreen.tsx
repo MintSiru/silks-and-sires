@@ -7,6 +7,7 @@ import { buildMatingPedigree, type PedigreeLookup } from '../../engine/breeding/
 import { buildMatingPreview } from '../../engine/breeding/preview';
 import { createPedigreeLookup, isAnonDamId } from '../../engine/breeding/realPedigree';
 import { bookingSeasonOf, damsireLineOf } from '../../engine/breeding/season';
+import { LONG_LEASE_MAX_SEASONS, NOMINATION_MAX_PER_SEASON } from '../../engine/config/stud';
 import { getNicks, getSireLines, getStallionRecords } from '../../engine/data/staticData';
 import { assessForPlayer, availableStallions, playerHorses } from '../../engine/horse/playerView';
 import { ageInYear, formatDateKo } from '../../engine/time/calendar';
@@ -34,9 +35,10 @@ import {
   phaseKo,
 } from '../game/text';
 import type { GameApi } from '../game/useGame';
-import { bookingWindowKo, bookStatusOf, mareBookingKo, myStudView, STUD_EMPTY_KO } from './bookView';
+import { bookingWindowKo, bookStatusOf, mareBookingKo, myStudView, STUD_EMPTY_KO, tradeErrorKo } from './bookView';
 import HorseCard from './HorseCard';
 import PedigreeView from './PedigreeView';
+import { salePriceWithNominationsKo } from '../yearEnd/yearEndView';
 
 /** 새 게임 시작 폼 기본 시드(데모와 같은 값) */
 const DEFAULT_SEED_TEXT = '20261011';
@@ -65,6 +67,31 @@ const SIRE_LINE_LABEL: ReadonlyMap<string, string> = new Map(
 );
 
 type StallionRow = { horse: Horse; stallion: Stallion };
+
+/** 종마 거래 종류: 판매 2종, 임대 2종 */
+type DealKind = 'domestic' | 'overseas' | 'shuttle' | 'long';
+const DEAL_KINDS: readonly DealKind[] = ['domestic', 'overseas', 'shuttle', 'long'];
+const DEAL_LABEL_KO: Record<DealKind, string> = {
+  domestic: '국내 판매', overseas: '해외 판매', shuttle: '셔틀 임대', long: '장기 임대',
+};
+/** 장기 임대 복귀 시즌의 가장 이른 값은 year + 2 (year + 1 은 셔틀 복귀와 같은 해라 제외) */
+const LONG_LEASE_FIRST_RETURN_OFFSET = 2;
+/** 확인 단계 중인 거래 한 건. 한 번에 한 행만 확인한다. */
+interface PendingDeal {
+  horseId: HorseId;
+  kind: DealKind;
+  nominations: number;
+  returnSeason: number;
+}
+/** 교배권 선택지 0~최대(엔진 상한) */
+const NOMINATION_CHOICES: readonly number[] = Array.from({ length: NOMINATION_MAX_PER_SEASON + 1 }, (_, i) => i);
+
+/** 장기 임대 복귀 시즌 선택지: year + 2 ~ year + 1 + LONG_LEASE_MAX_SEASONS */
+function returnSeasonChoices(year: number): number[] {
+  const first = year + LONG_LEASE_FIRST_RETURN_OFFSET;
+  const last = year + 1 + LONG_LEASE_MAX_SEASONS;
+  return Array.from({ length: last - first + 1 }, (_, i) => first + i);
+}
 
 interface Notice {
   tone: 'ok' | 'error';
@@ -260,6 +287,8 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
   const [query, setQuery] = useState('');
   const [notice, setNotice] = useState<Notice | null>(null);
   const [watch, setWatch] = useState<FoalingWatch | null>(null);
+  const [pendingDeal, setPendingDeal] = useState<PendingDeal | null>(null);
+  const [dealError, setDealError] = useState<string | null>(null);
 
   /** 이름 없는 모마 칸(~dam)은 미상 이름('—')으로 보인다 */
   const nameOf = (id: HorseId): string =>
@@ -393,6 +422,33 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
     });
     setWatch(null);
   }, [state, watch]);
+
+  /** 거래 확인 단계를 연다. 국내 판매는 교배권 0개, 장기 임대는 가장 이른 복귀 시즌이 기본이다. */
+  const startDeal = (horseId: HorseId, kind: DealKind): void => {
+    setDealError(null);
+    setPendingDeal({ horseId, kind, nominations: 0, returnSeason: state.date.year + LONG_LEASE_FIRST_RETURN_OFFSET });
+  };
+
+  /** 확인된 거래를 엔진에 넘긴다. 실패하면 사유를 alert 로 보인다. */
+  const confirmDeal = (): void => {
+    if (pendingDeal === null) return;
+    const { horseId, kind } = pendingDeal;
+    const result = kind === 'domestic' || kind === 'overseas'
+      ? game.sellStallion(horseId, kind, kind === 'domestic' ? pendingDeal.nominations : 0)
+      : game.leaseStallion(horseId, kind, kind === 'long' ? pendingDeal.returnSeason : undefined);
+    if (result.ok) {
+      setPendingDeal(null);
+      setDealError(null);
+      setNotice({ tone: 'ok', text: `${nameOf(horseId)} ${DEAL_LABEL_KO[kind]} 완료` });
+    } else {
+      setDealError(tradeErrorKo(result.error));
+    }
+  };
+
+  const cancelDeal = (): void => {
+    setPendingDeal(null);
+    setDealError(null);
+  };
 
   const handleSave = async (): Promise<void> => {
     try {
@@ -648,6 +704,7 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
       <section className="panel">
         <h2>내 종마 ({studView.stallions.length}두)</h2>
         <p className="hint">{studView.slotsKo}</p>
+        <p className="hint">{studView.dealWindowKo}</p>
         {studView.stallions.length === 0 ? (
           <p className="hint">{STUD_EMPTY_KO}</p>
         ) : (
@@ -659,20 +716,133 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
                   <th>종부료</th>
                   <th>북</th>
                   <th>첫 시즌</th>
+                  <th>임대</th>
+                  <th>거래</th>
                 </tr>
               </thead>
               <tbody>
-                {studView.stallions.map((row) => (
-                  <tr key={row.horseId}>
-                    <td>{row.name}</td>
-                    <td>{row.feeKo}</td>
-                    <td>{row.bookKo}</td>
-                    <td>{`${row.firstSeasonYear} 시즌`}</td>
-                  </tr>
-                ))}
+                {studView.stallions.map((row) => {
+                  const pending = pendingDeal !== null && pendingDeal.horseId === row.horseId ? pendingDeal : null;
+                  return (
+                    <tr key={row.horseId}>
+                      <td>{row.name}</td>
+                      <td>{row.feeKo}</td>
+                      <td>{row.bookKo}</td>
+                      <td>{`${row.firstSeasonYear} 시즌`}</td>
+                      <td>{row.leaseKo ?? NO_VALUE}</td>
+                      <td>
+                        {!row.canDeal ? NO_VALUE : pending === null ? (
+                          <div className="deal-actions">
+                            {DEAL_KINDS.map((kind) => (
+                              <button key={kind} type="button" className="btn" onClick={() => startDeal(row.horseId, kind)}>
+                                {DEAL_LABEL_KO[kind]}
+                              </button>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="deal-confirm">
+                            {pending.kind === 'domestic' && (
+                              <>
+                                <label>
+                                  교배권{' '}
+                                  <select
+                                    aria-label={`${row.name} 교배권`}
+                                    value={pending.nominations}
+                                    onChange={(e) => setPendingDeal({ ...pending, nominations: Number(e.target.value) })}
+                                  >
+                                    {NOMINATION_CHOICES.map((count) => (
+                                      <option key={count} value={count}>{`${count}개`}</option>
+                                    ))}
+                                  </select>
+                                </label>
+                                <span>{`국내 판매가 ${salePriceWithNominationsKo(state, row.horseId, pending.nominations)}`}</span>
+                              </>
+                            )}
+                            {pending.kind === 'overseas' && (
+                              <span>{`해외 판매가 ${row.salePrice?.overseasKo ?? NO_VALUE} (세계에서 빠지고 교배권은 남지 않습니다)`}</span>
+                            )}
+                            {pending.kind === 'shuttle' && (
+                              <span>{`셔틀 임대료 ${row.shuttleRentKo}, ${state.date.year + 1} 시즌 복귀`}</span>
+                            )}
+                            {pending.kind === 'long' && (
+                              <>
+                                <label>
+                                  복귀 시즌{' '}
+                                  <select
+                                    aria-label={`${row.name} 복귀 시즌`}
+                                    value={pending.returnSeason}
+                                    onChange={(e) => setPendingDeal({ ...pending, returnSeason: Number(e.target.value) })}
+                                  >
+                                    {returnSeasonChoices(state.date.year).map((season) => (
+                                      <option key={season} value={season}>{`${season} 시즌`}</option>
+                                    ))}
+                                  </select>
+                                </label>
+                                <span>{`연 임대료 ${row.longRentKo}`}</span>
+                              </>
+                            )}
+                            <button type="button" className="btn btn--primary" onClick={confirmDeal}>확정</button>
+                            <button type="button" className="btn" onClick={cancelDeal}>취소</button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
+        )}
+        {dealError !== null && <p className="notice notice--error" role="alert">{dealError}</p>}
+        {studView.nominations.length > 0 && (
+          <>
+            <h3>남긴 교배권</h3>
+            <div className="table-scroll">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>종마</th>
+                    <th>잔여</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {studView.nominations.map((row, index) => (
+                    <tr key={`${row.name}-${index}`}>
+                      <td>{row.name}</td>
+                      <td>{row.leftKo}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+        {studView.soldRows.length > 0 && (
+          <>
+            <h3>판매 기록</h3>
+            <div className="table-scroll">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>연도</th>
+                    <th>종마</th>
+                    <th>구분</th>
+                    <th>가격</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {studView.soldRows.map((row, index) => (
+                    <tr key={`${row.year}-${row.name}-${index}`}>
+                      <td>{row.year}</td>
+                      <td>{row.name}</td>
+                      <td>{row.modeKo}</td>
+                      <td>{row.priceKo}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
         <h3>최근 정산</h3>
         {studView.seasons.length === 0 ? (
