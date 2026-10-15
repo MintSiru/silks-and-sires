@@ -93,10 +93,29 @@ export const POPULARITY_AT_LOW = 30;
 export const POPULARITY_AT_HIGH = 90;
 export const POPULARITY_MIN = 10;
 export const POPULARITY_MAX = 95;
-/** 16세부터 수태율이 매년 1%p 하락하되 50%를 보장한다. */
-export const FERTILITY_DECLINE_FROM_AGE = 16;
-export const FERTILITY_DECLINE_PER_YEAR = 0.01;
+/** 18세부터 수태율이 매년 2%p 하락하되 50%를 보장한다(현실형, 사용자 결정 2026-10-15). */
+export const FERTILITY_DECLINE_FROM_AGE = 18;
+export const FERTILITY_DECLINE_PER_YEAR = 0.02;
 export const FERTILITY_FLOOR = 0.5;
+/** 첫 시즌(번식 시즌 첫 주)에 저수태가 판명되는 확률과 판명 시 수태율 범위(0.35~0.55). */
+export const SUBFERTILE_CHANCE = 0.02;
+export const SUBFERTILE_MIN = 0.35;
+export const SUBFERTILE_MAX = 0.55;
+export const SUBFERTILE_CHECK_WEEK = 7;
+/** 27주 정산 다음 주에 시즌별 관측 수태 기록을 남긴다. */
+export const FERTILITY_RECORD_WEEK = 28;
+/** 종마별 관측 수태 기록은 최근 다섯 시즌만 보존한다. */
+export const FERTILITY_HISTORY_LIMIT = 5;
+/** 연속 두 시즌의 관측 수태율이 60% 미만이면 은퇴 판정(AI·실명·국내 판매 종마는 자동, 내 종마는 경고). */
+export const FERTILITY_RETIRE_RATE = 0.6;
+export const FERTILITY_RETIRE_SEASONS = 2;
+/** 교배 수 10두 미만인 시즌은 은퇴 판정에서 제외한다(표본이 작은 우연 방지). */
+export const FERTILITY_MIN_SAMPLE = 10;
+/** 공개 수태율: 최근 세 시즌 합으로 계산하고, 교배 40두 이상이면 정확한 값을, 미만이면 구간을 보여 준다. */
+export const PUBLIC_FERTILITY_SEASONS = 3;
+export const PUBLIC_FERTILITY_FULL_SAMPLE = 40;
+/** 기록이 없을 때와 구간 표시는 5%p 단위로 맞춘다. */
+export const PUBLIC_FERTILITY_STEP = 0.05;
 
 /** 종부료의 200배를 국내 예상 수입 약 3년치로 평가한다. */
 export const STALLION_SALE_FEE_MULT = 200;

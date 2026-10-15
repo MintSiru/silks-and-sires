@@ -74,7 +74,9 @@ export function reviewFee(state: GameState, stallionId: HorseId, year: number): 
     * Math.log(fee / config.POPULARITY_REF_LOW_FEE)
     / Math.log(config.POPULARITY_REF_HIGH_FEE / config.POPULARITY_REF_LOW_FEE)),
   config.POPULARITY_MIN, config.POPULARITY_MAX);
-  const fertility = Math.round((age >= config.FERTILITY_DECLINE_FROM_AGE
+  // 저수태 종마(바닥 이하)는 바닥값으로 올리지 않고 그대로 둔다(M4-D5)
+  const declining = age >= config.FERTILITY_DECLINE_FROM_AGE && stallion.fertility > config.FERTILITY_FLOOR;
+  const fertility = Math.round((declining
     ? Math.max(config.FERTILITY_FLOOR, stallion.fertility - config.FERTILITY_DECLINE_PER_YEAR)
     : stallion.fertility) * 1000) / 1000;
   return { fee, popularity, fertility, marketBaseFee };

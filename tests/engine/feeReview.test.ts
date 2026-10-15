@@ -87,7 +87,7 @@ it('검토 주·현역 종마·플레이어 이벤트·나이와 수태율 경�
   state.horses[id]!.ownerId = state.playerOwnerId;
   state.horses[id]!.birthYear = 2006;
   Object.assign(sire, { fee: 20_000, fertility: 0.74, aiDemand: 0 });
-  expect(reviewFee(state, id, 2026)).toMatchObject({ fee: 18_000, fertility: 0.73 });
+  expect(reviewFee(state, id, 2026)).toMatchObject({ fee: 18_000, fertility: 0.72 });
   sire.fertility = 0.5;
   expect(reviewFee(state, id, 2026).fertility).toBe(0.5);
   state.horses[ids[1]!]!.status = 'retired';

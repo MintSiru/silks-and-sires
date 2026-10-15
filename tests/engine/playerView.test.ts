@@ -83,6 +83,7 @@ describe('createGameSystems', () => {
       'breeding',
       'stud_books',
       'stud_leases',
+      'stud_fertility',
       'mortality',
       'fee_review',
       'population',
