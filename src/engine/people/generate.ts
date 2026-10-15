@@ -1,5 +1,17 @@
 import {
   APPRENTICE_ALLOWANCE_LB,
+  CAREER_EARNINGS_PER_WIN,
+  CAREER_G1_SHARE,
+  CAREER_GROUP_WIN_FACTOR,
+  CAREER_JITTER,
+  CAREER_JOCKEY_RIDES_PER_YEAR,
+  CAREER_JOCKEY_START_AGE,
+  CAREER_PLACES_PER_WIN,
+  CAREER_SKILL_OFFSET,
+  CAREER_TRAINER_RUNNERS_PER_YEAR,
+  CAREER_TRAINER_START_AGE,
+  CAREER_WIN_RATE_BASE,
+  CAREER_WIN_RATE_SKILL,
   FACILITY_GRADE_MAX,
   FACILITY_GRADE_MIN,
   JOCKEY_AGE_MAX,
@@ -188,7 +200,7 @@ export function generateJockey(rng: Rng, ctx: PeopleContext, id: JockeyId, count
     abilities,
     preferredStyle,
     retired: false,
-    career: emptyCareer(),
+    career: initialCareer(id, skill, Math.max(0, age - CAREER_JOCKEY_START_AGE), CAREER_JOCKEY_RIDES_PER_YEAR),
   };
 }
 
@@ -200,25 +212,62 @@ function pickTrainerStyle(rng: Rng, staminaBias: number, juvenileFocus: number):
   return rng.chance(TRAINER_PATIENT_CHANCE) ? 'patient' : 'all_round';
 }
 
-/** 조교사 한 명. 야드 이름 = 지역명 + yard_words. */
-/**
- * 조교사 상마안(M4-B2). 기존 생성 난수 흐름을 바꾸지 않도록 ID 문자열 해시(FNV-1a)로 결정적으로 정한다.
- * 저장 이주(v8 → v9)도 같은 함수를 쓴다.
- */
-/** 빈 통산 성적(M4-P1 에서 나이·능력 기반 초기값으로 바뀐다) */
+/** 빈 통산 성적 */
 export function emptyCareer(): PersonCareer {
   return { runners: 0, wins: 0, places: 0, groupWins: 0, g1Wins: 0, earnings: 0 };
 }
 
-export function trainerEyeFromId(id: TrainerId): number {
+/** ID 문자열 FNV-1a 해시(u32). 난수 흐름과 무관하게 결정적이다. */
+export function fnv1a(text: string): number {
   let h = 0x811c9dc5;
-  for (let i = 0; i < id.length; i++) {
-    h ^= id.charCodeAt(i);
+  for (let i = 0; i < text.length; i++) {
+    h ^= text.charCodeAt(i);
     h = Math.imul(h, 0x01000193) >>> 0;
   }
-  return TRAINER_EYE_MIN + (h % (TRAINER_EYE_MAX - TRAINER_EYE_MIN + 1));
+  return h;
 }
 
+/**
+ * 조교사 상마안(M4-B2). 기존 생성 난수 흐름을 바꾸지 않도록 ID 문자열 해시(FNV-1a)로 결정적으로 정한다.
+ * 저장 이주(v8 → v9)도 같은 함수를 쓴다.
+ */
+export function trainerEyeFromId(id: TrainerId): number {
+  return TRAINER_EYE_MIN + (fnv1a(id) % (TRAINER_EYE_MAX - TRAINER_EYE_MIN + 1));
+}
+
+/** ID·항목별 해시 흔들림 계수. 1 − CAREER_JITTER 이상 1 + CAREER_JITTER 미만. */
+function careerJitter(id: string, salt: string): number {
+  const u = fnv1a(`${id}|${salt}`) / 2 ** 32;
+  return 1 + (u * 2 - 1) * CAREER_JITTER;
+}
+
+/**
+ * 새 게임 초기 통산 성적(M4-P1). 활동 연수·능력·ID 해시만 쓴다(rng 미사용, 인물 해시 테스트 불변).
+ * activityYears 가 0 이하면 빈 성적이다. 값은 정수다.
+ */
+export function initialCareer(id: string, skill: number, activityYears: number, ridesPerYear: number): PersonCareer {
+  if (activityYears <= 0) return emptyCareer();
+  const skillRatio = (skill - PERSON_ABILITY_MIN) / (PERSON_ABILITY_MAX - PERSON_ABILITY_MIN);
+  const runners = Math.round(
+    activityYears * ridesPerYear * (CAREER_SKILL_OFFSET + skillRatio) * careerJitter(id, 'runners'),
+  );
+  const winRate = CAREER_WIN_RATE_BASE + skillRatio * CAREER_WIN_RATE_SKILL;
+  const wins = Math.round(runners * winRate * careerJitter(id, 'wins'));
+  const groupWins = Math.round(wins * skillRatio * skillRatio * CAREER_GROUP_WIN_FACTOR);
+  const earnings: Money = Math.round(
+    wins * CAREER_EARNINGS_PER_WIN * (CAREER_SKILL_OFFSET + skillRatio) * careerJitter(id, 'earnings'),
+  );
+  return {
+    runners,
+    wins,
+    places: wins * CAREER_PLACES_PER_WIN,
+    groupWins,
+    g1Wins: Math.round(groupWins * CAREER_G1_SHARE),
+    earnings,
+  };
+}
+
+/** 조교사 한 명. 야드 이름 = 지역명 + yard_words. */
 export function generateTrainer(rng: Rng, ctx: PeopleContext, id: TrainerId, country: CountryCode): Trainer {
   const home = requireNameCountry(country);
 
@@ -255,7 +304,12 @@ export function generateTrainer(rng: Rng, ctx: PeopleContext, id: TrainerId, cou
     staminaBias,
     juvenileFocus,
     eye: trainerEyeFromId(id),
-    career: emptyCareer(),
+    career: initialCareer(
+      id,
+      skill,
+      Math.max(0, age - CAREER_TRAINER_START_AGE),
+      CAREER_TRAINER_RUNNERS_PER_YEAR,
+    ),
   };
 }
 

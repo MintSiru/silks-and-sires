@@ -14,7 +14,11 @@ import { relationKey } from '../../src/engine/economy/relations';
 import { bootstrapGame, type BootstrapData } from '../../src/engine/state/bootstrap';
 import type { GameState, RetainerContract } from '../../src/engine/types';
 import { feeKo, retainerRefusalKo, type RetainerActionError } from '../../src/ui/game/text';
-import { reputationView, staffRows } from '../../src/ui/staff/staffView';
+import { jockeyProfile, reputationView, staffRows, trainerProfile } from '../../src/ui/staff/staffView';
+
+/** 원래 능력 수치 키. 프로필 결과에 나오면 안 된다(사용자 결정 2026-10-15) */
+const HIDDEN_KEYS = /"(skill|eye|start|pace|finish|strength|staminaBias|juvenileFocus|facilityGrade|abilities)"/;
+const GRADE_SET = new Set(['S', 'A', 'B', 'C', 'D', 'E']);
 
 const SEED = 20261011;
 const YEAR = START_YEAR;
@@ -165,5 +169,108 @@ describe('명성 표시', () => {
   it('명성은 소수 1자리로 보이고, 등급도 보이는 값으로 정한다', () => {
     expect(labelAt(19.96)).toEqual({ reputation: 20, labelKo: '신진' });
     expect(labelAt(33.333)).toEqual({ reputation: 33.3, labelKo: '신진' });
+  });
+});
+
+describe('기수·조교사 프로필 (M4-P1)', () => {
+  it('없는 id 면 null', () => {
+    const state = fresh();
+    expect(jockeyProfile(state, 'jk-missing')).toBeNull();
+    expect(trainerProfile(state, 'tr-missing')).toBeNull();
+  });
+
+  it('기수 프로필: 다섯 능력이 S~E 등급으로만 나오고, 원래 수치는 결과에 없다', () => {
+    const state = fresh();
+    const id = Object.keys(state.jockeys).sort()[0];
+    if (id === undefined) throw new Error('테스트 전제 위반: 기수 없음');
+    const jockey = state.jockeys[id];
+    if (jockey === undefined) throw new Error('테스트 전제 위반');
+    // 숫자 흔적이 남지 않도록 눈에 띄는 값을 넣는다
+    jockey.abilities = { start: 41.7319, pace: 63.1187, finish: 77.2246, strength: 58.4031 };
+    jockey.skill = 59.3404;
+
+    const profile = jockeyProfile(state, id);
+    expect(profile).not.toBeNull();
+    if (profile === null) return;
+    expect(profile.grades.map((g) => g.labelKo)).toEqual(['출발', '페이스', '마무리', '힘', '종합']);
+    for (const g of profile.grades) expect(GRADE_SET.has(g.grade)).toBe(true);
+    const json = JSON.stringify(profile);
+    expect(HIDDEN_KEYS.test(json)).toBe(false);
+    expect(json).not.toContain('41.7319');
+    expect(json).not.toContain('59.3404');
+    expect(profile.apprentice).toBe(jockey.apprenticeAllowanceLb > 0);
+  });
+
+  it('조교사 프로필: 등급 세 칸·성향 문구·원래 수치 키 없음', () => {
+    const state = fresh();
+    const id = trainerIds(state)[0];
+    if (id === undefined) throw new Error('테스트 전제 위반: 조교사 없음');
+    const trainer = state.trainers[id];
+    if (trainer === undefined) throw new Error('테스트 전제 위반');
+    trainer.eye = 66.6666;
+    trainer.skill = 77.7777;
+
+    const profile = trainerProfile(state, id);
+    expect(profile).not.toBeNull();
+    if (profile === null) return;
+    expect(profile.grades.map((g) => g.labelKo)).toEqual(['조교', '상마안', '시설']);
+    for (const g of profile.grades) expect(GRADE_SET.has(g.grade)).toBe(true);
+    expect(profile.styleKo.length).toBeGreaterThan(0);
+    expect(profile.staminaKo.length).toBeGreaterThan(0);
+    expect(profile.juvenileKo.length).toBeGreaterThan(0);
+    expect(profile.ownedHorseCount).toBe(
+      Object.values(state.horses).filter((h) => h.ownerId === state.playerOwnerId && h.trainerId === id).length,
+    );
+    const json = JSON.stringify(profile);
+    expect(HIDDEN_KEYS.test(json)).toBe(false);
+    expect(json).not.toContain('66.6666');
+    expect(json).not.toContain('77.7777');
+  });
+
+  it('시설 등급 1→E, 5→S 대응', () => {
+    const state = fresh();
+    const id = trainerIds(state)[0];
+    if (id === undefined) throw new Error('테스트 전제 위반: 조교사 없음');
+    const trainer = state.trainers[id];
+    if (trainer === undefined) throw new Error('테스트 전제 위반');
+    trainer.facilityGrade = 1;
+    expect(trainerProfile(state, id)?.grades[2]?.grade).toBe('E');
+    trainer.facilityGrade = 5;
+    expect(trainerProfile(state, id)?.grades[2]?.grade).toBe('S');
+  });
+
+  it('성적 합계: 합계 출주 = 통산 + 올해, 출주 0 이면 승률은 null', () => {
+    const state = fresh();
+    const id = trainerIds(state)[0];
+    if (id === undefined) throw new Error('테스트 전제 위반: 조교사 없음');
+    const trainer = state.trainers[id];
+    if (trainer === undefined) throw new Error('테스트 전제 위반');
+    trainer.career = { runners: 100, wins: 20, places: 40, groupWins: 2, g1Wins: 1, earnings: 500_000 };
+    state.seasonState.leading.trainer[id] = { id, runners: 10, wins: 3, places: 5, groupWins: 1, earnings: 30_000 };
+
+    const profile = trainerProfile(state, id);
+    expect(profile?.records.total.runners).toBe(110);
+    expect(profile?.records.total.wins).toBe(23);
+    expect(profile?.records.total.earnings).toBe(530_000);
+    expect(profile?.records.total.g1Wins).toBe(1);
+    expect(profile?.records.thisYear.g1Wins).toBeNull();
+    expect(profile?.records.thisYear.winRatePct).toBe(30);
+    expect(profile?.records.career.winRatePct).toBe(20);
+
+    trainer.career = { runners: 0, wins: 0, places: 0, groupWins: 0, g1Wins: 0, earnings: 0 };
+    delete state.seasonState.leading.trainer[id];
+    expect(trainerProfile(state, id)?.records.thisYear.winRatePct).toBeNull();
+  });
+
+  it('잘 맞는 작전: null 이면 문구가 있고 한국어다', () => {
+    const state = fresh();
+    const id = Object.keys(state.jockeys).sort()[0];
+    if (id === undefined) throw new Error('테스트 전제 위반: 기수 없음');
+    const jockey = state.jockeys[id];
+    if (jockey === undefined) throw new Error('테스트 전제 위반');
+    jockey.preferredStyle = null;
+    expect(jockeyProfile(state, id)?.preferredStyleKo).toMatch(/[가-힣]/);
+    jockey.preferredStyle = 'held_up';
+    expect(jockeyProfile(state, id)?.preferredStyleKo).toBe('추입');
   });
 });

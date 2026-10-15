@@ -12,9 +12,13 @@ import type {
   GameEvent,
   GameState,
   HorseStatus,
+  LeadingEntry,
   NickEntry,
+  PersonCareer,
   Racecourse,
   RacecourseId,
+  RaceGrade,
+  RaceId,
   RaceTemplate,
   Rng,
   SeriesDefinition,
@@ -87,10 +91,52 @@ function closePointsSeries(
   }
 }
 
+/** 리딩 한 줄을 통산 성적에 더한다(연말 누적, M4-P1). g1Wins 는 호출자가 센 값을 넘긴다. */
+function addCareer(career: PersonCareer, entry: LeadingEntry, g1Wins: number): PersonCareer {
+  return {
+    runners: career.runners + entry.runners,
+    wins: career.wins + entry.wins,
+    places: career.places + entry.places,
+    groupWins: career.groupWins + entry.groupWins,
+    g1Wins: career.g1Wins + g1Wins,
+    earnings: career.earnings + entry.earnings,
+  };
+}
+
 /**
- * (a) 연도 전환: 시리즈 챔피언 확정 → 지난해 시상 확정(레이스가 있었을 때만) → 리딩·올해 기록 비우기 → 연도 갱신 → 오래된 결과 정리
- * → 지난해 경제 요약 확정·오래된 플레이어 장부 정리(M4-A2a).
- * awardsRng 는 호출자가 rng.fork('awards') 로 넘긴다.
+ * 연말 누적(M4-P1): 지난해 유럽 합산 리딩의 기수·조교사 항목을 각자 통산 성적에 더한다.
+ * g1Wins 는 지난해 결과(raceResults)에서 G1 레이스의 1착 기수로 센다. 결과에는 조교사 id 가 없어
+ * 조교사 g1Wins 는 0 증가로 둔다(리딩의 그룹 승 비율로 추정하지 않는다).
+ */
+function accumulateCareers(
+  draft: GameState,
+  prevYear: number,
+  gradeById: ReadonlyMap<RaceId, RaceGrade | null>,
+): void {
+  const g1ByJockey: Record<string, number> = {};
+  for (const result of draft.raceResults) {
+    if (result.date.year !== prevYear || gradeById.get(result.raceId) !== 'G1') continue;
+    for (const runner of result.runners) {
+      if (runner.position !== 1) continue;
+      g1ByJockey[runner.jockeyId] = (g1ByJockey[runner.jockeyId] ?? 0) + 1;
+    }
+  }
+  for (const [jockeyId, entry] of Object.entries(draft.seasonState.leading.jockey)) {
+    const jockey = draft.jockeys[jockeyId];
+    if (jockey === undefined) continue;
+    jockey.career = addCareer(jockey.career, entry, g1ByJockey[jockeyId] ?? 0);
+  }
+  for (const [trainerId, entry] of Object.entries(draft.seasonState.leading.trainer)) {
+    const trainer = draft.trainers[trainerId];
+    if (trainer === undefined) continue;
+    trainer.career = addCareer(trainer.career, entry, 0);
+  }
+}
+
+/**
+ * (a) 연도 전환: 시리즈 챔피언 확정 → 지난해 시상 확정(레이스가 있었을 때만) → 연말 통산 성적 누적(M4-P1)
+ * → 리딩·올해 기록 비우기 → 연도 갱신 → 오래된 결과 정리 → 지난해 경제 요약 확정·오래된 플레이어 장부 정리(M4-A2a).
+ * awardsRng 는 호출자가 rng.fork('awards') 로 넘긴다. gradeById 는 고정 일정 레이스의 등급 표(G1 판정용).
  */
 function startNewSeason(
   draft: GameState,
@@ -98,6 +144,7 @@ function startNewSeason(
   date: GameDate,
   awardsRng: Rng,
   events: GameEvent[],
+  gradeById: ReadonlyMap<RaceId, RaceGrade | null>,
 ): void {
   closePointsSeries(draft, series, date, events);
   const prevYear = draft.seasonState.year;
@@ -107,6 +154,7 @@ function startNewSeason(
     reputationFromLeadingOwners(draft, awards.leading.owner);
     events.push({ type: 'awards_announced', year: prevYear, date: { ...date } });
   }
+  accumulateCareers(draft, prevYear, gradeById);
   draft.seasonState.leading = emptyLeadingTables();
   draft.seasonState.leadingByCountry = {};
   draft.seasonState.performances = {};
@@ -209,6 +257,7 @@ function conditionWeek(draft: GameState, date: GameDate, rng: Rng, events: GameE
 export function createSeasonSystem(data: SeasonStaticData): WeeklySystem {
   const courseById = new Map<RacecourseId, Racecourse>(data.courses.map((c) => [c.id, c] as const));
   const courseCountry: CourseCountryLookup = (id) => courseById.get(id)?.country;
+  const gradeById = new Map<RaceId, RaceGrade | null>(data.templates.map((t) => [t.id, t.grade] as const));
 
   return {
     id: 'season',
@@ -218,7 +267,7 @@ export function createSeasonSystem(data: SeasonStaticData): WeeklySystem {
       const rng = ctx.rng.fork('season');
 
       if (date.week === FIRST_WEEK && draft.seasonState.year !== date.year) {
-        startNewSeason(draft, data.series, date, rng.fork('awards'), events);
+        startNewSeason(draft, data.series, date, rng.fork('awards'), events, gradeById);
       }
       runThisWeek(draft, data, courseCountry, date, rng, events);
       scheduleNextWeek(draft, data, date, rng);

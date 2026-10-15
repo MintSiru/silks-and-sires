@@ -163,3 +163,27 @@ export const STUD_WORDS_BEFORE_NAME: ReadonlySet<string> = new Set([
 /** 조교사 상마안(M4-B2) 범위. 기존 난수 흐름을 바꾸지 않으려고 조교사 ID 해시로 정한다 */
 export const TRAINER_EYE_MIN = 20;
 export const TRAINER_EYE_MAX = 90;
+
+/**
+ * 통산 성적 초기값(M4-P1). 새 게임에서 나이·능력·ID 해시로 정하며 난수는 쓰지 않는다.
+ * 활동 연수 = max(0, 나이 − 시작 나이). 연간 출주 = 기준 × (CAREER_SKILL_OFFSET + skill/100).
+ */
+export const CAREER_JOCKEY_START_AGE = 18;
+export const CAREER_TRAINER_START_AGE = 32;
+export const CAREER_JOCKEY_RIDES_PER_YEAR = 300;
+export const CAREER_TRAINER_RUNNERS_PER_YEAR = 150;
+/** 출주·상금에 곱하는 능력 계수 = CAREER_SKILL_OFFSET + skill/100 */
+export const CAREER_SKILL_OFFSET = 0.5;
+/** 승률 = CAREER_WIN_RATE_BASE + skill/100 × CAREER_WIN_RATE_SKILL */
+export const CAREER_WIN_RATE_BASE = 0.06;
+export const CAREER_WIN_RATE_SKILL = 0.14;
+/** 그룹 승 = 승수 × (skill/100)² × CAREER_GROUP_WIN_FACTOR */
+export const CAREER_GROUP_WIN_FACTOR = 0.05;
+/** G1 승 = 그룹 승 × CAREER_G1_SHARE */
+export const CAREER_G1_SHARE = 0.2;
+/** 입상 = 승수 × CAREER_PLACES_PER_WIN */
+export const CAREER_PLACES_PER_WIN = 2;
+/** 상금(€) = 승수 × CAREER_EARNINGS_PER_WIN × (CAREER_SKILL_OFFSET + skill/100) */
+export const CAREER_EARNINGS_PER_WIN = 8_000;
+/** 출주·승수·상금에 거는 ID 해시 흔들림 폭(±). 값은 1 ± 이 값 사이 */
+export const CAREER_JITTER = 0.15;
