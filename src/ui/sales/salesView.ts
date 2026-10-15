@@ -2,6 +2,9 @@
  * 세일 화면 뷰 모델 (M4-C10a). React 없이 테스트할 수 있도록 순수 함수만 둔다.
  * 숨김 값(로트의 시장 평가값·AI 입찰 상한)은 결과 어디에도 담지 않는다. 화면에는 추정 범위(estimateRange)만 보인다.
  */
+import { SALE_PATRON_BOOK_BONUS, SALE_PATRON_PREMIUM_DISCOUNT, SALE_PATRON_PREVIEW_WEEKS } from '../../engine/config/sales';
+import { patronView } from '../../engine/sales/patron';
+import { privateOfferView } from '../../engine/sales/privateTrade';
 import { getStallionRecords } from '../../engine/data/staticData';
 import { fitsKind } from '../../engine/sales/catalogue';
 import {
@@ -24,7 +27,7 @@ import type {
   SaleLotResult,
   SurfaceProfile,
 } from '../../engine/types';
-import { feeKo, saleKindKo, saleStatusKo } from '../game/text';
+import { feeKo, patronTierKo, saleKindKo, saleStatusKo } from '../game/text';
 
 /** 값이 없을 때 칸을 채우는 표기 */
 const EMPTY_KO = '—';
@@ -371,4 +374,36 @@ export function consignableRows(state: GameState, data: SalesStaticData): Consig
       options,
     };
   });
+}
+
+/** 개인 제안의 공개 정보만 화면에 전달한다. */
+export function privateOfferRows(state: GameState) {
+  return privateOfferView(state).map((offer) => ({
+    offerId: offer.offerId,
+    horseId: offer.horseId,
+    horseName: offer.horseName,
+    sexAgeKo: sexAgeKo(state.horses[offer.horseId], state.date.year),
+    sireName: sireNameOf(state, offer.sireId),
+    ownerName: offer.ownerName,
+    priceKo: feeKo(offer.price),
+    estimateKo: `${feeKo(offer.estimate.low)} ~ ${feeKo(offer.estimate.high)}`,
+    expiresKo: `${formatDateKo({ year: offer.expiresYear, week: offer.expiresWeek })}까지`,
+  }));
+}
+
+export function patronBadge(state: GameState) {
+  const view = patronView(state);
+  return {
+    tierKo: patronTierKo(view.tier),
+    spendKo: feeKo(view.spendTwoYears),
+    nextKo: view.nextTier === null ? '최고 등급' : `${patronTierKo(view.nextTier)}까지 ${feeKo(view.toNext ?? 0)}`,
+    benefitsKo:
+      view.tier === 'none'
+        ? ['혜택 없음 — 최근 2년 세일 구매가 쌓이면 실버·골드 혜택(카탈로그 사전 열람·수수료 할인·출품 우대)']
+        : [
+            `카탈로그 ${SALE_PATRON_PREVIEW_WEEKS[view.tier]}주 먼저 열람`,
+            `구매 수수료 −${Math.round(SALE_PATRON_PREMIUM_DISCOUNT[view.tier] * 100)}%p`,
+            ...(SALE_PATRON_BOOK_BONUS[view.tier] > 0 ? ['내 출품을 한 북 앞에 배정'] : []),
+          ],
+  };
 }

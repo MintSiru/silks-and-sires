@@ -1,3 +1,5 @@
+import type { SalePatronTier } from '../../engine/sales/patron';
+import type { AcceptPrivateOfferError, InspectOfferError } from '../../engine/sales/privateTrade';
 import commentsJson from '../../../data/text/comments.ko.json';
 import { cyrb128 } from '../../engine/rng/hash';
 import { relationTier, type RelationTier } from '../../engine/economy/relations';
@@ -797,4 +799,18 @@ export function signConfirmKo(feeText: string): string {
 /** 전속 계약 해지 확인 대화 문구(위약금 안내) */
 export function terminateConfirmKo(penalty: Money): string {
   return `해지하면 위약금 ${feeKo(penalty)} 을 내고, 이 사람과의 관계가 떨어집니다. 계속할까요?`;
+}
+
+/** 개인 거래 제안 실패 사유 → 한국어 */
+export function privateOfferErrorKo(error: AcceptPrivateOfferError | InspectOfferError): string {
+  return {
+    offer_not_found: '개인 거래 제안을 찾을 수 없습니다.',
+    offer_invalid: '기한이 지났거나 거래할 수 없는 제안입니다.',
+    insufficient_funds: '자금이 부족해 구매할 수 없습니다.',
+    not_eligible: '이 조교사는 동행 검사를 할 수 없습니다.',
+  }[error];
+}
+
+export function patronTierKo(tier: SalePatronTier): string {
+  return { none: '일반', silver: '실버', gold: '골드' }[tier];
 }

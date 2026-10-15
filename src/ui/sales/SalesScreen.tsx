@@ -1,3 +1,4 @@
+import { inspectOfferHorse } from '../../engine/sales/privateTrade';
 import { useEffect, useMemo, useState } from 'react';
 import type { JSX } from 'react';
 import { getSalesData, getSireLines } from '../../engine/data/staticData';
@@ -17,6 +18,7 @@ import {
   countryKo,
   feeKo,
   inspectErrorKo,
+  privateOfferErrorKo,
   inspectNoneKo,
   liveClosedKo,
   liveFinalNoticeKo,
@@ -25,6 +27,8 @@ import {
 } from '../game/text';
 import type { GameApi } from '../game/useGame';
 import {
+  patronBadge,
+  privateOfferRows,
   catalogueRows,
   consignableRows,
   lotDetailView,
@@ -124,6 +128,7 @@ function SalesView({ game, state, locked }: SalesViewProps): JSX.Element {
   const [advanceNotice, setAdvanceNotice] = useState<Notice | null>(null);
 
   const owner = state.owners[state.playerOwnerId];
+  const badge = patronBadge(state);
   const calendar = useMemo(() => saleCalendarRows(state, SALES_DATA), [state]);
   const consignRows = useMemo(() => consignableRows(state, SALES_DATA), [state]);
 
@@ -183,7 +188,11 @@ function SalesView({ game, state, locked }: SalesViewProps): JSX.Element {
           <span>마주 {owner?.name ?? NO_VALUE}</span>
           <span>자금 {feeKo(owner?.funds ?? 0)}</span>
         </div>
-        <p className="hint">위에서 아래로: 세일 일정 → 카탈로그 → 로트 상세(검사·입찰·실시간 보기). 맨 아래에서 내 말을 출품합니다.</p>
+        <p className="hint">
+          위에서 아래로: 개인 거래 제안 → 세일 일정 → 카탈로그 → 로트 상세(검사·입찰·실시간 보기). 맨 아래에서 내 말을 출품합니다.
+          {' '}<span className="badge">후원 {badge.tierKo}</span>
+        </p>
+        <p className="hint">최근 2년 구매액 {badge.spendKo} · {badge.nextKo} · {badge.benefitsKo.join(' · ')}</p>
         <div className="topbar__buttons">
           <button type="button" className="btn" disabled={locked} onClick={() => advanceBy(1)}>
             1주 진행
@@ -194,6 +203,11 @@ function SalesView({ game, state, locked }: SalesViewProps): JSX.Element {
         </div>
         <NoticeLine notice={advanceNotice} />
       </header>
+
+      <section className="panel">
+        <h2>개인 거래 제안</h2>
+        <PrivateOffers game={game} state={state} locked={locked} />
+      </section>
 
       <section className="panel">
         <h2>세일 일정</h2>
@@ -491,7 +505,8 @@ interface InspectBoxProps {
 }
 
 /** 조교사 검사: 동행 가능한 조교사를 고르고 소견을 HorseCard 로 보인다 */
-function InspectBox({ state, saleId, year, lotNo, horseId }: InspectBoxProps): JSX.Element {
+function InspectBox(props: InspectBoxProps | { state: GameState; horseId: HorseId; offerId: string }): JSX.Element {
+  const { state, horseId } = props;
   const eligible = useMemo(() => eligibleInspectors(state), [state]);
   const [pickId, setPickId] = useState<string | null>(null);
   const [view, setView] = useState<InspectView | null>(null);
@@ -500,9 +515,15 @@ function InspectBox({ state, saleId, year, lotNo, horseId }: InspectBoxProps): J
 
   const handleInspect = (): void => {
     if (picked === undefined) return;
-    const result = inspectLot(state, saleId, year, lotNo, picked.trainerId);
-    if (result.ok) setView({ ok: true, assessment: result.assessment, trainerName: picked.name });
-    else setView({ ok: false, text: inspectErrorKo(result.error) });
+    if ('offerId' in props) {
+      const result = inspectOfferHorse(state, props.offerId, picked.trainerId);
+      if (result.ok) setView({ ok: true, assessment: result.assessment, trainerName: picked.name });
+      else setView({ ok: false, text: privateOfferErrorKo(result.error) });
+    } else {
+      const result = inspectLot(state, props.saleId, props.year, props.lotNo, picked.trainerId);
+      if (result.ok) setView({ ok: true, assessment: result.assessment, trainerName: picked.name });
+      else setView({ ok: false, text: inspectErrorKo(result.error) });
+    }
   };
 
   return (
@@ -807,4 +828,34 @@ function ConsignItem({ row, game, locked }: ConsignItemProps): JSX.Element {
       </td>
     </tr>
   );
+}
+
+function PrivateOffers({ game, state, locked }: SalesViewProps): JSX.Element {
+  const rows = privateOfferRows(state);
+  const [notice, setNotice] = useState<Notice | null>(null);
+  const [inspectId, setInspectId] = useState<string | null>(null);
+  const inspected = rows.find((row) => row.offerId === inspectId);
+  const act = (offerId: string, buy: boolean): void => {
+    const row = rows.find((entry) => entry.offerId === offerId);
+    if (buy && (locked || !window.confirm(`${row?.horseName ?? ''}을 ${row?.priceKo ?? ''}에 구매합니다. 계속할까요?`))) return;
+    const result = buy ? game.acceptPrivateOffer(offerId) : game.declinePrivateOffer(offerId);
+    setNotice(result.ok
+      ? { tone: 'ok', text: buy ? '구매했습니다.' : '제안을 거절했습니다.' }
+      : { tone: 'error', text: privateOfferErrorKo(result.error) });
+  };
+  return <>
+    <NoticeLine notice={notice} />
+    {rows.length === 0 ? <p className="hint">관계가 좋은 오너브리더가 1~3월에 유망주를 개인적으로 제안합니다(관계 20 이상 또는 명성 35 이상)</p> :
+      <div className="table-scroll"><table>
+        <thead><tr>{['말', '성별 나이', '부', '제안 마주', '가격', '추정가', '기한', '행동'].map((label) => <th key={label}>{label}</th>)}</tr></thead>
+        <tbody>{rows.map((row) => <tr key={row.offerId}>
+          <td>{row.horseName}</td><td>{row.sexAgeKo}</td><td>{row.sireName}</td><td>{row.ownerName}</td>
+          <td>{row.priceKo}</td><td>{row.estimateKo}</td><td>{row.expiresKo}</td>
+          <td><button type="button" className="btn" onClick={() => setInspectId(row.offerId)}>조교사 검사</button>
+            <button type="button" className="btn" disabled={locked} onClick={() => act(row.offerId, true)}>구매</button>
+            <button type="button" className="btn" onClick={() => act(row.offerId, false)}>거절</button></td>
+        </tr>)}</tbody>
+      </table></div>}
+    {inspected !== undefined && <InspectBox key={inspected.offerId} state={state} horseId={inspected.horseId} offerId={inspected.offerId} />}
+  </>;
 }

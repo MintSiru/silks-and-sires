@@ -1,3 +1,4 @@
+import { acceptPrivateOffer, declinePrivateOffer, type AcceptPrivateOfferError, type DeclinePrivateOfferError } from '../../engine/sales/privateTrade';
 import { useCallback, useRef, useState } from 'react';
 import { WEEKS_PER_YEAR, EVENT_LOG_LIMIT } from '../../engine/config/game';
 import { createGameSystems, type GameStaticData } from '../../engine/state/systems';
@@ -78,6 +79,8 @@ export interface GameApi {
   signRetainer(kind: RetainerKind, personId: string): PlayerResult<RetainerRefusal | 'insufficient_funds'>;
   /** 전속 계약을 해지한다(위약금 포함, 성공 시 state 갱신) */
   terminateRetainer(kind: RetainerKind, personId: string): PlayerResult<'not_contracted'>;
+  acceptPrivateOffer(offerId: string): PlayerResult<AcceptPrivateOfferError>;
+  declinePrivateOffer(offerId: string): PlayerResult<DeclinePrivateOfferError>;
   save(): Promise<void>;            // createIndexedDbSaveStore, 슬롯 id 'autosave'
   load(): Promise<boolean>;
 }
@@ -283,6 +286,15 @@ export function useGame(): GameApi {
     [requireState, applyPlayerResult],
   );
 
+  const acceptOffer = useCallback(
+    (offerId: string) => applyPlayerResult(acceptPrivateOffer(requireState(), offerId)),
+    [requireState, applyPlayerResult],
+  );
+  const declineOffer = useCallback(
+    (offerId: string) => applyPlayerResult(declinePrivateOffer(requireState(), offerId)),
+    [requireState, applyPlayerResult],
+  );
+
   const clearBid = useCallback(
     (saleId: string, year: number, lotNo: number): PlayerResult<'bid_not_found'> =>
       applyPlayerResult(clearMaxBid(requireState(), saleId, year, lotNo)),
@@ -342,6 +354,8 @@ export function useGame(): GameApi {
     withdrawConsignment: withdrawConsign,
     setMaxBid: setBid,
     clearMaxBid: clearBid,
+    acceptPrivateOffer: acceptOffer,
+    declinePrivateOffer: declineOffer,
     signRetainer: signRetainerWith,
     terminateRetainer: terminateRetainerWith,
     save,
