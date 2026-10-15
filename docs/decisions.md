@@ -306,3 +306,5 @@
 - 2026-10-15 M4-D4a2 승인(Codex, Opus 정리 2줄): 장기 임대 중 예약·AI 수요·재산정 중단, 교배권 자동 사용, 환불은 실제 납부액(feePaid·coveredFee) 기준, 국내 판매 종마는 수입 0 시즌 기록으로 3년 뒤 자마 편입 유지.
 - 2026-10-15 운영: Codex 사용 중지 지시가 와도 이미 실행 중인 작업은 끝까지 마치게 한다(사용자 결정). 새 작업만 Haiku 로 돌린다.
 - 2026-10-15 5대 혈통 10회차 반영(51칸, 조상 23두). Sheshoon 털색 bay → chestnut(사용자 확인, 혈통 DB 4곳 일치). 부계 자동 정리 5두(Petionville·Mining·Chester House → Mr. Prospector, Houston·Slew o' Gold → Seattle Slew). 고정 해시 재고정(breeders·playerSireCrops·starterStrength·stallionTradeIntegration fees).
+- 2026-10-15 M4-D4b 승인(haiku-coder): 연말 정산 국내·해외 판매 진로(가격 표시, 국내 판매 교배권 0~2 선택), '내 종마' 판매·셔틀/장기 임대 버튼(28~43주), 남긴 교배권·판매 기록 표, GameApi sellStallion·leaseStallion(이벤트 기록).
+- 2026-10-15 5대 혈통 11회차 반영(50칸, 조상 23두, #27 Double Zeus 정정). 실존 종마와 겹친 어휘 Dominion·Match 삭제. 고정 해시 재고정(breeders·playerSireCrops·starterStrength·namingLandmarks·stallionTradeIntegration fees·raceResults — 이름 변화). starterHorses 4번: ST1 뒤 지급 3세마 OR(이번 시드 108)이 핸디캡 상한을 넘을 수 있어 리스티드·그룹도 출주처로 인정.

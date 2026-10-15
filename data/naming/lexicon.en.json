@@ -821,7 +821,6 @@
     "Pinnacle",
     "Apex",
     "Rank",
-    "Dominion",
     "Realm",
     "Kingdom",
     "Empire",
@@ -923,7 +922,6 @@
     "Beat",
     "Master",
     "Rival",
-    "Match",
     "Mirror",
     "Reflect",
     "Renew",
@@ -1031,7 +1029,6 @@
     "Triumph",
     "Victory",
     "Glory",
-    "Dominion",
     "Sovereignty",
     "Prestige",
     "Renown",
@@ -3018,7 +3015,6 @@
       "Heritage"
     ],
     "Empire": [
-      "Dominion",
       "Realm",
       "Kingdom",
       "Throne"

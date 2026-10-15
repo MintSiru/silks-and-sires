@@ -18,8 +18,9 @@ const TRIBUTE = ['Harnwell', 'Tessmoor', 'Vellacourt', 'Askerby', 'Dunrowan', 'F
  * 2026-10-15 재고정: 어휘 'Destino' 삭제(같은 이름 실존 종마 추가).
  * 2026-10-15 재고정: 어휘 'Helmet' 삭제(같은 이름 실존 종마 추가).
  * 2026-10-15 재고정: 어휘 'Venture' 삭제(같은 이름 실존 종마 추가)·연상어 'Effort' 보충.
+ * 2026-10-15 재고정: 어휘 'Dominion'·'Match' 삭제(같은 이름 실존 종마 추가, 5대 혈통 11회차).
  */
-const HEAD_FINGERPRINT = '26de94a7b46ba0672527e9831065e0daea5f50adef005d7d2b1d46d0f07f3a28';
+const HEAD_FINGERPRINT = 'e1571b2a455e94f089cce919030de04c3a46d9588b61954593ace0dcb02dc31a';
 /** 지문 표본의 부·모 이름(종마 데이터 추가에 영향받지 않게 고정) */
 const FINGERPRINT_PARENTS = [
   'Dubawi', 'Frankel', 'Galileo', 'Kingman', 'Lope de Vega', 'Night of Thunder', 'Siyouni', 'Sea The Stars',

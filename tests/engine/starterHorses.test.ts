@@ -102,7 +102,7 @@ describe('시작 현역마 지급 (grantStarterHorses / bootstrapGame)', () => {
     }
   });
 
-  it('4. 3세마는 4월 1주의 3세 이상 핸디캡·조건 레이스에, 2세마는 2세 경주가 처음 열리는 주(TWO_YO_FROM_WEEK)의 2세 메이든에 출주 가능하다', () => {
+  it('4. 3세마는 4월 1주의 3세 이상 핸디캡·조건·리스티드·그룹 레이스에, 2세마는 2세 경주가 처음 열리는 주(TWO_YO_FROM_WEEK)의 2세 메이든에 출주 가능하다', () => {
     const horses = starters(BASE);
     const twoYo = horses.filter((h) => START_YEAR - h.birthYear === 2);
     const threeYo = horses.filter((h) => START_YEAR - h.birthYear === 3);
@@ -136,7 +136,8 @@ describe('시작 현역마 지급 (grantStarterHorses / bootstrapGame)', () => {
       const ok = aprilRaces.some(
         (r) =>
           r.race.conditions.minAge <= 3 &&
-          (r.race.kind === 'handicap' || r.race.kind === 'conditions') &&
+          // M4-ST1 뒤 지급 3세마 OR 은 94~116 — 핸디캡 상한을 넘으면 리스티드·그룹이 제 자리다(2026-10-15 Opus)
+          (r.race.kind === 'handicap' || r.race.kind === 'conditions' || r.race.kind === 'listed' || r.race.kind === 'group') &&
           isEligible(h, r.race, r.date, state),
       );
       expect(ok, `${h.id} 4월 1주 3세 출주 가능 레이스`).toBe(true);
