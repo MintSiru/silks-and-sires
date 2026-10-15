@@ -56,10 +56,11 @@ const BOOT_DATA: BootstrapData = {
  * 2026-10-15 재고정: 6회차(조상 34두)·독일 3두 티어 통일(Torquator Tasso 3→4, Japan·Fantastic Moon 4→5)로 바뀜.
  * 2026-10-15 재고정: 7회차·티어 통일 18두·새 현역 26두(+외조부 17두)로 바뀜.
  * 2026-10-15 재고정: 8회차(조상 23두, Turn-to IE·Deputy Minister brown)로 바뀜.
+ * 2026-10-15 재고정: M4-ST1 지급마 능력 상향·성장형 고정(플레이어 지급마의 ability·potential·growth·officialRating 만 바뀜, AI 말 불변 확인).
  */
 const PRE_CHANGE_PROJECTION_SHA: Record<number, string> = {
-  20261011: '021722d42110cddd878848b7c9d6e6f6f77dcf7345b0395c3e63f71eca38a3e6',
-  7: 'e5a6080a91796c7206c17d9339de908cc7b499a9fae091748cce10854ba6cfbe',
+  20261011: 'f8f41dfa4f74f08dd51e4a7543fc1c93062c51a326713612feae7d1a7ee4f069',
+  7: '964a75699003043872e2138273dad73ca7e720b0903602d1cb0140c45558b7a1',
 };
 
 function boot(seed: number): GameState {

@@ -15,3 +15,29 @@ export const STARTER_COUNTRY: PopulationCountry = 'GB';
 
 /** 지급 말의 초기 컨디션(fitness). MIN_FITNESS_TO_RUN(55)보다 높아 바로 출주할 수 있다 */
 export const STARTER_FITNESS = 70;
+
+/**
+ * 지급 말의 잠재 능력 평균, 나이별(M4-ST1). 부 등급과 무관하게 이 값을 쓴다(POPULATION_TIER_LEVEL 대체).
+ * 측정(시드 1~40, 성장형 고정 STARTER_GROWTH_TYPE 적용 후, 2026-10-15 Opus):
+ * - 2세 70(보통형): 잠재 레이팅 최소 93·중앙 104·최대 115 — 3세에 리스티드~G3 수준.
+ * - 3세 70(조숙형, 3세 정점): 시작 OR 최소 94·중앙 104·최대 116.
+ */
+export const STARTER_ABILITY_LEVEL: Readonly<Record<number, number>> = {
+  2: 70,
+  3: 70,
+};
+
+/**
+ * 지급 말의 성장형, 나이별(M4-ST1, 2026-10-15 Opus). 성장형이 무작위면 3세 시작 OR 이 62~140 으로 갈린다.
+ * 2세는 보통형(4세 정점, 3세에 크게 성장), 3세는 조숙형(3세 정점 — 시작부터 리스티드~G3 수준, 이후 완만히 하락).
+ */
+export const STARTER_GROWTH_TYPE: Readonly<Record<number, 'precocious' | 'normal' | 'late'>> = {
+  2: 'normal',
+  3: 'precocious',
+};
+
+/**
+ * 지급 말의 잠재 능력 표준편차(M4-ST1). POPULATION_ABILITY_SPREAD(9)의 절반(4.5)이면 2세 잠재 레이팅 최솟값이 89로
+ * 기준(92) 미달이라 3으로 줄였다.
+ */
+export const STARTER_ABILITY_SPREAD = 3;

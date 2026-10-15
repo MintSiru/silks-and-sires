@@ -17,9 +17,19 @@ import {
   type PopulationCountry,
 } from '../config/population';
 import { FOREIGN_OWNER_SHARE } from '../config/people';
-import { STARTER_COUNTRY, STARTER_FITNESS, STARTER_HORSES, STARTER_SIRE_TIER } from '../config/starter';
+import {
+  STARTER_ABILITY_LEVEL,
+  STARTER_ABILITY_SPREAD,
+  STARTER_COUNTRY,
+  STARTER_FITNESS,
+  STARTER_GROWTH_TYPE,
+  STARTER_HORSES,
+  STARTER_SIRE_TIER,
+} from '../config/starter';
 import { PROFILE_DISTANCE, TIER_FEE } from '../config/world';
+import { GROWTH_DECLINE_RATE, GROWTH_PEAK_AGE } from '../config/horse';
 import { generateHorse } from '../horse/generate';
+import { abilityAtAge } from '../horse/growthCurve';
 import { makeNameRegistry, namingContextFor, type MutableNameRegistry } from '../naming/context';
 import { nameForHorse } from '../naming/generate';
 import type { NamingData } from '../naming/types';
@@ -267,6 +277,10 @@ export interface RacingHorseSpec {
   sireTier?: 1 | 2 | 3 | 4 | 5;
   /** 지정 종마를 부로 쓴다. 부 선택 난수는 소비하지 않는다. */
   sireHorseId?: HorseId;
+  /** 주면 잠재 능력 평균을 POPULATION_TIER_LEVEL[부 등급] 대신 이 값으로 쓴다(난수 사용 횟수는 같다) */
+  levelOverride?: number;
+  /** 주면 잠재 능력 표준편차를 POPULATION_ABILITY_SPREAD 대신 이 값으로 쓴다 */
+  spreadOverride?: number;
 }
 
 /**
@@ -343,8 +357,8 @@ export function spawnRacingHorse(
     currentYear: spec.currentYear,
     countryOfBirth: spec.country,
     status: 'in_training',
-    level: POPULATION_TIER_LEVEL[tier],
-    spread: POPULATION_ABILITY_SPREAD,
+    level: spec.levelOverride ?? POPULATION_TIER_LEVEL[tier],
+    spread: spec.spreadOverride ?? POPULATION_ABILITY_SPREAD,
     sireId,
     damId: null,
     familyId: null,
@@ -444,11 +458,18 @@ export function grantStarterHorses(
           gelded,
           ownerId: state.playerOwnerId,
           sireTier: STARTER_SIRE_TIER,
+          levelOverride: STARTER_ABILITY_LEVEL[group.age],
+          spreadOverride: STARTER_ABILITY_SPREAD,
         },
         records,
       );
       // 생산자(M4-C0): 오너브리더 규칙 없이 같은 나라 상업 생산자(없으면 null)
       horse.breederId = pickBreederFor(state, horse, null);
+      // 지급마는 나이별로 성장형을 고정한다(M4-ST1, 2026-10-15 Opus): 무작위면 3세 시작 OR 이 62~140 으로 갈려
+      // '중상급 경주를 이길 정도'를 보장할 수 없다. 생성 뒤 덮어쓰므로 난수 사용은 그대로다.
+      const growthType = STARTER_GROWTH_TYPE[group.age] ?? 'normal';
+      horse.growth = { type: growthType, peakAge: GROWTH_PEAK_AGE[growthType], declineRate: GROWTH_DECLINE_RATE[growthType] };
+      horse.ability = abilityAtAge(horse.potential, group.age, horse.growth);
       horse.condition.fitness = STARTER_FITNESS;
       if (group.age >= POPULATION_RATING_MIN_AGE) {
         horse.officialRating = initialOfficialRating(horse);
