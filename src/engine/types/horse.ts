@@ -246,6 +246,11 @@ export interface Stallion {
    * 첫 재산정 때 그 시점 종부료로 정한다. 재산정 전에는 키 없음
    */
   marketBaseFee?: Money;
+  /**
+   * 장기 해외 임대 중이면 다시 북반구에서 교배하는 첫 시즌(M4-D4). 그 전 시즌에는 예약·AI 수요·종부료 재산정이 없다.
+   * 없거나 null 이면 임대 중 아님
+   */
+  leasedAwayUntil?: number | null;
 }
 
 /** 번식 암말 프로필. Horse 레코드(horseId)에 붙는 확장 레코드. */
@@ -266,5 +271,10 @@ export interface Mare {
    * 그 시즌 번식 주에 임신 중이 아니고 coveredBy 가 비면 coveredBy·coveredWeek 로 바뀐다.
    * 시즌이 끝날 때까지 바뀌지 못하면 환불하고 지운다. 없으면 키 생략(옛 저장본 호환).
    */
-  bookedFor?: { stallionId: HorseId; season: number } | null;
+  bookedFor?: { stallionId: HorseId; season: number; feePaid?: Money } | null;
+  /**
+   * 현재 coveredBy 교배에 실제로 낸 종부료(M4-D4: 교배권·자기 종마는 0). 환불은 이 값으로 한다.
+   * 없으면(옛 저장본·AI) 종마의 현재 종부료로 본다. bookedFor.feePaid 도 같은 규칙
+   */
+  coveredFee?: Money | null;
 }

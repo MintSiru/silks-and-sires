@@ -7,6 +7,7 @@ import { feeKo, relationTierKo } from '../game/text';
 const CHOICE_LABELS: Record<YearEndChoice, string> = {
   continue: '현역 속행', geld: '거세 후 현역 속행', stud: '종마',
   broodmare: '번식 암말', retire: '은퇴 (목장을 떠남)',
+  sell_domestic: '종마로 국내 판매', sell_overseas: '종마로 해외 판매',
 };
 
 export function yearEndView(state: GameState) {

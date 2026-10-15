@@ -5,19 +5,25 @@
  * 기본 종마사 1칸(E1 시설로 늘린다), G1 종마 연 종부 수입 ≈ 현역 상금 총액의 2~4배.
  * 설계: docs/m4-stud-design.md
  */
-import type { HorseId, Money } from './common';
+
+import type { BreederId, HorseId, Money } from './common';
 
 /**
  * 현역마 한 두의 연말 진로.
  * continue: 현역 속행 / geld: 거세 후 현역 속행(장애물 전향은 M4-F1) /
  * stud: 내 목장 종마사에 계류(거세 안 한 수말, 빈 칸 필요) / broodmare: 내 번식 암말(암말) /
- * retire: 은퇴 — 목장을 떠난다(소유 해제, 유지비 없음)
+ * retire: 은퇴 — 목장을 떠난다(소유 해제, 유지비 없음) /
+ * sell_domestic: 국내 스터드에 종마로 판매(M4-D4, 같은 나라 상업 생산자 소유 종마가 된다) /
+ * sell_overseas: 해외 스터드에 종마로 판매(M4-D4, 세계에서 빠진다)
  */
-export type YearEndChoice = 'continue' | 'geld' | 'stud' | 'broodmare' | 'retire';
+export type YearEndChoice = 'continue' | 'geld' | 'stud' | 'broodmare' | 'retire'
+  | 'sell_domestic' | 'sell_overseas';
 
 export interface YearEndHorseDecision {
   horseId: HorseId;
   choice: YearEndChoice;
+  /** sell_domestic 일 때만: 매 시즌 남겨 둘 무료 교배권 수(0~2, 없으면 0) */
+  nominations?: number;
 }
 
 /** 이번 연초에 갱신 판정할 전속 계약에 대한 플레이어 선택. renew=false 면 갱신하지 않고 끝낸다 */
@@ -48,6 +54,59 @@ export interface StudState {
   slots: number;
   /** 시즌별 플레이어 종마 장부(최근 기록). D3 에서 채운다 */
   seasons: StudSeasonRecord[];
+  /** 판매한 종마에 남겨 둔 교배권(M4-D4) */
+  nominations: NominationRight[];
+  /** 진행 중인 임대(M4-D4). 끝나면 지운다 */
+  leases: StudLease[];
+  /** 종마 판매 기록(M4-D4, 최근 기록) */
+  sales: StallionSaleRecord[];
+}
+
+/** 종마 판매 방식(M4-D4). domestic: 국내 스터드(세계에 남음) / overseas: 해외 스터드(세계에서 빠짐) */
+export type StallionSaleMode = 'domestic' | 'overseas';
+
+/**
+ * 국내 판매 때 남겨 둔 무료 교배권(M4-D4). 종마가 살아 있고 계류 중인 동안 매 시즌 perSeason 개.
+ * 내 암말을 그 종마에 예약할 때 남은 교배권이 있으면 종부료 없이 자동으로 쓴다.
+ */
+export interface NominationRight {
+  stallionId: HorseId;
+  /** 시즌당 교배권 수(1~2) */
+  perSeason: number;
+  /** used 를 센 시즌(예약 시즌). 다른 시즌이면 used 는 0 으로 본다 */
+  season: number;
+  /** 그 시즌에 쓴 수 */
+  used: number;
+}
+
+/**
+ * 종마 임대(M4-D4).
+ * shuttle: 북반구 시즌 뒤 남반구로 보냈다가 다음 시즌 전에 돌아온다. 북반구 북에는 영향 없음, 돌아올 때 임대료 1회.
+ * long: 여러 해 해외 임대. startSeason ~ returnSeason − 1 시즌은 북반구 북이 없고, 그 시즌마다 연 임대료.
+ */
+export interface StudLease {
+  stallionId: HorseId;
+  kind: 'shuttle' | 'long';
+  /** 임대를 맺은 해 */
+  year: number;
+  /** 다시 북반구에서 교배하는 첫 시즌(shuttle 은 year + 1) */
+  returnSeason: number;
+  /** 한 번(shuttle) 또는 한 해(long)에 받는 임대료. 맺을 때의 종부료로 정한다 */
+  rent: Money;
+  /** 임대료를 이미 받은 시즌 수(long 진행 추적, shuttle 은 0 → 1) */
+  paidSeasons: number;
+}
+
+/** 종마 판매 기록(M4-D4) */
+export interface StallionSaleRecord {
+  stallionId: HorseId;
+  year: number;
+  mode: StallionSaleMode;
+  price: Money;
+  /** 국내 판매의 사는 쪽 가상 상업 생산자(해외 판매는 null) */
+  buyerId: BreederId | null;
+  /** 남긴 시즌당 교배권 수 */
+  nominations: number;
 }
 
 /** 플레이어 종마 한 두의 한 시즌 기록(D3) */

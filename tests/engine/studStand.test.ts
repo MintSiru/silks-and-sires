@@ -19,7 +19,7 @@ function fixture() {
     seed: 42, playerName: 'Test Owner',
     silks: { primary: '#123456', secondary: '#ffffff', pattern: 'hoops' },
   }), data, createRng(42));
-  state.stud = { slots: STUD_BASE_SLOTS, seasons: [] };
+  state.stud = { slots: STUD_BASE_SLOTS, seasons: [], nominations: [], leases: [], sales: [] };
   const mare = Object.values(state.horses).find(
     (h) => h.ownerId === state.playerOwnerId && h.status === 'broodmare',
   )!;

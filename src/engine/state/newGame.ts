@@ -76,6 +76,6 @@ export function createNewGame(opts: NewGameOptions): GameState {
     betting: createEmptyBettingState(),
     // 시작 연도는 연말 정산을 이미 마친 것으로 둔다(첫해에는 화면이 뜨지 않음, M4-D1)
     yearEnd: { lastSubmittedYear: START_YEAR, declinedRenewals: [] },
-    stud: { slots: STUD_BASE_SLOTS, seasons: [] },
+    stud: { slots: STUD_BASE_SLOTS, seasons: [], nominations: [], leases: [], sales: [] },
   };
 }

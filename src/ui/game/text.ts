@@ -291,6 +291,8 @@ const LEDGER_CATEGORY_KO: Record<LedgerCategory, string> = {
   sale_proceeds: '세일 판매',
   sale_commission: '세일 수수료',
   private_sale: '개인 거래',
+  stallion_sale: '종마 판매',
+  stud_lease: '종마 임대료',
   facility: '목장 시설',
   interest: '빚 이자',
   other: '기타',
@@ -417,6 +419,12 @@ export function eventKo(e: GameEvent, nameOf: (id: HorseId) => string): string {
       return `${formatDateKo(e.date)} · ${e.season} 시즌 종부료: ${nameOf(e.stallionId)} ${feeKo(e.prevFee)} → ${feeKo(e.fee)}`;
     case 'stud_season_settled':
       return `${formatDateKo(e.date)} · ${e.year}년 종부 정산: ${nameOf(e.stallionId)} — 외부 교배 ${e.outsideCovers}두, 수태 ${e.conceptions}두, 종부료 수입 ${feeKo(e.income)}`;
+    case 'stallion_sold':
+      return `${formatDateKo(e.date)} · 종마 ${e.mode === 'domestic' ? '국내' : '해외'} 판매: ${nameOf(e.horseId)} ${feeKo(e.price)}${e.nominations > 0 ? ` (교배권 시즌당 ${e.nominations}개 보유)` : ''}`;
+    case 'stallion_leased':
+      return `${formatDateKo(e.date)} · 종마 ${e.kind === 'shuttle' ? '셔틀' : '장기'} 임대: ${nameOf(e.horseId)} (${e.returnSeason} 시즌 복귀, 임대료 ${feeKo(e.rent)}${e.kind === 'long' ? '/년' : ''})`;
+    case 'stud_lease_paid':
+      return `${formatDateKo(e.date)} · 종마 임대료 수령: ${nameOf(e.horseId)} ${feeKo(e.rent)}${e.returned ? ' — 복귀' : ''}`;
     case 'sale_catalogue_published':
       return `${formatDateKo(e.date)} · 세일 카탈로그 발표 (${e.lots}개 로트)`;
     case 'sale_lot_result':

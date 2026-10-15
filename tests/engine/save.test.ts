@@ -67,7 +67,7 @@ function makeState(): GameState {
     },
     betting: { open: [], history: [], nextBetNo: 1 },
     yearEnd: { lastSubmittedYear: 2026, declinedRenewals: [] },
-    stud: { slots: 1, seasons: [] },
+    stud: { slots: 1, seasons: [], nominations: [], leases: [], sales: [] },
     trainers: {},
     jockeys: {},
     breeding: { revealedNicks: [] },

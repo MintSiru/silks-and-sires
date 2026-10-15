@@ -38,6 +38,10 @@ export type LedgerCategory =
   | 'sale_commission'
   /** 개인 거래(내부거래·종마 판매 등) */
   | 'private_sale'
+  /** 종마 판매 대금(M4-D4, 국내·해외 스터드) */
+  | 'stallion_sale'
+  /** 종마 임대료(M4-D4, 셔틀·장기 임대) */
+  | 'stud_lease'
   /** 목장 시설 공사·유지(M4-E) */
   | 'facility'
   /** 빚 이자(캐주얼 모드) */

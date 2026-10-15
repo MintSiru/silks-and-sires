@@ -154,6 +154,12 @@ export const MIGRATIONS: Readonly<Record<number, Migration>> = {
     }
     return { ...state, stallions: next };
   },
+  /** v16 → v17 (M4-D4): 교배권·임대·종마 판매 기록. 옛 저장본은 빈 목록 */
+  16: (state) => {
+    const stud = state.stud as Record<string, unknown> | undefined;
+    if (stud === undefined || stud === null) return state;
+    return { ...state, stud: { ...stud, nominations: stud.nominations ?? [], leases: stud.leases ?? [], sales: stud.sales ?? [] } };
+  },
 };
 
 /** 구조 상수(형식 규칙). 밸런스 수치가 아니므로 여기 둔다. */

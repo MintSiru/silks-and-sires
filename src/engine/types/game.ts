@@ -8,7 +8,7 @@ import type { CalendarPhaseId, GameDate, Season } from './time';
 import type { EconomyState, RelationsState } from './economy';
 import type { SaleEventId, SaleLotResult, SalesState } from './sales';
 import type { BettingState } from './betting';
-import type { StudState, YearEndState } from './stud';
+import type { StallionSaleMode, StudState, YearEndState } from './stud';
 
 /** 주 진행 중 발생한 사건. M3 이후 종류가 늘어난다(판별 유니온에 추가). */
 export type GameEvent =
@@ -21,6 +21,12 @@ export type GameEvent =
   | { type: 'horse_died'; horseId: HorseId; cause: 'age' | 'accident' | 'illness'; date: GameDate }
   /** 종부료 연간 재산정(M4-D8). 플레이어 종마만 이벤트로 남긴다 */
   | { type: 'stud_fee_set'; stallionId: HorseId; season: number; fee: Money; prevFee: Money; date: GameDate }
+  /** M4-D4: 플레이어 종마(또는 종마로 은퇴하는 수말) 판매 */
+  | { type: 'stallion_sold'; horseId: HorseId; mode: StallionSaleMode; price: Money; nominations: number; date: GameDate }
+  /** M4-D4: 임대 시작 */
+  | { type: 'stallion_leased'; horseId: HorseId; kind: 'shuttle' | 'long'; returnSeason: number; rent: Money; date: GameDate }
+  /** M4-D4: 임대료 수령(shuttle 은 복귀 때, long 은 시즌마다). returned = 임대가 이번으로 끝남 */
+  | { type: 'stud_lease_paid'; horseId: HorseId; kind: 'shuttle' | 'long'; rent: Money; returned: boolean; date: GameDate }
   | { type: 'covering_booked'; mareId: HorseId; stallionId: HorseId; fee: Money; date: GameDate }
   | { type: 'conception'; mareId: HorseId; stallionId: HorseId; success: boolean; date: GameDate }
   | { type: 'foal_born'; foalId: HorseId; mareId: HorseId; stallionId: HorseId; date: GameDate }
