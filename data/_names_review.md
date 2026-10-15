@@ -635,3 +635,18 @@ Al Qarwan, Al Dhurayn, Al Sindar, Al Mirzaq, Al Hazwar, Al Basrin, Al Tawmir, Al
 | 세일 | Quenmoor September Yearling Sale · Quenmoor Spring Breeze-Up Sale · Quenmoor November Breeding Stock Sale | 회사명 + 종류·월 조합 |
 
 금지어 검사: 실제 세일 회사명·real_places.json blockedTokens 단어 단위 일치 0건 (tests/data/sales.test.ts 에서 검사).
+
+## M4-BET1 베팅 회사·스폰서 레이스 가상 이름 (data/betting/bookmakers.json · data/calendar/sponsorships.json, 2026-10-15)
+
+상세 대응표(모티브 열 포함)는 data/betting/_review.md 에만 있다. 아래는 json 에 들어간 가상 이름 목록.
+
+| 구분 | 이름 | 근거 |
+| --- | --- | --- |
+| 베팅 회사 | Holmgrave Turf Accounts (짧은 이름 Holmgrave) | 가상 조어. 실존 여부 미확인, Opus 확인 요청 |
+| 베팅 회사 | Ardmorrow Racing Accounts (짧은 이름 Ardmorrow) | 가상 조어. 실존 여부 미확인, Opus 확인 요청 |
+| 베팅 회사 | Comptoir Hippique de Lauvrac (짧은 이름 없음) | 프랑스어 조어(Comptoir Hippique + 가상 지명 Lauvrac). 실존 여부 미확인, Opus 확인 요청 |
+| 베팅 회사 | Vantor Odds Europe (짧은 이름 Vantor) | 가상 조어. 실존 여부 미확인, Opus 확인 요청 |
+| 스폰서 레이스 새 형식 | Ashcombe Bloodstock Sales Gold Cup · Ardcarrig Thoroughbred Sales Gold Cup · Ashcombe Bloodstock Sales Sprint · Lorvaux Enchères Sprint · Wolfsrode Auktionen Cup | 세일 회사 이름 + Gold Cup·Sprint·Cup. 실제 레이스명 아님 |
+| 스폰서 레이스 (기존 템플릿 + 스폰서) | 나머지 22건 최종 이름은 data/betting/_review.md 2장 표 참고 | 스폰서 이름 + 기존 템플릿 이름(기존 calendar 템플릿 이름 재사용) |
+
+금지어 검사: 베팅 회사명·최종 레이스명에 실존 베팅 회사·스폰서·실제 레이스명 단어 일치 0건, real_places.json blockedTokens 일치 0건 (tests/data/betting.test.ts 에서 검사).

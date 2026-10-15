@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "bookmakers": [
+    {
+      "id": "bm_holmgrave_turf",
+      "name": "Holmgrave Turf Accounts",
+      "shortName": "Holmgrave"
+    },
+    {
+      "id": "bm_ardmorrow_racing",
+      "name": "Ardmorrow Racing Accounts",
+      "shortName": "Ardmorrow"
+    },
+    {
+      "id": "bm_lauvrac_comptoir",
+      "name": "Comptoir Hippique de Lauvrac",
+      "shortName": "Lauvrac"
+    },
+    {
+      "id": "bm_vantor_odds",
+      "name": "Vantor Odds Europe",
+      "shortName": "Vantor"
+    }
+  ]
+}

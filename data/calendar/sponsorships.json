@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "sponsorships": [
+    { "templateId": "selsworth_cup", "sponsor": { "kind": "bookmaker", "id": "bm_holmgrave_turf" }, "nameFormat": "{sponsor} {race}", "prizeMultiplier": 1.1 },
+    { "templateId": "dunholme_spring_stakes", "sponsor": { "kind": "bookmaker", "id": "bm_holmgrave_turf" }, "nameFormat": "{sponsor} {race}", "prizeMultiplier": 1.25 },
+    { "templateId": "kingsmere_summer_handicap", "sponsor": { "kind": "bookmaker", "id": "bm_holmgrave_turf" }, "nameFormat": "{sponsor} {race}", "prizeMultiplier": 1.4 },
+    { "templateId": "wexborough_cup", "sponsor": { "kind": "bookmaker", "id": "bm_holmgrave_turf" }, "nameFormat": "{sponsor} {race}", "prizeMultiplier": 1.3 },
+
+    { "templateId": "kilcarrow_autumn_cup", "sponsor": { "kind": "bookmaker", "id": "bm_ardmorrow_racing" }, "nameFormat": "{sponsor} {race}", "prizeMultiplier": 1.2 },
+    { "templateId": "ballinvar_spring_stakes", "sponsor": { "kind": "bookmaker", "id": "bm_ardmorrow_racing" }, "nameFormat": "{sponsor} {race}", "prizeMultiplier": 1.25 },
+    { "templateId": "tullamere_autumn_stakes", "sponsor": { "kind": "bookmaker", "id": "bm_ardmorrow_racing" }, "nameFormat": "{sponsor} {race}", "prizeMultiplier": 1.2 },
+    { "templateId": "ballinvar_autumn_handicap", "sponsor": { "kind": "bookmaker", "id": "bm_ardmorrow_racing" }, "nameFormat": "{sponsor} {race}", "prizeMultiplier": 1.4 },
+
+    { "templateId": "prix_de_hauteroche", "sponsor": { "kind": "bookmaker", "id": "bm_lauvrac_comptoir" }, "nameFormat": "{sponsor} {race}", "prizeMultiplier": 1.25 },
+    { "templateId": "prix_de_lisierevent", "sponsor": { "kind": "bookmaker", "id": "bm_lauvrac_comptoir" }, "nameFormat": "{sponsor} {race}", "prizeMultiplier": 1.25 },
+    { "templateId": "prix_de_vergerval", "sponsor": { "kind": "bookmaker", "id": "bm_lauvrac_comptoir" }, "nameFormat": "{sponsor} {race}", "prizeMultiplier": 1.4 },
+    { "templateId": "prix_de_ruisselac", "sponsor": { "kind": "bookmaker", "id": "bm_lauvrac_comptoir" }, "nameFormat": "{sponsor} {race}", "prizeMultiplier": 1.3 },
+
+    { "templateId": "premio_fonte_alba", "sponsor": { "kind": "bookmaker", "id": "bm_vantor_odds" }, "nameFormat": "{sponsor} {race}", "prizeMultiplier": 1.25 },
+    { "templateId": "preis_von_morgenbruch", "sponsor": { "kind": "bookmaker", "id": "bm_vantor_odds" }, "nameFormat": "{sponsor} {race}", "prizeMultiplier": 1.25 },
+    { "templateId": "prix_de_clos_fleurel", "sponsor": { "kind": "bookmaker", "id": "bm_vantor_odds" }, "nameFormat": "{sponsor} {race}", "prizeMultiplier": 1.3 },
+    { "templateId": "prix_de_morvenne", "sponsor": { "kind": "bookmaker", "id": "bm_vantor_odds" }, "nameFormat": "{sponsor} {race}", "prizeMultiplier": 1.1 },
+
+    { "templateId": "easterholm_cup", "sponsor": { "kind": "sale_company", "id": "sco_ashcombe" }, "nameFormat": "{sponsor} Gold Cup", "prizeMultiplier": 1.3 },
+    { "templateId": "marlow_sprint_trophy", "sponsor": { "kind": "sale_company", "id": "sco_ashcombe" }, "nameFormat": "{sponsor} Sprint", "prizeMultiplier": 1.2 },
+    { "templateId": "dunholme_ladies_cup", "sponsor": { "kind": "sale_company", "id": "sco_ashcombe" }, "nameFormat": "{sponsor} {race}", "prizeMultiplier": 1.25 },
+
+    { "templateId": "kilcarrow_cup", "sponsor": { "kind": "sale_company", "id": "sco_ardcarrig" }, "nameFormat": "{sponsor} Gold Cup", "prizeMultiplier": 1.3 },
+    { "templateId": "ballinvar_sprint_trophy", "sponsor": { "kind": "sale_company", "id": "sco_ardcarrig" }, "nameFormat": "{sponsor} {race}", "prizeMultiplier": 1.2 },
+    { "templateId": "kilcarrow_fillies_plate", "sponsor": { "kind": "sale_company", "id": "sco_ardcarrig" }, "nameFormat": "{sponsor} {race}", "prizeMultiplier": 1.2 },
+
+    { "templateId": "prix_de_clairebrume", "sponsor": { "kind": "sale_company", "id": "sco_lorvaux" }, "nameFormat": "{sponsor} Sprint", "prizeMultiplier": 1.2 },
+    { "templateId": "prix_de_brunelande", "sponsor": { "kind": "sale_company", "id": "sco_lorvaux" }, "nameFormat": "{sponsor} {race}", "prizeMultiplier": 1.25 },
+    { "templateId": "prix_de_fontclaire", "sponsor": { "kind": "sale_company", "id": "sco_lorvaux" }, "nameFormat": "{sponsor} {race}", "prizeMultiplier": 1.25 },
+
+    { "templateId": "silberstrand_rennen", "sponsor": { "kind": "sale_company", "id": "sco_wolfsrode" }, "nameFormat": "{sponsor} Cup", "prizeMultiplier": 1.25 },
+    { "templateId": "preis_von_waldgrund", "sponsor": { "kind": "sale_company", "id": "sco_wolfsrode" }, "nameFormat": "{sponsor} {race}", "prizeMultiplier": 1.3 }
+  ]
+}
