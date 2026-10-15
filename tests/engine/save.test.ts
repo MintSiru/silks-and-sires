@@ -56,7 +56,15 @@ function makeState(): GameState {
     mares: {},
     owners: { [PLAYER_ID]: playerOwner },
     breeders: {},
-    sales: { catalogues: [], consignments: [], playerBids: [], history: [], playerSpendByYear: {} },
+    sales: {
+      catalogues: [],
+      consignments: [],
+      playerBids: [],
+      history: [],
+      playerSpendByYear: {},
+      privateOffers: [],
+      nextPrivateOfferNo: 1,
+    },
     trainers: {},
     jockeys: {},
     breeding: { revealedNicks: [] },
@@ -494,7 +502,37 @@ describe('저장 마이그레이션 v10 → v11 (M4-C2a)', () => {
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.state.schemaVersion).toBe(SAVE_SCHEMA_VERSION);
-      expect(result.state.sales).toEqual({ catalogues: [], consignments: [], playerBids: [], history: [], playerSpendByYear: {} });
+      expect(result.state.sales).toEqual({
+        catalogues: [],
+        consignments: [],
+        playerBids: [],
+        history: [],
+        playerSpendByYear: {},
+        privateOffers: [],
+        nextPrivateOfferNo: 1,
+      });
+    }
+  });
+});
+
+describe('저장 마이그레이션 v11 → v12 (M4-C7)', () => {
+  it('내부거래 제안 목록과 일련번호가 생긴다', () => {
+    const base = makeState();
+    const { privateOffers: _p, nextPrivateOfferNo: _n, ...oldSales } = base.sales;
+    void _p;
+    void _n;
+    const json = JSON.stringify({
+      format: 'silks-and-sires-save',
+      schemaVersion: 11,
+      savedAt: '2026-10-15T00:00:00.000Z',
+      state: { ...base, sales: oldSales, schemaVersion: 11 },
+    });
+    const result = deserializeGame(json);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.state.schemaVersion).toBe(SAVE_SCHEMA_VERSION);
+      expect(result.state.sales.privateOffers).toEqual([]);
+      expect(result.state.sales.nextPrivateOfferNo).toBe(1);
     }
   });
 });

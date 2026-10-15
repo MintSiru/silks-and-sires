@@ -109,6 +109,14 @@ export const MIGRATIONS: Readonly<Record<number, Migration>> = {
     ...state,
     sales: state.sales ?? { catalogues: [], consignments: [], playerBids: [], history: [], playerSpendByYear: {} },
   }),
+  /** v11 → v12 (M4-C7): 내부거래 제안 목록 */
+  11: (state) => {
+    const sales = (state.sales ?? {}) as Record<string, unknown>;
+    return {
+      ...state,
+      sales: { ...sales, privateOffers: sales.privateOffers ?? [], nextPrivateOfferNo: sales.nextPrivateOfferNo ?? 1 },
+    };
+  },
 };
 
 /** 구조 상수(형식 규칙). 밸런스 수치가 아니므로 여기 둔다. */

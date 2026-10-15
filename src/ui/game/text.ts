@@ -343,6 +343,13 @@ const RETAINER_CHANGE_KO: Record<'signed' | 'renewed' | 'declined' | 'lapsed' | 
   terminated: '해지',
 };
 
+const PRIVATE_OFFER_CHANGE_KO: Record<'offered' | 'accepted' | 'declined' | 'expired', string> = {
+  offered: '제안 도착',
+  accepted: '구매',
+  declined: '거절',
+  expired: '제안 만료',
+};
+
 /** 세일 로트 결과 한 줄(플레이어 관점) */
 function saleLotResultKo(role: 'buyer' | 'vendor' | 'underbidder', r: SaleLotResult): string {
   if (r.kind === 'withdrawn') return '출품 철회';
@@ -391,6 +398,8 @@ export function eventKo(e: GameEvent, nameOf: (id: HorseId) => string): string {
       return `${formatDateKo(e.date)} · 파산했습니다`;
     case 'horse_sold':
       return `${formatDateKo(e.date)} · 매각: ${nameOf(e.horseId)} (${feeKo(e.price)})`;
+    case 'private_offer':
+      return `${formatDateKo(e.date)} · 내부거래 ${PRIVATE_OFFER_CHANGE_KO[e.change]}: ${nameOf(e.horseId)} (${feeKo(e.price)})`;
     case 'sale_catalogue_published':
       return `${formatDateKo(e.date)} · 세일 카탈로그 발표 (${e.lots}개 로트)`;
     case 'sale_lot_result':

@@ -21,5 +21,13 @@ export function createEmptyRelationsState(): RelationsState {
 
 /** 빈 세일 상태(새 게임·저장 이주용, M4-C2a) */
 export function createEmptySalesState(): SalesState {
-  return { catalogues: [], consignments: [], playerBids: [], history: [], playerSpendByYear: {} };
+  return {
+    catalogues: [],
+    consignments: [],
+    playerBids: [],
+    history: [],
+    playerSpendByYear: {},
+    privateOffers: [],
+    nextPrivateOfferNo: 1,
+  };
 }

@@ -148,6 +148,24 @@ export interface SaleSummary {
   top: { price: Money; horseName: string; sireId: HorseId | null } | null;
 }
 
+/**
+ * 내부거래 제안(M4-C7): 관계 좋은 오너브리더가 자기 생산 유망주(미출주 2세)를 플레이어에게 개인적으로 판다.
+ * 가격은 제안 때 고정. 만료 주가 지나면 사라진다.
+ */
+export interface PrivateOffer {
+  /** `po_${연도}_${일련}` */
+  id: string;
+  ownerId: OwnerId;
+  horseId: HorseId;
+  /** 제시 가격(€, 정수, 수수료 없음) */
+  price: Money;
+  createdYear: number;
+  createdWeek: Week;
+  /** 이 주까지 수락 가능(그 해 기준, 포함) */
+  expiresYear: number;
+  expiresWeek: Week;
+}
+
 /** GameState.sales */
 export interface SalesState {
   /** 발표된 카탈로그(진행 중·최근 마감). 마감 후 SALE_CATALOGUE_KEEP_WEEKS 주가 지나면 지운다 */
@@ -157,4 +175,8 @@ export interface SalesState {
   history: SaleSummary[];
   /** 연도별 플레이어 세일 구매 총액(낙찰가 합, C8 혜택 판정) */
   playerSpendByYear: Record<number, Money>;
+  /** 진행 중인 내부거래 제안(M4-C7) */
+  privateOffers: PrivateOffer[];
+  /** 내부거래 제안 일련번호(다음에 쓸 값, 1부터) */
+  nextPrivateOfferNo: number;
 }

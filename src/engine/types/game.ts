@@ -52,6 +52,16 @@ export type GameEvent =
       fee: Money;
       date: GameDate;
     }
+  /** 내부거래 제안 도착(M4-C7) / 수락·만료는 change 로 구분 */
+  | {
+      type: 'private_offer';
+      offerId: string;
+      ownerId: OwnerId;
+      horseId: HorseId;
+      price: Money;
+      change: 'offered' | 'accepted' | 'declined' | 'expired';
+      date: GameDate;
+    }
   /** 세일 카탈로그 발표(M4-C2b). lots = 로트 수 */
   | { type: 'sale_catalogue_published'; saleId: SaleEventId; year: number; lots: number; date: GameDate }
   /**
