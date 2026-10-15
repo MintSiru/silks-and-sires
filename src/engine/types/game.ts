@@ -67,6 +67,19 @@ export type GameEvent =
     }
   /** 베팅 정산(M4-BET). outlay = 건 총액, returned = 돌려받은 총액(원금 포함) */
   | { type: 'bet_settled'; betId: string; horseId: HorseId; outlay: Money; returned: Money; date: GameDate }
+  /**
+   * 플레이어 종마 한 시즌 정산(M4-D3). outsideCovers = AI(가상) 교배 수, conceptions = 그중 수태 수,
+   * income = 받은 종부료 합. 내용은 StudState.seasons 의 같은 기록
+   */
+  | {
+      type: 'stud_season_settled';
+      stallionId: HorseId;
+      year: number;
+      outsideCovers: number;
+      conceptions: number;
+      income: Money;
+      date: GameDate;
+    }
   /** 세일 카탈로그 발표(M4-C2b). lots = 로트 수 */
   | { type: 'sale_catalogue_published'; saleId: SaleEventId; year: number; lots: number; date: GameDate }
   /**
