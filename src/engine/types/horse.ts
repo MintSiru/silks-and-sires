@@ -241,6 +241,11 @@ export interface Stallion {
   firstSeasonYear: number;
   /** 직전 시즌 종부료(M4-D8 연간 재산정 전 값). 화면의 오름·내림 표시용. 재산정 전에는 키 없음 */
   prevFee?: Money;
+  /**
+   * 시장 기준 가치(M4-D8). 종부료가 돌아가는 기준점으로, 자마 성적(다른 종마 대비)으로만 서서히 움직인다.
+   * 첫 재산정 때 그 시점 종부료로 정한다. 재산정 전에는 키 없음
+   */
+  marketBaseFee?: Money;
 }
 
 /** 번식 암말 프로필. Horse 레코드(horseId)에 붙는 확장 레코드. */

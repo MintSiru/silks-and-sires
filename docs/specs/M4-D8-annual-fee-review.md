@@ -45,3 +45,18 @@ src/engine/types 수정 금지. 화면 수정 금지. src/engine/state/systems.t
 
 ## 테스트 명령
 npx vitest run tests/engine/feeReview.test.ts && npm test && npm run typecheck && npm run lint
+
+---
+
+## 반려 1회차 (2026-10-15, Opus) — 고칠 항목
+
+구현은 명세대로였으나 명세 설계에 되먹임 고리(종부료↑ → 인기↑ → 수요↑ → 종부료↑)와 기준점 부재가 있어 10년 뒤 1티어 ×44.8, 4티어 ×0.08 로 발산했다. 아래로 바꾼다(타입 `Stallion.marketBaseFee?: Money` 추가됨).
+
+1. **기준 가치**: reviewFee 에서 base = stallion.marketBaseFee ?? stallion.fee. baseNew = base × progenyMultiplier ^ `FEE_BASE_DRIFT_EXPONENT`(0.35). 자마 성적만 기준을 움직인다(다른 종마 평균 대비라 시장 전체가 부풀지 않음).
+2. **목표값과 조정**: target = baseNew × demandMultiplier × 나이 배수 × 수태율 배수. newFee = fee × (target / fee) ^ `FEE_ADJUST_SPEED`(0.5) 를 [fee×0.5, fee×1.5] 로 자르고 roundStudFee, STUD_FEE_MIN 이상.
+3. **인기는 종부료의 함수**: popularity = clamp(round(30 + 60 × ln(fee / 6,000) / ln(150,000 / 6,000)), POPULARITY_MIN, POPULARITY_MAX) — 기존 티어 인기(5티어 €6,000 → 30, 1티어 €150,000 → 90)와 같은 척도. 상수 `POPULARITY_REF_LOW_FEE = 6_000`, `POPULARITY_REF_HIGH_FEE = 150_000`, `POPULARITY_AT_LOW = 30`, `POPULARITY_AT_HIGH = 90`. POPULARITY_FEE_SENSITIVITY 는 지운다.
+4. reviewFee 반환에 marketBaseFee 를 더하고 시스템이 저장한다.
+5. **10년 측정 테스트**는 `it.skipIf(!process.env.VERIFY)` 로 평소 npm test 에서 뺀다(기존 tests/verify 의 VERIFY 관례). 단위 테스트(수용 1)는 그대로 항상 돈다. 측정은 `VERIFY=1 npx vitest run tests/engine/feeReview.test.ts` 로 돌려 표를 보고한다.
+6. 수용 기준 1(d) 문구: 성적만으로는 하한 0.6 이 적용되고, 조정 속도 때문에 한 해 변화는 그보다 작다 — 기대값을 새 식으로 다시 계산해 단언한다.
+
+수용 기준 2(0.5~2.0, 합 0.6~1.8)는 그대로. 그 밖의 금지·파일 목록은 같다(이번엔 stud/mortality.ts·systems.ts 를 다른 사람이 만지므로 계속 금지).
