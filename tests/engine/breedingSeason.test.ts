@@ -91,9 +91,9 @@ describe('수용 기준 1: bookCovering 오류 코드 9종', () => {
     expect(result.ok).toBe(true);
   });
 
-  it('not_breeding_season: 번식 단계 밖(1주)', () => {
+  it('not_breeding_season: 예약 창 밖(30주)', () => {
     const { state, mareId, stallionId } = bookable();
-    const outside = atWeek(state, 2026, 1);
+    const outside = atWeek(state, 2026, 30);
     expectBookingError(bookCovering(outside, outside.playerOwnerId, mareId, stallionId), 'not_breeding_season');
   });
 
@@ -357,7 +357,7 @@ describe('수용 기준 4: 같은 시드 2년 진행 두 번 → 같은 JSON', (
 });
 
 describe('수용 기준 5: 새 시즌 첫 주 리셋', () => {
-  it('번식 단계 첫 주(7주)에 진행하면 bookedThisSeason 이 0 이 된다', () => {
+  it('번식 단계 첫 주(7주)에도 같은 시즌 예약 수를 보존한다', () => {
     const state = atWeek(boot(), 2026, 7);
     const stallionId = stallionIdOf(state);
     const next = structuredClone(state);
@@ -366,7 +366,7 @@ describe('수용 기준 5: 새 시즌 첫 주 리셋', () => {
     stallion.bookedThisSeason = 5;
 
     const result = advanceWith(next);
-    expect(result.state.stallions[stallionId]?.bookedThisSeason).toBe(0);
+    expect(result.state.stallions[stallionId]?.bookedThisSeason).toBe(5);
   });
 
   it('첫 주가 아닌 번식 주(8주)에는 리셋하지 않는다', () => {

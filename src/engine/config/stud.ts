@@ -34,3 +34,6 @@ export const STUD_POPULARITY_MAX = 80;
 
 /** 거세마는 새해 열 살부터 현역을 계속할 수 없다. */
 export const YEAR_END_GELDING_MAX_AGE = 10;
+
+/** 11월 첫 주부터 다음 시즌 예약을 받는다. */
+export const BOOKING_OPEN_WEEK = 44;

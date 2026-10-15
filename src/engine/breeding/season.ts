@@ -7,7 +7,8 @@ import {
   MARE_FERTILITY_FLOOR,
   MARE_MIN_BREEDING_AGE,
 } from '../config/breedingSeason';
-import { WEEKS_PER_YEAR } from '../config/game';
+import { PHASE_WINDOWS, WEEKS_PER_YEAR } from '../config/game';
+import { BOOKING_OPEN_WEEK } from '../config/stud';
 import { recordMoney } from '../economy/ledger';
 import { canSpendDiscretionary } from '../economy/solvency';
 import { makeNameRegistry, namingContextFor, type MutableNameRegistry } from '../naming/context';
@@ -25,6 +26,7 @@ import type {
   OwnerId,
   RealStallionRecord,
   SireLineId,
+  Stallion,
   WeekContext,
   WeeklySystem,
 } from '../types';
@@ -75,6 +77,24 @@ function withPedigreeDam(pedigree: PedigreeLookup, horse: Horse): Horse {
 }
 
 const BREEDING_PHASE = 'breeding' as const;
+
+const BREEDING_START_WEEK = Math.min(...PHASE_WINDOWS.breeding.map((w) => w.startWeek));
+const BREEDING_END_WEEK = Math.max(...PHASE_WINDOWS.breeding.map((w) => w.endWeek));
+
+/** 현재 날짜에 열려 있는 예약 시즌. */
+export function bookingSeasonOf(date: GameDate): number | null {
+  if (date.week >= BOOKING_OPEN_WEEK) return date.year + 1;
+  return date.week <= BREEDING_END_WEEK ? date.year : null;
+}
+
+/** 예약 집계를 새 시즌으로 넘긴다. 같은 시즌이면 보존한다. */
+export function rollBookingSeason(stallion: Stallion, season: number): void {
+  if (stallion.bookingSeason === season) return;
+  stallion.bookingSeason = season;
+  stallion.bookedThisSeason = 0;
+  stallion.aiBooked = 0;
+  stallion.aiDemand = 0;
+}
 
 function dateOf(d: GameDate): GameDate {
   return { year: d.year, week: d.week };
@@ -151,7 +171,8 @@ export function bookCovering(
 ): BookingResult {
   const fail = (error: BookingError): BookingResult => ({ ok: false, error });
 
-  if (!isInPhase(state.date.week, BREEDING_PHASE)) return fail('not_breeding_season');
+  const season = bookingSeasonOf(state.date);
+  if (season === null) return fail('not_breeding_season');
 
   const horse = state.horses[mareId];
   if (horse === undefined || horse.ownerId !== ownerId) return fail('not_your_mare');
@@ -160,12 +181,17 @@ export function bookCovering(
   if (horse.status !== 'broodmare' || mare === undefined) return fail('not_a_broodmare');
 
   if (state.date.year - horse.birthYear < MARE_MIN_BREEDING_AGE) return fail('mare_too_young');
-  if (mare.pregnant) return fail('already_pregnant');
-  if (mare.coveredBy !== null) return fail('already_covered');
+  if (mare.pregnant && (mare.dueWeek === null ||
+    mare.dueWeek >= weekKey({ year: season, week: BREEDING_END_WEEK }))) return fail('already_pregnant');
+  if (mare.bookedFor?.season === season || (mare.coveredBy !== null && !mare.pregnant)) {
+    return fail('already_covered');
+  }
 
   const stallion = state.stallions[stallionId];
-  if (stallion === undefined || state.date.year < stallion.firstSeasonYear) return fail('stallion_not_available');
-  if (stallion.bookedThisSeason >= stallion.bookLimit) return fail('book_full');
+  if (stallion === undefined || season < stallion.firstSeasonYear) return fail('stallion_not_available');
+  const seasonStallion = { ...stallion };
+  rollBookingSeason(seasonStallion, season);
+  if (seasonStallion.bookedThisSeason >= seasonStallion.bookLimit) return fail('book_full');
 
   const ownStallion = state.horses[stallionId]?.ownerId === ownerId;
   const fee = ownStallion ? 0 : stallion.fee;
@@ -182,8 +208,14 @@ export function bookCovering(
   }
 
   if (!ownStallion) recordMoney(next, ownerId, 'stud_fee_paid', -fee, dateOf(state.date), mareId);
-  nextMare.coveredBy = stallionId;
-  nextMare.coveredWeek = weekKey(state.date);
+  if (isInPhase(state.date.week, BREEDING_PHASE) && season === state.date.year &&
+    !nextMare.pregnant && nextMare.coveredBy === null && nextMare.bookedFor == null) {
+    nextMare.coveredBy = stallionId;
+    nextMare.coveredWeek = weekKey(state.date);
+  } else {
+    nextMare.bookedFor = { stallionId, season };
+  }
+  rollBookingSeason(nextStallion, season);
   nextStallion.bookedThisSeason += 1;
 
   const event: GameEvent = {
@@ -202,23 +234,38 @@ function isFirstBreedingWeek(date: GameDate): boolean {
   return isInPhase(date.week, BREEDING_PHASE) && !isInPhase(prevWeek, BREEDING_PHASE);
 }
 
-/**
- * 새 시즌 리셋. 모든 종마 예약 수를 0으로 두고, 임신 전이며 이번 주 예약이 아닌 교배 배정을 푼다.
- * 이번 주 예약(coveredWeek 가 이번 주)은 자금을 이미 냈으므로 지우지 않고 예약 수만 다시 센다.
- */
-function resetSeason(state: GameState, mareIds: readonly HorseId[], bookedNow: Set<HorseId>): void {
-  for (const stallion of Object.values(state.stallions)) {
-    stallion.bookedThisSeason = 0;
-  }
+/** 지난 시즌에 남은 비임신 교배 배정만 정리한다. */
+function resetSeason(state: GameState, mareIds: readonly HorseId[]): void {
+  const firstWeek = weekKey({ year: state.date.year, week: BREEDING_START_WEEK });
   for (const mareId of mareIds) {
     const mare = state.mares[mareId];
     if (mare === undefined || mare.pregnant || mare.coveredBy === null) continue;
-    if (bookedNow.has(mareId)) {
-      const stallion = state.stallions[mare.coveredBy];
-      if (stallion !== undefined) stallion.bookedThisSeason += 1;
-    } else {
+    if (mare.coveredWeek !== null && mare.coveredWeek < firstWeek) {
       mare.coveredBy = null;
       mare.coveredWeek = null;
+    }
+  }
+}
+
+/** 사전 예약 배정 및 시즌 종료 환불. 난수는 사용하지 않는다. */
+function processPrebookings(state: GameState, mareIds: readonly HorseId[], date: GameDate): void {
+  for (const mareId of mareIds) {
+    const mare = state.mares[mareId];
+    const booking = mare?.bookedFor;
+    if (mare === undefined || booking == null || booking.season !== date.year) continue;
+    if (isInPhase(date.week, BREEDING_PHASE) && !mare.pregnant && mare.coveredBy === null) {
+      mare.coveredBy = booking.stallionId;
+      mare.coveredWeek = weekKey(date);
+      mare.bookedFor = null;
+    } else if (date.week === BREEDING_END_WEEK + 1) {
+      const stallion = state.stallions[booking.stallionId];
+      const horse = state.horses[mareId];
+      if (stallion === undefined || horse === undefined) throw new Error('사전 예약 레코드 없음');
+      if (horse.ownerId !== null && horse.ownerId !== state.horses[stallion.horseId]?.ownerId) {
+        recordMoney(state, horse.ownerId, 'stud_fee_paid', stallion.fee, dateOf(date), mareId);
+      }
+      if (stallion.bookingSeason === date.year) stallion.bookedThisSeason -= 1;
+      mare.bookedFor = null;
     }
   }
 }
@@ -254,7 +301,7 @@ function judgeConceptions(
       if (horse.ownerId !== null && horse.ownerId !== state.horses[stallion.horseId]?.ownerId) {
         recordMoney(state, horse.ownerId, 'stud_fee_paid', stallion.fee, dateOf(ctx.date), mareId);
       }
-      stallion.bookedThisSeason -= 1;
+      if (stallion.bookingSeason === ctx.date.year) stallion.bookedThisSeason -= 1;
       mare.coveredBy = null;
     }
     events.push({
@@ -349,7 +396,7 @@ function deliverFoals(
 }
 
 /**
- * 교배 시즌 시스템(id 'breeding'). 한 주 순서: 1) 새 시즌 리셋 2) 수태 판정 3) 출산.
+ * 교배 시즌 시스템(id 'breeding'). 예약 시즌 전환·배정 후 수태 판정과 출산을 처리한다.
  * 모든 순회는 id 오름차순이다.
  */
 export function createBreedingSystem(data: BreedingStaticData): WeeklySystem {
@@ -358,10 +405,16 @@ export function createBreedingSystem(data: BreedingStaticData): WeeklySystem {
     run(draft: GameState, ctx: WeekContext): GameEvent[] {
       const events: GameEvent[] = [];
       const mareIds = Object.keys(draft.mares).sort();
+      if (ctx.date.week === BOOKING_OPEN_WEEK) {
+        for (const id of Object.keys(draft.stallions).sort()) {
+          rollBookingSeason(draft.stallions[id]!, ctx.date.year + 1);
+        }
+      }
+      processPrebookings(draft, mareIds, ctx.date);
       const bookedNow = maresBookedOn(draft, mareIds, ctx.date);
 
       if (isFirstBreedingWeek(ctx.date)) {
-        resetSeason(draft, mareIds, bookedNow);
+        resetSeason(draft, mareIds);
       }
       judgeConceptions(draft, mareIds, bookedNow, ctx, events);
       deliverFoals(draft, mareIds, data, ctx, events);
