@@ -47,6 +47,7 @@ import type {
   CountryCode,
   Jockey,
   JockeyAbilities,
+  PersonCareer,
   JockeyId,
   Money,
   Owner,
@@ -187,6 +188,7 @@ export function generateJockey(rng: Rng, ctx: PeopleContext, id: JockeyId, count
     abilities,
     preferredStyle,
     retired: false,
+    career: emptyCareer(),
   };
 }
 
@@ -203,6 +205,11 @@ function pickTrainerStyle(rng: Rng, staminaBias: number, juvenileFocus: number):
  * 조교사 상마안(M4-B2). 기존 생성 난수 흐름을 바꾸지 않도록 ID 문자열 해시(FNV-1a)로 결정적으로 정한다.
  * 저장 이주(v8 → v9)도 같은 함수를 쓴다.
  */
+/** 빈 통산 성적(M4-P1 에서 나이·능력 기반 초기값으로 바뀐다) */
+export function emptyCareer(): PersonCareer {
+  return { runners: 0, wins: 0, places: 0, groupWins: 0, g1Wins: 0, earnings: 0 };
+}
+
 export function trainerEyeFromId(id: TrainerId): number {
   let h = 0x811c9dc5;
   for (let i = 0; i < id.length; i++) {
@@ -248,6 +255,7 @@ export function generateTrainer(rng: Rng, ctx: PeopleContext, id: TrainerId, cou
     staminaBias,
     juvenileFocus,
     eye: trainerEyeFromId(id),
+    career: emptyCareer(),
   };
 }
 

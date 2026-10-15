@@ -29,6 +29,8 @@ export interface Trainer {
   juvenileFocus: number;
   /** 상마안(말 보는 눈) 0~100 (숨김, M4-B2). 세일 동행 코멘트·조교사 소견의 정확도 */
   eye: number;
+  /** 통산 성적(올해 제외, 연말에 더한다, M4-P1) */
+  career: PersonCareer;
 }
 
 export interface Jockey {
@@ -50,6 +52,8 @@ export interface Jockey {
   /** 잘 맞는 작전. 없으면 null */
   preferredStyle: RunningStyle | null;
   retired: boolean;
+  /** 통산 성적(올해 제외, 연말에 더한다, M4-P1) */
+  career: PersonCareer;
 }
 
 /** 기수 세부 능력 (0~100, 숨김) */
@@ -115,4 +119,14 @@ export interface CommercialBreeder {
   funds: Money;
   /** 보유 번식 암말·미판매 생산마(C2 에서 사용). C0 에서는 빈 배열 */
   horseIds: HorseId[];
+}
+
+/** 기수·조교사 통산 성적(M4-P1). 올해 성적은 seasonState.leading 에서 읽는다 */
+export interface PersonCareer {
+  runners: number;
+  wins: number;
+  places: number;
+  groupWins: number;
+  g1Wins: number;
+  earnings: Money;
 }

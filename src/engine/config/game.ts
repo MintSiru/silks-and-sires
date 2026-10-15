@@ -3,7 +3,7 @@ import type { CalendarPhaseId, CalendarWindow } from '../types';
 /** 게임 전역 상수. 공용 설정이므로 Opus 소유. */
 export const START_YEAR = 2026;
 export const WEEKS_PER_YEAR = 52;
-export const SAVE_SCHEMA_VERSION = 13;
+export const SAVE_SCHEMA_VERSION = 14;
 export const EVENT_LOG_LIMIT = 200;
 /** 시작 자금(€) */
 export const STARTING_FUNDS = 500_000;

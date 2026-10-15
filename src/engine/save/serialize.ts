@@ -119,6 +119,19 @@ export const MIGRATIONS: Readonly<Record<number, Migration>> = {
   },
   /** v12 → v13 (M4-BET): 베팅 상태 */
   12: (state) => ({ ...state, betting: state.betting ?? { open: [], history: [], nextBetNo: 1 } }),
+  /** v13 → v14 (M4-P1): 기수·조교사 통산 성적(옛 저장본은 0) */
+  13: (state) => {
+    const zero = { runners: 0, wins: 0, places: 0, groupWins: 0, g1Wins: 0, earnings: 0 };
+    const withCareer = (table: unknown): unknown => {
+      if (table === undefined || table === null) return table;
+      const out: Record<string, unknown> = {};
+      for (const [id, p] of Object.entries(table as Record<string, Record<string, unknown>>)) {
+        out[id] = { ...p, career: p.career ?? { ...zero } };
+      }
+      return out;
+    };
+    return { ...state, jockeys: withCareer(state.jockeys), trainers: withCareer(state.trainers) };
+  },
 };
 
 /** 구조 상수(형식 규칙). 밸런스 수치가 아니므로 여기 둔다. */

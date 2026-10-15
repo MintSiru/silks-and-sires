@@ -21,6 +21,7 @@ import {
   getStallionRecords,
 } from '../../src/engine/data/staticData';
 import { createRng } from '../../src/engine/rng';
+import { emptyCareer } from '../../src/engine/people/generate';
 import { deserializeGame, serializeGame } from '../../src/engine/save/serialize';
 import { bootstrapGame, type BootstrapData } from '../../src/engine/state/bootstrap';
 import { createNewGame } from '../../src/engine/state/newGame';
@@ -59,6 +60,7 @@ function makeJockey(id: string, skill: number, birthYear: number, extra: Partial
     abilities: { start: 50, pace: 50, finish: 50, strength: 50 },
     preferredStyle: null,
     retired: false,
+    career: emptyCareer(),
     ...extra,
   };
 }
@@ -79,6 +81,7 @@ function makeTrainer(id: string, skill: number, birthYear: number): Trainer {
     staminaBias: 0,
     juvenileFocus: 0.5,
     eye: 50,
+    career: emptyCareer(),
   };
 }
 

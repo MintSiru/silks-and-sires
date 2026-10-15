@@ -556,3 +556,27 @@ describe('저장 마이그레이션 v12 → v13 (M4-BET)', () => {
     }
   });
 });
+
+describe('저장 마이그레이션 v13 → v14 (M4-P1)', () => {
+  it('기수·조교사에 통산 성적(0)이 생긴다', () => {
+    const v13 = makeState();
+    const json = JSON.stringify({
+      format: 'silks-and-sires-save',
+      schemaVersion: 13,
+      savedAt: '2026-10-15T00:00:00.000Z',
+      state: {
+        ...v13,
+        schemaVersion: 13,
+        jockeys: { 'jk-1': { id: 'jk-1', name: 'J' } },
+        trainers: { 'tr-1': { id: 'tr-1', name: 'T' } },
+      },
+    });
+    const result = deserializeGame(json);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      const zero = { runners: 0, wins: 0, places: 0, groupWins: 0, g1Wins: 0, earnings: 0 };
+      expect(result.state.jockeys['jk-1']?.career).toEqual(zero);
+      expect(result.state.trainers['tr-1']?.career).toEqual(zero);
+    }
+  });
+});

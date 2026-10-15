@@ -122,9 +122,16 @@ describe('AE 마주 인물 생성 (bootstrapPeople)', () => {
       (o) => (o as Owner).isPlayer === false && (o as Owner).country !== 'AE',
     );
     expect(sixOwners).toHaveLength(SIX_COUNTRY_OWNER_COUNT);
+    // 통산 성적(career, M4-P1)은 나이·능력에서 파생되는 값이라 비교에서 뺀다(인물 생성 결과 자체를 비교)
+    const withoutCareer = (rows: unknown[]): unknown[] =>
+      rows.map((p) => {
+        const { career: _c, ...rest } = p as Record<string, unknown>;
+        void _c;
+        return rest;
+      });
     const payload = JSON.stringify({
-      j: sortedById(state.jockeys),
-      t: sortedById(state.trainers),
+      j: withoutCareer(sortedById(state.jockeys)),
+      t: withoutCareer(sortedById(state.trainers)),
       o: sixOwners,
     });
     expect(createHash('sha256').update(payload).digest('hex')).toBe(SIX_COUNTRY_PEOPLE_HASH);
