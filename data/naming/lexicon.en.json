@@ -816,7 +816,6 @@
     "Pilgrimage",
     "Expedition",
     "Campaign",
-    "Venture",
     "Pursuit",
     "Ascent",
     "Pinnacle",
@@ -858,7 +857,6 @@
     "Conquer",
     "Defy",
     "Ignore",
-    "Venture",
     "Wander",
     "Journey",
     "Conspire",
@@ -2697,8 +2695,7 @@
     "Quest": [
       "Pilgrim",
       "Pursuit",
-      "Expedition",
-      "Venture"
+      "Expedition"
     ],
     "Odyssey": [
       "Voyage",
@@ -2970,8 +2967,8 @@
     ],
     "Endeavour": [
       "Striving",
-      "Venture",
-      "Persist"
+      "Persist",
+      "Effort"
     ],
     "Justice": [
       "Verdict",

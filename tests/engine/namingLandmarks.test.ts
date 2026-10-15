@@ -17,8 +17,9 @@ const TRIBUTE = ['Harnwell', 'Tessmoor', 'Vellacourt', 'Askerby', 'Dunrowan', 'F
  * 어휘 사전(lexicon)·보호 명단을 바꾸면 이 값도 다시 덤프해 맞춘다.
  * 2026-10-15 재고정: 어휘 'Destino' 삭제(같은 이름 실존 종마 추가).
  * 2026-10-15 재고정: 어휘 'Helmet' 삭제(같은 이름 실존 종마 추가).
+ * 2026-10-15 재고정: 어휘 'Venture' 삭제(같은 이름 실존 종마 추가)·연상어 'Effort' 보충.
  */
-const HEAD_FINGERPRINT = 'f5a8588386262f598a6283e639b136e7076d9bd1ace7fad6269ffa6a3c71c086';
+const HEAD_FINGERPRINT = '26de94a7b46ba0672527e9831065e0daea5f50adef005d7d2b1d46d0f07f3a28';
 /** 지문 표본의 부·모 이름(종마 데이터 추가에 영향받지 않게 고정) */
 const FINGERPRINT_PARENTS = [
   'Dubawi', 'Frankel', 'Galileo', 'Kingman', 'Lope de Vega', 'Night of Thunder', 'Siyouni', 'Sea The Stars',

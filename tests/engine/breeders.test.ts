@@ -50,10 +50,11 @@ const BOOT_DATA: BootstrapData = {
  * 2026-10-15 재고정: 1회차 42~44(Storm Cat·Vettori 쪽, Nijinsky 추가)로 바뀜.
  * 2026-10-15 재고정: 5대 혈통 2회차(조상 29두 추가, Blushing Groom 계 분리)로 바뀜.
  * 2026-10-15 재고정: 5대 혈통 3회차(조상 35두 추가, Waajib 생년 정정, 지명 'Persepolis' 삭제)로 바뀜.
+ * 2026-10-15 재고정: 5대 혈통 4회차(조상 28두 추가)와 어휘 'Venture' 삭제·'Effort' 추가로 바뀜.
  */
 const PRE_CHANGE_PROJECTION_SHA: Record<number, string> = {
-  20261011: '2709e553dd6f464ec64fc4a68955408f182e6e7d9f93a1e1f6607a13803f5664',
-  7: '0e11511a40ec336b473d4d0b906746f579da4b323b734de26969a8998b206a78',
+  20261011: '90ae48508af5011d3e635b2e5c6663d277a4daf338b466fd544ed0cb0781c4ca',
+  7: 'fdcd38b54683a68f60e0684da3dcd13cca004cb38358c809aef189063da9dc56',
 };
 
 function boot(seed: number): GameState {

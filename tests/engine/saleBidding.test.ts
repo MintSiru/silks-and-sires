@@ -245,7 +245,9 @@ function expectStepsMatch(steps: readonly AuctionStep[], outcome: LotOutcome, mi
     expect(Number.isInteger(step.dropped) && step.dropped >= 0).toBe(true);
   }
   const noBidders = result.kind === 'bought_back' && result.lastBid === 0;
-  if (checkFirst && !noBidders) expect(steps[0]?.price).toBe(minimum);
+  // 단계가 SALE_LIVE_MAX_STEPS 로 잘렸으면 앞쪽(최저가 쪽)이 버려진다(설계 규칙). 2026-10-15 데이터 변화로 €3M 낙찰 로트가 표본에 들어옴
+  const truncated = steps.length === SALE_LIVE_MAX_STEPS;
+  if (checkFirst && !noBidders && !truncated) expect(steps[0]?.price).toBe(minimum);
 }
 
 describe('setMaxBid 실패 사유 (수용 1)', () => {

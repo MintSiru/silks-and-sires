@@ -1,3 +1,5 @@
+import { yearEndPending } from '../engine/stud/yearEnd';
+import YearEndScreen from './yearEnd/YearEndScreen';
 import { useState } from 'react';
 import type { JSX } from 'react';
 import BreedingScreen from './breeding/BreedingScreen';
@@ -107,13 +109,15 @@ function AppContent() {
         </nav>
         <WeightUnitSelect />
       </div>
-      {tab === 'season' && <SeasonScreen game={game} locked={bankrupt} />}
-      {tab === 'standings' && <StandingsScreen game={game} />}
-      {tab === 'breeding' && <BreedingScreen game={game} locked={bankrupt} />}
-      {tab === 'economy' && <EconomyScreen game={game} />}
-      {tab === 'sales' && <SalesScreen game={game} locked={bankrupt} />}
-      {tab === 'staff' && <StaffScreen game={game} />}
-      {tab === 'race' && <RaceDemo />}
+      {game.state !== null && yearEndPending(game.state) ? <YearEndScreen game={game} /> : <>
+        {tab === 'season' && <SeasonScreen game={game} locked={bankrupt} />}
+        {tab === 'standings' && <StandingsScreen game={game} />}
+        {tab === 'breeding' && <BreedingScreen game={game} locked={bankrupt} />}
+        {tab === 'economy' && <EconomyScreen game={game} />}
+        {tab === 'sales' && <SalesScreen game={game} locked={bankrupt} />}
+        {tab === 'staff' && <StaffScreen game={game} />}
+        {tab === 'race' && <RaceDemo />}
+      </>}
     </main>
   );
 }

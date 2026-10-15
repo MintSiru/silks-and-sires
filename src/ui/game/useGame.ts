@@ -4,7 +4,8 @@ import { useCallback, useRef, useState } from 'react';
 import { WEEKS_PER_YEAR, EVENT_LOG_LIMIT } from '../../engine/config/game';
 import { createGameSystems, type GameStaticData } from '../../engine/state/systems';
 import { bootstrapGame, type BootstrapData } from '../../engine/state/bootstrap';
-import { advanceWeek } from '../../engine/time/advance';
+import { advanceWeekGated, submitYearEnd } from '../../engine/stud/yearEnd';
+import type { YearEndSubmission } from '../../engine/types/stud';
 import { isInPhase } from '../../engine/time/calendar';
 import { bookCovering, type BookingResult } from '../../engine/breeding/season';
 import { deserializeGame, serializeGame } from '../../engine/save/serialize';
@@ -65,6 +66,7 @@ export interface GameApi {
   advance(weeks: number): void;     // createGameSystems(data) 로 advanceWeek 반복, 이벤트 누적
   advanceToPhase(phase: CalendarPhaseId): void;  // 그 단계가 시작되는 주까지(최대 52주)
   advanceUntil(stop: (s: GameState) => boolean, maxWeeks: number): void;  // 매 주 진행 후 stop(state) 가 true 면 멈춤(최대 maxWeeks 주)
+  submitYearEnd(submission: YearEndSubmission): ReturnType<typeof submitYearEnd>;
   book(mareId: HorseId, stallionId: HorseId): BookingResult;   // 성공 시 state 갱신
   /** 플레이어 말 출주 접수(성공 시 state 갱신). meetingId 는 seasonState.meetings 의 개최 id */
   declarePlayerHorse(meetingId: string, raceId: RaceId, horseId: HorseId): PlayerResult<DeclareError>;
@@ -173,9 +175,10 @@ export function useGame(): GameApi {
       const systems = gameSystems();
       const events: GameEvent[] = [];
       for (let i = 0; i < weeks; i++) {
-        const result = advanceWeek(current, systems);
+        const result = advanceWeekGated(current, systems);
         current = result.state;
         events.push(...result.events);
+        if (result.blocked !== null) break;
       }
       stateRef.current = current;
       setState(current);
@@ -194,9 +197,10 @@ export function useGame(): GameApi {
         i < WEEKS_PER_YEAR && !isPhaseStartWeek(current.date.week, phase);
         i++
       ) {
-        const result = advanceWeek(current, systems);
+        const result = advanceWeekGated(current, systems);
         current = result.state;
         events.push(...result.events);
+        if (result.blocked !== null) break;
       }
       stateRef.current = current;
       setState(current);
@@ -214,14 +218,29 @@ export function useGame(): GameApi {
       const systems = gameSystems();
       const events: GameEvent[] = [];
       for (let i = 0; i < maxWeeks; i++) {
-        const result = advanceWeek(current, systems);
+        const result = advanceWeekGated(current, systems);
         current = result.state;
         events.push(...result.events);
+        if (result.blocked !== null) break;
         if (stop(current)) break;
       }
       stateRef.current = current;
       setState(current);
       setLastEvents(events);
+    },
+    [requireState],
+  );
+
+  const submitYearEndWith = useCallback(
+    (submission: YearEndSubmission): ReturnType<typeof submitYearEnd> => {
+      const result = submitYearEnd(requireState(), submission);
+      if (!result.ok) return result;
+      const merged = [...result.state.eventLog, ...result.events];
+      const next: GameState = { ...result.state, eventLog: merged.slice(-EVENT_LOG_LIMIT) };
+      stateRef.current = next;
+      setState(next);
+      setLastEvents(result.events);
+      return { ...result, state: next };
     },
     [requireState],
   );
@@ -363,6 +382,7 @@ export function useGame(): GameApi {
     advanceToPhase,
     advanceUntil,
     book,
+    submitYearEnd: submitYearEndWith,
     declarePlayerHorse: declarePlayer,
     withdrawPlayerHorse: withdrawPlayer,
     assignTrainer: assignTrainerTo,
