@@ -305,3 +305,4 @@
 - 2026-10-15 M4-D4a 승인(Codex): 종마 판매가(종부료×200×나이 배수, 해외×0.65, 교배권 1개당 종부료×6 차감)·국내/해외 판매·셔틀/장기 임대·임대료 시스템(stud_leases, books 다음)·연말 정산 판매 진로. 계류 레코드 생성은 buildStallionRecord 로 공유.
 - 2026-10-15 M4-D4a2 승인(Codex, Opus 정리 2줄): 장기 임대 중 예약·AI 수요·재산정 중단, 교배권 자동 사용, 환불은 실제 납부액(feePaid·coveredFee) 기준, 국내 판매 종마는 수입 0 시즌 기록으로 3년 뒤 자마 편입 유지.
 - 2026-10-15 운영: Codex 사용 중지 지시가 와도 이미 실행 중인 작업은 끝까지 마치게 한다(사용자 결정). 새 작업만 Haiku 로 돌린다.
+- 2026-10-15 5대 혈통 10회차 반영(51칸, 조상 23두). Sheshoon 털색 bay → chestnut(사용자 확인, 혈통 DB 4곳 일치). 부계 자동 정리 5두(Petionville·Mining·Chester House → Mr. Prospector, Houston·Slew o' Gold → Seattle Slew). 고정 해시 재고정(breeders·playerSireCrops·starterStrength·stallionTradeIntegration fees).
