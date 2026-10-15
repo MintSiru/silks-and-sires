@@ -52,10 +52,11 @@ const BOOT_DATA: BootstrapData = {
  * 2026-10-15 재고정: 5대 혈통 3회차(조상 35두 추가, Waajib 생년 정정, 지명 'Persepolis' 삭제)로 바뀜.
  * 2026-10-15 재고정: 5대 혈통 4회차(조상 28두 추가)와 어휘 'Venture' 삭제·'Effort' 추가로 바뀜.
  * 2026-10-15 재고정: 유럽 1~2티어 마지막 정리 회차(조상 12두 추가)로 바뀜.
+ * 2026-10-15 재고정: 5회차(유럽 밖 1~2티어 ①, 조상 27두 추가)와 Venture 털색 정정으로 바뀜.
  */
 const PRE_CHANGE_PROJECTION_SHA: Record<number, string> = {
-  20261011: '1d9443bad38ad1a510bd1db748b08c33a77c4c5c8d827378e08caaf1c61b2d83',
-  7: '2e4e44e59e7457c12bf7c86a4acca2db1ca9796ee4103474d53771832c5ed012',
+  20261011: '90b19cc2411f3873858b374911d3d3a755e2072a7c15ad2202247b237e9c61c3',
+  7: '8b64d13be7334b5112b3f44d3185a68481cdca7618bcd9ad5f84c6be415664ea',
 };
 
 function boot(seed: number): GameState {
