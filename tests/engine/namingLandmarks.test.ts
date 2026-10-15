@@ -16,8 +16,9 @@ const TRIBUTE = ['Harnwell', 'Tessmoor', 'Vellacourt', 'Askerby', 'Dunrowan', 'F
  * M2-02 에서 종마가 늘어 표본이 바뀌지 않게 부모 이름을 고정 목록(FINGERPRINT_PARENTS)으로 바꾸고 다시 고정했다.
  * 어휘 사전(lexicon)·보호 명단을 바꾸면 이 값도 다시 덤프해 맞춘다.
  * 2026-10-15 재고정: 어휘 'Destino' 삭제(같은 이름 실존 종마 추가).
+ * 2026-10-15 재고정: 어휘 'Helmet' 삭제(같은 이름 실존 종마 추가).
  */
-const HEAD_FINGERPRINT = '9687d72673ca9d40ddc4a28928a542c5b07f536c2b6b2f1f1673918e0e6934f0';
+const HEAD_FINGERPRINT = 'f5a8588386262f598a6283e639b136e7076d9bd1ace7fad6269ffa6a3c71c086';
 /** 지문 표본의 부·모 이름(종마 데이터 추가에 영향받지 않게 고정) */
 const FINGERPRINT_PARENTS = [
   'Dubawi', 'Frankel', 'Galileo', 'Kingman', 'Lope de Vega', 'Night of Thunder', 'Siyouni', 'Sea The Stars',
