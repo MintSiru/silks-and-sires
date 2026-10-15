@@ -4,6 +4,7 @@
  */
 import { RETAINER_EXTRA_BOXES } from '../config/economy';
 import { PLAYER_TRAINING_START_AGE } from '../config/season';
+import { meanAbility, ratingFromAbility } from '../world/rating';
 import { contractFor } from '../economy/contractQuery';
 import { ageInYear } from '../time/calendar';
 import type {
@@ -97,7 +98,18 @@ export function declarePlayerHorse(
   if (trainerId === null) return fail('no_trainer');
   if (!isEligible(horse, found.sr.race, found.meeting.date, next.seasonState)) return fail('not_eligible');
   if (isDeclaredInWeek(next, found.meeting.date, horseId)) return fail('already_declared');
-  if (found.sr.declarations.length >= found.sr.race.maxRunners) return fail('field_full');
+  if (found.sr.declarations.length >= found.sr.race.maxRunners) {
+    const ai = found.sr.declarations.filter((d) => !d.isPlayer);
+    const value = (id: HorseId): number => {
+      const runner = next.horses[id]!;
+      return runner.officialRating ?? ratingFromAbility(meanAbility(runner.ability));
+    };
+    ai.sort((a, b) => value(a.horseId) - value(b.horseId)
+      || (a.horseId > b.horseId ? -1 : a.horseId < b.horseId ? 1 : 0));
+    const lowest = ai[0];
+    if (lowest === undefined) return fail('field_full');
+    found.sr.declarations.splice(found.sr.declarations.indexOf(lowest), 1);
+  }
 
   found.sr.declarations.push({
     horseId,

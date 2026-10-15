@@ -2,7 +2,7 @@ import { START_YEAR } from '../config/game';
 import type { PeopleStaticData } from '../people/generate';
 import { createRng } from '../rng';
 import { buildWeekMeetings } from '../season/meetings';
-import type { SeasonStaticData } from '../season/system';
+import { declareUpcomingMeetings, type SeasonStaticData } from '../season/system';
 import { nextDate } from '../time/calendar';
 import type { GameState } from '../types';
 import { generateBreeders } from '../people/breeders';
@@ -42,7 +42,11 @@ export function bootstrapGame(opts: BootstrapOptions, data: BootstrapData): Game
     rng: createRng(seed).fork('season').fork('meetings'),
     nextGeneratedRace: population.seasonState.nextGeneratedRace,
   });
-  population.seasonState.meetings = built.meetings;
+  const courseById = new Map(data.courses.map((c) => [c.id, c]));
+  population.seasonState.meetings = declareUpcomingMeetings(
+    population, built.meetings, createRng(seed).fork('season').fork('declare-first'),
+    (id) => courseById.get(id)?.country,
+  );
   population.seasonState.nextGeneratedRace = built.nextGeneratedRace;
   return population;
 }

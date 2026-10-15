@@ -1,9 +1,10 @@
 /**
  * 시즌 주간 시스템 (M3-A6c, id 'season'; (d) 컨디션은 M3-C1).
- * 주마다 순서: (a) 연도 전환 → (b) 이번 주 개최 실행 → (c) 다음 주 개최 생성 → (d) 조교·휴양·부상 처리.
+ * 주마다 순서: (a) 연도 전환 → (b) 이번 주 개최 실행 → (c) 다음 주 개최 생성 → (d) 조교·휴양·부상 처리 → (e) 다음 주 AI 선언.
  * 개최 흐름: state.date 가 D 일 때 seasonState.meetings 에 D 주 개최가 들어 있다(플레이어 출주 접수 대상).
  * run(D) 이 D 주 개최를 실행하고 D+1 주 개최를 만든다.
  */
+import { MIN_FIELD_SIZE } from '../config/entries';
 import { RESULTS_KEEP_SEASONS } from '../config/season';
 import { weeklyConditionInPlace } from '../horse/conditioning';
 import { ageInYear, nextDate } from '../time/calendar';
@@ -13,6 +14,7 @@ import type {
   GameState,
   HorseStatus,
   LeadingEntry,
+  Meeting,
   NickEntry,
   PersonCareer,
   Racecourse,
@@ -178,7 +180,7 @@ function classicIdsOf(templates: readonly RaceTemplate[]): readonly string[] {
 }
 
 /**
- * (b) 이번 주 개최 실행: AI 출주 확정 → 개최별 실행. 실행한 개최는 meetings 에서 뺀다.
+ * (b) 이번 주 개최 실행: 기존 선언 확정(옛 저장본만 AI 선언) → 개최별 실행. 실행한 개최는 meetings 에서 뺀다.
  * draft 는 advanceWeek 가 이미 복제한 것이므로 runMeetingInPlace 로 직접 고친다(레이스마다 복제하지 않는다).
  */
 function runThisWeek(
@@ -193,7 +195,20 @@ function runThisWeek(
   if (thisWeek.length === 0) return;
   draft.seasonState.meetings = draft.seasonState.meetings.filter((m) => !sameDate(m.date, date));
 
-  const declared = declareAiRunners(draft, thisWeek, rng.fork('declare'), courseCountry);
+  const hasLegacy = thisWeek.some((m) => !m.races.some((sr) => sr.declarations.some((d) => !d.isPlayer)));
+  for (const meeting of thisWeek) {
+    const hasAi = meeting.races.some((sr) => sr.declarations.some((d) => !d.isPlayer));
+    if (!hasAi) continue;
+    for (const sr of meeting.races) {
+      if (sr.status === 'open') {
+        sr.status = sr.declarations.length < MIN_FIELD_SIZE ? 'abandoned' : 'closed';
+      }
+    }
+  }
+  // 기존 선언도 함께 넘겨 옛 개최 보완 시 같은 주 중복 출주를 막는다.
+  const declared = hasLegacy
+    ? declareAiRunners(draft, thisWeek, rng.fork('declare'), courseCountry)
+    : thisWeek;
   for (const meeting of declared) {
     const out = runMeetingInPlace(
       draft,
@@ -221,6 +236,32 @@ function scheduleNextWeek(draft: GameState, data: SeasonStaticData, date: GameDa
   });
   draft.seasonState.meetings.push(...built.meetings);
   draft.seasonState.nextGeneratedRace = built.nextGeneratedRace;
+}
+
+/** AI 선택 규칙은 그대로 쓰고, 플레이어 접수를 위해 확정 상태만 open 으로 되돌린다. */
+export function declareUpcomingMeetings(
+  state: GameState,
+  meetings: readonly Meeting[],
+  rng: Rng,
+  courseCountry: CourseCountryLookup,
+): Meeting[] {
+  const declared = declareAiRunners(state, meetings, rng, courseCountry);
+  for (const meeting of declared) {
+    for (const sr of meeting.races) {
+      if (sr.status === 'closed') sr.status = 'open';
+    }
+  }
+  return declared;
+}
+
+/** (e) 조교·휴양 처리 후 다음 주 개최의 AI 출주를 미리 선언한다. */
+function declareNextWeek(draft: GameState, date: GameDate, rng: Rng, courseCountry: CourseCountryLookup): void {
+  const next = nextDate(date);
+  const meetings = draft.seasonState.meetings.filter((m) => sameDate(m.date, next)
+    && !m.races.some((sr) => sr.declarations.some((d) => !d.isPlayer)));
+  const declared = declareUpcomingMeetings(draft, meetings, rng, courseCountry);
+  const byId = new Map(declared.map((m) => [m.id, m]));
+  draft.seasonState.meetings = draft.seasonState.meetings.map((m) => byId.get(m.id) ?? m);
 }
 
 /**
@@ -272,6 +313,7 @@ export function createSeasonSystem(data: SeasonStaticData): WeeklySystem {
       runThisWeek(draft, data, courseCountry, date, rng, events);
       scheduleNextWeek(draft, data, date, rng);
       conditionWeek(draft, date, rng.fork('condition'), events);
+      declareNextWeek(draft, date, rng.fork('declare-next'), courseCountry);
       return events;
     },
   };

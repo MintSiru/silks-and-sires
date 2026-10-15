@@ -383,12 +383,33 @@ describe('플레이어 출주 API (declare / withdraw / assignTrainer)', () => {
     closedRace.status = 'closed';
     expect(declarePlayerHorse(closed, target.meetingId, target.raceId, horseId)).toEqual({ ok: false, error: 'race_closed' });
 
-    // field_full: 두수 상한을 현재 선언 두수로 낮춘다
+    // 꽉 찬 레이스(M4-BET2b): AI 선언이 있으면 평가값 최저 AI 가 빠지고 들어간다. 전부 플레이어 선언이면 field_full
     const full = structuredClone(withTrainer);
     const fullRace = full.seasonState.meetings.find((m) => m.id === target.meetingId)?.races.find((r) => r.race.id === target.raceId);
     if (fullRace === undefined) throw new Error('레이스가 없다');
     fullRace.race.maxRunners = fullRace.declarations.length;
-    expect(declarePlayerHorse(full, target.meetingId, target.raceId, horseId)).toEqual({ ok: false, error: 'field_full' });
+    const aiBefore = fullRace.declarations.filter((d) => !d.isPlayer).length;
+    const bumped = declarePlayerHorse(full, target.meetingId, target.raceId, horseId);
+    if (aiBefore > 0) {
+      expect(bumped.ok).toBe(true);
+      if (bumped.ok) {
+        const after = bumped.state.seasonState.meetings
+          .find((m) => m.id === target.meetingId)
+          ?.races.find((r) => r.race.id === target.raceId);
+        expect(after?.declarations.length).toBe(fullRace.race.maxRunners);
+        expect(after?.declarations.filter((d) => !d.isPlayer).length).toBe(aiBefore - 1);
+      }
+    }
+    const allPlayer = structuredClone(full);
+    const allPlayerRace = allPlayer.seasonState.meetings
+      .find((m) => m.id === target.meetingId)
+      ?.races.find((r) => r.race.id === target.raceId);
+    if (allPlayerRace === undefined) throw new Error('레이스가 없다');
+    for (const d of allPlayerRace.declarations) d.isPlayer = true;
+    allPlayerRace.race.maxRunners = Math.max(1, allPlayerRace.declarations.length);
+    if (allPlayerRace.declarations.length > 0) {
+      expect(declarePlayerHorse(allPlayer, target.meetingId, target.raceId, horseId)).toEqual({ ok: false, error: 'field_full' });
+    }
 
     // 정상 접수 후 같은 주 다른 레이스 → already_declared
     const ok = declarePlayerHorse(withTrainer, target.meetingId, target.raceId, horseId);
