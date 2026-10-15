@@ -54,10 +54,11 @@ const BOOT_DATA: BootstrapData = {
  * 2026-10-15 재고정: 유럽 1~2티어 마지막 정리 회차(조상 12두 추가)로 바뀜.
  * 2026-10-15 재고정: 5회차(유럽 밖 1~2티어 ①, 조상 27두 추가)와 Venture 털색 정정으로 바뀜.
  * 2026-10-15 재고정: 6회차(조상 34두)·독일 3두 티어 통일(Torquator Tasso 3→4, Japan·Fantastic Moon 4→5)로 바뀜.
+ * 2026-10-15 재고정: 7회차·티어 통일 18두·새 현역 26두(+외조부 17두)로 바뀜.
  */
 const PRE_CHANGE_PROJECTION_SHA: Record<number, string> = {
-  20261011: 'd7f9deed284a20fc2c67855ec64191c3ed001ae247ec98a5df6ac76669154de2',
-  7: '38e94cb0f31b9bbaaad33591299cf8bf005de3469928b525fde7a14a4cdb8941',
+  20261011: 'e953ab1c8c228486bde7a1423a77c967dffec4ee414d45e11ea59807e0d69df4',
+  7: '8b60cdd7dc7d0ecbcb5472fbf60698f1b3eb346390a0223cb65da957b0889f15',
 };
 
 function boot(seed: number): GameState {

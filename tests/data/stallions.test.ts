@@ -347,10 +347,11 @@ describe('M2-02 미국 종마 추가 (위키백과 확인분)', () => {
     }
   });
 
-  it('availableFromYear 는 American Pharoah 에만 있고 값은 2027', () => {
+  // 2026-10-15 사용자 결정: 미국 복귀 2027 → 2028
+  it('availableFromYear 는 American Pharoah 에만 있고 값은 2028', () => {
     const withYear = stallions.filter((s) => s.availableFromYear !== undefined);
     expect(withYear.map((s) => s.key)).toEqual(['stl_american_pharoah']);
-    expect(withYear[0]?.availableFromYear).toBe(2027);
+    expect(withYear[0]?.availableFromYear).toBe(2028);
   });
 });
 

@@ -62,6 +62,11 @@ export interface RealStallionRecord {
    * active 는 생략. historical·pensioned 는 위키백과 사망·은퇴 연도, 모르면 생략(엔진이 MAX_STUD_AGE 로 추정).
    */
   lastCoverYear?: number;
+  /**
+   * 실제 첫 교배 시즌 연도. 2세에 은퇴해 3세부터 교배한 경우처럼 foaled + MIN_SIRE_AGE_AT_COVER 보다 이른 말만 적는다.
+   * 생략하면 foaled + MIN_SIRE_AGE_AT_COVER(2026-10-15, 예: Raise a Native 1964).
+   */
+  firstCoverYear?: number;
 }
 
 /** key → 표시 이름 */

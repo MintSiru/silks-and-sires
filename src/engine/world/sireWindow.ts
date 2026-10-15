@@ -32,20 +32,25 @@ export function lastCoverYearOf(
   return record.foaled + maxStudAge;
 }
 
+/** 첫 교배 연도. firstCoverYear 가 있으면 그 값(일찍 종마가 된 말), 없으면 foaled + MIN_SIRE_AGE_AT_COVER */
+export function firstCoverYearOf(record: RealStallionRecord): number {
+  return record.firstCoverYear ?? record.foaled + MIN_SIRE_AGE_AT_COVER;
+}
+
 /** 교배 연도 coverYear 에 이 종마가 교배 가능했는가(기간 양끝 포함) */
 export function canSireIn(
   record: RealStallionRecord,
   coverYear: number,
   maxStudAge: number = MAX_STUD_AGE,
 ): boolean {
-  if (coverYear < record.foaled + MIN_SIRE_AGE_AT_COVER) return false;
+  if (coverYear < firstCoverYearOf(record)) return false;
   const last = lastCoverYearOf(record, maxStudAge);
   return last === null || coverYear <= last;
 }
 
 /** 교배 기간에서 벗어난 거리(년). 기간 안이면 0. 완화 선택에 쓴다. */
 function windowDistance(record: RealStallionRecord, coverYear: number, maxStudAge: number): number {
-  const first = record.foaled + MIN_SIRE_AGE_AT_COVER;
+  const first = firstCoverYearOf(record);
   if (coverYear < first) return first - coverYear;
   const last = lastCoverYearOf(record, maxStudAge);
   if (last !== null && coverYear > last) return coverYear - last;

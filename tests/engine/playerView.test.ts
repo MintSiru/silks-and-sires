@@ -319,13 +319,14 @@ describe('availableStallions', () => {
 });
 
 describe('임대 복귀 종마 (M2-02 availableFromYear)', () => {
-  it('American Pharoah 는 2027 부터 교배 가능 종마 목록에 나온다', () => {
+  // 2026-10-15 사용자 결정: 일본 계류 연장으로 미국 복귀 2027 → 2028
+  it('American Pharoah 는 2028 부터 교배 가능 종마 목록에 나온다', () => {
     const state = boot();
     const ap = state.stallions['stl_american_pharoah'];
-    expect(ap?.firstSeasonYear).toBe(2027);
-    expect(state.date.year).toBeLessThan(2027);
+    expect(ap?.firstSeasonYear).toBe(2028);
+    expect(state.date.year).toBeLessThan(2028);
     expect(availableStallions(state).some((r) => r.stallion.horseId === 'stl_american_pharoah')).toBe(false);
-    const later = { ...state, date: { ...state.date, year: 2027 } };
+    const later = { ...state, date: { ...state.date, year: 2028 } };
     expect(availableStallions(later).some((r) => r.stallion.horseId === 'stl_american_pharoah')).toBe(true);
   });
 });

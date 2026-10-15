@@ -66,7 +66,7 @@ function rec(overrides: Partial<RealStallionRecord>): RealStallionRecord {
  */
 function coverWindowViolation(record: RealStallionRecord, foalBirthYear: number): boolean {
   const coverYear = foalBirthYear - 1;
-  const start = record.foaled + MIN_SIRE_AGE_AT_COVER;
+  const start = record.firstCoverYear ?? record.foaled + MIN_SIRE_AGE_AT_COVER;
   const end =
     record.lastCoverYear ?? (record.status === 'active' ? Number.POSITIVE_INFINITY : record.foaled + MAX_STUD_AGE);
   return coverYear < start || coverYear > end;
