@@ -43,7 +43,7 @@ export function standPlayerStallion(draft: GameState, horseId: HorseId, year: nu
     sireLineId: horse.sireLineId
       ?? (horse.sireId === null ? undefined : draft.stallions[horse.sireId]?.sireLineId)
       ?? 'sl_phalaris',
-    fee, bookLimit, bookedThisSeason: 0,
+    fee, bookLimit, bookedThisSeason: 0, bookingSeason: year, aiBooked: 0, aiDemand: 0,
     popularity: Math.max(config.STUD_POPULARITY_MIN, Math.min(config.STUD_POPULARITY_MAX,
       Math.round(config.STUD_POPULARITY_BASE + config.STUD_POPULARITY_LOG_MULT
         * Math.log10(fee / config.STUD_POPULARITY_REF_FEE)))),

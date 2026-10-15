@@ -105,6 +105,10 @@ export function createRealStallionHorses(
         fee: TIER_FEE[rec.marketTier],
         bookLimit: TIER_BOOK_LIMIT[rec.marketTier],
         bookedThisSeason: 0,
+        // 새 게임은 1월에 시작하므로 예약 집계는 그해 시즌(M4-D3)
+        bookingSeason: currentYear,
+        aiBooked: 0,
+        aiDemand: 0,
         fertility: clamp(rng.normal(FERTILITY_MEAN, FERTILITY_SD), FERTILITY_MIN, FERTILITY_MAX),
         popularity: TIER_POPULARITY[rec.marketTier],
         standsIn,

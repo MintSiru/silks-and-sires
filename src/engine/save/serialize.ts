@@ -142,6 +142,18 @@ export const MIGRATIONS: Readonly<Record<number, Migration>> = {
       stud: state.stud ?? { slots: STUD_BASE_SLOTS, seasons: [] },
     };
   },
+  /** v15 → v16 (M4-D3): 종마 예약 시즌·AI 예약·수요. 옛 저장본은 저장 연도 시즌, AI 예약 0 */
+  15: (state) => {
+    const date = state.date as { year?: number } | undefined;
+    const year = date?.year ?? START_YEAR;
+    const stallions = state.stallions as Record<string, Record<string, unknown>> | undefined;
+    if (stallions === undefined || stallions === null) return state;
+    const next: Record<string, unknown> = {};
+    for (const [id, s] of Object.entries(stallions)) {
+      next[id] = { ...s, bookingSeason: s.bookingSeason ?? year, aiBooked: s.aiBooked ?? 0, aiDemand: s.aiDemand ?? 0 };
+    }
+    return { ...state, stallions: next };
+  },
 };
 
 /** 구조 상수(형식 규칙). 밸런스 수치가 아니므로 여기 둔다. */

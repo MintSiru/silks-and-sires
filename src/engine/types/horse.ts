@@ -220,8 +220,17 @@ export interface Stallion {
   fee: Money;
   /** 시즌당 최대 교배 두수 */
   bookLimit: number;
-  /** 이번 시즌 예약 두수 */
+  /** 이번 시즌 예약 두수(AI 가상 예약 + 플레이어 예약 합). bookingSeason 시즌 기준 */
   bookedThisSeason: number;
+  /**
+   * 예약 집계가 가리키는 번식 시즌 연도(M4-D3). 예약 창(전년 11월)이 열리면 다음 해로 바뀌고
+   * bookedThisSeason·aiBooked·aiDemand 를 새로 센다
+   */
+  bookingSeason: number;
+  /** bookingSeason 의 AI(가상) 예약 수. 세계 표본이 아니라 실제 규모 두수 */
+  aiBooked: number;
+  /** bookingSeason 의 AI 수요 목표(가상 두수). 북 상한을 넘을 수 있고, 넘친 만큼이 대기 수요(D8 종부료 산정) */
+  aiDemand: number;
   /** 수태율 0~1 */
   fertility: number;
   /** 인기 0~100 (시장 수요) */
