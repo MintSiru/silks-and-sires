@@ -256,6 +256,13 @@ export interface Stallion {
    * 없으면 기록 없음(옛 저장본·첫 시즌 전)
    */
   fertilityHistory?: StallionFertilitySeason[];
+  /**
+   * 북반구에서 마지막으로 교배한 시즌(M4-D7). 은퇴·저수태 은퇴·해외 판매 때 그해 −1 또는 그해로 정한다.
+   * 이 시즌 뒤로는 자마의 부(父) 후보가 아니다. 없으면 아직 계류 중(사망은 Horse.diedYear 로 따로 본다)
+   */
+  lastSeasonYear?: number;
+  /** AI 현역마에서 종마로 편입된 종마(M4-D7). 세계 자마의 부 후보에 들어간다 */
+  aiEntrant?: boolean;
 }
 
 /** 종마 한 시즌의 관측 수태 기록(M4-D5) */

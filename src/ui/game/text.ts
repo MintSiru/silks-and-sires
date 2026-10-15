@@ -418,7 +418,7 @@ export function eventKo(e: GameEvent, nameOf: (id: HorseId) => string): string {
     case 'stallion_fertility_warning':
       return `${formatDateKo(e.date)} · 수태율 경고: ${nameOf(e.stallionId)} 최근 관측 수태율 ${Math.round(e.rate * 100)}% — 은퇴를 검토하세요`;
     case 'stallion_pensioned':
-      return `${formatDateKo(e.date)} · 종마 은퇴: ${nameOf(e.stallionId)}${e.reason === 'fertility' ? ' (저수태)' : ''}`;
+      return `${formatDateKo(e.date)} · 종마 은퇴: ${nameOf(e.stallionId)}${e.reason === 'fertility' ? ' (저수태)' : e.reason === 'age' ? ' (고령)' : ''}`;
     case 'horse_died':
       return `${formatDateKo(e.date)} · 사망: ${nameOf(e.horseId)} (${e.cause === 'age' ? '노령' : e.cause === 'accident' ? '사고' : '질병'})`;
     case 'stud_fee_set':
