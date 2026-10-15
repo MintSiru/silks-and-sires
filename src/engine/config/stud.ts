@@ -31,3 +31,6 @@ export const STUD_POPULARITY_LOG_MULT = 15;
 export const STUD_POPULARITY_REF_FEE = 1_000;
 export const STUD_POPULARITY_MIN = 10;
 export const STUD_POPULARITY_MAX = 80;
+
+/** 거세마는 새해 열 살부터 현역을 계속할 수 없다. */
+export const YEAR_END_GELDING_MAX_AGE = 10;

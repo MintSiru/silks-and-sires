@@ -261,6 +261,10 @@ export function terminateRetainer(
 /** 연초 갱신 판정 한 건. 계약을 고치거나 지우고 이벤트를 돌려준다 */
 function renewOne(draft: GameState, contract: RetainerContract, year: number, date: GameDate): GameEvent {
   const { kind, personId } = contract;
+  if (draft.yearEnd.declinedRenewals.includes(`${kind}:${personId}`)) {
+    removeContract(draft, kind, personId);
+    return { type: 'retainer_changed', kind, personId, change: 'released', fee: 0, date };
+  }
   const person = personView(draft, kind, personId);
   if (person === undefined || person.retired) {
     removeContract(draft, kind, personId);
@@ -302,6 +306,7 @@ export function createContractsSystem(): WeeklySystem {
       for (const contract of due) {
         events.push(renewOne(draft, contract, year, date));
       }
+      draft.yearEnd.declinedRenewals = [];
       return events;
     },
   };

@@ -49,10 +49,11 @@ const BOOT_DATA: BootstrapData = {
  * 2026-10-15 재고정: 5대 혈통 채우기 1회차(Dubawi·Frankel·Kingman·Lope de Vega 쪽 조상 추가)로 바뀜.
  * 2026-10-15 재고정: 1회차 42~44(Storm Cat·Vettori 쪽, Nijinsky 추가)로 바뀜.
  * 2026-10-15 재고정: 5대 혈통 2회차(조상 29두 추가, Blushing Groom 계 분리)로 바뀜.
+ * 2026-10-15 재고정: 5대 혈통 3회차(조상 35두 추가, Waajib 생년 정정, 지명 'Persepolis' 삭제)로 바뀜.
  */
 const PRE_CHANGE_PROJECTION_SHA: Record<number, string> = {
-  20261011: 'f1ae3dedc3e6da43e0b387c6382a60a92db5f2f28423960b5bcb7dc82568c86d',
-  7: '5da7d65991cc37ac1b3650b00f7fb66dc57b662e58f4084faefd118a209e468f',
+  20261011: '2709e553dd6f464ec64fc4a68955408f182e6e7d9f93a1e1f6607a13803f5664',
+  7: '0e11511a40ec336b473d4d0b906746f579da4b323b734de26969a8998b206a78',
 };
 
 function boot(seed: number): GameState {

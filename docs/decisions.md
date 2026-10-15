@@ -279,3 +279,5 @@
 - 2026-10-15 M4-D1a(Opus 직접): GameState.yearEnd·stud 초기화, 저장 v15(옛 저장본은 저장 연도 정산 완료 처리), yearEndPending·advanceWeekGated.
 - 2026-10-15 5대 혈통 2회차 반영(조상 29두 + Acropolis): Espresso 출생국 GB·1984 사망 정정(사용자 확인). Blushing Groom·Rainbow Quest·Rahy·Noverre 가 Storm Cat 계로 잘못 적혀 있어 Blushing Groom 계 신설. 국가 코드 ZA(남아공) 추가(Hawaii 출생국). 부계 연결 시 자리표시 계통(sl_phalaris)은 부 계통으로 맞춤.
 - 2026-10-15 사용자 결정: 북 마감은 주간 점진 마감(11월부터 AI 예약이 매주 쌓임, 모든 종마), 내 종마 초과 수요는 그해 마감 + 다음 해 종부료 자동 인상(D8). D3 명세에 반영 예정.
+- 2026-10-15 M4-D1c 승인(Codex): yearEndCandidates(허용 진로·추천·예상 종부료, 위탁 중이면 속행만), retainerRenewalsDue, submitYearEnd(8종 오류, 실패 시 상태 불변, 은퇴·종마·번식 전환 시 열린 출주 선언 제거), 계약 시스템 'released' 처리. 거세마 현역 상한 10세.
+- 2026-10-15 5대 혈통 3회차 반영(사용자 표 1~42): 조상 35두 추가(The Axe II 포함, Relaunch 의 부 In Reality·외조부 연결은 사용자 제공), Waajib 생년 1982→1983 정정(사용자 지적). 지명 목록에서 'Persepolis' 삭제(같은 이름 실존 종마). 42번 첫 값(Awesome Again)은 Ghostzapper 의 부라 사용자 재확인 후 Relaunch 로 반영.
