@@ -47,10 +47,11 @@ const BOOT_DATA: BootstrapData = {
  * 2026-10-15 재고정: Königsstuhl 부계(Bahram 계) 추가, Monsun 계 신설·Monsun 거리 classic 으로 바뀜.
  * 2026-10-15 재고정: Königsstuhl 거리 classic 으로 바뀜.
  * 2026-10-15 재고정: 5대 혈통 채우기 1회차(Dubawi·Frankel·Kingman·Lope de Vega 쪽 조상 추가)로 바뀜.
+ * 2026-10-15 재고정: 1회차 42~44(Storm Cat·Vettori 쪽, Nijinsky 추가)로 바뀜.
  */
 const PRE_CHANGE_PROJECTION_SHA: Record<number, string> = {
-  20261011: '64e099d5b4c6afff8cf38a3649a7e476880579bf3e29bff077f778c30659ab61',
-  7: '3995faf07c2ffd0603cebc5eff3bfa02849ed835800e997b288e088ae03cb581',
+  20261011: '3ca5c838b81174debd817a0e298caa8a0a2780c670393544b4582e85dc713eb1',
+  7: '75f11b8342ae501137ef7bbfc6765b06fcc9a797a471c1973cdfa7ddb195f68e',
 };
 
 function boot(seed: number): GameState {

@@ -807,7 +807,7 @@
     "foaled": 1983,
     "countryOfBirth": "US",
     "sireKey": "stl_storm_bird",
-    "damsireKey": null,
+    "damsireKey": "stl_secretariat",
     "sireLineId": "sl_storm_cat",
     "status": "historical",
     "standsIn": null,
@@ -4797,7 +4797,7 @@
     "foaled": 1992,
     "countryOfBirth": "IE",
     "sireKey": "stl_machiavellian",
-    "damsireKey": null,
+    "damsireKey": "stl_sir_ivor",
     "sireLineId": "sl_mr_prospector",
     "status": "historical",
     "standsIn": null,
@@ -4805,7 +4805,10 @@
     "surfaceProfile": "turf",
     "marketTier": 5,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "femaleLineSireKeys": [
+      "stl_nijinsky"
+    ]
   },
   {
     "key": "stl_zamindar",
@@ -6883,5 +6886,22 @@
     "coatColour": "bay",
     "confidence": "medium",
     "lastCoverYear": 1999
+  },
+  {
+    "key": "stl_nijinsky",
+    "foaled": 1967,
+    "countryOfBirth": "CA",
+    "sireKey": "stl_northern_dancer",
+    "damsireKey": null,
+    "sireLineId": "sl_northern_dancer",
+    "status": "historical",
+    "standsIn": null,
+    "distanceProfile": "classic",
+    "surfaceProfile": "dirt",
+    "marketTier": 5,
+    "studRole": "flat",
+    "coatColour": "bay",
+    "confidence": "medium",
+    "lastCoverYear": 1992
   }
 ]
