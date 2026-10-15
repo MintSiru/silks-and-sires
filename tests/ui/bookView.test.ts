@@ -16,13 +16,16 @@ import {
   SHUTTLE_RENT_FEE_MULT,
   STUD_DEAL_MONEY_STEP,
 } from '../../src/engine/config/stud';
+import { type RetirePlayerError } from '../../src/engine/stud/fertility';
 import { sellStallion, type TradeError } from '../../src/engine/stud/trade';
 import type { GameState, HorseId, Mare, Stallion } from '../../src/engine/types';
 import {
   bookingWindowKo,
   bookStatusOf,
+  fertilityKo,
   mareBookingKo,
   myStudView,
+  retireErrorKo,
   STUD_EMPTY_KO,
   tradeErrorKo,
 } from '../../src/ui/breeding/bookView';
@@ -266,5 +269,51 @@ describe('번식 암말 예약 표시', () => {
     expect(mareBookingKo(booked, nameOf)).toBe(`${nameOf(stallion.horseId)} 사전 예약(2027 시즌)`);
     expect(mareBookingKo(blankMare, nameOf)).toBeNull();
     expect(mareBookingKo({ ...blankMare, bookedFor: null }, nameOf)).toBeNull();
+  });
+});
+
+describe('수태율 표시·직접 은퇴(M4-D5c)', () => {
+  it('fertilityKo: 기록이 없으면 약 N%(5%p 단위), 교배 100두면 정확한 N%, 20두면 구간', () => {
+    const stallion = pickStallion(base);
+    expect(fertilityKo({ ...stallion, fertility: 0.83, fertilityHistory: [] })).toBe('약 85%');
+    expect(fertilityKo({
+      ...stallion, fertility: 0.83, fertilityHistory: [{ year: 2026, covers: 100, conceptions: 84 }],
+    })).toBe('84%');
+    expect(fertilityKo({
+      ...stallion, fertility: 0.83, fertilityHistory: [{ year: 2026, covers: 20, conceptions: 14 }],
+    })).toMatch(/~/);
+  });
+
+  it('저수태 경고: 최근 두 시즌이 모두 표본 충분·수태율 60% 미만이면 켜지고, 한 시즌뿐이면 꺼진다', () => {
+    const state = playerStudState(30);
+    const id = myStudView(state).stallions[0]!.horseId;
+    const stallion = state.stallions[id]!;
+    const weak = [
+      { year: 2025, covers: 20, conceptions: 10 },
+      { year: 2026, covers: 20, conceptions: 10 },
+    ];
+    state.stallions[id] = { ...stallion, fertilityHistory: weak };
+    expect(myStudView(state).stallions[0]!.fertilityWarning).toBe(true);
+    state.stallions[id] = { ...stallion, fertilityHistory: weak.slice(1) };
+    expect(myStudView(state).stallions[0]!.fertilityWarning).toBe(false);
+  });
+
+  it('은퇴 가능은 거래 창 안이고 임대 중이 아닐 때만 true 다(canDeal 과 같은 조건)', () => {
+    expect(myStudView(playerStudState(30)).stallions[0]!.canRetire).toBe(true);
+    expect(myStudView(playerStudState(10)).stallions[0]!.canRetire).toBe(false);
+
+    const state = playerStudState(30);
+    const row0 = myStudView(state).stallions[0]!;
+    const fee = state.stallions[row0.horseId]!.fee;
+    state.stud.leases.push({ stallionId: row0.horseId, kind: 'long', year: 2026, returnSeason: 2029,
+      rent: fee * LONG_LEASE_RENT_FEE_MULT, paidSeasons: 0 });
+    expect(myStudView(state).stallions[0]!.canRetire).toBe(false);
+  });
+
+  it('retireErrorKo: 오류 4종은 모두 비지 않은 서로 다른 한국어 문구를 준다', () => {
+    const errors: RetirePlayerError[] = ['not_found', 'not_player_stallion', 'outside_deal_window', 'leased'];
+    const texts = errors.map((error) => retireErrorKo(error));
+    for (const text of texts) expect(text.length).toBeGreaterThan(0);
+    expect(new Set(texts).size).toBe(errors.length);
   });
 });

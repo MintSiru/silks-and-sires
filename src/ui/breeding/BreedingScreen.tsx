@@ -35,7 +35,16 @@ import {
   phaseKo,
 } from '../game/text';
 import type { GameApi } from '../game/useGame';
-import { bookingWindowKo, bookStatusOf, mareBookingKo, myStudView, STUD_EMPTY_KO, tradeErrorKo } from './bookView';
+import {
+  bookingWindowKo,
+  bookStatusOf,
+  fertilityKo,
+  mareBookingKo,
+  myStudView,
+  retireErrorKo,
+  STUD_EMPTY_KO,
+  tradeErrorKo,
+} from './bookView';
 import HorseCard from './HorseCard';
 import PedigreeView from './PedigreeView';
 import { salePriceWithNominationsKo } from '../yearEnd/yearEndView';
@@ -289,6 +298,9 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
   const [watch, setWatch] = useState<FoalingWatch | null>(null);
   const [pendingDeal, setPendingDeal] = useState<PendingDeal | null>(null);
   const [dealError, setDealError] = useState<string | null>(null);
+  /** 은퇴 확인 단계 중인 내 종마(한 번에 한 두만 확인한다) */
+  const [retireTarget, setRetireTarget] = useState<HorseId | null>(null);
+  const [retireError, setRetireError] = useState<string | null>(null);
 
   /** 이름 없는 모마 칸(~dam)은 미상 이름('—')으로 보인다 */
   const nameOf = (id: HorseId): string =>
@@ -426,7 +438,36 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
   /** 거래 확인 단계를 연다. 국내 판매는 교배권 0개, 장기 임대는 가장 이른 복귀 시즌이 기본이다. */
   const startDeal = (horseId: HorseId, kind: DealKind): void => {
     setDealError(null);
+    setRetireTarget(null);
+    setRetireError(null);
     setPendingDeal({ horseId, kind, nominations: 0, returnSeason: state.date.year + LONG_LEASE_FIRST_RETURN_OFFSET });
+  };
+
+  /** 은퇴 확인 단계를 연다. 거래 확인 단계는 닫는다. */
+  const startRetire = (horseId: HorseId): void => {
+    setPendingDeal(null);
+    setDealError(null);
+    setRetireError(null);
+    setRetireTarget(horseId);
+  };
+
+  /** 은퇴를 확정한다. 실패하면 사유를 alert 로 보인다. */
+  const confirmRetire = (): void => {
+    if (retireTarget === null) return;
+    const name = nameOf(retireTarget);
+    const result = game.retireStallion(retireTarget);
+    setRetireTarget(null);
+    if (result.ok) {
+      setRetireError(null);
+      setNotice({ tone: 'ok', text: `${name} 은퇴 완료` });
+    } else {
+      setRetireError(retireErrorKo(result.error));
+    }
+  };
+
+  const cancelRetire = (): void => {
+    setRetireTarget(null);
+    setRetireError(null);
   };
 
   /** 확인된 거래를 엔진에 넘긴다. 실패하면 사유를 alert 로 보인다. */
@@ -593,6 +634,7 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
             <span>계류국</span>
             <span>종부료</span>
             <span>계통</span>
+            <span>수태율</span>
             <span>북</span>
           </div>
           <ul className="stallion-list">
@@ -613,6 +655,7 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
                     <span>{countryKo(row.stallion.standsIn)}</span>
                     <span>{feeKo(row.stallion.fee)}</span>
                     <span>{lineLabelOf(row.stallion.sireLineId)}</span>
+                    <span>{fertilityKo(row.stallion)}</span>
                     <span>{book.labelKo}</span>
                   </button>
                 </li>
@@ -671,6 +714,8 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
               <dd>{growthKo(matingView.preview.precocityHint)}</dd>
               <dt>종부료</dt>
               <dd>{feeKo(stallion.fee)}</dd>
+              <dt>수태율</dt>
+              <dd>{fertilityKo(stallion)}</dd>
             </dl>
             <ul className="comments">
               {matingView.preview.comments.map((c, index) => (
@@ -715,6 +760,7 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
                   <th>종마</th>
                   <th>종부료</th>
                   <th>북</th>
+                  <th>수태율</th>
                   <th>첫 시즌</th>
                   <th>임대</th>
                   <th>거래</th>
@@ -728,16 +774,29 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
                       <td>{row.name}</td>
                       <td>{row.feeKo}</td>
                       <td>{row.bookKo}</td>
+                      <td>
+                        {row.fertilityKo}
+                        {row.fertilityWarning && <span className="notice notice--error"> ⚠ 저수태</span>}
+                      </td>
                       <td>{`${row.firstSeasonYear} 시즌`}</td>
                       <td>{row.leaseKo ?? NO_VALUE}</td>
                       <td>
-                        {!row.canDeal ? NO_VALUE : pending === null ? (
+                        {retireTarget === row.horseId && pending === null ? (
+                          <div className="deal-confirm">
+                            <span>{`${row.name} 은퇴: 종마사 칸이 비고 되돌릴 수 없습니다`}</span>
+                            <button type="button" className="btn btn--primary" onClick={confirmRetire}>확정</button>
+                            <button type="button" className="btn" onClick={cancelRetire}>취소</button>
+                          </div>
+                        ) : !row.canDeal && !row.canRetire ? NO_VALUE : pending === null ? (
                           <div className="deal-actions">
-                            {DEAL_KINDS.map((kind) => (
+                            {row.canDeal && DEAL_KINDS.map((kind) => (
                               <button key={kind} type="button" className="btn" onClick={() => startDeal(row.horseId, kind)}>
                                 {DEAL_LABEL_KO[kind]}
                               </button>
                             ))}
+                            {row.canRetire && (
+                              <button type="button" className="btn" onClick={() => startRetire(row.horseId)}>은퇴</button>
+                            )}
                           </div>
                         ) : (
                           <div className="deal-confirm">
@@ -794,6 +853,7 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
           </div>
         )}
         {dealError !== null && <p className="notice notice--error" role="alert">{dealError}</p>}
+        {retireError !== null && <p className="notice notice--error" role="alert">{retireError}</p>}
         {studView.nominations.length > 0 && (
           <>
             <h3>남긴 교배권</h3>

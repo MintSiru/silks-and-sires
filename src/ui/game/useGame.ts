@@ -9,6 +9,7 @@ import type { StallionSaleMode, YearEndSubmission } from '../../engine/types/stu
 import { isInPhase } from '../../engine/time/calendar';
 import { bookCovering, type BookingResult } from '../../engine/breeding/season';
 import { leaseStallion, sellStallion } from '../../engine/stud/trade';
+import { retirePlayerStallion } from '../../engine/stud/fertility';
 import { deserializeGame, serializeGame } from '../../engine/save/serialize';
 import {
   getBookmakers,
@@ -73,6 +74,8 @@ export interface GameApi {
   sellStallion(horseId: HorseId, mode: StallionSaleMode, nominations: number): ReturnType<typeof sellStallion>;
   /** 내 종마를 셔틀(returnSeason 생략) 또는 장기(returnSeason 필수) 임대한다. 성공 시 state 갱신·이벤트 기록 */
   leaseStallion(horseId: HorseId, kind: 'shuttle' | 'long', returnSeason?: number): ReturnType<typeof leaseStallion>;
+  /** 내 종마를 직접 은퇴시킨다(거래 창 28~43주, 임대 아님). 성공 시 state 갱신·이벤트 기록, 실패하면 사유를 돌려준다 */
+  retireStallion(horseId: HorseId): ReturnType<typeof retirePlayerStallion>;
   /** 플레이어 말 출주 접수(성공 시 state 갱신). meetingId 는 seasonState.meetings 의 개최 id */
   declarePlayerHorse(meetingId: string, raceId: RaceId, horseId: HorseId): PlayerResult<DeclareError>;
   withdrawPlayerHorse(meetingId: string, raceId: RaceId, horseId: HorseId): PlayerResult<WithdrawError>;
@@ -267,6 +270,18 @@ export function useGame(): GameApi {
     [requireState],
   );
 
+  const retireStallionWith = useCallback(
+    (horseId: HorseId): ReturnType<typeof retirePlayerStallion> => {
+      const result = retirePlayerStallion(requireState(), horseId);
+      if (!result.ok) return result;
+      const next = appendEvents(result.state, result.events);
+      stateRef.current = next;
+      setState(next);
+      return { ok: true, state: next, events: result.events };
+    },
+    [requireState],
+  );
+
   const submitYearEndWith = useCallback(
     (submission: YearEndSubmission): ReturnType<typeof submitYearEnd> => {
       const result = submitYearEnd(requireState(), submission);
@@ -420,6 +435,7 @@ export function useGame(): GameApi {
     book,
     sellStallion: sellStallionWith,
     leaseStallion: leaseStallionWith,
+    retireStallion: retireStallionWith,
     submitYearEnd: submitYearEndWith,
     declarePlayerHorse: declarePlayer,
     withdrawPlayerHorse: withdrawPlayer,

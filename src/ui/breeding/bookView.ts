@@ -1,5 +1,8 @@
 import { bookingSeasonOf, nominationsLeft } from '../../engine/breeding/season';
 import {
+  FERTILITY_MIN_SAMPLE,
+  FERTILITY_RETIRE_RATE,
+  FERTILITY_RETIRE_SEASONS,
   LONG_LEASE_RENT_FEE_MULT,
   NOMINATION_MAX_PER_SEASON,
   SHUTTLE_RENT_FEE_MULT,
@@ -7,6 +10,7 @@ import {
   STUD_DEAL_LAST_WEEK,
   STUD_DEAL_MONEY_STEP,
 } from '../../engine/config/stud';
+import { publicFertility, type RetirePlayerError } from '../../engine/stud/fertility';
 import { freeStudSlots } from '../../engine/stud/stand';
 import { salePriceQuote, type TradeError } from '../../engine/stud/trade';
 import { isInPhase } from '../../engine/time/calendar';
@@ -81,6 +85,12 @@ export interface MyStudStallionRow {
   shuttleRentKo: string;
   /** 장기 임대료(연간, '/년' 포함) */
   longRentKo: string;
+  /** 공개 수태율 문구(fertilityKo) */
+  fertilityKo: string;
+  /** 마지막 FERTILITY_RETIRE_SEASONS 개 기록이 모두 표본 충분 + 수태율 미달이면 true(저수태 경고) */
+  fertilityWarning: boolean;
+  /** 은퇴 가능 여부. canDeal 과 같은 조건(거래 창 안·임대 아님) */
+  canRetire: boolean;
 }
 
 /** 남긴 교배권 한 줄(판매한 종마 포함) */
@@ -142,6 +152,36 @@ function dealWindowTextKo(state: GameState): string {
     : `종마 판매·임대는 ${STUD_DEAL_FIRST_WEEK}~${STUD_DEAL_LAST_WEEK}주에만 할 수 있습니다`;
 }
 
+/** 수태율 소수(0~1)를 정수 퍼센트 문자열 숫자로 바꾼다 */
+function percentOf(rate: number): number {
+  return Math.round(rate * 100);
+}
+
+/** 공개 수태율 표시 문구. 기록이 없으면 '약 N%'(추정), 표본이 적으면 'L~H%'(구간), 충분하면 'N%'(정확). */
+export function fertilityKo(stallion: Stallion): string {
+  const value = publicFertility(stallion);
+  switch (value.kind) {
+    case 'none':
+      return '—';
+    case 'estimate':
+      return `약 ${percentOf(value.rate)}%`;
+    case 'range':
+      return `${percentOf(value.low)}~${percentOf(value.high)}%`;
+    case 'exact':
+      return `${percentOf(value.rate)}%`;
+  }
+}
+
+/** 마지막 FERTILITY_RETIRE_SEASONS 개 기록이 모두 교배 표본 충분 + 수태율 미달인지(저수태 경고) */
+function fertilityWarningOf(stallion: Stallion): boolean {
+  const recent = (stallion.fertilityHistory ?? []).slice(-FERTILITY_RETIRE_SEASONS);
+  // 엔진 판정(stud/fertility.ts judgeRetirement)과 같게 연속 시즌만 본다
+  return recent.length === FERTILITY_RETIRE_SEASONS
+    && recent.every((season, i) => i === 0 || season.year === recent[i - 1]!.year + 1)
+    && recent.every((season) =>
+      season.covers >= FERTILITY_MIN_SAMPLE && season.conceptions / season.covers < FERTILITY_RETIRE_RATE);
+}
+
 /** 거래 오류 사유를 한국어 문구로 바꾼다 */
 export function tradeErrorKo(error: TradeError): string {
   switch (error) {
@@ -162,6 +202,20 @@ export function tradeErrorKo(error: TradeError): string {
   }
 }
 
+/** 직접 은퇴 오류 사유를 한국어 문구로 바꾼다 */
+export function retireErrorKo(error: RetirePlayerError): string {
+  switch (error) {
+    case 'not_found':
+      return '말을 찾을 수 없습니다.';
+    case 'not_player_stallion':
+      return '내 종마만 은퇴시킬 수 있습니다.';
+    case 'outside_deal_window':
+      return `종마 은퇴는 ${STUD_DEAL_FIRST_WEEK}~${STUD_DEAL_LAST_WEEK}주에만 할 수 있습니다.`;
+    case 'leased':
+      return '임대 중인 종마는 은퇴시킬 수 없습니다. 임대가 끝난 뒤 다시 시도하세요.';
+  }
+}
+
 /** 내 종마 화면: 플레이어 소유·status 'stud' 종마와 최근 정산 기록(최신순, 최대 10건) */
 export function myStudView(state: GameState): MyStudView {
   const used = state.stud.slots - freeStudSlots(state);
@@ -174,6 +228,7 @@ export function myStudView(state: GameState): MyStudView {
       if (stallion === undefined) return [];
       const lease = state.stud.leases.find((entry) => entry.stallionId === horse.id);
       const quote = salePriceQuote(state, horse.id);
+      const canDeal = dealWindowOpen(state) && lease === undefined;
       return [{
         horseId: horse.id,
         name: horse.name,
@@ -183,9 +238,12 @@ export function myStudView(state: GameState): MyStudView {
         leaseKo: lease === undefined ? null
           : `${lease.kind === 'shuttle' ? '셔틀 임대 중' : '장기 임대 중'}(${lease.returnSeason} 시즌 복귀)`,
         salePrice: quote === null ? null : { domesticKo: feeKo(quote.domestic), overseasKo: feeKo(quote.overseas) },
-        canDeal: dealWindowOpen(state) && lease === undefined,
+        canDeal,
         shuttleRentKo: feeKo(roundDealMoney(stallion.fee * SHUTTLE_RENT_FEE_MULT)),
         longRentKo: `${feeKo(roundDealMoney(stallion.fee * LONG_LEASE_RENT_FEE_MULT))}/년`,
+        fertilityKo: fertilityKo(stallion),
+        fertilityWarning: fertilityWarningOf(stallion),
+        canRetire: canDeal,
       }];
     })
     .sort((a, b) => compareText(a.name, b.name) || compareText(a.horseId, b.horseId));
