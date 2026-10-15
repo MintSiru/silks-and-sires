@@ -260,3 +260,4 @@
 - 2026-10-15 | 승인 | M4-C7b 내부거래 제안·후원 등급 화면(Codex): 세일 탭 맨 위 후원 배지, '개인 거래 제안' 구역(검사·구매·거절). 브라우저 확인(콘솔 오류 0). Opus 수정: 일반 등급 혜택 문구를 '혜택 없음 — …'으로. C단계 완료.
 - 2026-10-15 | 승인 | M4-BET1 가상 베팅 회사 4곳(Holmgrave Turf Accounts·Ardmorrow Racing Accounts·Comptoir Hippique de Lauvrac·Vantor Odds Europe)과 스폰서 레이스 27건(G1 2건, 세일 회사 4곳 자국 레이스 — 미국 회사는 미국 경마장이 없어 0건 유지). Opus 수정: 프랑스 회사 shortName 'Lauvrac'(레이스명 길이).
 - 2026-10-15 | 결정(Opus) | 이탈리아 종마: Ulysses 는 기존 레코드 계류지 GB → IT, 등급 2 → 4. 종부료 비공개·미확인 이탈리아 종마는 등급 5. 독일 미확인 2두 이름(사용자): Neatico(Medicean × Sadler's Wells), Accon(Camelot × Dubawi).
+- 2026-10-15 | 승인 | M4-BET2 베팅 엔진·스폰서 적용(Codex, betting/betting.ts·sponsorship.ts): 단승·연승(영국식 연승 조건 표), 레이스당 €20,000, 경주 확정 오즈(SP) 정산, 동착 규칙, 출주 취소·레이스 취소 환불, 레이팅 기반 예상 오즈. 스폰서 이름·상금은 템플릿 로드 때 적용(26주 우승마 불변). Opus 수정: 정산 기록의 이름 사본을 타입 밖 필드로 저장하던 것을 SettledBet.horseName·raceName 정식 필드로(약 13만 토큰).

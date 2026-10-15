@@ -1,3 +1,7 @@
+import bookmakersJson from '../../../data/betting/bookmakers.json';
+import sponsorshipsJson from '../../../data/calendar/sponsorships.json';
+import { applySponsorships } from '../betting/sponsorship';
+import type { BookmakersDataFile, SponsorshipsDataFile } from '../types';
 import racecoursesJson from '../../../data/racecourses.json';
 import racesJson from '../../../data/races.json';
 import namesJson from '../../../data/names.json';
@@ -95,8 +99,19 @@ const RACE_TEMPLATES: RaceTemplate[] = [
   ...(g1ExtraJson as RaceTemplate[]),
 ];
 
+let cachedSponsoredTemplates: RaceTemplate[] | null = null;
+
+export function getBookmakers() {
+  return (bookmakersJson as BookmakersDataFile).bookmakers;
+}
+
+export function getSponsorships() {
+  return (sponsorshipsJson as SponsorshipsDataFile).sponsorships;
+}
+
 export function getRaceTemplates(): RaceTemplate[] {
-  return RACE_TEMPLATES;
+  cachedSponsoredTemplates ??= applySponsorships(RACE_TEMPLATES, getSponsorships(), getBookmakers(), getSalesData().companies);
+  return cachedSponsoredTemplates;
 }
 
 /** 시리즈 정의 (data/calendar/series.json). A4a 가 채운다. 현재는 빈 배열일 수 있다. */

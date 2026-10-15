@@ -61,6 +61,9 @@ export interface Bet {
 
 /** 정산된 베팅(최근 기록) */
 export interface SettledBet extends Bet {
+  /** 정산 때 이름 사본(개최·말이 지워진 뒤에도 기록을 보이기 위해) */
+  horseName: string;
+  raceName: string;
   /** 확정 오즈(SP). 말이 빠졌으면 null(환불) */
   startingPrice: FractionalOdds | null;
   /** 착순(빠졌으면 null) */

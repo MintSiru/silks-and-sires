@@ -1,3 +1,4 @@
+import { settleBetsForRace } from '../betting/betting';
 import { RACE_SEED_MAX, SIMULATE_GRADES } from '../config/season';
 import { rollGoing } from '../going/going';
 import { runRace } from '../race/runRace';
@@ -77,6 +78,9 @@ export function runMeetingInPlace(
   const events: GameEvent[] = [];
 
   for (const sr of meeting.races) {
+    if (sr.status === 'abandoned') {
+      events.push(...settleBetsForRace(draft, meeting.id, sr.race.id, null, sr.race.kind === 'handicap'));
+    }
     if (sr.status !== 'closed') {
       races.push(structuredClone(sr));
       continue;
@@ -123,6 +127,7 @@ export function runMeetingInPlace(
         classicTemplateIds: ctx.classicTemplateIds,
       }),
     );
+    events.push(...settleBetsForRace(draft, meeting.id, sr.race.id, result, sr.race.kind === 'handicap'));
     results.push(result);
     races.push(scheduled);
   }
