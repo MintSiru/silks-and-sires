@@ -1,3 +1,4 @@
+import BettingPanel from '../betting/BettingPanel';
 import { useMemo, useState } from 'react';
 import type { JSX } from 'react';
 import { formatDateKo } from '../../engine/time/calendar';
@@ -87,6 +88,7 @@ interface SeasonViewProps {
 }
 
 function SeasonView({ state, game, locked }: SeasonViewProps): JSX.Element {
+  const [betRace, setBetRace] = useState<{ meetingId: string; raceId: string } | null>(null);
   const [notice, setNotice] = useState<Notice | null>(null);
   /** 레이스별로 고른 출주 말(키: raceKey) */
   const [racePicks, setRacePicks] = useState<Record<string, HorseId>>({});
@@ -304,6 +306,8 @@ function SeasonView({ state, game, locked }: SeasonViewProps): JSX.Element {
                       <RaceRow
                         key={key}
                         race={race}
+                        locked={locked}
+                        onBet={() => setBetRace({ meetingId: race.meetingId, raceId: race.raceId })}
                         eligible={eligibleByRace.get(key) ?? []}
                         pick={racePicks[key]}
                         onPick={(horseId) => setRacePick(key, horseId)}
@@ -318,6 +322,11 @@ function SeasonView({ state, game, locked }: SeasonViewProps): JSX.Element {
           )}
         </section>
       </div>
+
+      {betRace !== null && <BettingPanel
+        key={raceKey(betRace.meetingId, betRace.raceId)}
+        state={state} game={game} meetingId={betRace.meetingId} raceId={betRace.raceId} locked={locked}
+      />}
 
       <section className="panel">
         <h2>최근 결과</h2>
@@ -414,6 +423,8 @@ function PlayerHorseCard({ horse, choices, pick, onPick, onAssign }: PlayerHorse
 }
 
 interface RaceRowProps {
+  locked: boolean;
+  onBet: () => void;
   race: MeetingRaceView;
   /** 지금 낼 수 있는 내 말 */
   eligible: PlayerHorseOption[];
@@ -423,7 +434,7 @@ interface RaceRowProps {
   onWithdraw: (horseId: HorseId) => void;
 }
 
-function RaceRow({ race, eligible, pick, onPick, onDeclare, onWithdraw }: RaceRowProps): JSX.Element {
+function RaceRow({ race, eligible, pick, onPick, onDeclare, onWithdraw, locked, onBet }: RaceRowProps): JSX.Element {
   const open = race.status === 'open';
   const declared = race.playerDeclared;
   return (
@@ -433,6 +444,7 @@ function RaceRow({ race, eligible, pick, onPick, onDeclare, onWithdraw }: RaceRo
         <span>{race.gradeLabel}</span>
         <span>{race.distanceLabel}</span>
         <span>{RACE_STATUS_KO[race.status]}</span>
+        {open && <button type="button" className="btn" disabled={locked} onClick={onBet}>베팅</button>}
       </div>
       <p className="hint">
         {race.conditionsLabel} · 총상금 {feeKo(race.totalPrize)} · 출주 {race.runners}/{race.maxRunners}두

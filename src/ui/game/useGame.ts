@@ -1,3 +1,4 @@
+import { placeBet, cancelBet, type BetError } from '../../engine/betting/betting';
 import { acceptPrivateOffer, declinePrivateOffer, type AcceptPrivateOfferError, type DeclinePrivateOfferError } from '../../engine/sales/privateTrade';
 import { useCallback, useRef, useState } from 'react';
 import { WEEKS_PER_YEAR, EVENT_LOG_LIMIT } from '../../engine/config/game';
@@ -8,6 +9,7 @@ import { isInPhase } from '../../engine/time/calendar';
 import { bookCovering, type BookingResult } from '../../engine/breeding/season';
 import { deserializeGame, serializeGame } from '../../engine/save/serialize';
 import {
+  getBookmakers,
   getNamingData,
   getNicks,
   getPeopleData,
@@ -55,6 +57,8 @@ import {
 } from '../storage/saveStore';
 
 export interface GameApi {
+  placeBet(input: Parameters<typeof placeBet>[1]): PlayerResult<BetError>;
+  cancelBet(betId: string): ReturnType<typeof cancelBet>;
   state: GameState | null;
   lastEvents: GameEvent[];          // 마지막 진행에서 나온 이벤트
   newGame(seed: number, playerName: string, economyMode: EconomyMode): void;   // bootstrapGame(세계·인물·현역마·첫 개최), 경제 모드는 새 게임 때 고른다
@@ -313,6 +317,16 @@ export function useGame(): GameApi {
     [requireState, applyPlayerResult],
   );
 
+  const placePlayerBet = useCallback(
+    (input: Parameters<typeof placeBet>[1]) =>
+      applyPlayerResult(placeBet(requireState(), input, { bookmakers: getBookmakers() })),
+    [requireState, applyPlayerResult],
+  );
+  const cancelPlayerBet = useCallback(
+    (betId: string) => applyPlayerResult(cancelBet(requireState(), betId)),
+    [requireState, applyPlayerResult],
+  );
+
   const save = useCallback(async (): Promise<void> => {
     const current = requireState();
     const savedAt = new Date().toISOString();
@@ -341,6 +355,8 @@ export function useGame(): GameApi {
 
   return {
     state,
+    placeBet: placePlayerBet,
+    cancelBet: cancelPlayerBet,
     lastEvents,
     newGame,
     advance,

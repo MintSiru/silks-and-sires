@@ -1,3 +1,6 @@
+import { BET_MIN_STAKE } from '../../engine/config/betting';
+import type { BetError } from '../../engine/betting/betting';
+import type { BetKind } from '../../engine/types';
 import type { SalePatronTier } from '../../engine/sales/patron';
 import type { AcceptPrivateOfferError, InspectOfferError } from '../../engine/sales/privateTrade';
 import commentsJson from '../../../data/text/comments.ko.json';
@@ -816,4 +819,23 @@ export function privateOfferErrorKo(error: AcceptPrivateOfferError | InspectOffe
 
 export function patronTierKo(tier: SalePatronTier): string {
   return { none: '일반', silver: '실버', gold: '골드' }[tier];
+}
+
+const BET_ERROR_KO: Record<BetError, string> = {
+  bookmaker_not_found: '베팅 회사를 찾을 수 없습니다.',
+  race_not_found: '레이스를 찾을 수 없습니다.',
+  race_closed: '베팅이 마감된 레이스입니다.',
+  horse_not_declared: '출주 선언된 말을 고르세요.',
+  invalid_stake: `베팅 금액은 최소 ${feeKo(BET_MIN_STAKE)} 이상의 정수여야 합니다.`,
+  each_way_unavailable: '4두 이하 레이스에는 연승을 걸 수 없습니다.',
+  over_limit: '이 레이스의 베팅 지출 한도를 초과했습니다.',
+  insufficient_funds: '베팅할 자금이 부족합니다.',
+};
+
+export function betErrorKo(error: BetError): string {
+  return BET_ERROR_KO[error];
+}
+
+export function betKindKo(kind: BetKind): string {
+  return kind === 'win' ? '단승' : '연승';
 }
