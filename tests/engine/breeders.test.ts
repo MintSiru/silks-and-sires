@@ -46,10 +46,11 @@ const BOOT_DATA: BootstrapData = {
  * 2026-10-15 재고정: Elegant Air·Super Concorde 의 부(Shirley Heights·Bold Reasoning) 연결로 바뀜.
  * 2026-10-15 재고정: Königsstuhl 부계(Bahram 계) 추가, Monsun 계 신설·Monsun 거리 classic 으로 바뀜.
  * 2026-10-15 재고정: Königsstuhl 거리 classic 으로 바뀜.
+ * 2026-10-15 재고정: 5대 혈통 채우기 1회차(Dubawi·Frankel·Kingman·Lope de Vega 쪽 조상 추가)로 바뀜.
  */
 const PRE_CHANGE_PROJECTION_SHA: Record<number, string> = {
-  20261011: '3ef6aa495ce4eec92a3a140181f71f1bf6bbf70269bbaa75400a38bd566595f0',
-  7: '9105958d49d06f7db436f635a49110ef7abf4a06000de5642f3afd635c2623b2',
+  20261011: '64e099d5b4c6afff8cf38a3649a7e476880579bf3e29bff077f778c30659ab61',
+  7: '3995faf07c2ffd0603cebc5eff3bfa02849ed835800e997b288e088ae03cb581',
 };
 
 function boot(seed: number): GameState {

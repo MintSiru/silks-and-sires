@@ -272,3 +272,4 @@
 - 2026-10-15 부계 보완: Elegant Air ← Shirley Heights, Super Concorde ← Bold Reasoning(사용자 제공, 털색 bay·brown). 부계 미확인 예외에서 Isfahan·Alson·Rubaiyat 삭제(남은 예외 Windstoss). 투영 해시 재고정.
 - 2026-10-15 Windstoss 부계 보완: Königsstuhl ← Dschingis Khan ← Tamerlane ← Persian Gulf ← Bahram 추가(사용자 제공). 계통 sl_bahram(뿌리)·sl_monsun(Monsun·Shirocco·Windstoss) 신설, Monsun·Königsstuhl 의 잘못된 Sadler's Wells 계 표기 수정. Monsun 거리 speed→classic(10~12f G1 실적), Königsstuhl 털색 brown. 부계 예외 목록 비움. 해시 재고정.
 - 2026-10-15 Königsstuhl 거리 speed→classic(사용자 결정). 해시 재고정. 5대 혈통 채우기는 1안(종마 3~4두씩 빈 칸 표로 사용자에게 요청)으로 진행, 1회차 Dubawi·Frankel·Kingman·Lope de Vega 44칸.
+- 2026-10-15 5대 혈통 1회차 반영(사용자 표 1~41): 새 조상 28두(sire 미상·sl_phalaris 자리표시, 미국·캐나다·아르헨티나 출생은 surface dirt — 유럽 경주 경력이 알려진 말은 turf), damsire·femaleLineSireKeys 연결, Machiavellian 털색 brown. 42~44(Storm Cat·Vettori) 대기.
