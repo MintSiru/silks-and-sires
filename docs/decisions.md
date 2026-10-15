@@ -312,3 +312,4 @@
 - 2026-10-15 M4-D5b 승인(haiku-coder): stud/fertility.ts(관측 수태 기록 28주, 공개 수태율 추정/구간/정확, 저수태 판명 7주, 은퇴 판정, retirePlayerStallion), 재산정은 바닥 아래 수태율을 올리지 않음. 시스템 stud_fertility 를 stud_leases 다음에 등록(Opus).
 - 2026-10-15 5대 혈통 12회차 반영(50칸, 조상 13두). Warning 출생국 미국 유지(사용자 확인: 켄터키 생산). 부계 자동 정리 7두. 고정 해시 재고정(breeders·playerSireCrops·starterStrength·stallionTradeIntegration fees).
 - 2026-10-15 M4-D5c 승인(haiku-coder, Opus 1곳 수정): 종마 목록·교배 미리보기·내 종마 표에 공개 수태율, 저수태 경고, 내 종마 은퇴 버튼(28~43주), GameApi.retireStallion. Opus: 화면 경고도 엔진처럼 연속 시즌만 보게 함.
+- 2026-10-15 5대 혈통 13회차 반영(50칸, 조상 23두 — Hyperion·Mahmoud 포함). Lord At War 는 기존 기록(대소문자). 고정 해시 재고정(breeders·playerSireCrops·starterStrength·stallionTradeIntegration fees).
