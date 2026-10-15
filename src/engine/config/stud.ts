@@ -37,3 +37,24 @@ export const YEAR_END_GELDING_MAX_AGE = 10;
 
 /** 11월 첫 주부터 다음 시즌 예약을 받는다. */
 export const BOOKING_OPEN_WEEK = 44;
+
+/** 인기 30·90에서 북 대비 수요 65%·130%를 기준으로 선형 보간한다. */
+export const BOOK_DEMAND_RATIO_AT_POP30 = 0.65;
+export const BOOK_DEMAND_RATIO_AT_POP90 = 1.3;
+/** 비인기·최상위 종마의 기본 수요를 북의 30~160%로 제한한다. */
+export const BOOK_DEMAND_RATIO_MIN = 0.3;
+export const BOOK_DEMAND_RATIO_MAX = 1.6;
+/** 첫 3시즌은 신인 기대감으로 수요를 15% 가산한다. */
+export const BOOK_FRESHMAN_SEASONS = 3;
+export const BOOK_FRESHMAN_MULT = 1.15;
+/** 20세부터 노령 종마 수요를 15% 낮춘다. */
+export const BOOK_OLD_AGE = 20;
+export const BOOK_OLD_MULT = 0.85;
+/** 시즌별 수요 변동은 로그정규 표준편차 0.15를 쓴다. */
+export const BOOK_DEMAND_NOISE_SD = 0.15;
+/** AI 예약은 4월 중순까지 누적한다. */
+export const BOOK_ACCRUAL_END_WEEK = 16;
+/** 인기 종마가 겨울에 마감되도록 누적 수요를 앞쪽에 몰아준다. */
+export const BOOK_ACCRUAL_SHAPE = 2;
+/** 저장 크기를 제한하면서 최근 종마 시즌 기록 60건을 보존한다. */
+export const STUD_SEASON_HISTORY_LIMIT = 60;

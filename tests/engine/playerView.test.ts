@@ -81,6 +81,7 @@ describe('createGameSystems', () => {
       'calendar',
       'growth',
       'breeding',
+      'stud_books',
       'population',
       'season',
       'sales',
