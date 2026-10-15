@@ -309,10 +309,10 @@ it('판매·임대·교배권 없는 시드 20261011의 52주 결과는 변경 �
   expect(first.stud.leases).toEqual([]);
   expect(first.stud.nominations).toEqual([]);
   expect(first.raceResults.length).toBeGreaterThan(0);
-  // 구현 전 HEAD의 같은 bootstrapGame·전체 주간 시스템으로 측정한 SHA-256. fees·raceResults 는 2026-10-15 5대 혈통 11회차 데이터·어휘 정리(이름 변화)로 재고정.
+  // 구현 전 HEAD의 같은 bootstrapGame·전체 주간 시스템으로 측정한 SHA-256. raceResults 는 2026-10-15 11회차 어휘 정리(이름 변화), fees 는 12회차 데이터·D5b 수태율 감소 규칙으로 재고정.
   expect(hashes(first)).toEqual({
     raceResults: 'ac708ee83465e0f5a102ccc05d0b481e44fda4f3174df81003d1dfdd4eb6be59',
-    fees: '03f13d219b6a4287e94e3d1f7140224938143d8b431b5a22fcfbf8b06e35af51',
+    fees: '2a39e562b083e4e131cafb36220df61019a2f2018b0b430c2521f38213c2ebda',
     ledger: 'a85b7d8e7c1d430fad4a3923522654b34d260d4d2fbf14fb1c07c75ab17a427f',
   });
   expect(simulate()).toEqual(first);

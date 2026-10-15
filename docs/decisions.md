@@ -308,3 +308,6 @@
 - 2026-10-15 5대 혈통 10회차 반영(51칸, 조상 23두). Sheshoon 털색 bay → chestnut(사용자 확인, 혈통 DB 4곳 일치). 부계 자동 정리 5두(Petionville·Mining·Chester House → Mr. Prospector, Houston·Slew o' Gold → Seattle Slew). 고정 해시 재고정(breeders·playerSireCrops·starterStrength·stallionTradeIntegration fees).
 - 2026-10-15 M4-D4b 승인(haiku-coder): 연말 정산 국내·해외 판매 진로(가격 표시, 국내 판매 교배권 0~2 선택), '내 종마' 판매·셔틀/장기 임대 버튼(28~43주), 남긴 교배권·판매 기록 표, GameApi sellStallion·leaseStallion(이벤트 기록).
 - 2026-10-15 5대 혈통 11회차 반영(50칸, 조상 23두, #27 Double Zeus 정정). 실존 종마와 겹친 어휘 Dominion·Match 삭제. 고정 해시 재고정(breeders·playerSireCrops·starterStrength·namingLandmarks·stallionTradeIntegration fees·raceResults — 이름 변화). starterHorses 4번: ST1 뒤 지급 3세마 OR(이번 시드 108)이 핸디캡 상한을 넘을 수 있어 리스티드·그룹도 출주처로 인정.
+- 2026-10-15 사용자 결정: 저수태 은퇴 '현실형' — 수태율 감소 18세부터 연 −2%p, 첫 시즌 저수태 판명 2%(35~55%), 관측 수태율 60% 미만 2시즌 연속(시즌 교배 10두 이상)이면 AI·실명·국내 판매 종마 은퇴, 내 종마는 경고 후 직접 은퇴(28~43주).
+- 2026-10-15 M4-D5b 승인(haiku-coder): stud/fertility.ts(관측 수태 기록 28주, 공개 수태율 추정/구간/정확, 저수태 판명 7주, 은퇴 판정, retirePlayerStallion), 재산정은 바닥 아래 수태율을 올리지 않음. 시스템 stud_fertility 를 stud_leases 다음에 등록(Opus).
+- 2026-10-15 5대 혈통 12회차 반영(50칸, 조상 13두). Warning 출생국 미국 유지(사용자 확인: 켄터키 생산). 부계 자동 정리 7두. 고정 해시 재고정(breeders·playerSireCrops·starterStrength·stallionTradeIntegration fees).
