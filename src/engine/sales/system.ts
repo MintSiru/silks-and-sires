@@ -6,7 +6,8 @@
  * 로트 입찰은 `${initialSeed}:bids:${saleId}:${year}:${lotNo}` 스트림을 쓴다.
  * 설계: docs/m4-sales-design.md 1·4장.
  */
-import { SALE_CATALOGUE_KEEP_WEEKS, SALE_CATALOGUE_LEAD_WEEKS, SALE_HISTORY_YEARS } from '../config/sales';
+import { SALE_CATALOGUE_KEEP_WEEKS, SALE_CATALOGUE_BUILD_LEAD_WEEKS, SALE_HISTORY_YEARS } from '../config/sales';
+import { catalogueVisibleWeek, patronView } from './patron';
 import { createRng } from '../rng';
 import { addWeeks, weeksBetween } from '../time/calendar';
 import type {
@@ -29,9 +30,9 @@ export interface SalesStaticData {
   sales?: SalesDataFile;
 }
 
-/** 세일의 카탈로그 발표 주 = 세일 시작 주 − SALE_CATALOGUE_LEAD_WEEKS */
+/** 세일의 카탈로그 생성·위탁 마감 주 = 세일 시작 주 − SALE_CATALOGUE_BUILD_LEAD_WEEKS */
 export function announceWeekOf(event: SaleEventDef): number {
-  return event.week - SALE_CATALOGUE_LEAD_WEEKS;
+  return event.week - SALE_CATALOGUE_BUILD_LEAD_WEEKS;
 }
 
 /** 세일의 마지막 북 주(카탈로그 연도 기준). 세일 시작 주 + 가장 늦은 북 오프셋 */
@@ -140,7 +141,7 @@ export function createSalesSystem(data: SalesStaticData & Omit<CatalogueStaticDa
       const now: GameDate = { year: ctx.date.year, week: ctx.date.week };
       const events: GameEvent[] = [];
 
-      // (a) 발표: 이번 주가 발표 주인 세일(id 오름차순). 그 해 카탈로그가 이미 있으면 건너뛴다
+      // (a) 생성: 이번 주가 생성 주인 세일(id 오름차순). 그 해 카탈로그가 이미 있으면 건너뛴다
       const due = sales.events.filter((e) => announceWeekOf(e) === now.week).sort(byId);
       for (const event of due) {
         const exists = draft.sales.catalogues.some((c) => c.saleId === event.id && c.year === now.year);
@@ -152,12 +153,20 @@ export function createSalesSystem(data: SalesStaticData & Omit<CatalogueStaticDa
           (c) => !(c.saleId === event.id && c.year === now.year),
         );
         draft.sales.catalogues.push(catalogue);
-        // AI 입찰 상한(C4): 발표 직후 로트마다 정한다. 판매 주에 자금이 모자라면 경매에서 빠진다
+        // AI 입찰 상한(C4): 생성 직후 로트마다 정한다. 판매 주에 자금이 모자라면 경매에서 빠진다
         const saleCountry = saleCountryOf(sales, event);
         for (const lot of catalogue.lots) {
           const bidRng = createRng(`${draft.initialSeed}:bids:${event.id}:${now.year}:${lot.lotNo}`);
           lot.aiBids = computeAiBids(draft, lot, event, bidRng, saleCountry);
         }
+      }
+
+      // 공개: 현재 등급으로 열람이 시작되는 주에 알린다.
+      const tier = patronView(draft).tier;
+      for (const catalogue of draft.sales.catalogues) {
+        if (catalogue.year !== now.year || catalogue.status !== 'catalogued') continue;
+        const event = eventById.get(catalogue.saleId);
+        if (event === undefined || catalogueVisibleWeek(event, tier) !== now.week) continue;
         events.push({
           type: 'sale_catalogue_published',
           saleId: event.id,

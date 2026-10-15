@@ -5,6 +5,7 @@
 import { SALE_UPCOMING_LIMIT } from '../config/sales';
 import type { PlayerResult } from '../season/player';
 import type { GameState, Money, SaleEventDef } from '../types';
+import { catalogueVisibleWeek, isCatalogueVisible, patronView } from './patron';
 import { fitsKind } from './catalogue';
 import { announceWeekOf, type SalesStaticData } from './system';
 
@@ -90,9 +91,9 @@ export function upcomingSales(state: GameState, data: SalesStaticData): Upcoming
   for (const year of [thisYear, thisYear + 1]) {
     for (const event of sales.events) {
       const catalogue = state.sales.catalogues.find((c) => c.saleId === event.id && c.year === year);
-      const announceWeek = announceWeekOf(event);
+      const announceWeek = catalogueVisibleWeek(event, patronView(state).tier);
       // 올해 발표 주가 지났는데 카탈로그가 없으면 마감 뒤 정리된 것이다(이번 주 발표분은 진행 때 만들어진다)
-      const pruned = catalogue === undefined && year === thisYear && announceWeek < state.date.week;
+      const pruned = catalogue === undefined && year === thisYear && announceWeekOf(event) < state.date.week;
       const status: UpcomingSale['status'] =
         catalogue === undefined
           ? pruned
@@ -100,7 +101,7 @@ export function upcomingSales(state: GameState, data: SalesStaticData): Upcoming
             : 'upcoming'
           : catalogue.status === 'closed'
             ? 'closed'
-            : 'catalogued';
+            : isCatalogueVisible(state, event, year) ? 'catalogued' : 'upcoming';
       all.push({ event, year, announceWeek, status });
     }
   }

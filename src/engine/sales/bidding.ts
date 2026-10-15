@@ -4,7 +4,7 @@
  * 난수는 쓰지 않는다. 입찰자 판정은 auction.ts 의 collectBidders 를 그대로 쓴다.
  * 경매 결과는 항상 resolveLot 을 그대로 쓴다. 실시간 단계의 마지막 가격·선두가 resolveLot 과 어긋나지 않게 하려는 것이다.
  */
-import { playerPremiumRate } from './patron';
+import { isCatalogueVisible, playerPremiumRate } from './patron';
 import { SALE_LIVE_MAX_STEPS } from '../config/sales';
 import { canSpendDiscretionary } from '../economy/solvency';
 import type { PlayerResult } from '../season/player';
@@ -131,7 +131,7 @@ export function setMaxBid(
   const catalogue = findCatalogue(state, saleId, year);
   if (catalogue === undefined) return fail('catalogue_not_found');
   const event = findEvent(data, saleId);
-  if (event === undefined) return fail('catalogue_not_found');
+  if (event === undefined || !isCatalogueVisible(state, event, year)) return fail('catalogue_not_found');
   const lot = catalogue.lots.find((l) => l.lotNo === lotNo);
   if (lot === undefined) return fail('lot_not_found');
   if (catalogue.status !== 'catalogued' || lot.result !== null) return fail('lot_closed');
@@ -180,7 +180,7 @@ export function lotView(
   data: SalesStaticData,
 ): LotView | null {
   const event = findEvent(data, saleId);
-  if (event === undefined) return null;
+  if (event === undefined || !isCatalogueVisible(state, event, year)) return null;
   const catalogue = findCatalogue(state, saleId, year);
   if (catalogue === undefined) return null;
   const lot = catalogue.lots.find((l) => l.lotNo === lotNo);
@@ -232,7 +232,7 @@ export function liveAuctionSteps(
   data: SalesStaticData,
 ): AuctionStep[] {
   const event = findEvent(data, saleId);
-  if (event === undefined) return [];
+  if (event === undefined || !isCatalogueVisible(state, event, year)) return [];
   const catalogue = findCatalogue(state, saleId, year);
   if (catalogue === undefined) return [];
   const lot = catalogue.lots.find((l) => l.lotNo === lotNo);

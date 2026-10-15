@@ -132,7 +132,7 @@ function runSalesAt(state: GameState, date: { year: number; week: number }): Gam
 function announced(event: SaleEventDef): GameState {
   const week = announceWeekOf(event);
   const draft = runSalesAt(fresh(), { year: YEAR, week });
-  draft.date = { year: YEAR, week };
+  draft.date = { year: YEAR, week: event.week - 4 };
   return draft;
 }
 
@@ -216,7 +216,7 @@ function consignedAnnounced(event: SaleEventDef): { state: GameState; horseId: s
   state.sales.consignments.push({ saleId: event.id, year: YEAR, horseId, reserve: 50_000 });
   const week = announceWeekOf(event);
   const draft = runSalesAt(state, { year: YEAR, week });
-  draft.date = { year: YEAR, week };
+  draft.date = { year: YEAR, week: event.week - 4 };
   return { state: enrich(draft), horseId };
 }
 

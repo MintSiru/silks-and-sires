@@ -76,7 +76,7 @@ function runSalesAt(state: GameState, date: { year: number; week: number }): Gam
 function announced(event: SaleEventDef): GameState {
   const week = announceWeekOf(event);
   const draft = runSalesAt(fresh(), { year: YEAR, week });
-  draft.date = { year: YEAR, week };
+  draft.date = { year: YEAR, week: event.week - 4 };
   return draft;
 }
 

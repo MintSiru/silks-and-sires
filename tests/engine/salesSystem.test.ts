@@ -2,7 +2,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { START_YEAR, WEEKS_PER_YEAR } from '../../src/engine/config/game';
-import { SALE_CATALOGUE_KEEP_WEEKS, SALE_CATALOGUE_LEAD_WEEKS, SALE_UPCOMING_LIMIT } from '../../src/engine/config/sales';
+import { SALE_CATALOGUE_BUILD_LEAD_WEEKS, SALE_CATALOGUE_KEEP_WEEKS, SALE_CATALOGUE_LEAD_WEEKS, SALE_UPCOMING_LIMIT } from '../../src/engine/config/sales';
 import {
   getNamingData,
   getNicks,
@@ -159,7 +159,7 @@ function addPlayerHorse(draft: GameState, patch: Partial<Horse>): string {
 describe('세일 정적 규칙(순수 함수)', () => {
   it('발표 주 = 세일 시작 주 − SALE_CATALOGUE_LEAD_WEEKS, 마지막 북 주 = 시작 주 + 가장 늦은 북 오프셋', () => {
     const oct = eventOf('sev_ashcombe_yearling_oct'); // week 41, 북 오프셋 0·0·1·1
-    expect(announceWeekOf(oct)).toBe(oct.week - SALE_CATALOGUE_LEAD_WEEKS);
+    expect(announceWeekOf(oct)).toBe(oct.week - SALE_CATALOGUE_BUILD_LEAD_WEEKS);
     expect(lastBookDate(oct, YEAR)).toEqual({ year: YEAR, week: oct.week + 1 });
   });
 
@@ -474,7 +474,7 @@ describe('세일 일정 화면용 목록 upcomingSales', () => {
       expect(curKey).toBeGreaterThanOrEqual(prevKey);
     }
     for (const item of list) {
-      expect(item.announceWeek).toBe(announceWeekOf(item.event));
+      expect(item.announceWeek).toBe(item.event.week - SALE_CATALOGUE_LEAD_WEEKS);
       expect(item.status).toBe('upcoming');
       expect([YEAR, YEAR + 1]).toContain(item.year);
     }
@@ -515,6 +515,7 @@ describe('세일 일정 화면용 목록 upcomingSales', () => {
   it('카탈로그가 발표되면 상태가 catalogued 로 바뀐다', () => {
     const target = eventOfKind('yearling');
     const state = runSalesWeek(fresh(), announceWeekOf(target));
+    state.date = { year: YEAR, week: target.week - SALE_CATALOGUE_LEAD_WEEKS };
     const list = upcomingSales(state, SALES_DATA);
     expect(list.find((u) => u.event.id === target.id && u.year === YEAR)?.status).toBe('catalogued');
   });

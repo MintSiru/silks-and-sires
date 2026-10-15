@@ -6,7 +6,7 @@ import { START_YEAR, WEEKS_PER_YEAR } from '../../src/engine/config/game';
 import { POPULATION_COUNTRY_ORDER, POPULATION_ENTRY_AGE, POPULATION_IN_TRAINING } from '../../src/engine/config/population';
 import {
   SALE_AI_BIDS_STORED,
-  SALE_CATALOGUE_LEAD_WEEKS,
+  SALE_CATALOGUE_BUILD_LEAD_WEEKS,
   SALE_VENDOR_COMMISSION,
 } from '../../src/engine/config/sales';
 import {
@@ -1057,9 +1057,9 @@ describe('현역 편입 racingCountryOf', () => {
 });
 
 describe('세일 주간 발표 주와 북 날짜', () => {
-  it('세일 카탈로그 발표·판매 날짜는 SALE_CATALOGUE_LEAD_WEEKS 로 맞물린다', () => {
+  it('세일 카탈로그 발표·판매 날짜는 SALE_CATALOGUE_BUILD_LEAD_WEEKS 로 맞물린다', () => {
     const event = eventOfKind('yearling');
-    expect(announceWeekOf(event)).toBe(event.week - SALE_CATALOGUE_LEAD_WEEKS);
+    expect(announceWeekOf(event)).toBe(event.week - SALE_CATALOGUE_BUILD_LEAD_WEEKS);
     expect(lastBookDate(event, YEAR)).toEqual(bookWeeks(event)[event.books.length - 1]);
   });
 });

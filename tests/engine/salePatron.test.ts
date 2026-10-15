@@ -47,6 +47,7 @@ const EVENT = { ...SALES.events.find((e) => e.id === 'sev_ashcombe_yearling_oct'
 
 function setup(spend: number) {
   const state = fresh();
+  state.date.week = EVENT.week - 4;
   state.sales.playerSpendByYear = { [YEAR]: spend };
   state.economy.debt = 0;
   const player = state.owners[state.playerOwnerId]!;

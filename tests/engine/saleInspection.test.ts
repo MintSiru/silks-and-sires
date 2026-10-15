@@ -65,6 +65,7 @@ beforeAll(() => {
   const rng = createRng(`${BASE.initialSeed}:catalogue:${event.id}:${START_YEAR}`);
   CATALOGUE = buildCatalogue(draft, event, START_YEAR, CATALOGUE_DATA, rng);
   draft.sales.catalogues.push(CATALOGUE);
+  draft.date = { year: START_YEAR, week: event.week - 4 };
   CAT_STATE = draft;
 }, BOOT_TIMEOUT);
 

@@ -4,6 +4,8 @@
  * 순수 함수: state 는 바꾸지 않고(검사 비용 없음), 난수는 검사 키로 만든 rng 만 쓴다.
  * eye 값은 어떤 결과에도 내보내지 않는다(숨김 능력).
  */
+import { getSalesData } from '../data/staticData';
+import { isCatalogueVisible } from './patron';
 import { SALE_INSPECT_MIN_RELATION } from '../config/sales';
 import { contractFor } from '../economy/contractQuery';
 import { relationKey, relationOf } from '../economy/relations';
@@ -69,7 +71,8 @@ export function inspectLot(
   trainerId: TrainerId,
 ): InspectResult {
   const catalogue = state.sales.catalogues.find((c) => c.saleId === saleId && c.year === year);
-  if (catalogue === undefined) return { ok: false, error: 'catalogue_not_found' };
+  const event = getSalesData().events.find((e) => e.id === saleId);
+  if (catalogue === undefined || event === undefined || !isCatalogueVisible(state, event, year)) return { ok: false, error: 'catalogue_not_found' };
   const lot = catalogue.lots.find((l) => l.lotNo === lotNo);
   if (lot === undefined) return { ok: false, error: 'lot_not_found' };
   if (catalogue.status === 'closed' || lot.result !== null) return { ok: false, error: 'lot_closed' };

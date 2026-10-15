@@ -130,7 +130,7 @@ export const SALE_UNKNOWN_SIRE_TIER = 5;
 
 // ── 세일 주간 시스템·위탁 API(M4-C2b) ─────────────────────────
 
-/** 카탈로그 발표 주 = 세일 시작 주 − 이 값(주). 발표 전까지만 위탁을 받는다 */
+/** 일반 플레이어 카탈로그 공개: 세일 시작 전 주 수 */
 export const SALE_CATALOGUE_LEAD_WEEKS = 4;
 /** 마감 카탈로그 보존 기간: 마지막 북 주 + 이 값(주)이 지나면 카탈로그와 플레이어 입찰을 지운다 */
 export const SALE_CATALOGUE_KEEP_WEEKS = 8;
@@ -192,3 +192,8 @@ export const SALE_PATRON_GOLD_SPEND = 3_000_000;
 export const SALE_PATRON_PREMIUM_DISCOUNT = { none: 0, silver: 0.01, gold: 0.02 } as const;
 /** 후원 등급별 위탁 북 우대 */
 export const SALE_PATRON_BOOK_BONUS = { none: 0, silver: 1, gold: 1 } as const;
+
+/** 카탈로그 생성·위탁 마감: 세일 시작 전 주 수 */
+export const SALE_CATALOGUE_BUILD_LEAD_WEEKS = 6;
+/** 후원 등급별 카탈로그 추가 사전 열람 주 수 */
+export const SALE_PATRON_PREVIEW_WEEKS = { none: 0, silver: 1, gold: 2 } as const;
