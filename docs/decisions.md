@@ -259,3 +259,4 @@
 - 2026-10-15 | 결정(Opus, 사용자 버그 제보) | 보유마 평가 등급이 주마다 흔들리던 문제: assessForPlayer 인식 오차 시드를 (말, 주) → (말, 해, 성장 단계, 평가자 능력)으로 바꿔 같은 해·단계·조교사 동안 의견 고정. 실제 성장은 그대로 반영.
 - 2026-10-15 | 승인 | M4-C7b 내부거래 제안·후원 등급 화면(Codex): 세일 탭 맨 위 후원 배지, '개인 거래 제안' 구역(검사·구매·거절). 브라우저 확인(콘솔 오류 0). Opus 수정: 일반 등급 혜택 문구를 '혜택 없음 — …'으로. C단계 완료.
 - 2026-10-15 | 승인 | M4-BET1 가상 베팅 회사 4곳(Holmgrave Turf Accounts·Ardmorrow Racing Accounts·Comptoir Hippique de Lauvrac·Vantor Odds Europe)과 스폰서 레이스 27건(G1 2건, 세일 회사 4곳 자국 레이스 — 미국 회사는 미국 경마장이 없어 0건 유지). Opus 수정: 프랑스 회사 shortName 'Lauvrac'(레이스명 길이).
+- 2026-10-15 | 결정(Opus) | 이탈리아 종마: Ulysses 는 기존 레코드 계류지 GB → IT, 등급 2 → 4. 종부료 비공개·미확인 이탈리아 종마는 등급 5. 독일 미확인 2두 이름(사용자): Neatico(Medicean × Sadler's Wells), Accon(Camelot × Dubawi).
