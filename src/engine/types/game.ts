@@ -17,6 +17,10 @@ export type GameEvent =
   | { type: 'phase_started'; phase: CalendarPhaseId; date: GameDate }
   | { type: 'phase_ended'; phase: CalendarPhaseId; date: GameDate }
   | { type: 'horse_status_changed'; horseId: HorseId; from: HorseStatus; to: HorseStatus; date: GameDate }
+  /** 종마·번식 암말 사망(M4-D9). 플레이어 말과 현역 실명 종마만 이벤트로 남긴다 */
+  | { type: 'horse_died'; horseId: HorseId; cause: 'age' | 'accident' | 'illness'; date: GameDate }
+  /** 종부료 연간 재산정(M4-D8). 플레이어 종마만 이벤트로 남긴다 */
+  | { type: 'stud_fee_set'; stallionId: HorseId; season: number; fee: Money; prevFee: Money; date: GameDate }
   | { type: 'covering_booked'; mareId: HorseId; stallionId: HorseId; fee: Money; date: GameDate }
   | { type: 'conception'; mareId: HorseId; stallionId: HorseId; success: boolean; date: GameDate }
   | { type: 'foal_born'; foalId: HorseId; mareId: HorseId; stallionId: HorseId; date: GameDate }

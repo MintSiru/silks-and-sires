@@ -136,6 +136,8 @@ export interface Horse {
   /** 털색 유전자와 흰 반점. 표시 털색은 유전자와 나이에서 파생한다. M3-C6 */
   coat: Coat;
   record: CareerRecord;
+  /** 사망 연도(M4-D9). status 'dead' 일 때만. 이 해 뒤의 교배 연도에는 부가 될 수 없다. 옛 저장본은 키 없음 */
+  diedYear?: number;
 }
 
 /**
@@ -237,6 +239,8 @@ export interface Stallion {
   popularity: number;
   standsIn: CountryCode;
   firstSeasonYear: number;
+  /** 직전 시즌 종부료(M4-D8 연간 재산정 전 값). 화면의 오름·내림 표시용. 재산정 전에는 키 없음 */
+  prevFee?: Money;
 }
 
 /** 번식 암말 프로필. Horse 레코드(horseId)에 붙는 확장 레코드. */
