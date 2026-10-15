@@ -5,6 +5,7 @@ import {
   STARTING_FUNDS,
 } from '../config/game';
 import { DEFAULT_ECONOMY_MODE } from '../config/economy';
+import { STUD_BASE_SLOTS } from '../config/stud';
 import {
   createEmptyBettingState,
   createEmptyEconomyState,
@@ -73,5 +74,8 @@ export function createNewGame(opts: NewGameOptions): GameState {
     relations: createEmptyRelationsState(),
     sales: createEmptySalesState(),
     betting: createEmptyBettingState(),
+    // 시작 연도는 연말 정산을 이미 마친 것으로 둔다(첫해에는 화면이 뜨지 않음, M4-D1)
+    yearEnd: { lastSubmittedYear: START_YEAR, declinedRenewals: [] },
+    stud: { slots: STUD_BASE_SLOTS, seasons: [] },
   };
 }

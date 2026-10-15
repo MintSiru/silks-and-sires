@@ -334,6 +334,7 @@ const COUNTRY_KO: Record<CountryCode, string> = {
   CA: '캐나다',
   AR: '아르헨티나',
   NZ: '뉴질랜드',
+  ZA: '남아공',
 };
 
 /** 국가 코드 → 국가 한국어 명 */
@@ -341,12 +342,13 @@ export function countryKo(c: CountryCode): string {
   return COUNTRY_KO[c];
 }
 
-const RETAINER_CHANGE_KO: Record<'signed' | 'renewed' | 'declined' | 'lapsed' | 'terminated', string> = {
+const RETAINER_CHANGE_KO: Record<'signed' | 'renewed' | 'declined' | 'lapsed' | 'terminated' | 'released', string> = {
   signed: '체결',
   renewed: '갱신',
   declined: '갱신 거절',
   lapsed: '만료',
   terminated: '해지',
+  released: '갱신 안 함',
 };
 
 const PRIVATE_OFFER_CHANGE_KO: Record<'offered' | 'accepted' | 'declined' | 'expired', string> = {

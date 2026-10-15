@@ -1,4 +1,5 @@
-import { SAVE_SCHEMA_VERSION, WEEKS_PER_YEAR } from '../config/game';
+import { SAVE_SCHEMA_VERSION, START_YEAR, WEEKS_PER_YEAR } from '../config/game';
+import { STUD_BASE_SLOTS } from '../config/stud';
 import { createEmptyEconomyState, createEmptyRelationsState } from '../economy/state';
 import { defaultCoat, neutralPersonality } from '../horse/traits';
 import { trainerEyeFromId } from '../people/generate';
@@ -131,6 +132,15 @@ export const MIGRATIONS: Readonly<Record<number, Migration>> = {
       return out;
     };
     return { ...state, jockeys: withCareer(state.jockeys), trainers: withCareer(state.trainers) };
+  },
+  /** v14 → v15 (M4-D1): 연말 정산·종마 사업. 옛 저장본은 올해 정산을 마친 것으로 둔다 */
+  14: (state) => {
+    const date = state.date as { year?: number } | undefined;
+    return {
+      ...state,
+      yearEnd: state.yearEnd ?? { lastSubmittedYear: date?.year ?? START_YEAR, declinedRenewals: [] },
+      stud: state.stud ?? { slots: STUD_BASE_SLOTS, seasons: [] },
+    };
   },
 };
 

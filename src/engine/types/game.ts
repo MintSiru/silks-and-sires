@@ -8,6 +8,7 @@ import type { CalendarPhaseId, GameDate, Season } from './time';
 import type { EconomyState, RelationsState } from './economy';
 import type { SaleEventId, SaleLotResult, SalesState } from './sales';
 import type { BettingState } from './betting';
+import type { StudState, YearEndState } from './stud';
 
 /** 주 진행 중 발생한 사건. M3 이후 종류가 늘어난다(판별 유니온에 추가). */
 export type GameEvent =
@@ -44,12 +45,13 @@ export type GameEvent =
   /**
    * 플레이어 전속 계약 변화(M4-B3). signed: 새 계약 / renewed: 연초 갱신 / declined: 연초 갱신 거절(관계 부족)
    * / lapsed: 연초 갱신 실패(자금 부족·은퇴) / terminated: 플레이어 해지
+   * / released: 연말 정산에서 플레이어가 갱신하지 않기로 함(M4-D1, 위약금·관계 변화 없음)
    */
   | {
       type: 'retainer_changed';
       kind: 'trainer' | 'jockey';
       personId: string;
-      change: 'signed' | 'renewed' | 'declined' | 'lapsed' | 'terminated';
+      change: 'signed' | 'renewed' | 'declined' | 'lapsed' | 'terminated' | 'released';
       fee: Money;
       date: GameDate;
     }
@@ -134,6 +136,10 @@ export interface GameState {
   sales: SalesState;
   /** 베팅(M4-BET) */
   betting: BettingState;
+  /** 연말 정산(M4-D1). 새해 첫 주는 제출 전에 진행되지 않는다 */
+  yearEnd: YearEndState;
+  /** 플레이어 종마 사업(M4-D2·D3) */
+  stud: StudState;
 }
 
 /** advanceWeek 가 각 시스템에 넘기는 문맥 */

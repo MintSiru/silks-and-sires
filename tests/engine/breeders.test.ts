@@ -48,10 +48,11 @@ const BOOT_DATA: BootstrapData = {
  * 2026-10-15 재고정: Königsstuhl 거리 classic 으로 바뀜.
  * 2026-10-15 재고정: 5대 혈통 채우기 1회차(Dubawi·Frankel·Kingman·Lope de Vega 쪽 조상 추가)로 바뀜.
  * 2026-10-15 재고정: 1회차 42~44(Storm Cat·Vettori 쪽, Nijinsky 추가)로 바뀜.
+ * 2026-10-15 재고정: 5대 혈통 2회차(조상 29두 추가, Blushing Groom 계 분리)로 바뀜.
  */
 const PRE_CHANGE_PROJECTION_SHA: Record<number, string> = {
-  20261011: '3ca5c838b81174debd817a0e298caa8a0a2780c670393544b4582e85dc713eb1',
-  7: '75f11b8342ae501137ef7bbfc6765b06fcc9a797a471c1973cdfa7ddb195f68e',
+  20261011: 'f1ae3dedc3e6da43e0b387c6382a60a92db5f2f28423960b5bcb7dc82568c86d',
+  7: '5da7d65991cc37ac1b3650b00f7fb66dc57b662e58f4084faefd118a209e468f',
 };
 
 function boot(seed: number): GameState {

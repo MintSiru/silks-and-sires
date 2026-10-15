@@ -167,7 +167,9 @@ export function bookCovering(
   if (stallion === undefined || state.date.year < stallion.firstSeasonYear) return fail('stallion_not_available');
   if (stallion.bookedThisSeason >= stallion.bookLimit) return fail('book_full');
 
-  if (state.owners[ownerId] === undefined || !canSpendDiscretionary(state, stallion.fee, ownerId)) {
+  const ownStallion = state.horses[stallionId]?.ownerId === ownerId;
+  const fee = ownStallion ? 0 : stallion.fee;
+  if (!ownStallion && (state.owners[ownerId] === undefined || !canSpendDiscretionary(state, fee, ownerId))) {
     return fail('insufficient_funds');
   }
 
@@ -179,7 +181,7 @@ export function bookCovering(
     throw new Error('bookCovering: 복제 상태에 필요한 레코드가 없다');
   }
 
-  recordMoney(next, ownerId, 'stud_fee_paid', -stallion.fee, dateOf(state.date), mareId);
+  if (!ownStallion) recordMoney(next, ownerId, 'stud_fee_paid', -fee, dateOf(state.date), mareId);
   nextMare.coveredBy = stallionId;
   nextMare.coveredWeek = weekKey(state.date);
   nextStallion.bookedThisSeason += 1;
@@ -188,7 +190,7 @@ export function bookCovering(
     type: 'covering_booked',
     mareId,
     stallionId,
-    fee: stallion.fee,
+    fee,
     date: dateOf(state.date),
   };
   return { ok: true, state: next, events: [event] };
@@ -249,7 +251,7 @@ function judgeConceptions(
       mare.pregnant = true;
       mare.dueWeek = weekKey(addWeeks(ctx.date, GESTATION_WEEKS));
     } else {
-      if (horse.ownerId !== null) {
+      if (horse.ownerId !== null && horse.ownerId !== state.horses[stallion.horseId]?.ownerId) {
         recordMoney(state, horse.ownerId, 'stud_fee_paid', stallion.fee, dateOf(ctx.date), mareId);
       }
       stallion.bookedThisSeason -= 1;

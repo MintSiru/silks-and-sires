@@ -196,5 +196,11 @@
     "label": "Monsun line",
     "parentLineId": "sl_bahram",
     "founderKey": "stl_monsun"
+  },
+  {
+    "id": "sl_blushing_groom",
+    "label": "Blushing Groom line",
+    "parentLineId": "sl_phalaris",
+    "founderKey": "stl_blushing_groom"
   }
 ]

@@ -274,3 +274,7 @@
 - 2026-10-15 Königsstuhl 거리 speed→classic(사용자 결정). 해시 재고정. 5대 혈통 채우기는 1안(종마 3~4두씩 빈 칸 표로 사용자에게 요청)으로 진행, 1회차 Dubawi·Frankel·Kingman·Lope de Vega 44칸.
 - 2026-10-15 5대 혈통 1회차 반영(사용자 표 1~41): 새 조상 28두(sire 미상·sl_phalaris 자리표시, 미국·캐나다·아르헨티나 출생은 surface dirt — 유럽 경주 경력이 알려진 말은 turf), damsire·femaleLineSireKeys 연결, Machiavellian 털색 brown. 42~44(Storm Cat·Vettori) 대기.
 - 2026-10-15 5대 혈통 1회차 42~44 반영(Secretariat·Sir Ivor 연결, Nijinsky 새로 추가 — 부 Northern Dancer 는 널리 알려진 사실이라 Opus 가 연결). 1회차 44칸 완료.
+- 2026-10-15 M4-D 설계(docs/m4-stud-design.md): 사용자 결정 — 연말 정산 의무·현역마 전부·나이 상한 AI 와 같음(8세, 거세마 10세)·기본 종마사 1칸·G1 종마 연 수입 ≈ 현역 상금 2~4배. 기술 결정: advanceWeek 는 막지 않고 화면용 advanceWeekGated 로 게이트(헤드리스 진행·기존 테스트 보호). 타입 types/stud.ts, retainer_changed 'released' 추가.
+- 2026-10-15 M4-D2a 승인(Codex): stud/value.ts 첫 종부료 추정(최고 OR 표·그룹 우승·혈통·유행, 가격 사다리), stud/stand.ts 계류(독립 rng 수태율), 자기 종마 교배 무료·불수태 환불 없음.
+- 2026-10-15 M4-D1a(Opus 직접): GameState.yearEnd·stud 초기화, 저장 v15(옛 저장본은 저장 연도 정산 완료 처리), yearEndPending·advanceWeekGated.
+- 2026-10-15 5대 혈통 2회차 반영(조상 29두 + Acropolis): Espresso 출생국 GB·1984 사망 정정(사용자 확인). Blushing Groom·Rainbow Quest·Rahy·Noverre 가 Storm Cat 계로 잘못 적혀 있어 Blushing Groom 계 신설. 국가 코드 ZA(남아공) 추가(Hawaii 출생국). 부계 연결 시 자리표시 계통(sl_phalaris)은 부 계통으로 맞춤.
