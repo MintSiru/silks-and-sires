@@ -5,7 +5,12 @@ import {
   STARTING_FUNDS,
 } from '../config/game';
 import { DEFAULT_ECONOMY_MODE } from '../config/economy';
-import { createEmptyEconomyState, createEmptyRelationsState, createEmptySalesState } from '../economy/state';
+import {
+  createEmptyBettingState,
+  createEmptyEconomyState,
+  createEmptyRelationsState,
+  createEmptySalesState,
+} from '../economy/state';
 import { createRng } from '../rng';
 import { seasonForYear } from '../time/calendar';
 import type { CountryCode, EconomyMode, GameState, Owner, Silks } from '../types';
@@ -67,5 +72,6 @@ export function createNewGame(opts: NewGameOptions): GameState {
     economy: createEmptyEconomyState(opts.economyMode ?? DEFAULT_ECONOMY_MODE),
     relations: createEmptyRelationsState(),
     sales: createEmptySalesState(),
+    betting: createEmptyBettingState(),
   };
 }

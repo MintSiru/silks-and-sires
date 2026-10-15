@@ -65,6 +65,7 @@ function makeState(): GameState {
       privateOffers: [],
       nextPrivateOfferNo: 1,
     },
+    betting: { open: [], history: [], nextBetNo: 1 },
     trainers: {},
     jockeys: {},
     breeding: { revealedNicks: [] },
@@ -533,6 +534,25 @@ describe('저장 마이그레이션 v11 → v12 (M4-C7)', () => {
       expect(result.state.schemaVersion).toBe(SAVE_SCHEMA_VERSION);
       expect(result.state.sales.privateOffers).toEqual([]);
       expect(result.state.sales.nextPrivateOfferNo).toBe(1);
+    }
+  });
+});
+
+describe('저장 마이그레이션 v12 → v13 (M4-BET)', () => {
+  it('베팅 상태가 빈 값으로 생긴다', () => {
+    const { betting: _b, ...v12 } = makeState();
+    void _b;
+    const json = JSON.stringify({
+      format: 'silks-and-sires-save',
+      schemaVersion: 12,
+      savedAt: '2026-10-15T00:00:00.000Z',
+      state: { ...v12, schemaVersion: 12 },
+    });
+    const result = deserializeGame(json);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.state.schemaVersion).toBe(SAVE_SCHEMA_VERSION);
+      expect(result.state.betting).toEqual({ open: [], history: [], nextBetNo: 1 });
     }
   });
 });

@@ -283,6 +283,7 @@ const LEDGER_CATEGORY_KO: Record<LedgerCategory, string> = {
   entry_fee: '출주 등록료',
   transport: '원정 운송비',
   retainer_fee: '전속 계약료',
+  betting: '베팅',
   sale_purchase: '세일 구매',
   sale_proceeds: '세일 판매',
   sale_commission: '세일 수수료',
@@ -400,6 +401,8 @@ export function eventKo(e: GameEvent, nameOf: (id: HorseId) => string): string {
       return `${formatDateKo(e.date)} · 파산했습니다`;
     case 'horse_sold':
       return `${formatDateKo(e.date)} · 매각: ${nameOf(e.horseId)} (${feeKo(e.price)})`;
+    case 'bet_settled':
+      return `${formatDateKo(e.date)} · 베팅 정산: ${nameOf(e.horseId)} — ${e.returned > 0 ? `${feeKo(e.returned)} 회수 (건 돈 ${feeKo(e.outlay)})` : `${feeKo(e.outlay)} 잃음`}`;
     case 'private_offer':
       return `${formatDateKo(e.date)} · 내부거래 ${PRIVATE_OFFER_CHANGE_KO[e.change]}: ${nameOf(e.horseId)} (${feeKo(e.price)})`;
     case 'sale_catalogue_published':

@@ -117,6 +117,8 @@ export const MIGRATIONS: Readonly<Record<number, Migration>> = {
       sales: { ...sales, privateOffers: sales.privateOffers ?? [], nextPrivateOfferNo: sales.nextPrivateOfferNo ?? 1 },
     };
   },
+  /** v12 → v13 (M4-BET): 베팅 상태 */
+  12: (state) => ({ ...state, betting: state.betting ?? { open: [], history: [], nextBetNo: 1 } }),
 };
 
 /** 구조 상수(형식 규칙). 밸런스 수치가 아니므로 여기 둔다. */

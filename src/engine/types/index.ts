@@ -12,3 +12,4 @@ export * from './breeding';
 export * from './season';
 export * from './economy';
 export * from './sales';
+export * from './betting';

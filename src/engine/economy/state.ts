@@ -1,5 +1,5 @@
 import { STARTING_REPUTATION } from '../config/economy';
-import type { EconomyMode, EconomyState, RelationsState, SalesState } from '../types';
+import type { BettingState, EconomyMode, EconomyState, RelationsState, SalesState } from '../types';
 
 /** 빈 경제 상태(새 게임·저장 이주용) */
 export function createEmptyEconomyState(mode: EconomyMode): EconomyState {
@@ -30,4 +30,9 @@ export function createEmptySalesState(): SalesState {
     privateOffers: [],
     nextPrivateOfferNo: 1,
   };
+}
+
+/** 빈 베팅 상태(새 게임·저장 이주용, M4-BET) */
+export function createEmptyBettingState(): BettingState {
+  return { open: [], history: [], nextBetNo: 1 };
 }

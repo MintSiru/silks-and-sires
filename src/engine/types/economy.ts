@@ -28,6 +28,8 @@ export type LedgerCategory =
   | 'transport'
   /** 전속 계약료(조교사·기수, M4-B3). 계약·갱신 때 연 단위로, 해지 위약금 포함 */
   | 'retainer_fee'
+  /** 베팅(M4-BET): 건 돈은 음수, 돌려받은 돈은 양수 */
+  | 'betting'
   /** 세일 구매 대금 */
   | 'sale_purchase'
   /** 세일 판매 대금 */
