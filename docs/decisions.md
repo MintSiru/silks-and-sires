@@ -322,3 +322,4 @@
 - 2026-10-16 사용자 결정: Codex(gpt-6.1-sol)는 Opus·Sonnet 급으로 보고 기능 단위(파일 10개 내외)·세부 설계 판단이 섞인 티켓도 맡긴다. 쪼개기 기준(파일 5개·300줄)은 Haiku 에만 적용.
 - 2026-10-16 M4-D6a 승인(Codex): stud/private.ts(privateAccess·setStallionPrivate), 예약 'private_stallion' 오류, 플레이어 비공개 종마 AI 수요 0·AI 비공개 30%, AI 편입 시 대형 오너브리더 30% 비공개(말별 스트림). 측정: 시드 20261011 2년 AI 편입 10두 중 비공개 0두(해당 마주 출신 드묾).
 - 2026-10-16 5대 혈통 14회차 반영(51칸, 조상 14두). Medieval Man 정정(1974·chestnut·1999 사망, 외조부 Tim Tam — 사용자 확인). Gone West·Baldski·Seattle Song 털색은 DB 값 유지. Tiznow 계통 A.P. Indy → Intentionally 정정(부 Cee's Tizzy 연결로 드러남). 고정 해시 재고정.
+- 2026-10-16 M4-D6b 승인(haiku-coder): 종마 목록 비공개 배지·관계 미달 시 예약 비활성, 내 종마 공개/비공개 전환(28~43주), GameApi.setStallionPrivate. 별도 작업 트리에서 전체 검증(부하로 인한 5초 시간 제한 4건은 단독 재실행 통과).

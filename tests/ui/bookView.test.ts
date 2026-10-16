@@ -16,6 +16,7 @@ import {
   SHUTTLE_RENT_FEE_MULT,
   STUD_DEAL_MONEY_STEP,
 } from '../../src/engine/config/stud';
+import { relationKey } from '../../src/engine/economy/relations';
 import { type RetirePlayerError } from '../../src/engine/stud/fertility';
 import { sellStallion, type TradeError } from '../../src/engine/stud/trade';
 import type { GameState, HorseId, Mare, Stallion } from '../../src/engine/types';
@@ -25,6 +26,9 @@ import {
   fertilityKo,
   mareBookingKo,
   myStudView,
+  type PrivateError,
+  privateErrorKo,
+  privateLabelKo,
   retireErrorKo,
   STUD_EMPTY_KO,
   tradeErrorKo,
@@ -313,6 +317,54 @@ describe('수태율 표시·직접 은퇴(M4-D5c)', () => {
   it('retireErrorKo: 오류 4종은 모두 비지 않은 서로 다른 한국어 문구를 준다', () => {
     const errors: RetirePlayerError[] = ['not_found', 'not_player_stallion', 'outside_deal_window', 'leased'];
     const texts = errors.map((error) => retireErrorKo(error));
+    for (const text of texts) expect(text.length).toBeGreaterThan(0);
+    expect(new Set(texts).size).toBe(errors.length);
+  });
+});
+
+describe('비공개 종마 표시(M4-D6b)', () => {
+  it('privateLabelKo: 공개는 null, 플레이어 비공개는 내 암말 전용, AI 비공개는 관계 0이면 필요, 40이면 허가 문구다', () => {
+    const state = structuredClone(base);
+    const stallion = pickStallion(state);
+    const id = stallion.horseId;
+    const aiOwner = Object.values(state.owners).find((owner) => !owner.isPlayer)!;
+    const aiName = aiOwner.studName ?? aiOwner.name;
+    const key = relationKey('owner', aiOwner.id);
+    const at = (): Stallion => state.stallions[id]!;
+
+    state.stallions[id] = { ...stallion, privateTo: null };
+    expect(privateLabelKo(state, at())).toBeNull();
+
+    state.stallions[id] = { ...stallion, privateTo: state.playerOwnerId };
+    expect(privateLabelKo(state, at())).toBe('비공개(내 암말 전용)');
+
+    state.stallions[id] = { ...stallion, privateTo: aiOwner.id };
+    state.relations.values[key] = 0;
+    const denied = privateLabelKo(state, at());
+    expect(denied).toContain(aiName);
+    expect(denied).toContain('관계 40 이상 필요');
+
+    state.relations.values[key] = 40;
+    const allowed = privateLabelKo(state, at());
+    expect(allowed).toContain(aiName);
+    expect(allowed).toContain('허가');
+  });
+
+  it('내 종마 뷰 isPrivate 가 privateTo 를 따른다', () => {
+    const state = playerStudState(30);
+    const id = myStudView(state).stallions[0]!.horseId;
+    expect(myStudView(state).stallions[0]!.isPrivate).toBe(false);
+
+    state.stallions[id]!.privateTo = state.playerOwnerId;
+    expect(myStudView(state).stallions[0]!.isPrivate).toBe(true);
+
+    state.stallions[id]!.privateTo = null;
+    expect(myStudView(state).stallions[0]!.isPrivate).toBe(false);
+  });
+
+  it('privateErrorKo: 오류 5종은 모두 비지 않은 서로 다른 한국어 문구를 준다', () => {
+    const errors: PrivateError[] = ['not_found', 'not_player_stallion', 'outside_deal_window', 'leased', 'no_change'];
+    const texts = errors.map((error) => privateErrorKo(error));
     for (const text of texts) expect(text.length).toBeGreaterThan(0);
     expect(new Set(texts).size).toBe(errors.length);
   });

@@ -10,6 +10,7 @@ import { isInPhase } from '../../engine/time/calendar';
 import { bookCovering, type BookingResult } from '../../engine/breeding/season';
 import { leaseStallion, sellStallion } from '../../engine/stud/trade';
 import { retirePlayerStallion } from '../../engine/stud/fertility';
+import { setStallionPrivate } from '../../engine/stud/private';
 import { deserializeGame, serializeGame } from '../../engine/save/serialize';
 import {
   getBookmakers,
@@ -76,6 +77,8 @@ export interface GameApi {
   leaseStallion(horseId: HorseId, kind: 'shuttle' | 'long', returnSeason?: number): ReturnType<typeof leaseStallion>;
   /** 내 종마를 직접 은퇴시킨다(거래 창 28~43주, 임대 아님). 성공 시 state 갱신·이벤트 기록, 실패하면 사유를 돌려준다 */
   retireStallion(horseId: HorseId): ReturnType<typeof retirePlayerStallion>;
+  /** 내 종마를 비공개(makePrivate true, 내 암말 전용) 또는 공개로 바꾼다(거래 창 28~43주, 임대 아님). 이벤트는 남기지 않는다. 성공 시 state 갱신 */
+  setStallionPrivate(horseId: HorseId, makePrivate: boolean): ReturnType<typeof setStallionPrivate>;
   /** 플레이어 말 출주 접수(성공 시 state 갱신). meetingId 는 seasonState.meetings 의 개최 id */
   declarePlayerHorse(meetingId: string, raceId: RaceId, horseId: HorseId): PlayerResult<DeclareError>;
   withdrawPlayerHorse(meetingId: string, raceId: RaceId, horseId: HorseId): PlayerResult<WithdrawError>;
@@ -282,6 +285,17 @@ export function useGame(): GameApi {
     [requireState],
   );
 
+  const setStallionPrivateWith = useCallback(
+    (horseId: HorseId, makePrivate: boolean): ReturnType<typeof setStallionPrivate> => {
+      const result = setStallionPrivate(requireState(), horseId, makePrivate);
+      if (!result.ok) return result;
+      stateRef.current = result.state;
+      setState(result.state);
+      return result;
+    },
+    [requireState],
+  );
+
   const submitYearEndWith = useCallback(
     (submission: YearEndSubmission): ReturnType<typeof submitYearEnd> => {
       const result = submitYearEnd(requireState(), submission);
@@ -436,6 +450,7 @@ export function useGame(): GameApi {
     sellStallion: sellStallionWith,
     leaseStallion: leaseStallionWith,
     retireStallion: retireStallionWith,
+    setStallionPrivate: setStallionPrivateWith,
     submitYearEnd: submitYearEndWith,
     declarePlayerHorse: declarePlayer,
     withdrawPlayerHorse: withdrawPlayer,

@@ -9,6 +9,7 @@ import { createPedigreeLookup, isAnonDamId } from '../../engine/breeding/realPed
 import { bookingSeasonOf, damsireLineOf } from '../../engine/breeding/season';
 import { LONG_LEASE_MAX_SEASONS, NOMINATION_MAX_PER_SEASON } from '../../engine/config/stud';
 import { getNicks, getSireLines, getStallionRecords } from '../../engine/data/staticData';
+import { privateAccess } from '../../engine/stud/private';
 import { assessForPlayer, availableStallions, playerHorses } from '../../engine/horse/playerView';
 import { ageInYear, formatDateKo } from '../../engine/time/calendar';
 import type {
@@ -41,6 +42,8 @@ import {
   fertilityKo,
   mareBookingKo,
   myStudView,
+  privateErrorKo,
+  privateLabelKo,
   retireErrorKo,
   STUD_EMPTY_KO,
   tradeErrorKo,
@@ -301,6 +304,8 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
   /** 은퇴 확인 단계 중인 내 종마(한 번에 한 두만 확인한다) */
   const [retireTarget, setRetireTarget] = useState<HorseId | null>(null);
   const [retireError, setRetireError] = useState<string | null>(null);
+  /** 비공개 전환 실패 사유(확인 단계 없이 바로 적용한다) */
+  const [privateError, setPrivateError] = useState<string | null>(null);
 
   /** 이름 없는 모마 칸(~dam)은 미상 이름('—')으로 보인다 */
   const nameOf = (id: HorseId): string =>
@@ -486,6 +491,17 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
     }
   };
 
+  /** 내 종마의 공개 여부를 바꾼다. 확인 단계 없이 바로 적용하고, 실패하면 사유를 alert 로 보인다. */
+  const togglePrivate = (horseId: HorseId, makePrivate: boolean): void => {
+    const result = game.setStallionPrivate(horseId, makePrivate);
+    if (result.ok) {
+      setPrivateError(null);
+      setNotice({ tone: 'ok', text: `${nameOf(horseId)} ${makePrivate ? '비공개로 전환' : '공개로 전환'} 완료` });
+    } else {
+      setPrivateError(privateErrorKo(result.error));
+    }
+  };
+
   const cancelDeal = (): void => {
     setPendingDeal(null);
     setDealError(null);
@@ -641,17 +657,22 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
             {visibleStallions.map((row) => {
               const selected = row.horse.id === stallionId;
               const book = bookStatusOf(state, row.stallion);
+              const privateKo = privateLabelKo(state, row.stallion);
+              const denied = privateAccess(state, row.horse.id, state.playerOwnerId) === 'denied';
               return (
                 <li key={row.horse.id}>
                   <button
                     type="button"
                     className={selected ? 'stallion-row stallion-row--selected' : 'stallion-row'}
                     aria-pressed={selected}
-                    disabled={book.full}
-                    title={book.full ? '북 마감' : undefined}
+                    disabled={book.full || denied}
+                    title={denied ? (privateKo ?? undefined) : book.full ? '북 마감' : undefined}
                     onClick={() => setStallionId(selected ? null : row.horse.id)}
                   >
-                    <span>{row.horse.name}</span>
+                    <span>
+                      {row.horse.name}
+                      {privateKo !== null && <span className="badge">{privateKo}</span>}
+                    </span>
                     <span>{countryKo(row.stallion.standsIn)}</span>
                     <span>{feeKo(row.stallion.fee)}</span>
                     <span>{lineLabelOf(row.stallion.sireLineId)}</span>
@@ -771,7 +792,10 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
                   const pending = pendingDeal !== null && pendingDeal.horseId === row.horseId ? pendingDeal : null;
                   return (
                     <tr key={row.horseId}>
-                      <td>{row.name}</td>
+                      <td>
+                        {row.name}
+                        {row.isPrivate && <span className="badge">비공개</span>}
+                      </td>
                       <td>{row.feeKo}</td>
                       <td>{row.bookKo}</td>
                       <td>
@@ -794,6 +818,15 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
                                 {DEAL_LABEL_KO[kind]}
                               </button>
                             ))}
+                            {row.canDeal && (
+                              <button
+                                type="button"
+                                className="btn"
+                                onClick={() => togglePrivate(row.horseId, !row.isPrivate)}
+                              >
+                                {row.isPrivate ? '공개로 전환' : '비공개로 전환'}
+                              </button>
+                            )}
                             {row.canRetire && (
                               <button type="button" className="btn" onClick={() => startRetire(row.horseId)}>은퇴</button>
                             )}
@@ -854,6 +887,7 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
         )}
         {dealError !== null && <p className="notice notice--error" role="alert">{dealError}</p>}
         {retireError !== null && <p className="notice notice--error" role="alert">{retireError}</p>}
+        {privateError !== null && <p className="notice notice--error" role="alert">{privateError}</p>}
         {studView.nominations.length > 0 && (
           <>
             <h3>남긴 교배권</h3>
