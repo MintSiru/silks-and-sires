@@ -8,7 +8,7 @@ export const MAX_SILKS_LAYERS = 2;
 export const SILKS_BODY_PATTERNS = [
   'plain', 'hoop', 'hoops', 'stripes', 'braces', 'cross_belts', 'sash', 'diamond',
   'diamonds', 'triple_diamond', 'chevron', 'chevrons', 'epaulets', 'halves_vertical',
-  'halves_horizontal', 'inverted_triangle', 'triangle', 'large_spots', 'small_spots',
+  'halves_horizontal', 'inverted_triangle', 'triangle', 'large_spots', 'large_spots_6', 'small_spots',
   'quartered', 'seams', 'star', 'stars', 'check', 'disc', 'cross_of_lorraine',
   'diabolo', 'collar', 'border',
 ] as const satisfies readonly SilksBodyPattern[];
@@ -26,7 +26,7 @@ export const DISC_PATTERN_BY_BODY: Readonly<Record<SilksBodyPattern, SilksPatter
   cross_belts: 'sash', sash: 'sash', diamond: 'plain', diamonds: 'plain', triple_diamond: 'plain',
   chevron: 'chevrons', chevrons: 'chevrons', epaulets: 'plain',
   halves_vertical: 'quartered', halves_horizontal: 'quartered',
-  inverted_triangle: 'plain', triangle: 'plain', large_spots: 'spots', small_spots: 'spots',
+  inverted_triangle: 'plain', triangle: 'plain', large_spots: 'spots', large_spots_6: 'spots', small_spots: 'spots',
   quartered: 'quartered', seams: 'stripes', star: 'star', stars: 'star', check: 'quartered',
   disc: 'spots', cross_of_lorraine: 'plain', diabolo: 'plain', collar: 'plain', border: 'plain',
 };

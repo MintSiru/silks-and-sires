@@ -18,7 +18,7 @@ function design(): SilksDesign {
 const render = (d: SilksDesign): string => renderToStaticMarkup(createElement(SilksSvg, { design: d, size: 200 }));
 
 describe('도안 SVG', () => {
-  it('53종 무늬 모두 SVG 요소를 생성하며 한국어 이름이 있다', () => {
+  it('54종 무늬 모두 SVG 요소를 생성하며 한국어 이름이 있다', () => {
     let count = 0;
     for (const [part, patterns, labels] of [
       ['body', SILKS_BODY_PATTERNS, BODY_PATTERN_KO],
@@ -35,7 +35,7 @@ describe('도안 SVG', () => {
         count++;
       }
     }
-    expect(count).toBe(53);
+    expect(count).toBe(54);
   });
   it('각 부분에 바탕 → 층1 → 층2 순서와 클립을 적용한다', () => {
     const d = design();

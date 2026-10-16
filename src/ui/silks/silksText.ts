@@ -6,7 +6,7 @@ export const BODY_PATTERN_KO: Record<SilksBodyPattern, string> = {
   diamonds: '다이아몬드 여러 개', triple_diamond: '트리플 다이아몬드',
   chevron: '셰브런 하나', chevrons: '셰브런 여러 개', epaulets: '견장',
   halves_vertical: '반반(세로)', halves_horizontal: '반반(가로)',
-  inverted_triangle: '역삼각형', triangle: '삼각형', large_spots: '큰 점', small_spots: '작은 점',
+  inverted_triangle: '역삼각형', triangle: '삼각형', large_spots: '큰 점 3개', large_spots_6: '큰 점 6개', small_spots: '작은 점',
   quartered: '4분할', seams: '이음선', star: '별 하나', stars: '별 여러 개', check: '체크',
   disc: '원판', cross_of_lorraine: '로렌 십자', diabolo: '디아볼로', collar: '칼라색', border: '테두리',
 };

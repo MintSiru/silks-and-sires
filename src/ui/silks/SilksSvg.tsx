@@ -34,8 +34,40 @@ const CAP_STARS = { size: 2.2, points: [[CAP_CROWN.cx, CAP_CROWN.cy], ...[0, 60,
 const CAP_SPOTS = { size: 2.6, points: [20, 110, 200, 290].map((deg) =>
   [CAP_CROWN.cx + 5.2 * Math.cos((deg * Math.PI) / 180), CAP_CROWN.cy + 5.2 * Math.sin((deg * Math.PI) / 180)] as const) } as const;
 /** 소매 별: 소매 가운데 선 위 3개(참고 SVG 처럼 크게), 오른쪽은 좌우 대칭 */
-const SLEEVE_STARS = { size: 3.8, left: [[13.6, 32], [10.9, 46], [8.3, 60]] } as const;
+const SLEEVE_STARS = { size: 4.2, left: [[14.2, 33.5], [11.6, 47], [8.6, 60.5]] } as const;
 const MIRROR_X = 79.5;
+/** 다이아몬드 여러 개(할리퀸, 참고 SVG): 몸통은 꼭짓점이 맞닿는 큰 마름모 격자(폭·높이), 소매는 소매 틀 안 한 줄, 모자는 가운데서 뻗은 6개 */
+const BODY_DIAMONDS = { w: 13.6, h: 18, x0: 39.75, y0: 13 } as const;
+const SLEEVE_DIAMONDS = { halfW: 21, halfH: 12.3, ys: [20, 44.6, 69.2, 93.8] } as const;
+/** 소매 체크: 소매 틀(100 × 100) 안 2열 정사각 칸(참고 SVG 13) — 칸 폭은 틀 x 21(약 5.5 도안 단위), 높이는 같은 길이 */
+const SLEEVE_CHECK = { cellW: 21, cellH: 11 } as const;
+function sleeveCheck(): JSX.Element {
+  const items: JSX.Element[] = [];
+  for (let j = 0; j * SLEEVE_CHECK.cellH < 100; j++) {
+    for (let i = -3; i <= 2; i++) {
+      if ((i + j) % 2 !== 0) continue;
+      items.push(<rect key={`${i}-${j}`} x={50 + i * SLEEVE_CHECK.cellW} y={j * SLEEVE_CHECK.cellH}
+        width={SLEEVE_CHECK.cellW} height={SLEEVE_CHECK.cellH} />);
+    }
+  }
+  return <>{items}</>;
+}
+const CAP_DIAMONDS = { radius: 5.3, halfLength: 2.9, halfWidth: 1.5 } as const;
+function lozenge(x: number, y: number, halfW: number, halfH: number, key?: string | number): JSX.Element {
+  return <polygon key={key} points={`${x},${y - halfH} ${x + halfW},${y} ${x},${y + halfH} ${x - halfW},${y}`} />;
+}
+function bodyDiamonds(): JSX.Element {
+  const { w, h, x0, y0 } = BODY_DIAMONDS;
+  const items: JSX.Element[] = [];
+  for (let j = -1; j <= 4; j++) for (let i = -2; i <= 2; i++) items.push(lozenge(x0 + i * w, y0 + j * h, w / 2, h / 2, `${i}-${j}`));
+  return <>{items}</>;
+}
+function capDiamonds(): JSX.Element {
+  const { radius, halfLength, halfWidth } = CAP_DIAMONDS;
+  return <>{[0, 60, 120, 180, 240, 300].map((deg) => <g key={deg}
+    transform={`translate(${CAP_CROWN.cx} ${CAP_CROWN.cy}) rotate(${deg + 15}) translate(0 ${-radius})`}>
+    {lozenge(0, 0, halfWidth, halfLength)}</g>)}</>;
+}
 /**
  * 점·별처럼 모양이 있는 무늬는 box 로 늘리면 찌그러지고 가장자리에서 반쯤 잘리므로, 도안 좌표에서
  * 부분 가운데를 기준으로 엇갈린 격자를 깔고 모양 전체가 부분 안에 드는 자리만 쓴다(spacing·크기는 도안 단위).
@@ -55,12 +87,19 @@ const SLEEVE_MOTIFS = {
 const BODY_STAR = { x: 39.75, y: 30, size: 16 } as const;
 /**
  * 몸통에 손으로 정한 배치(사용자 피드백 2026-10-16): 큰 점 = 2열 × 3행 6개(실제 승부복 도안식),
- * 별 여러 개 = 3·2·3·2 엇갈림 10개. 좌표는 도안 단위, size 는 반지름.
+ * 별·작은 점은 참고 SVG(11·12)의 엇갈림 배치. 좌표는 도안 단위, size 는 반지름.
  */
 const BODY_LAYOUTS = {
-  large_spots: { size: 7.6, points: [[30.2, 21.5], [49.3, 21.5], [30.2, 40], [49.3, 40], [30.2, 58.5], [49.3, 58.5]] },
-  stars: { size: 4.6, points: [[28.5, 19], [39.75, 19], [51, 19], [34, 32], [45.5, 32],
-    [28.5, 45], [39.75, 45], [51, 45], [34, 58], [45.5, 58]] },
+  // 큰 점 3개: 왼쪽 위 → 가운데 → 오른쪽 아래 대각(참고 SVG 4·9)
+  large_spots: { size: 7.8, points: [[29, 15.5], [39.75, 37], [50.5, 58.5]] },
+  // 큰 점 6개: 2열 × 3행(사용자 요청)
+  large_spots_6: { size: 7.6, points: [[30.2, 21.5], [49.3, 21.5], [30.2, 40], [49.3, 40], [30.2, 58.5], [49.3, 58.5]] },
+  // 별 여러 개: 큰 별 8개 2·1·2·1… 엇갈림(참고 SVG 12 — 가장자리 별은 잘려도 된다)
+  stars: { size: 7.2, points: [[25.8, 16], [53.7, 15], [39.75, 23], [25.8, 35], [53.7, 34.5], [39.75, 46.5],
+    [26.5, 56.5], [53, 56], [39.75, 68]] },
+  // 작은 점: 지름 약 10 의 점 2·1·2·1… 엇갈림(참고 SVG 11)
+  small_spots: { size: 5.1, points: [[28.3, 10.5], [51.2, 10.5], [39.75, 21.4], [28.3, 29.2], [51.2, 29.2],
+    [39.75, 40], [28.3, 48.6], [51.2, 48.6], [39.75, 58.8], [28.3, 67.6], [51.2, 67.6]] },
 } as const;
 const STAR_RADIUS = 18;
 type Poly = readonly (readonly [number, number])[];
@@ -177,9 +216,10 @@ function patternShape(pattern: string): JSX.Element {
     case 'halves_horizontal': return <rect y="50" width="100" height="50" />;
     case 'inverted_triangle': return <polygon points="0,0 100,0 50,95" />;
     case 'triangle': return <polygon points="50,5 100,100 0,100" />;
-    case 'large_spots': return tiles('spots', 40);
+    case 'large_spots': case 'large_spots_6': return tiles('spots', 40);
     case 'small_spots': case 'spots': return tiles('spots');
-    case 'quartered': return <><rect width="50" height="50" /><rect x="50" y="50" width="50" height="50" /></>;
+    // 4분할: 왼쪽 위가 바탕색, 층 색은 오른쪽 위·왼쪽 아래(참고 SVG 13)
+    case 'quartered': return <><rect x="50" width="50" height="50" /><rect y="50" width="50" height="50" /></>;
     case 'seams': return <><rect x="10" width="7" height="100" /><rect x="83" width="7" height="100" /></>;
     case 'star': return star(50, 50, 1.8);
     case 'stars': return tiles('stars', 30);
@@ -194,7 +234,8 @@ function patternShape(pattern: string): JSX.Element {
     case 'cuffs': return <rect y="78" width="100" height="22" />;
     // 챙은 크라운 뒤 원(보이는 초승달)이라 SilksSvg 가 CAP_PEAK_PATH 로 직접 칠한다.
     case 'peak': return <></>;
-    case 'pompon': return <circle cx="50" cy="50" r="14" />;
+    // 방울(단추): 크라운 가운데 작은 원 + 윤곽선(참고 SVG 11)
+    case 'pompon': return <circle cx="50" cy="50" r="7" stroke={GEOMETRY.outline} strokeWidth="4" />;
     default: throw new Error(`알 수 없는 승부복 무늬: ${pattern}`);
   }
 }
@@ -240,7 +281,20 @@ export default function SilksSvg({ design, size }: SilksSvgProps): JSX.Element {
                 ? <>{BODY_LAYOUTS[layer.pattern as keyof typeof BODY_LAYOUTS].points.map(([x, y], i) =>
                     layer.pattern === 'stars'
                       ? star(x, y, BODY_LAYOUTS.stars.size / STAR_RADIUS, String(i))
-                      : <circle key={i} cx={x} cy={y} r={BODY_LAYOUTS.large_spots.size} />)}</>
+                      : <circle key={i} cx={x} cy={y}
+                          r={BODY_LAYOUTS[layer.pattern as 'large_spots' | 'large_spots_6' | 'small_spots'].size} />)}</>
+              : geometry.name === 'body' && layer.pattern === 'diamonds'
+                ? bodyDiamonds()
+              : geometry.name === 'cap' && layer.pattern === 'diamonds'
+                ? capDiamonds()
+              : geometry.frame !== null && layer.pattern === 'check'
+                ? <g transform={boxTransform}>{sleeveCheck()}</g>
+              : geometry.frame !== null && layer.pattern === 'diamonds'
+                ? <g transform={boxTransform}>{SLEEVE_DIAMONDS.ys.map((y, i) =>
+                    lozenge(50, y, SLEEVE_DIAMONDS.halfW, SLEEVE_DIAMONDS.halfH, i))}</g>
+              : geometry.name === 'cap' && layer.pattern === 'quartered'
+                ? <g transform={boxTransform}><g transform="rotate(30 50 50)">
+                    <rect x="50" y="-50" width="100" height="100" /><rect x="-50" y="50" width="100" height="100" /></g></g>
               : geometry.name === 'cap' && layer.pattern === 'spots'
                 ? <>{CAP_SPOTS.points.map(([x, y], i) => <circle key={i} cx={x} cy={y} r={CAP_SPOTS.size} />)}</>
               : geometry.name === 'cap' && layer.pattern === 'stars'

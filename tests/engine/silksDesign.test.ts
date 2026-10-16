@@ -70,7 +70,7 @@ describe('도안 축약·검증', () => {
       ['hoops', ['hoop', 'hoops']], ['stripes', ['stripes', 'braces', 'seams']],
       ['sash', ['sash', 'cross_belts']], ['chevrons', ['chevron', 'chevrons']],
       ['quartered', ['quartered', 'halves_vertical', 'halves_horizontal', 'check']],
-      ['spots', ['large_spots', 'small_spots', 'disc']], ['star', ['star', 'stars']],
+      ['spots', ['large_spots', 'large_spots_6', 'small_spots', 'disc']], ['star', ['star', 'stars']],
     ];
     for (const pattern of SILKS_BODY_PATTERNS) {
       const d = design();

@@ -22,12 +22,12 @@ export type HexColor = string;
 
 export type SilksPattern = 'plain' | 'hoops' | 'stripes' | 'quartered' | 'sash' | 'chevrons' | 'spots' | 'star';
 
-/** 승부복 몸통 무늬(M4-E0a, 사용자 도안 2026-10-12). */
+/** 승부복 몸통 무늬(M4-E0a, 사용자 도안 2026-10-12). large_spots = 큰 점 3개(대각), large_spots_6 = 큰 점 6개(2열 × 3행) — 사용자 결정 2026-10-16. */
 export type SilksBodyPattern =
   | 'plain' | 'hoop' | 'hoops' | 'stripes' | 'braces' | 'cross_belts' | 'sash'
   | 'diamond' | 'diamonds' | 'triple_diamond' | 'chevron' | 'chevrons' | 'epaulets'
   | 'halves_vertical' | 'halves_horizontal' | 'inverted_triangle' | 'triangle'
-  | 'large_spots' | 'small_spots' | 'quartered' | 'seams' | 'star' | 'stars' | 'check'
+  | 'large_spots' | 'large_spots_6' | 'small_spots' | 'quartered' | 'seams' | 'star' | 'stars' | 'check'
   | 'disc' | 'cross_of_lorraine' | 'diabolo' | 'collar' | 'border';
 
 /** 승부복 소매 무늬. */
