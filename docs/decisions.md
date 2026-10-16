@@ -326,3 +326,4 @@
 - 2026-10-16 M4-H12 승인(Codex): config/injury.ts·horse/injury.ts — 부상 14종(부위·기간·재발 배수·영구 영향·숨김), 마장·계절·나이 가중, 확진 전 단서(injury_suspected)·검사(orderVetExam)·3주 자동 확진(기간 ×1.25)·치료 선택(chooseTreatment, vet_fee), 회복 때 병력·영구 영향, 레이스 컨디션 폭에 formVariance. 52주 부상 수 209 → 216(+3%). 시즌 검증 '그해 최고 OR' 123(기준 124~132) 1건 이탈 — 부상 분포 변화에 따른 소폭, G1 30년 검증에서 재확인.
 - 2026-10-16 M4-H3 승인(Codex): stud/health.ts(breeding_health, mortality 다음 등록 — Opus) — 유산 임신당 6%(18세 이상 ×1.5), 제엽염(나이별 0.5~3%/년, 회복·은퇴·사망 5:3:2), 산통(2%/년, 사망 15%). 10년 측정: 제엽염 2.7·산통 4.1·사망 3.6건/년.
 - 2026-10-16 기술: vitest 기본 testTimeout 15초(병렬 에이전트 부하에서 5초 제한 오탐 방지).
+- 2026-10-16 5대 혈통 15회차 반영(50칸, 조상 13두) — 3티어 완료, 4티어 시작. Cadeaux Genereux 계통 Dark Angel → 미분류(임시, 부 Young Generation 연결로 드러남), 어휘 Cormorant 제거, Top Ville 털색 bay 유지(사용자 확인). 고정 해시 재고정(이름 변화로 raceResults·ledger 포함). mortality 대조 테스트를 1티어·영국 계류 종마로 바꿔 표본 우연성 제거.

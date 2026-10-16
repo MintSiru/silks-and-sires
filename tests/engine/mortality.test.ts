@@ -234,7 +234,10 @@ describe('종마 사망 정리와 환불', () => {
 
   it('강제 사망 후 교배 연도가 사망 연도 뒤인 신규 말은 그 종마를 부로 받지 않는다', () => {
     const base = bootState(BASE_SEED);
-    const stallionId = liveRealStallionIds(base)[0];
+    // 대조군이 80두 표본에서 확실히 뽑히도록 가중치가 큰 1티어·영국 계류 종마를 고른다(2026-10-16: 정렬 첫 종마는 데이터 변화에 따라 안 뽑힐 수 있음)
+    const tierOf = (id: string) => BOOT_DATA.stallionRecords.find((r) => r.key === id)?.marketTier;
+    const stallionId = liveRealStallionIds(base).find((id) => tierOf(id) === 1 && base.stallions[id]?.standsIn === 'GB')
+      ?? liveRealStallionIds(base)[0];
     if (stallionId === undefined) throw new Error('현역 실명 종마가 없다');
     const diedYear = START_YEAR;
     const spawnData = { stallionRecords: BOOT_DATA.stallionRecords, naming: BOOT_DATA.naming, stallionNames: BOOT_DATA.stallionNames };

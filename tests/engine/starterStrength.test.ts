@@ -22,8 +22,8 @@ const BOOT_DATA: BootstrapData = {
 };
 
 /** M4-ST1 적용 전(HEAD) 시드 20261011 의 AI 소유 말 JSON 해시. 다른 티켓이 AI 세계를 의도적으로 바꾸면 갱신한다. */
-// 2026-10-15 재고정: 5대 혈통 14회차 데이터(종마 데이터가 바뀌면 AI 말도 바뀐다 — ST1 적용 전후 동일은 ST1 커밋에서 확인)
-const AI_WORLD_HASH_AT_M4_ST1 = 'f2150ba518dc38884d70a15aabc57faf4a4f114f27dc6655a9bb573ff11c3b17';
+// 2026-10-15 재고정: 5대 혈통 15회차 데이터·어휘 정리(종마 데이터가 바뀌면 AI 말도 바뀐다 — ST1 적용 전후 동일은 ST1 커밋에서 확인)
+const AI_WORLD_HASH_AT_M4_ST1 = '1b5cfdc8bec8be10d0d4d981bbae1ffeeef7f9b970974c7ecf899c3b7e7625f4';
 
 function boot(seed: number): GameState {
   return bootstrapGame({ seed, playerName: 'Test Owner', silks: { ...SILKS } }, BOOT_DATA);
