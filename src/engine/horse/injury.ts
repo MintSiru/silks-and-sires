@@ -172,6 +172,7 @@ function validateHorse(state: GameState, horseId: string): InjuryError | null {
   return null;
 }
 
+/** 플레이어 부상 API: 이벤트는 events 로만 돌려주고 state.eventLog 는 건드리지 않는다(기록은 호출자 몫, bookCovering 과 같은 규칙) */
 export function orderVetExam(state: GameState, horseId: string): InjuryActionResult {
   const error = validateHorse(state, horseId);
   if (error !== null) return { ok: false, error };
@@ -183,7 +184,6 @@ export function orderVetExam(state: GameState, horseId: string): InjuryActionRes
   recordMoney(draft, draft.playerOwnerId, 'vet_fee', -VET_EXAM_COST, draft.date, horseId);
   const events: GameEvent[] = [{ type: 'injury_diagnosed', horseId, kind: injury.kind,
     weeksOut: injury.weeksOut, date: { ...draft.date } }];
-  draft.eventLog.push(...events);
   return { ok: true, state: draft, events };
 }
 
@@ -207,6 +207,5 @@ export function chooseTreatment(state: GameState, horseId: string, treatment: In
   recordMoney(draft, draft.playerOwnerId, 'vet_fee', -def.cost, draft.date, horseId);
   const events: GameEvent[] = [{ type: 'injury_treated', horseId, treatment, cost: def.cost,
     weeksOut: injury.weeksOut, date: { ...draft.date } }];
-  draft.eventLog.push(...events);
   return { ok: true, state: draft, events };
 }

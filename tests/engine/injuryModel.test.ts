@@ -133,7 +133,7 @@ describe('플레이어 진단·치료 API', () => {
     expect(out.state.owners[state.playerOwnerId]!.funds).toBe(state.owners[state.playerOwnerId]!.funds - VET_EXAM_COST);
     expect(out.state.economy.playerLedger.at(-1)).toMatchObject({ category: 'vet_fee', amount: -VET_EXAM_COST });
     expect(out.events[0]).toMatchObject({ type: 'injury_diagnosed', kind: 'tendon' });
-    expect(out.state.eventLog.at(-1)).toEqual(out.events[0]);
+    expect(out.state.eventLog).toEqual(state.eventLog); // 기록은 호출자 몫
     expect(out.state.rng).toEqual(state.rng);
     expect(orderVetExam(out.state, 'injury-horse')).toEqual({ ok: false, error: 'already_diagnosed' });
     expect(orderVetExam(state, 'missing')).toEqual({ ok: false, error: 'not_found' });

@@ -1,5 +1,6 @@
 import { BET_MIN_STAKE } from '../../engine/config/betting';
 import type { BetError } from '../../engine/betting/betting';
+import type { InjuryError } from '../../engine/horse/injury';
 import type { BetKind } from '../../engine/types';
 import type { SalePatronTier } from '../../engine/sales/patron';
 import type { AcceptPrivateOfferError, InspectOfferError } from '../../engine/sales/privateTrade';
@@ -507,6 +508,20 @@ export function injuryKo(kind: InjuryKind): string {
     default:
       return assertNever(kind);
   }
+}
+
+/** 부상 검사·치료 실패 사유 → 한국어(M4-H4) */
+export function injuryErrorKo(error: InjuryError): string {
+  return {
+    not_found: '말을 찾을 수 없습니다.',
+    not_player_horse: '내 말이 아니라서 처치할 수 없습니다.',
+    no_injury: '지금 부상 중인 말이 아닙니다.',
+    already_diagnosed: '이미 확진된 부상입니다.',
+    not_diagnosed: '검사를 받아 확진한 뒤에 치료를 고를 수 있습니다.',
+    not_allowed: '이 부상에는 고를 수 없는 치료입니다.',
+    already_treated: '이미 치료를 골랐습니다.',
+    insufficient_funds: '자금이 부족해 실행할 수 없습니다.',
+  }[error];
 }
 
 // ── 시즌 화면(M3-D3a) ───────────────────────────────────────────

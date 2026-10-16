@@ -2,12 +2,15 @@ import BettingPanel from '../betting/BettingPanel';
 import { useMemo, useState } from 'react';
 import type { JSX } from 'react';
 import { formatDateKo } from '../../engine/time/calendar';
-import type { GameEvent, GameState, HorseId, TrainerId } from '../../engine/types';
+import type { InjuryError } from '../../engine/horse/injury';
+import type { GameEvent, GameState, HorseId, InjuryTreatment, TrainerId } from '../../engine/types';
 import {
   assignTrainerErrorKo,
   declareErrorKo,
   eventKo,
   feeKo,
+  injuryErrorKo,
+  INJURY_TREATMENT_KO,
   personalityClueKo,
   statusKo,
   trainerReportKo,
@@ -22,6 +25,7 @@ import {
   playerHorses,
   recentResults,
   trainerChoices,
+  type InjuryView,
   type MeetingRaceView,
   type PlayerHorseOption,
   type PlayerHorseView,
@@ -200,6 +204,22 @@ function SeasonView({ state, game, locked }: SeasonViewProps): JSX.Element {
     setNotice({ tone: 'ok', text: `${nameOf(horseId)} 출주를 취소했습니다.` });
   };
 
+  /** 검사 주문. 실패 사유는 카드에 보이도록 돌려준다 */
+  const handleVetExam = (horseId: HorseId): InjuryError | null => {
+    const result = game.orderVetExam(horseId);
+    if (!result.ok) return result.error;
+    setNotice({ tone: 'ok', text: `${nameOf(horseId)} 검사를 받아 확진했습니다.` });
+    return null;
+  };
+
+  /** 치료 선택(확인 단계 없이 바로 실행). 실패 사유는 카드에 보이도록 돌려준다 */
+  const handleTreatment = (horseId: HorseId, treatment: InjuryTreatment): InjuryError | null => {
+    const result = game.chooseTreatment(horseId, treatment);
+    if (!result.ok) return result.error;
+    setNotice({ tone: 'ok', text: `${nameOf(horseId)} 치료를 골랐습니다: ${INJURY_TREATMENT_KO[treatment]}.` });
+    return null;
+  };
+
   const handleAssign = (horse: PlayerHorseView): void => {
     const trainerId = trainerPicks[horse.id];
     if (trainerId === undefined) {
@@ -282,6 +302,8 @@ function SeasonView({ state, game, locked }: SeasonViewProps): JSX.Element {
                   pick={trainerPicks[horse.id]}
                   onPick={(trainerId) => setTrainerPick(horse.id, trainerId)}
                   onAssign={() => handleAssign(horse)}
+                  onVetExam={() => handleVetExam(horse.id)}
+                  onTreatment={(treatment) => handleTreatment(horse.id, treatment)}
                 />
               ))}
             </div>
@@ -378,9 +400,17 @@ interface PlayerHorseCardProps {
   pick: TrainerId | undefined;
   onPick: (trainerId: string) => void;
   onAssign: () => void;
+  /** 검사 주문. 실패하면 사유를 돌려준다 */
+  onVetExam: () => InjuryError | null;
+  /** 치료 선택. 실패하면 사유를 돌려준다 */
+  onTreatment: (treatment: InjuryTreatment) => InjuryError | null;
 }
 
-function PlayerHorseCard({ horse, choices, pick, onPick, onAssign }: PlayerHorseCardProps): JSX.Element {
+function PlayerHorseCard({
+  horse, choices, pick, onPick, onAssign, onVetExam, onTreatment,
+}: PlayerHorseCardProps): JSX.Element {
+  /** 이 말 카드의 부상 처치 실패 사유(성공하면 지운다) */
+  const [injuryError, setInjuryError] = useState<InjuryError | null>(null);
   return (
     <article className="horse-card">
       <div className="horse-card__head">
@@ -403,6 +433,26 @@ function PlayerHorseCard({ horse, choices, pick, onPick, onAssign }: PlayerHorse
           ))}
         </ul>
       )}
+      {horse.injury !== null && (
+        <InjuryBlock
+          injury={horse.injury}
+          error={injuryError}
+          onExam={() => setInjuryError(onVetExam())}
+          onTreat={(treatment) => setInjuryError(onTreatment(treatment))}
+        />
+      )}
+      {horse.historyKo.length > 0 && (
+        <details className="horse-card__history">
+          <summary>병력 (최근 {horse.historyKo.length}건)</summary>
+          <ul className="comments">
+            {horse.historyKo.map((line, index) => (
+              <li key={index} className="comment comment--neutral">
+                {line}
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
       {horse.trainerName === null && (
         <div className="season-entry">
           <select className="horse-card__select" value={pick ?? ''} onChange={(e) => onPick(e.target.value)}>
@@ -419,6 +469,59 @@ function PlayerHorseCard({ horse, choices, pick, onPick, onAssign }: PlayerHorse
         </div>
       )}
     </article>
+  );
+}
+
+interface InjuryBlockProps {
+  injury: InjuryView;
+  /** 이 카드의 마지막 처치 실패 사유 */
+  error: InjuryError | null;
+  onExam: () => void;
+  onTreat: (treatment: InjuryTreatment) => void;
+}
+
+/** 부상 영역: 확진 전이면 단서와 검사 버튼, 확진되면 종류·기간과 치료 선택 버튼 */
+function InjuryBlock({ injury, error, onExam, onTreat }: InjuryBlockProps): JSX.Element {
+  return (
+    <div className="horse-card__injury">
+      {injury.kind === 'suspected' ? (
+        <>
+          <p className="horse-card__line">이상 증세: {injury.hintKo}</p>
+          <button type="button" className="btn" onClick={onExam}>
+            검사 받기 ({injury.examCostKo})
+          </button>
+        </>
+      ) : (
+        <>
+          <p className="horse-card__line">
+            확진: {injury.nameKo} · 약 {injury.weeksOut}주
+          </p>
+          {injury.treatmentKo !== null && <p className="horse-card__hint">치료: {injury.treatmentKo}</p>}
+          {injury.options.length > 0 ? (
+            <>
+              <ul className="comments">
+                {injury.options.map((option) => (
+                  <li key={option.treatment}>
+                    <button type="button" className="btn" onClick={() => onTreat(option.treatment)}>
+                      {option.labelKo} ({option.costKo})
+                    </button>{' '}
+                    <span className="hint">{option.noteKo}</span>
+                  </li>
+                ))}
+              </ul>
+              {injury.treatmentKo === null && <p className="hint">고르지 않으면 휴양합니다.</p>}
+            </>
+          ) : (
+            injury.treatmentKo === null && <p className="hint">고를 수 있는 치료가 없어 휴양합니다.</p>
+          )}
+        </>
+      )}
+      {error !== null && (
+        <p className="notice notice--error" role="alert">
+          {injuryErrorKo(error)}
+        </p>
+      )}
+    </div>
   );
 }
 

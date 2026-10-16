@@ -2,6 +2,7 @@
  * 시즌 화면 뷰 모델 (M3-D3a). React 없이 테스트할 수 있도록 순수 함수만 둔다.
  * 플레이어에게 OR 숫자를 보이지 않는다: 결과 객체에는 officialRating 필드가 없고, 레이팅은 ratingHintKo 문구로만 보인다.
  */
+import { INJURY_KINDS, VET_EXAM_COST, type InjuryTreatmentDef } from '../../engine/config/injury';
 import { PLAYER_TRAINING_START_AGE } from '../../engine/config/season';
 import { getRacecourses, getRaceTemplates } from '../../engine/data/staticData';
 import { goingLabel } from '../../engine/going/going';
@@ -15,6 +16,9 @@ import type {
   GameState,
   Horse,
   HorseId,
+  Injury,
+  InjuryRecord,
+  InjuryTreatment,
   Money,
   Race,
   RaceId,
@@ -24,6 +28,10 @@ import type {
 } from '../../engine/types';
 import {
   coatColourKo,
+  feeKo,
+  INJURY_REGION_HINT_KO,
+  INJURY_TREATMENT_KO,
+  injuryKo,
   raceConditionsKo,
   raceDistanceKo,
   raceGradeKo,
@@ -72,6 +80,94 @@ function isListedPlayerHorse(horse: Horse, year: number): boolean {
 
 // ── 내 말 ───────────────────────────────────────────────────────
 
+/** 병력 표시 개수(최신 먼저) */
+const INJURY_HISTORY_VIEW_COUNT = 5;
+
+export interface InjurySuspectedView {
+  kind: 'suspected';
+  /** 조교사 단서 문구(부위별). 종류는 확진 전이라 숨긴다 */
+  hintKo: string;
+  /** 검사 버튼의 비용 문구 */
+  examCostKo: string;
+}
+
+export interface InjuryTreatmentOptionView {
+  treatment: InjuryTreatment;
+  labelKo: string;
+  costKo: string;
+  /** 기간·재발·후유증 배수와 성공률 요약. 예: '기간 ×0.7 · 성공률 80%' */
+  noteKo: string;
+}
+
+export interface InjuryDiagnosedView {
+  kind: 'diagnosed';
+  nameKo: string;
+  weeksOut: number;
+  /** 고른 치료 이름. 아직 고르지 않았으면 null */
+  treatmentKo: string | null;
+  /** 고를 수 있는 치료(휴양 제외). 이미 의료·수술을 골랐으면 빈 배열 */
+  options: InjuryTreatmentOptionView[];
+}
+
+export type InjuryView = InjurySuspectedView | InjuryDiagnosedView;
+
+/** 치료 정의 한 줄 요약. 기간 범위가 있으면 범위를, 아니면 배수를 쓴다 */
+function treatmentNoteKo(def: InjuryTreatmentDef): string {
+  const parts: string[] = [];
+  if (def.minWeeks !== undefined && def.maxWeeks !== undefined) {
+    parts.push(`기간 ${def.minWeeks}~${def.maxWeeks}주`);
+  } else if (def.weeksMult !== 1) {
+    parts.push(`기간 ×${def.weeksMult}`);
+  }
+  if (def.recurMult !== 1) parts.push(`재발 ×${def.recurMult}`);
+  if (def.permanentMult !== 1) parts.push(`후유증 ×${def.permanentMult}`);
+  if (def.successRate < 1) parts.push(`성공률 ${Math.round(def.successRate * 100)}%`);
+  return parts.length === 0 ? '효과 없음' : parts.join(' · ');
+}
+
+function treatmentOptionsOf(injury: Injury): InjuryTreatmentOptionView[] {
+  if (injury.treatment === 'medical' || injury.treatment === 'surgery') return [];
+  const entries = Object.entries(INJURY_KINDS[injury.kind].treatments) as [InjuryTreatment, InjuryTreatmentDef][];
+  return entries
+    .filter(([treatment]) => treatment !== 'rest')
+    .map(([treatment, def]) => ({
+      treatment,
+      labelKo: INJURY_TREATMENT_KO[treatment],
+      costKo: feeKo(def.cost),
+      noteKo: treatmentNoteKo(def),
+    }));
+}
+
+/** 부상 상태 뷰. 확진 전이면 단서만, 확진되면 종류·기간·치료 선택을 준다 */
+function injuryViewOf(injury: Injury): InjuryView {
+  if (injury.diagnosed === false) {
+    return {
+      kind: 'suspected',
+      hintKo: INJURY_REGION_HINT_KO[INJURY_KINDS[injury.kind].region],
+      examCostKo: feeKo(VET_EXAM_COST),
+    };
+  }
+  return {
+    kind: 'diagnosed',
+    nameKo: injuryKo(injury.kind),
+    weeksOut: injury.weeksOut,
+    treatmentKo: injury.treatment === undefined || injury.treatment === null ? null : INJURY_TREATMENT_KO[injury.treatment],
+    options: treatmentOptionsOf(injury),
+  };
+}
+
+/** 병력 줄(최근 5건, 최신 먼저). 영구 영향이 있으면 '· 후유증'을 붙인다 */
+function historyLinesOf(history: InjuryRecord[] | undefined): string[] {
+  return (history ?? [])
+    .slice(-INJURY_HISTORY_VIEW_COUNT)
+    .reverse()
+    .map((record) => {
+      const line = `${formatDateKo(record.since)} ${injuryKo(record.kind)} ${record.weeks}주 · ${INJURY_TREATMENT_KO[record.treatment]}`;
+      const permanent = record.permanent !== undefined && Object.keys(record.permanent).length > 0;
+      return permanent ? `${line} · 후유증` : line;
+    });
+}
+
 export interface PlayerHorseView {
   id: HorseId;
   name: string;
@@ -87,6 +183,10 @@ export interface PlayerHorseView {
   statusKey: TrainerReportKey | null;
   /** 기수·조교사 코멘트용 성격 단서 키(최대 개수는 엔진 규칙을 따른다) */
   personalityKeys: PersonalityClueKey[];
+  /** 부상 상태. 부상이 없으면 null */
+  injury: InjuryView | null;
+  /** 병력 줄(최근 5건, 최신 먼저). 병력이 없으면 빈 배열 */
+  historyKo: string[];
 }
 
 /** 플레이어 소유 '내 말' 목록(id 오름차순). 조교 중·휴양 중 말과 2세 이상 미조교 말 */
@@ -108,6 +208,8 @@ export function playerHorses(state: GameState): PlayerHorseView[] {
         trainerName: trainer?.name ?? null,
         statusKey: trainer === undefined ? null : trainerReport(h),
         personalityKeys: personalityClues(h.personality),
+        injury: h.condition.injury === null ? null : injuryViewOf(h.condition.injury),
+        historyKo: historyLinesOf(h.injuryHistory),
       };
     });
 }

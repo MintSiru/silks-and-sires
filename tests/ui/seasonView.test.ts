@@ -14,7 +14,15 @@ import type {
   RaceResult,
   ScheduledRace,
 } from '../../src/engine/types';
-import { personalityClueKo, raceConditionsKo, trainerReportKo } from '../../src/ui/game/text';
+import {
+  feeKo,
+  INJURY_REGION_HINT_KO,
+  injuryErrorKo,
+  injuryKo,
+  personalityClueKo,
+  raceConditionsKo,
+  trainerReportKo,
+} from '../../src/ui/game/text';
 import {
   eligiblePlayerHorses,
   hasPendingPlayerRace,
@@ -23,7 +31,12 @@ import {
   ratingHintKo,
   recentResults,
   trainerChoices,
+  type PlayerHorseView,
 } from '../../src/ui/season/seasonView';
+import { INJURY_KINDS, VET_EXAM_COST } from '../../src/engine/config/injury';
+import { chooseTreatment, type InjuryError } from '../../src/engine/horse/injury';
+import { formatDateKo } from '../../src/engine/time/calendar';
+import type { Injury, InjuryRecord } from '../../src/engine/types';
 
 const SEED = 20261011;
 const SILKS = { primary: '#1a3c6e', secondary: '#f2d200', pattern: 'hoops' } as const;
@@ -429,5 +442,154 @@ describe('hasPendingPlayerRace', () => {
     expect(declared.ok).toBe(true);
     if (!declared.ok) return;
     expect(hasPendingPlayerRace(declared.state)).toBe(true);
+  });
+});
+
+// ── 부상 화면 뷰(M4-H4) ─────────────────────────────────────────
+
+/** 조교 중인 플레이어 말에 부상을 넣는다(뷰 테스트용) */
+function injuredPlayerHorse(injury: Injury): { state: GameState; horseId: HorseId } {
+  const { state, horseId } = trainedPlayerHorse();
+  horseOf(state, horseId).condition.injury = injury;
+  return { state, horseId };
+}
+
+function viewOfHorse(state: GameState, horseId: HorseId): PlayerHorseView {
+  const view = playerHorses(state).find((h) => h.id === horseId);
+  if (view === undefined) throw new Error(`내 말 뷰가 없다: ${horseId}`);
+  return view;
+}
+
+describe('부상 뷰: 확진 전', () => {
+  it('확진 전 부상은 kind suspected 이고 부위 단서와 검사 비용만 보인다', () => {
+    const { state, horseId } = injuredPlayerHorse({ kind: 'tendon', weeksOut: 30, diagnosed: false });
+    const injury = viewOfHorse(state, horseId).injury;
+    expect(injury).toEqual({
+      kind: 'suspected',
+      hintKo: INJURY_REGION_HINT_KO.tendon,
+      examCostKo: feeKo(VET_EXAM_COST),
+    });
+  });
+
+  it('단서 문구는 부상 부위에 따라 달라진다', () => {
+    const { state, horseId } = injuredPlayerHorse({ kind: 'stress_fracture', weeksOut: 10, diagnosed: false });
+    const injury = viewOfHorse(state, horseId).injury;
+    expect(injury?.kind).toBe('suspected');
+    if (injury?.kind !== 'suspected') return;
+    expect(injury.hintKo).toBe(INJURY_REGION_HINT_KO.bone);
+    expect(injury.hintKo).not.toBe(INJURY_REGION_HINT_KO.tendon);
+  });
+
+  it('확진 전 뷰는 종류명과 치료 선택지를 담지 않는다', () => {
+    const { state, horseId } = injuredPlayerHorse({ kind: 'tendon', weeksOut: 30, diagnosed: false });
+    const payload = JSON.stringify(viewOfHorse(state, horseId).injury);
+    expect(payload).not.toContain(injuryKo('tendon'));
+    expect(payload).not.toContain('options');
+  });
+});
+
+describe('부상 뷰: 확진', () => {
+  it('확진된 tendon 말은 치료 선택지에 medical 을 담고 비용은 설정과 같다', () => {
+    const { state, horseId } = injuredPlayerHorse({ kind: 'tendon', weeksOut: 30, diagnosed: true });
+    const injury = viewOfHorse(state, horseId).injury;
+    expect(injury?.kind).toBe('diagnosed');
+    if (injury?.kind !== 'diagnosed') return;
+    expect(injury.nameKo).toBe(injuryKo('tendon'));
+    expect(injury.weeksOut).toBe(30);
+    expect(injury.treatmentKo).toBeNull();
+    expect(injury.options.map((o) => o.treatment)).toEqual(['medical']);
+    const medical = injury.options[0];
+    const config = INJURY_KINDS.tendon.treatments.medical;
+    expect(config).toBeDefined();
+    expect(medical?.costKo).toBe(feeKo(config?.cost ?? -1));
+    expect(medical?.labelKo).toBe('치료');
+    expect(medical?.noteKo).toContain('기간 ×0.9');
+  });
+
+  it('휴양은 선택지에서 뺀다', () => {
+    const { state, horseId } = injuredPlayerHorse({ kind: 'chip_fracture', weeksOut: 12, diagnosed: true });
+    const injury = viewOfHorse(state, horseId).injury;
+    expect(injury?.kind).toBe('diagnosed');
+    if (injury?.kind !== 'diagnosed') return;
+    expect(injury.options.map((o) => o.treatment)).toEqual(['surgery']);
+    expect(injury.options[0]?.noteKo).toContain('성공률 90%');
+  });
+
+  it('휴양만 가능한 부상은 선택지가 비고 treatmentKo 도 null 이다', () => {
+    const { state, horseId } = injuredPlayerHorse({ kind: 'knock', weeksOut: 2, diagnosed: true });
+    const injury = viewOfHorse(state, horseId).injury;
+    expect(injury).toEqual({
+      kind: 'diagnosed',
+      nameKo: injuryKo('knock'),
+      weeksOut: 2,
+      treatmentKo: null,
+      options: [],
+    });
+  });
+
+  it('medical 을 고른 뒤에는 선택지가 비고 treatmentKo 가 치료다', () => {
+    const { state, horseId } = injuredPlayerHorse({ kind: 'tendon', weeksOut: 30, diagnosed: true });
+    const owner = state.owners[state.playerOwnerId];
+    if (owner === undefined) throw new Error('마주가 없다');
+    owner.funds = 10_000_000;
+    const result = chooseTreatment(state, horseId, 'medical');
+    if (!result.ok) throw new Error(`치료 선택 실패: ${result.error}`);
+    const injury = viewOfHorse(result.state, horseId).injury;
+    expect(injury?.kind).toBe('diagnosed');
+    if (injury?.kind !== 'diagnosed') return;
+    expect(injury.options).toEqual([]);
+    expect(injury.treatmentKo).toBe('치료');
+  });
+
+  it('부상이 없는 말은 injury 가 null 이다', () => {
+    const { state, horseId } = trainedPlayerHorse();
+    expect(viewOfHorse(state, horseId).injury).toBeNull();
+  });
+});
+
+describe('부상 뷰: 병력', () => {
+  const RECORDS: InjuryRecord[] = [
+    { kind: 'knock', since: { year: 2030, week: 5 }, weeks: 2, treatment: 'rest' },
+    { kind: 'tendon', since: { year: 2030, week: 20 }, weeks: 30, treatment: 'medical', permanent: { speed: 8 } },
+    { kind: 'foot', since: { year: 2031, week: 3 }, weeks: 4, treatment: 'medical' },
+  ];
+
+  it('병력 3건이면 historyKo 3줄, 최신 먼저', () => {
+    const { state, horseId } = trainedPlayerHorse();
+    horseOf(state, horseId).injuryHistory = RECORDS.map((r) => ({ ...r, since: { ...r.since } }));
+    const history = viewOfHorse(state, horseId).historyKo;
+    expect(history).toHaveLength(3);
+    expect(history[0]).toBe(`${formatDateKo({ year: 2031, week: 3 })} ${injuryKo('foot')} 4주 · 치료`);
+    expect(history[1]).toBe(`${formatDateKo({ year: 2030, week: 20 })} ${injuryKo('tendon')} 30주 · 치료 · 후유증`);
+    expect(history[2]).toBe(`${formatDateKo({ year: 2030, week: 5 })} ${injuryKo('knock')} 2주 · 휴양`);
+  });
+
+  it('병력은 최근 5건만 최신 먼저 보인다', () => {
+    const { state, horseId } = trainedPlayerHorse();
+    const many: InjuryRecord[] = Array.from({ length: 7 }, (_, i) => ({
+      kind: 'knock' as const, since: { year: 2030, week: i + 1 }, weeks: i + 1, treatment: 'rest' as const,
+    }));
+    horseOf(state, horseId).injuryHistory = many;
+    const history = viewOfHorse(state, horseId).historyKo;
+    expect(history).toHaveLength(5);
+    expect(history[0]).toContain('7주');
+    expect(history[4]).toContain('3주');
+  });
+
+  it('병력이 없으면 빈 배열이다', () => {
+    const { state, horseId } = trainedPlayerHorse();
+    expect(viewOfHorse(state, horseId).historyKo).toEqual([]);
+  });
+});
+
+describe('injuryErrorKo', () => {
+  it('8개 사유 모두 비지 않고 서로 다르다', () => {
+    const errors: InjuryError[] = [
+      'not_found', 'not_player_horse', 'no_injury', 'already_diagnosed',
+      'not_diagnosed', 'not_allowed', 'already_treated', 'insufficient_funds',
+    ];
+    const texts = errors.map((e) => injuryErrorKo(e));
+    for (const t of texts) expect(t.length).toBeGreaterThan(0);
+    expect(new Set(texts).size).toBe(errors.length);
   });
 });

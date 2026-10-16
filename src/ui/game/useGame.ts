@@ -11,6 +11,7 @@ import { bookCovering, type BookingResult } from '../../engine/breeding/season';
 import { leaseStallion, sellStallion } from '../../engine/stud/trade';
 import { retirePlayerStallion } from '../../engine/stud/fertility';
 import { setStallionPrivate } from '../../engine/stud/private';
+import { chooseTreatment, orderVetExam } from '../../engine/horse/injury';
 import { deserializeGame, serializeGame } from '../../engine/save/serialize';
 import {
   getBookmakers,
@@ -48,6 +49,7 @@ import type {
   GameEvent,
   GameState,
   HorseId,
+  InjuryTreatment,
   Money,
   RaceId,
   Silks,
@@ -73,6 +75,10 @@ export interface GameApi {
   book(mareId: HorseId, stallionId: HorseId): BookingResult;   // 성공 시 state 갱신
   /** 내 종마를 판다(국내는 교배권 0~2, 해외는 0). 성공 시 state 갱신·이벤트 기록, 실패하면 사유를 돌려준다 */
   sellStallion(horseId: HorseId, mode: StallionSaleMode, nominations: number): ReturnType<typeof sellStallion>;
+  /** 내 부상 말에 검사를 받아 확진한다(검사비 VET_EXAM_COST). 성공 시 state 갱신·이벤트 기록 */
+  orderVetExam(horseId: HorseId): ReturnType<typeof orderVetExam>;
+  /** 확진된 부상에 치료를 고른다(rest 휴양 / medical 치료 / surgery 수술). 성공 시 state 갱신·이벤트 기록 */
+  chooseTreatment(horseId: HorseId, treatment: InjuryTreatment): ReturnType<typeof chooseTreatment>;
   /** 내 종마를 셔틀(returnSeason 생략) 또는 장기(returnSeason 필수) 임대한다. 성공 시 state 갱신·이벤트 기록 */
   leaseStallion(horseId: HorseId, kind: 'shuttle' | 'long', returnSeason?: number): ReturnType<typeof leaseStallion>;
   /** 내 종마를 직접 은퇴시킨다(거래 창 28~43주, 임대 아님). 성공 시 state 갱신·이벤트 기록, 실패하면 사유를 돌려준다 */
@@ -252,6 +258,30 @@ export function useGame(): GameApi {
   const sellStallionWith = useCallback(
     (horseId: HorseId, mode: StallionSaleMode, nominations: number): ReturnType<typeof sellStallion> => {
       const result = sellStallion(requireState(), horseId, mode, nominations);
+      if (!result.ok) return result;
+      const next = appendEvents(result.state, result.events);
+      stateRef.current = next;
+      setState(next);
+      return { ok: true, state: next, events: result.events };
+    },
+    [requireState],
+  );
+
+  const orderVetExamWith = useCallback(
+    (horseId: HorseId): ReturnType<typeof orderVetExam> => {
+      const result = orderVetExam(requireState(), horseId);
+      if (!result.ok) return result;
+      const next = appendEvents(result.state, result.events);
+      stateRef.current = next;
+      setState(next);
+      return { ok: true, state: next, events: result.events };
+    },
+    [requireState],
+  );
+
+  const chooseTreatmentWith = useCallback(
+    (horseId: HorseId, treatment: InjuryTreatment): ReturnType<typeof chooseTreatment> => {
+      const result = chooseTreatment(requireState(), horseId, treatment);
       if (!result.ok) return result;
       const next = appendEvents(result.state, result.events);
       stateRef.current = next;
@@ -448,6 +478,8 @@ export function useGame(): GameApi {
     advanceUntil,
     book,
     sellStallion: sellStallionWith,
+    orderVetExam: orderVetExamWith,
+    chooseTreatment: chooseTreatmentWith,
     leaseStallion: leaseStallionWith,
     retireStallion: retireStallionWith,
     setStallionPrivate: setStallionPrivateWith,
