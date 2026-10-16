@@ -3,6 +3,7 @@ import YearEndScreen from './yearEnd/YearEndScreen';
 import { useState } from 'react';
 import type { JSX } from 'react';
 import BreedingScreen from './breeding/BreedingScreen';
+import FarmScreen from './farm/FarmScreen';
 import EconomyScreen from './economy/EconomyScreen';
 import { fundsBanner } from './economy/economyView';
 import RaceDemo from './RaceDemo';
@@ -16,12 +17,13 @@ import { WEIGHT_UNITS, isWeightUnit, weightUnitLabelKo } from './game/units';
 import { feeKo, economyModeKo, fundsWarningKo } from './game/text';
 import type { GameState } from '../engine/types';
 
-type TabId = 'season' | 'standings' | 'breeding' | 'economy' | 'sales' | 'staff' | 'race';
+type TabId = 'season' | 'standings' | 'breeding' | 'farm' | 'economy' | 'sales' | 'staff' | 'race';
 
 const TABS: readonly { id: TabId; label: string }[] = [
   { id: 'season', label: '시즌' },
   { id: 'standings', label: '순위·시상' },
-  { id: 'breeding', label: '목장·배합' },
+  { id: 'breeding', label: '번식·배합' },
+  { id: 'farm', label: '목장' },
   { id: 'economy', label: '경제' },
   { id: 'sales', label: '세일' },
   { id: 'staff', label: '인맥' },
@@ -113,6 +115,7 @@ function AppContent() {
         {tab === 'season' && <SeasonScreen game={game} locked={bankrupt} />}
         {tab === 'standings' && <StandingsScreen game={game} />}
         {tab === 'breeding' && <BreedingScreen game={game} locked={bankrupt} />}
+        {tab === 'farm' && <FarmScreen game={game} locked={bankrupt} />}
         {tab === 'economy' && <EconomyScreen game={game} />}
         {tab === 'sales' && <SalesScreen game={game} locked={bankrupt} />}
         {tab === 'staff' && <StaffScreen game={game} />}

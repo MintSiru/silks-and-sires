@@ -1,3 +1,5 @@
+import { purchaseFarm } from '../../engine/farm/purchase';
+import { startFacilityUpgrade } from '../../engine/farm/facilities';
 import { setPlayerSilks, validateSilksDesign } from '../../engine/people/silks';
 import { SILKS_ERROR_KO } from '../silks/silksText';
 import { placeBet, cancelBet, type BetError } from '../../engine/betting/betting';
@@ -48,6 +50,7 @@ import type { SalesStaticData } from '../../engine/sales/system';
 import type {
   CalendarPhaseId,
   Difficulty,
+  FacilityKind,
   EconomyMode,
   GameEvent,
   GameState,
@@ -123,6 +126,8 @@ export interface GameApi {
   terminateRetainer(kind: RetainerKind, personId: string): PlayerResult<'not_contracted'>;
   acceptPrivateOffer(offerId: string): PlayerResult<AcceptPrivateOfferError>;
   declinePrivateOffer(offerId: string): PlayerResult<DeclinePrivateOfferError>;
+  purchaseFarm(listingId: string): ReturnType<typeof purchaseFarm>;
+  startFacilityUpgrade(kind: FacilityKind): ReturnType<typeof startFacilityUpgrade>;
   setSilks(design: SilksDesign): Promise<ReturnType<typeof setPlayerSilks>>;
   save(): Promise<void>;            // createIndexedDbSaveStore, 슬롯 id 'autosave'
   load(): Promise<boolean>;
@@ -480,6 +485,29 @@ export function useGame(): GameApi {
     await saveStore().save(meta, json);
   }, [requireState]);
 
+  /** 목장 API 는 이벤트만 반환하므로 훅에서 누적한 뒤 자동 저장한다. */
+  const applyFarmResult = useCallback(<E extends string>(result: PlayerResult<E>): PlayerResult<E> => {
+    if (!result.ok) return result;
+    const next = appendEvents(result.state, result.events);
+    stateRef.current = next;
+    setState(next);
+    setLastEvents(result.events);
+    void save().catch((error: unknown) => console.error('목장 자동 저장 실패', error));
+    return { ...result, state: next };
+  }, [save]);
+
+  const purchaseFarmWith = useCallback(
+    (listingId: string): ReturnType<typeof purchaseFarm> =>
+      applyFarmResult(purchaseFarm(requireState(), listingId)),
+    [requireState, applyFarmResult],
+  );
+
+  const startFacilityUpgradeWith = useCallback(
+    (kind: FacilityKind): ReturnType<typeof startFacilityUpgrade> =>
+      applyFarmResult(startFacilityUpgrade(requireState(), kind)),
+    [requireState, applyFarmResult],
+  );
+
   const setSilks = useCallback(async (design: SilksDesign): Promise<ReturnType<typeof setPlayerSilks>> => {
     const result = setPlayerSilks(requireState(), design);
     if (!result.ok) return result;
@@ -507,6 +535,8 @@ export function useGame(): GameApi {
     lastEvents,
     newGame,
     setSilks,
+    purchaseFarm: purchaseFarmWith,
+    startFacilityUpgrade: startFacilityUpgradeWith,
     advance,
     advanceToPhase,
     advanceUntil,

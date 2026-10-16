@@ -178,7 +178,7 @@ interface BreedingScreenProps {
   locked?: boolean;
 }
 
-/** 게임이 없거나 '새 게임' 을 골랐으면 시작 패널만, 아니면 목장·배합 화면을 보인다. */
+/** 게임이 없거나 '새 게임' 을 골랐으면 시작 패널만, 아니면 번식·배합 화면을 보인다. */
 export default function BreedingScreen({ game, locked = false }: BreedingScreenProps): JSX.Element {
   const [showNewGame, setShowNewGame] = useState(false);
 

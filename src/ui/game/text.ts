@@ -816,6 +816,7 @@ const BID_ERROR_KO: Record<BidError, string> = {
   invalid_amount: '입찰 상한이 최저 호가보다 낮거나 올바른 금액이 아닙니다.',
   insufficient_funds: '자금이 부족해 이 상한으로 입찰할 수 없습니다.',
   too_late: '판매 주가 지나 입찰할 수 없습니다.',
+  mare_capacity: '번식 암말이 목장 수용 한도에 찼습니다. 목장 화면에서 마방을 늘리거나 더 큰 목장으로 옮기세요.',
 };
 
 /** 입찰 상한 실패 사유 → 한국어 */

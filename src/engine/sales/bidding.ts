@@ -7,6 +7,7 @@
 import { isCatalogueVisible, playerPremiumRate } from './patron';
 import { SALE_LIVE_MAX_STEPS } from '../config/sales';
 import { canSpendDiscretionary } from '../economy/solvency';
+import { mareCapacity, playerBroodmareCount } from '../farm/purchase';
 import type { PlayerResult } from '../season/player';
 import { addWeeks, compareDates } from '../time/calendar';
 import type {
@@ -34,7 +35,8 @@ export type BidError =
   | 'own_lot'
   | 'invalid_amount'
   | 'insufficient_funds'
-  | 'too_late';
+  | 'too_late'
+  | 'mare_capacity';
 
 /** 실시간 호가 한 단계. dropped = 이 단계에서 빠진 AI 입찰자 수. leader = 이 단계의 선두(최고 상한 쪽) */
 export interface AuctionStep {
@@ -117,7 +119,7 @@ function isOwnConsignment(state: GameState, lot: SaleLot): boolean {
 /**
  * 플레이어 입찰 상한을 저장한다(같은 로트는 덮어쓴다). 검사 순서:
  * 카탈로그(없거나 세일 정의 없음) → 로트 → 로트 마감(카탈로그 마감 또는 결과 있음) → 판매 주 지남 → 자기 위탁 →
- * 금액(정수, ≥ minimumBid) → 자금(상한 × (1 + 구매 수수료)).
+ * 금액(정수, ≥ minimumBid) → 번식 암말 수용 한도 → 자금(상한 × (1 + 구매 수수료)).
  * playerBids 는 (saleId, year, lotNo) 순으로 정렬한다.
  */
 export function setMaxBid(
@@ -138,6 +140,9 @@ export function setMaxBid(
   if (compareDates(saleWeekOf(event, year, lot), state.date) < 0) return fail('too_late');
   if (isOwnConsignment(state, lot)) return fail('own_lot');
   if (!Number.isInteger(maxBid) || maxBid < event.minimumBid) return fail('invalid_amount');
+  if (event.kind === 'breeding_stock' && playerBroodmareCount(state) >= mareCapacity(state)) {
+    return fail('mare_capacity');
+  }
   if (!canSpendDiscretionary(state, Math.round(maxBid * (1 + playerPremiumRate(state, event))))) {
     return fail('insufficient_funds');
   }

@@ -70,13 +70,13 @@ interface SeasonScreenProps {
   locked?: boolean;
 }
 
-/** 게임이 없으면 안내만, 있으면 시즌 화면을 보인다. 새 게임은 '목장·배합' 탭에서 시작한다. */
+/** 게임이 없으면 안내만, 있으면 시즌 화면을 보인다. 새 게임은 '번식·배합' 탭에서 시작한다. */
 export default function SeasonScreen({ game, locked = false }: SeasonScreenProps): JSX.Element {
   if (game.state === null) {
     return (
       <section className="panel">
         <h2>시즌</h2>
-        <p className="hint">먼저 '목장·배합' 탭에서 새 게임을 시작하세요.</p>
+        <p className="hint">먼저 '번식·배합' 탭에서 새 게임을 시작하세요.</p>
       </section>
     );
   }

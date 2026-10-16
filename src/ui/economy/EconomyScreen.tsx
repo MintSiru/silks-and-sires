@@ -36,7 +36,7 @@ export default function EconomyScreen({ game }: EconomyScreenProps): JSX.Element
     return (
       <section className="panel">
         <h2>경제</h2>
-        <p className="hint">먼저 '목장·배합' 탭에서 새 게임을 시작하세요.</p>
+        <p className="hint">먼저 '번식·배합' 탭에서 새 게임을 시작하세요.</p>
       </section>
     );
   }
