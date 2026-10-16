@@ -47,6 +47,11 @@ export interface FarmState {
   facilities: Record<FacilityKind, number>;
   /** 목장을 얻은 해(시작 때부터면 시작 연도) */
   acquiredYear: number | null;
+  /**
+   * 진행 중인 시설 공사(M4-E1, 한 번에 하나). readyWeekKey 주(weekKey 형식) 처리 때 facilities 에 반영된다.
+   * 없거나 null 이면 공사 없음(옛 저장본 포함)
+   */
+  construction?: { facility: FacilityKind; level: number; readyWeekKey: number } | null;
 }
 
 /** 목장 매물(M4-E0b). 매년 나라·규모별로 다시 만든다 */

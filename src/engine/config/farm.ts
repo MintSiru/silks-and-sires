@@ -47,3 +47,32 @@ export function uniformFacilities(level: number): Record<FacilityKind, number> {
 export function emptyFarm(): FarmState {
   return { owned: false, country: null, size: null, name: null, facilities: uniformFacilities(0), acquiredYear: null };
 }
+
+/* ── M4-E0b 목장 구매(사용자 승인 2026-10-16) ── */
+
+/** 규모별 번식 암말 기본 수용 두수 */
+export const FARM_MARE_CAPACITY: Readonly<Record<FarmSize, number>> = { small: 6, medium: 15, large: 30 };
+/** 규모별 영국 기준가(유로). 소형 €400k 는 2026-10-12 안 A 메모와 같다 */
+export const FARM_BASE_PRICE: Readonly<Record<FarmSize, number>> = { small: 400_000, medium: 1_000_000, large: 2_500_000 };
+/** 나라별 목장 가격 배수 */
+export const FARM_COUNTRY_PRICE_MULT: Readonly<Record<HomeCountry, number>> = { GB: 1, IE: 0.9, FR: 0.95, DE: 0.7, IT: 0.6 };
+/** 매물 가격 흔들림 폭(±) */
+export const FARM_LISTING_PRICE_SPREAD = 0.1;
+/** 나라·규모마다 해마다 띄우는 매물 수(최소~최대) */
+export const FARM_LISTINGS_PER_SLOT_MIN = 1;
+export const FARM_LISTINGS_PER_SLOT_MAX = 2;
+/** 이전할 때 기존 목장 매각가 = 그 나라·규모 기준가 × 이 값 */
+export const FARM_RESALE_SHARE = 0.75;
+
+/* ── M4-E1 시설(사용자 승인 2026-10-16) ── */
+
+/** 단계별 공사비(이전 단계에서 올릴 때). 인덱스 = 목표 단계(1~3) */
+export const FACILITY_UPGRADE_COST: readonly number[] = [0, 60_000, 150_000, 350_000];
+/** 공사비 배수가 다른 시설(큰 건물) */
+export const FACILITY_COST_MULT: Readonly<Partial<Record<FacilityKind, number>>> = { stallion_barn: 1.5, stable_block: 1.5 };
+/** 연 유지비 = 시설 단계 합 × 이 값(주마다 나눠 장부 'facility') */
+export const FACILITY_UPKEEP_PER_LEVEL_YEAR = 8_000;
+/** 공사 기간(주). 그동안 새 단계 효과 없음 */
+export const FACILITY_BUILD_WEEKS = 4;
+/** 마방 증축 단계별 번식 암말 수용 보너스(인덱스 = 단계) */
+export const STABLE_BLOCK_CAPACITY_BONUS: readonly number[] = [0, 3, 6, 10];
