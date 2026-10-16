@@ -160,7 +160,7 @@ export function finishInjuryInPlace(horse: Horse, context: InjuryContext): void 
   }
 }
 
-type InjuryError = 'not_found' | 'not_player_horse' | 'no_injury' | 'already_diagnosed'
+export type InjuryError = 'not_found' | 'not_player_horse' | 'no_injury' | 'already_diagnosed'
   | 'not_diagnosed' | 'not_allowed' | 'already_treated' | 'insufficient_funds';
 export type InjuryActionResult = { ok: true; state: GameState; events: GameEvent[] } | { ok: false; error: InjuryError };
 
