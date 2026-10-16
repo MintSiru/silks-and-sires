@@ -1,5 +1,5 @@
 import type { NhStoreError } from '../../engine/sales/nhStore';
-import type { StudRole } from '../../engine/types';
+import type { OwnerId, RivalReason, StudRole } from '../../engine/types';
 import type { RegisterHorseNameError } from '../../engine/naming/register';
 import type { FarmNameError } from '../../engine/farm/naming';
 import { BET_MIN_STAKE } from '../../engine/config/betting';
@@ -389,7 +389,17 @@ function saleLotResultKo(role: 'buyer' | 'vendor' | 'underbidder', r: SaleLotRes
 }
 
 /** 이벤트 한 줄 요약. 말 이름은 nameOf 로 바꿔 넣는다. */
-export function eventKo(e: GameEvent, nameOf: (id: HorseId) => string): string {
+const RIVAL_REASON_KO: Record<RivalReason, string> = {
+  same_tier: '비슷한 규모의 경쟁 마주',
+  big_race: '대레이스에서 내 말을 꺾음',
+  sale_battle: '세일에서 내 입찰을 꺾음',
+};
+
+export function eventKo(
+  e: GameEvent,
+  nameOf: (id: HorseId) => string,
+  ownerNameOf: (id: OwnerId) => string = () => '상대 마주',
+): string {
   switch (e.type) {
     case 'week_started':
       return `${formatDateKo(e.date)} 시작`;
@@ -429,6 +439,14 @@ export function eventKo(e: GameEvent, nameOf: (id: HorseId) => string): string {
       return `${formatDateKo(e.date)} · 출주 계획 취소: ${nameOf(e.horseId)} — ${e.reason}`;
     case 'mating_proposals_ready':
       return `${formatDateKo(e.date)} · 교배 제안 도착: ${e.season}년 시즌 번식 암말 ${e.count}두 — 번식 화면에서 검토`;
+    case 'rival_declared':
+      return `${formatDateKo(e.date)} · 라이벌 등장: ${ownerNameOf(e.ownerId)} (${RIVAL_REASON_KO[e.reason]})`;
+    case 'rival_clash':
+      return `${formatDateKo(e.date)} · 라이벌 맞대결: ${ownerNameOf(e.ownerId)} — ${e.playerAhead ? '내 말이 앞섬' : '라이벌 말이 앞섬'}`;
+    case 'sire_line_established':
+      return `${formatDateKo(e.date)} · 부계 확립: ${nameOf(e.horseId)} 계통`;
+    case 'female_family_established':
+      return `${formatDateKo(e.date)} · 명문 모계 인정: ${nameOf(e.horseId)} 모계`;
     case 'mating_proposal_skipped':
       return `${formatDateKo(e.date)} · 교배 예약 실패: ${nameOf(e.mareId)} — ${e.reason}`;
     case 'nh_store_sold':

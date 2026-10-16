@@ -10,6 +10,7 @@ import type { SaleEventId, SaleLotResult, SalesState } from './sales';
 import type { BettingState } from './betting';
 import type { StallionSaleMode, StudState, YearEndState } from './stud';
 import type { FacilityKind, FarmListing, FarmSize, FarmState, GameSettings, HomeCountry } from './farm';
+import type { ChronicleEntry, LegacyState, Rival, RivalReason } from './legacy';
 
 /** 주 진행 중 발생한 사건. M3 이후 종류가 늘어난다(판별 유니온에 추가). */
 export type GameEvent =
@@ -33,6 +34,13 @@ export type GameEvent =
   /** 출주 계획 처리(UX1): 계획대로 신청함 / 조건이 안 맞아 건너뜀(부상·체력·맞는 레이스 없음 등) */
   | { type: 'race_plan_declared'; horseId: HorseId; raceId: RaceId; date: GameDate }
   | { type: 'race_plan_skipped'; horseId: HorseId; planId: string; reason: string; date: GameDate }
+  /** M5: 라이벌 지정 */
+  | { type: 'rival_declared'; ownerId: OwnerId; reason: RivalReason; date: GameDate }
+  /** M5: 그룹 레이스 맞대결 결과. playerAhead = 플레이어 말이 앞섬 */
+  | { type: 'rival_clash'; ownerId: OwnerId; raceId: RaceId; playerAhead: boolean; date: GameDate }
+  /** M5: 부계 확립(시조 종마) · 명문 모계(기초 암말) */
+  | { type: 'sire_line_established'; horseId: HorseId; lineId: SireLineId; date: GameDate }
+  | { type: 'female_family_established'; horseId: HorseId; date: GameDate }
   /** 예약 창이 열려 교배 담당이 번식 암말 count 두에 season 시즌 교배를 제안함(UX4) */
   | { type: 'mating_proposals_ready'; season: number; count: number; date: GameDate }
   /** 승인한 교배 제안을 예약하지 못함(UX4). reason 은 한국어 */
@@ -203,6 +211,12 @@ export interface GameState {
   farm: FarmState;
   /** 올해 목장 매물(M4-E0b, 마주 시작·이전용). 없으면 빈 배열 */
   farmListings: FarmListing[];
+  /** 연대기(M5). 플레이어 항목 영구, 세계 항목은 최근 N 년. 없으면 빈 배열 */
+  chronicle?: ChronicleEntry[];
+  /** 확립 부계·명문 모계(M5). 없으면 빈 것 */
+  legacy?: LegacyState;
+  /** 라이벌 마주(M5). 없으면 없음 */
+  rivals?: Rival[];
 }
 
 /** advanceWeek 가 각 시스템에 넘기는 문맥 */
