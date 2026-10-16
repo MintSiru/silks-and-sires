@@ -17,6 +17,8 @@ import {
   type PopulationCountry,
 } from '../config/population';
 import { FOREIGN_OWNER_SHARE } from '../config/people';
+import { STARTING_PACKAGES, STARTING_RACEHORSE_AGES } from '../config/farm';
+import type { NewGameOptions } from '../state/newGame';
 import {
   STARTER_ABILITY_LEVEL,
   STARTER_ABILITY_SPREAD,
@@ -417,12 +419,13 @@ function attachStarterDam(
   records: readonly RealStallionRecord[],
   registry: MutableNameRegistry,
   horse: Horse,
+  homeCountry?: PopulationCountry,
 ): void {
   const rng = createRng(`${state.initialSeed}:starter-dam:${horse.id}`);
   const currentYear = state.date.year;
   const gap = rng.int(DAM_AGE_GAP_MIN, DAM_AGE_GAP_MAX);
   const damBirth = horse.birthYear - gap;
-  const damSireRec = pickWeightedSire(rng, filterSiresForCover(records, coverYearForFoal(damBirth)));
+  const damSireRec = pickWeightedSire(rng, filterSiresForCover(records, coverYearForFoal(damBirth)), homeCountry);
   const damId = allocateHorseId(state);
   const damNaming = namingContextFor(state, { ownerId: null, sireId: damSireRec.key, damId: null }, data);
   const damName = nameForHorse(damNaming, data.naming, rng, registry);
@@ -457,6 +460,7 @@ export function grantStarterHorses(
   state: GameState,
   data: RacingPopulationStaticData,
   rng: Rng,
+  options: Pick<NewGameOptions, 'difficulty' | 'grantRacehorses'> = {},
 ): HorseId[] {
   const currentYear = state.date.year;
   const market = buildMarket(state);
@@ -464,7 +468,14 @@ export function grantStarterHorses(
   const records = sortStallionRecords(data.stallionRecords);
   const granted: HorseId[] = [];
 
-  for (const group of STARTER_HORSES) {
+  const start = options.difficulty === undefined ? undefined : STARTING_PACKAGES[options.difficulty];
+  const isOwner = state.settings.startType === 'owner';
+  const count = start === undefined ? 0 : isOwner ? start.ownerRacehorses
+    : options.grantRacehorses === false ? 0 : start.breederRacehorses;
+  const groups = start === undefined ? STARTER_HORSES
+    : STARTING_RACEHORSE_AGES.slice(0, count).map((age) => ({ age, count: 1 }));
+  const homeCountry = start === undefined ? undefined : (state.farm.country ?? state.owners[state.playerOwnerId]!.country) as PopulationCountry;
+  for (const group of groups) {
     for (let i = 0; i < group.count; i++) {
       const { sex, gelded } = drawSexAndGelding(rng, group.age);
       const horse = spawnRacingHorse(
@@ -474,7 +485,7 @@ export function grantStarterHorses(
         market,
         registry,
         {
-          country: STARTER_COUNTRY,
+          country: homeCountry ?? STARTER_COUNTRY,
           birthYear: currentYear - group.age,
           currentYear,
           sex,
@@ -505,7 +516,7 @@ export function grantStarterHorses(
   for (const id of granted) {
     const horse = state.horses[id];
     if (horse !== undefined) {
-      attachStarterDam(state, data, records, registry, horse);
+      attachStarterDam(state, data, records, registry, horse, homeCountry);
     }
   }
 

@@ -22,6 +22,8 @@ export interface InjuryContext {
   notable?: boolean;
   going?: Going;
   events?: GameEvent[];
+  catastrophicInjuries?: boolean;
+  raceId?: string;
 }
 export interface InjuryRollContext {
   horse?: Horse;

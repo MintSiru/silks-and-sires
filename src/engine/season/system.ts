@@ -272,9 +272,13 @@ function declareNextWeek(draft: GameState, date: GameDate, rng: Rng, courseCount
  */
 function conditionWeek(draft: GameState, date: GameDate, rng: Rng, events: GameEvent[]): void {
   const goingByHorse = new Map<string, Going>();
+  const raceByHorse = new Map<string, RaceId>();
   for (const result of draft.raceResults) {
     if (!sameDate(result.date, date)) continue;
-    for (const runner of result.runners) goingByHorse.set(runner.horseId, result.going);
+    for (const runner of result.runners) {
+      goingByHorse.set(runner.horseId, result.going);
+      raceByHorse.set(runner.horseId, result.raceId);
+    }
   }
   for (const id of Object.keys(draft.horses).sort()) {
     const horse = draft.horses[id];
@@ -289,10 +293,19 @@ function conditionWeek(draft: GameState, date: GameDate, rng: Rng, events: GameE
       date, initialSeed: draft.initialSeed, isPlayer: horse.ownerId === draft.playerOwnerId,
       notable: (draft.stallions[id]?.realKey ?? null) !== null, events,
       going: goingByHorse.get(id),
+      catastrophicInjuries: draft.settings.catastrophicInjuries, raceId: raceByHorse.get(id),
     });
     if (horse.status === 'dead' && horse.ownerId !== null) {
       const owner = draft.owners[horse.ownerId];
       if (owner !== undefined) owner.horseIds = owner.horseIds.filter((horseId) => horseId !== id);
+    }
+    if (horse.status === 'dead') {
+      for (const meeting of draft.seasonState.meetings) {
+        for (const race of meeting.races) {
+          if (race.status === 'open') race.declarations = race.declarations.filter((d) => d.horseId !== id);
+        }
+      }
+      continue;
     }
     if (injury !== null && horse.ownerId === draft.playerOwnerId) {
       if (injury.diagnosed === false) {

@@ -1,6 +1,9 @@
 /** M4-H12 게임 밸런스. 빈도는 임상 통계가 아닌 상대 가중치이며 전체 발생률은 conditioning 을 따른다. */
 import type { Going, InjuryKind, InjuryRegion, InjuryTreatment, PermanentInjuryEffect } from '../types';
 
+/** 사용자 결정 '현실 수준': 출주 중 중증 골절의 약 40%가 예후불량이다(M4-E0). */
+export const CATASTROPHIC_FRACTURE_SHARE = 0.4;
+
 export interface InjuryTreatmentDef {
   cost: number;
   weeksMult: number;

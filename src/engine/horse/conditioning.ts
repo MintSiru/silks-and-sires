@@ -40,6 +40,8 @@ import {
   WEEKLY_INJURY_BASE,
 } from '../config/conditioning';
 import { JUVENILE_AGE } from '../config/entries';
+import { CATASTROPHIC_FRACTURE_SHARE } from '../config/injury';
+import { createRng } from '../rng';
 import { CONDITION_MAX, CONDITION_MIN } from '../config/season';
 import type { Horse, Injury, Rng, Trainer } from '../types';
 import { progressInjuryInPlace, rollInjury, type InjuryContext } from './injury';
@@ -157,6 +159,14 @@ export function weeklyConditionInPlace(
     if (rng.chance(raceRisk)) {
       const injury = rollInjury(age, rng, { ...context, horse, racing: true });
       horse.condition.injury = { ...injury };
+      if (injury.kind === 'fracture' && context.catastrophicInjuries === true && context.raceId !== undefined
+        && createRng(`${context.initialSeed}:catastrophic:${horse.id}:${context.raceId}`).chance(CATASTROPHIC_FRACTURE_SHARE)) {
+        horse.status = 'dead';
+        horse.diedYear = context.date.year;
+        horse.trainerId = null;
+        if (context.isPlayer) context.events?.push({ type: 'horse_fatally_injured', horseId: horse.id,
+          raceId: context.raceId, date: { ...context.date } });
+      }
       return injury;
     }
   }

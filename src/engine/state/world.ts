@@ -14,11 +14,14 @@ import {
   FOUNDER_SIRE_MIN_CHAIN,
 } from '../config/world';
 import { generateHorse } from '../horse/generate';
+import { HOME_SIRE_WEIGHT_MULT, STARTING_PACKAGES } from '../config/farm';
 import { makeNameRegistry, namingContextFor } from '../naming/context';
 import { nameForHorse } from '../naming/generate';
 import type { NamingData } from '../naming/types';
 import type {
   GameState,
+  Difficulty,
+  HomeCountry,
   Horse,
   HorseId,
   Mare,
@@ -52,18 +55,20 @@ export function allocateHorseId(state: GameState): HorseId {
  * 후보 목록(key 오름차순)에서 MARE_SIRE_TIER_WEIGHT × europeanSireWeightMult 가중으로 한 마리를 고른다.
  * rng.next() 를 정확히 1회 쓴다.
  */
-export function pickWeightedSire(rng: Rng, candidates: readonly RealStallionRecord[]): RealStallionRecord {
+export function pickWeightedSire(rng: Rng, candidates: readonly RealStallionRecord[], homeCountry?: HomeCountry): RealStallionRecord {
   if (candidates.length === 0) {
     throw new RangeError('pickWeightedSire: 부(父) 후보가 없다');
   }
+  const weight = (c: RealStallionRecord): number => MARE_SIRE_TIER_WEIGHT[c.marketTier]
+    * europeanSireWeightMult(c) * (homeCountry !== undefined && c.standsIn === homeCountry ? HOME_SIRE_WEIGHT_MULT : 1);
   let total = 0;
   for (const c of candidates) {
-    total += MARE_SIRE_TIER_WEIGHT[c.marketTier] * europeanSireWeightMult(c);
+    total += weight(c);
   }
   const target = rng.next() * total;
   let cumulative = 0;
   for (const c of candidates) {
-    cumulative += MARE_SIRE_TIER_WEIGHT[c.marketTier] * europeanSireWeightMult(c);
+    cumulative += weight(c);
     if (target < cumulative) return c;
   }
   return candidates[candidates.length - 1] as RealStallionRecord;
@@ -73,7 +78,7 @@ export function pickWeightedSire(rng: Rng, candidates: readonly RealStallionReco
  * 실명 종마 Horse·Stallion 레코드와 플레이어 기초 번식 암말을 넣은 새 상태를 돌려준다.
  * 원본 state 는 바꾸지 않는다(structuredClone). 같은 입력 + 같은 rng 상태 → 같은 결과.
  */
-export function bootstrapWorld(state: GameState, data: WorldStaticData, rng: Rng): GameState {
+export function bootstrapWorld(state: GameState, data: WorldStaticData, rng: Rng, difficulty?: Difficulty): GameState {
   if (Object.keys(state.stallions).length > 0 || Object.keys(state.mares).length > 0) {
     throw new Error('bootstrapWorld: 이미 초기화된 세계다(종마 또는 번식 암말이 있음)');
   }
@@ -120,17 +125,22 @@ export function bootstrapWorld(state: GameState, data: WorldStaticData, rng: Rng
     return documented.length > 0 ? documented : cands;
   };
 
-  for (let i = 0; i < PLAYER_START_MARES; i++) {
+  const homeCountry = difficulty === undefined ? undefined : (next.farm.country ?? undefined);
+  const mareCount = difficulty === undefined ? PLAYER_START_MARES
+    : next.settings.startType === 'owner' ? 0 : STARTING_PACKAGES[difficulty].mares;
+  for (let i = 0; i < mareCount; i++) {
     // a. 나이·출생 연도·출생국
     const age = rng.int(MARE_AGE_MIN, MARE_AGE_MAX);
     const birthYear = currentYear - age;
-    const country = rng.pick(MARE_COUNTRIES);
+    const randomCountry = rng.pick(MARE_COUNTRIES);
+    const country = homeCountry ?? randomCountry;
 
     // b. 암말의 부 (현역·은퇴 종마 중 가중 선택)
     // (M2-03b) 교배 연도 = 자마 출생 연도 − 1, 교배 가능 기간 안의 종마만 후보
     const mareSireRec = pickWeightedSire(
       rng,
       preferDocumented(filterSiresForCover(realRecords.filter(isCoverSire), coverYearForFoal(birthYear))),
+      homeCountry,
     );
 
     // c. 어미(가상)와 어미의 부 (historical 포함 모든 종마, 단 교배 가능 기간 안)
@@ -139,6 +149,7 @@ export function bootstrapWorld(state: GameState, data: WorldStaticData, rng: Rng
     const damSireRec = pickWeightedSire(
       rng,
       filterSiresForCover(realRecords, coverYearForFoal(damBirth)),
+      homeCountry,
     );
     const damId = allocateHorseId(next);
     const damNaming = namingContextFor(next, { ownerId: null, sireId: damSireRec.key, damId: null }, data);

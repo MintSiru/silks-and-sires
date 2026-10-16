@@ -28,11 +28,11 @@ export type BootstrapData = WorldStaticData & RacingPopulationStaticData & Peopl
 export function bootstrapGame(opts: BootstrapOptions, data: BootstrapData): GameState {
   const seed = opts.seed;
   const base = createNewGame(opts);
-  const world = bootstrapWorld(base, data, createRng(seed).fork('world'));
+  const world = bootstrapWorld(base, data, createRng(seed).fork('world'), opts.difficulty);
   const people = bootstrapPeople(world, data, createRng(seed).fork('people'));
   const withBreeders = generateBreeders(people, data, createRng(seed).fork('breeders'));
   const population = bootstrapRacingPopulation(withBreeders, data, createRng(seed).fork('population'));
-  grantStarterHorses(population, data, createRng(seed).fork('starter'));
+  grantStarterHorses(population, data, createRng(seed).fork('starter'), opts);
 
   population.seasonState.lastPopulationYear = START_YEAR;
 
