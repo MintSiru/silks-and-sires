@@ -422,6 +422,10 @@ export function eventKo(e: GameEvent, nameOf: (id: HorseId) => string): string {
       return `${formatDateKo(e.date)} · 계획대로 출주 신청: ${nameOf(e.horseId)}`;
     case 'race_plan_skipped':
       return `${formatDateKo(e.date)} · 출주 계획 취소: ${nameOf(e.horseId)} — ${e.reason}`;
+    case 'mating_proposals_ready':
+      return `${formatDateKo(e.date)} · 교배 제안 도착: ${e.season}년 시즌 번식 암말 ${e.count}두 — 번식 화면에서 검토`;
+    case 'mating_proposal_skipped':
+      return `${formatDateKo(e.date)} · 교배 예약 실패: ${nameOf(e.mareId)} — ${e.reason}`;
     case 'nh_store_sold':
       return `${formatDateKo(e.date)} · NH 스토어 세일: ${nameOf(e.horseId)} (${feeKo(e.price)})`;
     case 'horse_named':

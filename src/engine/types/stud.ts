@@ -63,6 +63,8 @@ export interface StudState {
   leases: StudLease[];
   /** 종마 판매 기록(M4-D4, 최근 기록) */
   sales: StallionSaleRecord[];
+  /** 교배 담당의 교배 제안(UX4). 현재·다음 예약 시즌 것만 남긴다. 없으면 키 생략(옛 저장본 호환) */
+  matingProposals?: MatingProposal[];
 }
 
 /** 종마 판매 방식(M4-D4). domestic: 국내 스터드(세계에 남음) / overseas: 해외 스터드(세계에서 빠짐) */
@@ -125,4 +127,25 @@ export interface StudSeasonRecord {
   conceptions: number;
   /** 받은 종부료 합(외부 암말 수태분) */
   income: Money;
+}
+
+/** 교배 제안 상태(UX4). proposed: 검토 대기 / approved: 승인(예약 시도 전) / booked: 예약 완료 / skipped: 안 함·실패·지나감 */
+export type MatingProposalStatus = 'proposed' | 'approved' | 'booked' | 'skipped';
+
+/** 교배 담당(목장 매니저)이 플레이어 번식 암말 한 두에 낸 한 시즌 교배 제안(UX4) */
+export interface MatingProposal {
+  mareId: HorseId;
+  /** 예약 시즌(bookingSeasonOf) */
+  season: number;
+  /** 1순위 종마 */
+  stallionId: HorseId;
+  /** 대안 종마(최대 2두). 1순위가 북 마감·자금 부족이면 차례로 시도한다 */
+  alternatives: HorseId[];
+  /** 제안 시점 1순위 예상 종부료(교배권·자기 종마는 0) */
+  expectedFee: Money;
+  /** 이유 한 줄(한국어) 또는 skipped 사유 */
+  note: string;
+  status: MatingProposalStatus;
+  /** booked 일 때 실제 예약한 종마 */
+  bookedStallionId?: HorseId;
 }

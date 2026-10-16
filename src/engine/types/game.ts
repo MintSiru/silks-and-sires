@@ -33,6 +33,10 @@ export type GameEvent =
   /** 출주 계획 처리(UX1): 계획대로 신청함 / 조건이 안 맞아 건너뜀(부상·체력·맞는 레이스 없음 등) */
   | { type: 'race_plan_declared'; horseId: HorseId; raceId: RaceId; date: GameDate }
   | { type: 'race_plan_skipped'; horseId: HorseId; planId: string; reason: string; date: GameDate }
+  /** 예약 창이 열려 교배 담당이 번식 암말 count 두에 season 시즌 교배를 제안함(UX4) */
+  | { type: 'mating_proposals_ready'; season: number; count: number; date: GameDate }
+  /** 승인한 교배 제안을 예약하지 못함(UX4). reason 은 한국어 */
+  | { type: 'mating_proposal_skipped'; mareId: HorseId; reason: string; date: GameDate }
   /** 플레이어 말을 NH 스토어 세일에 팔았다(M4-F1) */
   | { type: 'nh_store_sold'; horseId: HorseId; price: Money; date: GameDate }
   /** 플레이어 말 이름 등록(M4-E3). auto = 2세 조교 전까지 안 지어 자동 등록됨 */

@@ -22,6 +22,10 @@ export interface GameSettings {
   catastrophicInjuries: boolean;
   /** 조교사 출주 계획 자동 승인(UX1). true 면 제안이 바로 approved — 세세한 관리를 덜 하고 싶을 때. 없으면 false */
   autoApproveRacePlans?: boolean;
+  /** 교배 제안 자동 승인(UX4). true 면 제안을 만들자마자 예약(종부료 선지급). 없으면 false */
+  autoApproveMatings?: boolean;
+  /** 자동 교배 한 두당 종부료 상한(€). null·없으면 교배 담당이 암말 수준으로 예산을 정한다 */
+  matingFeeCap?: Money | null;
 }
 
 /**
