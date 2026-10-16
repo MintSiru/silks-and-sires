@@ -323,3 +323,6 @@
 - 2026-10-16 M4-D6a 승인(Codex): stud/private.ts(privateAccess·setStallionPrivate), 예약 'private_stallion' 오류, 플레이어 비공개 종마 AI 수요 0·AI 비공개 30%, AI 편입 시 대형 오너브리더 30% 비공개(말별 스트림). 측정: 시드 20261011 2년 AI 편입 10두 중 비공개 0두(해당 마주 출신 드묾).
 - 2026-10-16 5대 혈통 14회차 반영(51칸, 조상 14두). Medieval Man 정정(1974·chestnut·1999 사망, 외조부 Tim Tam — 사용자 확인). Gone West·Baldski·Seattle Song 털색은 DB 값 유지. Tiznow 계통 A.P. Indy → Intentionally 정정(부 Cee's Tizzy 연결로 드러남). 고정 해시 재고정.
 - 2026-10-16 M4-D6b 승인(haiku-coder): 종마 목록 비공개 배지·관계 미달 시 예약 비활성, 내 종마 공개/비공개 전환(28~43주), GameApi.setStallionPrivate. 별도 작업 트리에서 전체 검증(부하로 인한 5초 시간 제한 4건은 단독 재실행 통과).
+- 2026-10-16 M4-H12 승인(Codex): config/injury.ts·horse/injury.ts — 부상 14종(부위·기간·재발 배수·영구 영향·숨김), 마장·계절·나이 가중, 확진 전 단서(injury_suspected)·검사(orderVetExam)·3주 자동 확진(기간 ×1.25)·치료 선택(chooseTreatment, vet_fee), 회복 때 병력·영구 영향, 레이스 컨디션 폭에 formVariance. 52주 부상 수 209 → 216(+3%). 시즌 검증 '그해 최고 OR' 123(기준 124~132) 1건 이탈 — 부상 분포 변화에 따른 소폭, G1 30년 검증에서 재확인.
+- 2026-10-16 M4-H3 승인(Codex): stud/health.ts(breeding_health, mortality 다음 등록 — Opus) — 유산 임신당 6%(18세 이상 ×1.5), 제엽염(나이별 0.5~3%/년, 회복·은퇴·사망 5:3:2), 산통(2%/년, 사망 15%). 10년 측정: 제엽염 2.7·산통 4.1·사망 3.6건/년.
+- 2026-10-16 기술: vitest 기본 testTimeout 15초(병렬 에이전트 부하에서 5초 제한 오탐 방지).

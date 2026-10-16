@@ -1,5 +1,5 @@
 /**
- * 조교·컨디션 주간 규칙 (M3-C1). 순수 함수. 난수는 전달받은 Rng 만 쓴다.
+ * 조교·컨디션 주간 규칙 (M3-C1, M4-H12). 발생은 전달받은 Rng, 회복은 독립 시드 스트림을 쓴다.
  * 밸런스 수치는 config/conditioning.ts 에 둔다.
  */
 import {
@@ -12,7 +12,6 @@ import {
   INJURED_DETRAIN,
   INJURED_FITNESS_FLOOR,
   INJURY_FATIGUE_SCALE,
-  INJURY_TABLE,
   JUVENILE_GAIN_BASE,
   JUVENILE_GAIN_SLOPE,
   MAX_FATIGUE_TO_RUN,
@@ -32,7 +31,6 @@ import {
   SKILL_GAIN_BASE,
   SKILL_GAIN_SLOPE,
   SKILL_MAX,
-  SORE_SHINS_KNOCK_AGE,
   SOUNDNESS_FACTOR_MAX,
   SOUNDNESS_FACTOR_MIN,
   SOUNDNESS_MAX,
@@ -40,11 +38,13 @@ import {
   TRAIN_FATIGUE_RECOVERY,
   TRAIN_FITNESS_GAIN,
   WEEKLY_INJURY_BASE,
-  type InjuryTableEntry,
 } from '../config/conditioning';
 import { JUVENILE_AGE } from '../config/entries';
 import { CONDITION_MAX, CONDITION_MIN } from '../config/season';
-import type { Horse, Injury, InjuryKind, Rng, Trainer } from '../types';
+import type { Horse, Injury, Rng, Trainer } from '../types';
+import { progressInjuryInPlace, rollInjury, type InjuryContext } from './injury';
+
+export { rollInjury } from './injury';
 
 /** 조교사 코멘트 키(플레이어에게 보여 줄 문구 키. 문구 자체는 UI 단계에서 정한다) */
 export type TrainerReportKey = 'injured' | 'tired' | 'flat' | 'backward' | 'needs_run' | 'nearly_ready' | 'peak';
@@ -94,47 +94,12 @@ function detrainToFloor(fitness: number, detrain: number, floor: number): number
   return Math.max(floor, fitness - detrain);
 }
 
-function pickInjuryEntry(u: number): InjuryTableEntry {
-  let acc = 0;
-  let picked: InjuryTableEntry | undefined;
-  for (const entry of INJURY_TABLE) {
-    acc += entry.weight;
-    if (picked === undefined && u < acc) picked = entry;
-  }
-  const fallback = INJURY_TABLE[INJURY_TABLE.length - 1];
-  const chosen = picked ?? fallback;
-  if (chosen === undefined) throw new Error('INJURY_TABLE 이 비어 있다');
-  return chosen;
-}
-
-function injuryEntryOf(kind: InjuryKind): InjuryTableEntry {
-  const entry = INJURY_TABLE.find((e) => e.kind === kind);
-  if (entry === undefined) throw new Error(`INJURY_TABLE 에 ${kind} 가 없다`);
-  return entry;
-}
-
-/**
- * 부상 종류·기간 추첨. 가중치로 종류를 고르고, 4세 이상의 sore_shins 는 knock 으로 바꾼 뒤
- * 바뀐 종류의 기간 범위에서 정수 균등 추첨한다.
- */
-export function rollInjury(age: number, rng: Rng): Injury {
-  let entry = pickInjuryEntry(rng.next());
-  if (entry.kind === 'sore_shins' && age >= SORE_SHINS_KNOCK_AGE) {
-    entry = injuryEntryOf('knock');
-  }
-  const weeksOut = rng.int(entry.minWeeks, entry.maxWeeks);
-  return { kind: entry.kind, weeksOut };
-}
-
 /** 부상 중 한 주: 준비도 감소(하한), 피로는 휴양과 같이 회복, 기간 1주 감소, 0 이 되면 회복 */
-function applyInjuredWeek(horse: Horse): void {
+function applyInjuredWeek(horse: Horse, context: InjuryContext): void {
   const c = horse.condition;
   c.fitness = detrainToFloor(c.fitness, INJURED_DETRAIN, INJURED_FITNESS_FLOOR);
   c.fatigue = clamp(c.fatigue - REST_FATIGUE_RECOVERY, CONDITION_MIN, CONDITION_MAX);
-  if (c.injury !== null) {
-    c.injury = { kind: c.injury.kind, weeksOut: c.injury.weeksOut - 1 };
-    if (c.injury.weeksOut <= 0) c.injury = null;
-  }
+  progressInjuryInPlace(horse, context);
 }
 
 /** 휴양(resting) 한 주 */
@@ -176,12 +141,13 @@ export function weeklyConditionInPlace(
   age: number,
   ranThisWeek: boolean,
   rng: Rng,
+  context: InjuryContext = { date: { year: horse.birthYear + age, week: 1 }, initialSeed: 0, isPlayer: false },
 ): Injury | null {
   if (horse.status !== 'in_training' && horse.status !== 'resting') return null;
 
   // (1) 부상 중
   if (horse.condition.injury !== null) {
-    applyInjuredWeek(horse);
+    applyInjuredWeek(horse, context);
     return null;
   }
 
@@ -189,7 +155,7 @@ export function weeklyConditionInPlace(
   if (ranThisWeek) {
     const raceRisk = RACE_INJURY_BASE * soundnessFactor(horse.soundness);
     if (rng.chance(raceRisk)) {
-      const injury = rollInjury(age, rng);
+      const injury = rollInjury(age, rng, { ...context, horse, racing: true });
       horse.condition.injury = { ...injury };
       return injury;
     }
@@ -209,7 +175,7 @@ export function weeklyConditionInPlace(
       (1 + horse.condition.fatigue / INJURY_FATIGUE_SCALE) *
       soundnessFactor(horse.soundness);
     if (rng.chance(weeklyRisk)) {
-      const injury = rollInjury(age, rng);
+      const injury = rollInjury(age, rng, { ...context, horse, racing: false });
       horse.condition.injury = { ...injury };
       return injury;
     }

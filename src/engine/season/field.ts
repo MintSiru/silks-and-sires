@@ -165,7 +165,7 @@ function pickJockey(
 }
 
 /** 엔진 RunnerInput.horse 용 Pick 필드(참조 공유 없이 복사) */
-function horseSnapshot(horse: Horse): RunnerInput['horse'] {
+function horseSnapshot(horse: Horse): RunnerInput['horse'] & Pick<Horse, 'formVariance'> {
   return {
     id: horse.id,
     name: horse.name,
@@ -176,6 +176,7 @@ function horseSnapshot(horse: Horse): RunnerInput['horse'] {
     condition: structuredClone(horse.condition),
     preferredStyle: horse.preferredStyle,
     personality: { ...horse.personality },
+    ...(horse.formVariance === undefined ? {} : { formVariance: horse.formVariance }),
   };
 }
 

@@ -88,6 +88,28 @@ function clearMareBookings(draft: GameState, mareId: HorseId, date: GameDate): v
 }
 
 /**
+ * 사망·질환 은퇴의 공통 정리. 소유 기록은 보존하고 보유 목록·교배·예약을 정리한다.
+ * 임신의 종부료는 환불하지 않는다. 종마의 마지막 번식 시즌은 퇴역한 해로 남긴다.
+ */
+export function endBreedingCareer(
+  draft: GameState, id: HorseId, date: GameDate, status: 'dead' | 'retired',
+): void {
+  const horse = draft.horses[id];
+  if (horse === undefined) return;
+  const wasStallion = horse.status === 'stud';
+  horse.status = status;
+  if (status === 'dead') horse.diedYear = date.year;
+  horse.trainerId = null;
+  const owner = horse.ownerId === null ? undefined : draft.owners[horse.ownerId];
+  if (owner !== undefined) owner.horseIds = owner.horseIds.filter((hid) => hid !== id);
+  if (wasStallion && draft.stallions[id] !== undefined) {
+    draft.stallions[id]!.lastSeasonYear = date.year;
+    clearStallionBookings(draft, id, date);
+  }
+  if (draft.mares[id] !== undefined) clearMareBookings(draft, id, date);
+}
+
+/**
  * 종마·번식 암말 사망 시스템(id 'mortality'). MORTALITY_CHECK_WEEK 주에만 동작한다.
  * 대상: status 가 'stud' 또는 'broodmare' 인 말, ID 오름차순.
  * 사망 이벤트는 플레이어 소유 말 또는 실명 종마(realKey 가 있는 종마)만 남긴다.
@@ -117,20 +139,7 @@ export function createMortalitySystem(): WeeklySystem {
           cause = rng.next() < MORTALITY_YOUNG_ACCIDENT_SHARE ? 'accident' : 'illness';
         }
 
-        const wasStallion = horse.status === 'stud';
-        horse.status = 'dead';
-        horse.diedYear = year;
-        horse.trainerId = null;
-        // 소유 기록(ownerId)은 남기되 마주 보유 목록에서는 뺀다(목장 목록에 죽은 말이 보이지 않게, 은퇴와 같은 처리)
-        const deadOwner = horse.ownerId === null ? undefined : draft.owners[horse.ownerId];
-        if (deadOwner !== undefined) deadOwner.horseIds = deadOwner.horseIds.filter((hid) => hid !== id);
-
-        if (wasStallion && draft.stallions[id] !== undefined) {
-          clearStallionBookings(draft, id, date);
-        }
-        if (draft.mares[id] !== undefined) {
-          clearMareBookings(draft, id, date);
-        }
+        endBreedingCareer(draft, id, date, 'dead');
 
         const notable = horse.ownerId === draft.playerOwnerId
           || (draft.stallions[id]?.realKey ?? null) !== null;

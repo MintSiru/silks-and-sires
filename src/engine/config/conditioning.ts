@@ -1,5 +1,6 @@
 /** 조교·컨디션 주간 루프 밸런스 상수 (M3-C1). 코드 안에 수치를 직접 두지 않는다. */
 import type { InjuryKind } from '../types';
+import { INJURY_KINDS } from './injury';
 
 /* ── 조교(in_training, 부상 없음): 준비도 ── */
 
@@ -83,12 +84,12 @@ export interface InjuryTableEntry {
   minWeeks: number;
   maxWeeks: number;
 }
-export const INJURY_TABLE: readonly InjuryTableEntry[] = [
-  { kind: 'knock', weight: 0.55, minWeeks: 1, maxWeeks: 3 },
-  { kind: 'sore_shins', weight: 0.25, minWeeks: 3, maxWeeks: 6 },
-  { kind: 'tendon', weight: 0.14, minWeeks: 20, maxWeeks: 40 },
-  { kind: 'fracture', weight: 0.06, minWeeks: 26, maxWeeks: 52 },
-];
+/** 기존 소비자를 위한 새 모델의 조교 기준 정규화 표. 원본 설정은 config/injury.ts. */
+const injuryTrainingTotal = Object.values(INJURY_KINDS).reduce((sum, def) => sum + def.trainingWeight, 0);
+export const INJURY_TABLE: readonly InjuryTableEntry[] = (Object.keys(INJURY_KINDS) as InjuryKind[]).map((kind) => ({
+  kind, weight: INJURY_KINDS[kind].trainingWeight / injuryTrainingTotal,
+  minWeeks: INJURY_KINDS[kind].minWeeks, maxWeeks: INJURY_KINDS[kind].maxWeeks,
+}));
 /** 이 나이 이상이면 sore_shins 는 knock 으로 바뀐다(기간도 knock 기준) */
 export const SORE_SHINS_KNOCK_AGE = 4;
 

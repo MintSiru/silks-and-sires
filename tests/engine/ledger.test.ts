@@ -636,9 +636,13 @@ describe('한 해 진행과 재현성', () => {
     const summary = state.economy.yearSummaries[0];
     if (summary === undefined) throw new Error('연말 요약이 없다');
 
-    // 연말 요약은 2026년 항목만 담는다(2027년 1~2주 항목은 다음 해 몫)
+    // 전년도 points 보너스는 새해 1주에 지급해 전년도 요약에 포함한다(위 9번 검증).
+    // M4-H12의 출주 변화로 플레이어가 points 챔피언이 되는 경우도 포함한다.
+    const closingBonus = sumAmounts(entriesOf(state, 'series_bonus').filter(
+      (entry) => entry.date.year === START_YEAR + 1 && entry.date.week === 1,
+    ));
     const ledgerTotal = sumAmounts(state.economy.playerLedger.filter((e) => e.date.year === START_YEAR));
-    expect(ledgerTotalsSum(summary.player)).toBe(ledgerTotal);
+    expect(ledgerTotalsSum(summary.player)).toBe(ledgerTotal + closingBonus);
 
     const prizeTotal = sumAmounts(entriesOf(state, 'prize'));
     expect(summary.player.prize ?? 0).toBe(prizeTotal);
@@ -649,10 +653,10 @@ describe('한 해 진행과 재현성', () => {
     // 연말 요약의 자금은 연초 자금 + 그해 장부 합(정기 비용 포함). 요약은 1월 1주 처리 전에 닫히므로 현재 자금과는 다르다
     const startFunds = BASE.owners[BASE.playerOwnerId]?.funds ?? 0;
     const year2026 = state.economy.playerLedger.filter((e) => e.date.year === START_YEAR);
-    expect(summary.playerFunds).toBe(startFunds + sumAmounts(year2026));
+    expect(summary.playerFunds).toBe(startFunds + sumAmounts(year2026) + closingBonus);
     // 올해 합계는 연말에 비워졌고, 이후 2027년 1~2주 항목만 들어 있다
     const year2027 = state.economy.playerLedger.filter((e) => e.date.year === START_YEAR + 1);
-    expect(ledgerTotalsSum(state.economy.currentYear.player)).toBe(sumAmounts(year2027));
+    expect(ledgerTotalsSum(state.economy.currentYear.player)).toBe(sumAmounts(year2027) - closingBonus);
   }, MID_TIMEOUT);
 
   it('13. 같은 시드로 플레이어 말 진행을 두 번 하면 최종 state 가 toEqual 이다', () => {

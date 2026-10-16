@@ -54,6 +54,7 @@ import type {
   Aptitudes,
   Condition,
   Going,
+  Horse,
   Handedness,
   Personality,
   PreparedRunner,
@@ -222,17 +223,17 @@ export interface PersonaRunner extends PreparedRunner {
 
 /**
  * 레이스 시작 시 주자 정적 파라미터 계산.
- * rng 사용 순서 고정: ① normal(0, FORM_SD) 1회(next 2회 소비) ② next() 1회. 이 외 레이스 rng 사용 금지.
+ * rng 사용 순서 고정: ① normal(0, FORM_SD + formVariance) 1회(next 2회 소비) ② next() 1회. 이 외 레이스 rng 사용 금지.
  * personaRng 는 성격 전용 스트림(고집 판정에 최대 1회 소비). 레이스 rng 와 무관하다.
  */
 export function prepareRunner(
-  input: RunnerInput,
+  input: RunnerInput & { horse: RunnerInput['horse'] & Pick<Horse, 'formVariance'> },
   index: number,
   ctx: RaceContext,
   rng: Rng,
   personaRng?: Rng,
 ): PersonaRunner {
-  const form = 1 + rng.normal(0, FORM_SD);
+  const form = 1 + rng.normal(0, FORM_SD + (input.horse.formVariance ?? 0));
   const u = rng.next();
 
   const ability = input.horse.ability;
