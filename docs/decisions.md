@@ -315,3 +315,4 @@
 - 2026-10-15 5대 혈통 13회차 반영(50칸, 조상 23두 — Hyperion·Mahmoud 포함). Lord At War 는 기존 기록(대소문자). 고정 해시 재고정(breeders·playerSireCrops·starterStrength·stallionTradeIntegration fees).
 - 2026-10-15 M4-D7a 승인(Codex): Stallion.lastSeasonYear 를 저수태 은퇴·직접 은퇴·해외 판매·고령 은퇴에 기록, stud/rotation.ts 고령 은퇴(28주, 20세 15%·23세 30%·26세 60%, AI 편입 종마 저종부료 노장 30%). 측정(시드 20261011, 10년, D7b 없이): 시작 실명 현역 212두 → 계류 131(62%)·은퇴 55·사망 26.
 - 2026-10-15 M4-D7b 승인(Codex): world/sirePool.ts — 현역마 생성·세일 카탈로그의 부 후보를 그 교배 연도에 계류 중인 종마로 한정(은퇴·사망 제외), AI 편입 종마를 합성 레코드(등급 = 종부료 환산)로 추가. 연간 교체에서 조기 은퇴 수말 상위 10두(선발 기준값 ≥ 100)를 종마로 편입. 시스템 stud_rotation 등록(stud_fertility 다음, Opus). stallionTradeIntegration fees 재고정.
+- 2026-10-16 사용자 결정: D6 비공개 종마 '단순형' — AI 대형 오너브리더 출신 편입 종마 30% 비공개(관계 40 이상이면 플레이어 예약 허가, AI 수요 30%), 내 종마 비공개 전환(28~43주, 외부 북 닫힘·내 암말 전용).

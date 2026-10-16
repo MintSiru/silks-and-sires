@@ -263,6 +263,12 @@ export interface Stallion {
   lastSeasonYear?: number;
   /** AI 현역마에서 종마로 편입된 종마(M4-D7). 세계 자마의 부 후보에 들어간다 */
   aiEntrant?: boolean;
+  /**
+   * 비공개 종마(M4-D6). 값이 있으면 그 마주의 종마로 외부 공개 북이 없다.
+   * AI 마주의 비공개 종마는 그 마주와 관계가 충분한 플레이어만 예약할 수 있고,
+   * 플레이어 비공개 종마(값 = playerOwnerId)는 외부 AI 예약을 받지 않는다(내 암말 전용). 없거나 null 이면 공개
+   */
+  privateTo?: OwnerId | null;
 }
 
 /** 종마 한 시즌의 관측 수태 기록(M4-D5) */
