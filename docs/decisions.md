@@ -329,3 +329,4 @@
 - 2026-10-16 5대 혈통 15회차 반영(50칸, 조상 13두) — 3티어 완료, 4티어 시작. Cadeaux Genereux 계통 Dark Angel → 미분류(임시, 부 Young Generation 연결로 드러남), 어휘 Cormorant 제거, Top Ville 털색 bay 유지(사용자 확인). 고정 해시 재고정(이름 변화로 raceResults·ledger 포함). mortality 대조 테스트를 1티어·영국 계류 종마로 바꿔 표본 우연성 제거.
 - 2026-10-16 사용자 요청: 지급 현역마(2·3세, 성별 무관 — 사용자 정정)에도 가상 모마(부 = 실명 종마) 기재 — M4-ST2.
 - 2026-10-16 M4-H4 승인(haiku-coder, 중단 뒤 재개 에이전트가 마무리 확인): 내 말 카드 부상 영역(확진 전 단서·검사 버튼, 확진 종류·남은 주·치료 버튼, 병력 5건), injuryErrorKo, GameApi.orderVetExam·chooseTreatment. Opus: 부상 API 가 eventLog 에 직접 쓰던 것을 다른 플레이어 API 처럼 events 만 돌려주게 맞추고 화면이 기록.
+- 2026-10-16 사용자 결정: 5대 혈통 표는 17회차부터 회차당 75~100칸.
