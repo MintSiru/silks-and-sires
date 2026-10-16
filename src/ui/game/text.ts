@@ -389,7 +389,7 @@ function saleLotResultKo(role: 'buyer' | 'vendor' | 'underbidder', r: SaleLotRes
 }
 
 /** 이벤트 한 줄 요약. 말 이름은 nameOf 로 바꿔 넣는다. */
-const RIVAL_REASON_KO: Record<RivalReason, string> = {
+export const RIVAL_REASON_KO: Record<RivalReason, string> = {
   same_tier: '비슷한 규모의 경쟁 마주',
   big_race: '대레이스에서 내 말을 꺾음',
   sale_battle: '세일에서 내 입찰을 꺾음',
