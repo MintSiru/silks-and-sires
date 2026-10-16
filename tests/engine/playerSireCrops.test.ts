@@ -25,7 +25,7 @@ function run(state: GameState, year = YEAR): GameState {
 describe('플레이어 종마 자마', () => {
   it('시즌 기록이 없으면 변경 전 2년 진행 horses JSON과 같다', () => {
     const state = run(run(boot()), YEAR + 1);
-    expect(createHash('sha256').update(JSON.stringify(state.horses)).digest('hex')).toBe('02ced08b6f82304836dc4515047bf38e5ca7f1ec44b6a35f7d2cad155141e3c8'); // 2026-10-16 재고정: 5대 혈통 15회차 데이터·어휘 정리
+    expect(createHash('sha256').update(JSON.stringify(state.horses)).digest('hex')).toBe('a086a7601e14e15be3ca34cb9943dbc6c43ff0c7dbedf7d2bde8e582e13452eb'); // 2026-10-16 재고정: 5대 혈통 16회차 데이터
     expect(state.stud.seasons).toEqual([]);
   }, 30_000);
 });

@@ -59,10 +59,11 @@ const BOOT_DATA: BootstrapData = {
  * 2026-10-15 재고정: M4-ST1 지급마 능력 상향·성장형 고정(플레이어 지급마의 ability·potential·growth·officialRating 만 바뀜, AI 말 불변 확인).
  * 2026-10-15 재고정: 5대 혈통 15회차(조상 13두·Cadeaux Genereux 계통 정정·어휘 Cormorant 제거)로 바뀜.
  * 2026-10-16 재고정: M4-ST2 지급마 가상 모마 3두 추가(지급마 damId·familyId 연결)로 바뀜. 지급마 모마를 빼고 연결을 지우면 이전 값과 같다(확인 완료).
+ * 2026-10-16 재고정: 5대 혈통 16회차(조상 16두·Surumu 계열 계통·Balidar 출생국 정정)로 바뀜.
  */
 const PRE_CHANGE_PROJECTION_SHA: Record<number, string> = {
-  20261011: 'de2b8a2f43c73716f75cc4c2fb05b8ddf7e2924a7ce1b04f6d052f93fc560fc2',
-  7: 'eabf6b678c986567782e10916da32b6ad02c88a6e1c8c11013520131d5435f63',
+  20261011: '81babce6adb1d7dabeefea7942f2f027693b08aa22d07b912f2ef35ba79f1966',
+  7: '8195ccad92b3516b6452c67f89cbd245f2b2b0b026b5c3517cb60d6d23ad40f7',
 };
 
 function boot(seed: number): GameState {
