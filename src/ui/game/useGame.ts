@@ -1,3 +1,4 @@
+import { sellToNhStore } from '../../engine/sales/nhStore';
 import { FARM_NAME_ERROR_KO } from './text';
 import { nameSuggestions, registerHorseName } from '../../engine/naming/register';
 import { FarmNameValidationError, renameFarm } from '../../engine/farm/naming';
@@ -101,6 +102,7 @@ export interface GameApi {
   submitYearEnd(submission: YearEndSubmission): ReturnType<typeof submitYearEnd>;
   book(mareId: HorseId, stallionId: HorseId): BookingResult;   // 성공 시 state 갱신
   /** 내 종마를 판다(국내는 교배권 0~2, 해외는 0). 성공 시 state 갱신·이벤트 기록, 실패하면 사유를 돌려준다 */
+  sellToNhStore(horseId: HorseId): ReturnType<typeof sellToNhStore>;
   sellStallion(horseId: HorseId, mode: StallionSaleMode, nominations: number): ReturnType<typeof sellStallion>;
   /** 내 부상 말에 검사를 받아 확진한다(검사비 VET_EXAM_COST). 성공 시 state 갱신·이벤트 기록 */
   orderVetExam(horseId: HorseId): ReturnType<typeof orderVetExam>;
@@ -293,6 +295,18 @@ export function useGame(): GameApi {
       stateRef.current = current;
       setState(current);
       setLastEvents(events);
+    },
+    [requireState],
+  );
+
+  const sellToNhStoreWith = useCallback(
+    (horseId: HorseId): ReturnType<typeof sellToNhStore> => {
+      const result = sellToNhStore(requireState(), horseId);
+      if (!result.ok) return result;
+      const next = appendEvents(result.state, result.events);
+      stateRef.current = next;
+      setState(next);
+      return { ...result, state: next };
     },
     [requireState],
   );
@@ -573,6 +587,7 @@ export function useGame(): GameApi {
     advanceToPhase,
     advanceUntil,
     book,
+    sellToNhStore: sellToNhStoreWith,
     sellStallion: sellStallionWith,
     orderVetExam: orderVetExamWith,
     chooseTreatment: chooseTreatmentWith,

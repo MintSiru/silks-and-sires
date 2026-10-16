@@ -1,8 +1,12 @@
+import { DUAL_FEE_RATIO, NH_FEE_RATIO } from '../../engine/config/nh';
+import { horseProfile } from '../../engine/stud/nh';
+import { estimateStudFee } from '../../engine/stud/value';
+import { feeKo, studRoleKo } from '../game/text';
 import { displayName } from '../../engine/naming/register';
 import { useState } from 'react';
 import type { GameApi } from '../game/useGame';
 import { NOMINATION_MAX_PER_SEASON } from '../../engine/config/stud';
-import type { YearEndChoice, YearEndHorseDecision } from '../../engine/types';
+import type { StudRole, YearEndChoice, YearEndHorseDecision } from '../../engine/types';
 import { defaultSubmission, salePriceWithNominationsKo, yearEndErrorKo, yearEndView } from './yearEndView';
 
 /** 국내 판매 때 고를 수 있는 교배권 수(0~엔진 상한) */
@@ -11,6 +15,7 @@ const NOMINATION_CHOICES: readonly number[] = Array.from({ length: NOMINATION_MA
 /** 진로를 바꾼다. 국내 판매가 아니면 교배권 수를 지워 0 초과가 제출에 남지 않게 한다. */
 function withChoice(decision: YearEndHorseDecision, choice: YearEndChoice): YearEndHorseDecision {
   const next: YearEndHorseDecision = { ...decision, choice };
+  if (choice !== 'stud') delete next.studRole;
   if (choice !== 'sell_domestic') delete next.nominations;
   return next;
 }
@@ -53,6 +58,24 @@ export default function YearEndScreen({ game }: { game: GameApi }) {
               }}>
               {horse.options.map((option) => <option key={option.choice} value={option.choice}>{option.labelKo}</option>)}
             </select>
+            {decision.choice === 'stud' && <div>
+              <label>종마 역할{' '}
+                <select aria-label={`${horse.name} 종마 역할`} disabled={confirming}
+                  value={decision.studRole ?? 'flat'}
+                  onChange={(event) => {
+                    const studRole = event.target.value as StudRole;
+                    setSubmission((current) => ({ ...current, horses: current.horses.map((h) =>
+                      h.horseId === horse.horseId ? { ...h, studRole } : h) }));
+                  }}>
+                  {(['flat', 'dual', 'nh'] as const).map((role) => <option key={role} value={role}
+                    disabled={role === 'nh' && horseProfile(state.horses[horse.horseId]!) === 'speed'}>
+                    {studRoleKo(role)}
+                  </option>)}
+                </select>
+              </label>
+              <p>예상 첫 종부료 {feeKo(Math.round(estimateStudFee(state, horse.horseId).fee
+                * (decision.studRole === 'nh' ? NH_FEE_RATIO : decision.studRole === 'dual' ? DUAL_FEE_RATIO : 1)))}</p>
+            </div>}
             {decision.choice === 'sell_domestic' && <div>
               <label>교배권{' '}
                 <select aria-label={`${horse.name} 교배권`} disabled={confirming} value={nominations}

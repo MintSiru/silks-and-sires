@@ -215,6 +215,11 @@ function snapshot(state: GameState, seed: number, year: number): SeasonSnap {
   let racing = 0;
   let nonAiRacing = 0;
   for (const h of Object.values(state.horses)) {
+    // M4-F1: 그해 NH 스토어 세일로 평지에서 빠진 AI 3세마는 그해 현역 두수에 포함해 본다(시즌 중 의도된 유출, 다음 해 교체로 채운다)
+    if (h.nhSoldYear === year && h.ownerId !== state.playerOwnerId) {
+      byCountry[h.countryOfBirth] = (byCountry[h.countryOfBirth] ?? 0) + 1;
+      continue;
+    }
     if (!isRacingStatus(h)) continue;
     if (!isRacingHorse(state, h)) {
       nonAiRacing++;

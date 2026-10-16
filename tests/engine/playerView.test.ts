@@ -90,6 +90,7 @@ describe('createGameSystems', () => {
       'breeding_health',
       'fee_review',
       'population',
+      'nh_store',
       'season',
       'sales',
       'private_trade',

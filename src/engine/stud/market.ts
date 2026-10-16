@@ -1,3 +1,4 @@
+import { NH_REPUTATION_DEMAND_AMPLITUDE, NH_REPUTATION_NEUTRAL } from '../config/nh';
 import * as config from '../config/stud';
 import { TIER_FEE } from '../config/world';
 import type { GameEvent, GameState, HorseId, Money, Stallion, WeeklySystem } from '../types';
@@ -46,9 +47,12 @@ export function progenyMultiplier(state: GameState, stallionId: HorseId): number
  * 넘친 수요(신인 가산·변동)가 있으면 오르고 모자라면 내린다.
  */
 export function demandMultiplier(stallion: Stallion): number {
-  if (stallion.aiDemand <= 0) return 1;
+  const nhMult = stallion.studRole === 'nh' || stallion.studRole === 'dual'
+    ? 1 + ((stallion.nhReputation ?? NH_REPUTATION_NEUTRAL) - NH_REPUTATION_NEUTRAL)
+      / NH_REPUTATION_NEUTRAL * NH_REPUTATION_DEMAND_AMPLITUDE : 1;
+  if (stallion.aiDemand <= 0) return nhMult;
   const expected = stallion.bookLimit * baseDemandRatio(stallion.popularity);
-  return clamp(1 + config.FEE_DEMAND_SLOPE * (stallion.aiDemand / expected - 1),
+  return nhMult * clamp(1 + config.FEE_DEMAND_SLOPE * (stallion.aiDemand / expected - 1),
     config.FEE_DEMAND_MULT_MIN, config.FEE_DEMAND_MULT_MAX);
 }
 

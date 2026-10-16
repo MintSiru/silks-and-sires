@@ -1,3 +1,5 @@
+import type { NhStoreError } from '../../engine/sales/nhStore';
+import type { StudRole } from '../../engine/types';
 import type { RegisterHorseNameError } from '../../engine/naming/register';
 import type { FarmNameError } from '../../engine/farm/naming';
 import { BET_MIN_STAKE } from '../../engine/config/betting';
@@ -981,3 +983,16 @@ export const HORSE_NAME_ERROR_KO: Record<RegisterHorseNameError, string> = {
   protected: '보호 이름이나 금지된 경마장 지명이 포함되어 있습니다.',
   taken: '다른 말이 쓰거나 후보로 예약한 이름입니다.',
 };
+
+export function studRoleKo(role: StudRole = 'flat'): string {
+  return { flat: '평지', dual: '겸용', nh: 'NH' }[role];
+}
+
+export function nhStoreErrorKo(error: NhStoreError): string {
+  return {
+    not_store_week: 'NH 스토어 세일 기간이 아닙니다.', not_found: '말을 찾을 수 없습니다.',
+    not_player_horse: '내 소유 말만 판매할 수 있습니다.', not_male: '수말·거세마만 판매할 수 있습니다.',
+    wrong_age: '3~4세 말만 판매할 수 있습니다.', not_racing: '현역마만 판매할 수 있습니다.',
+    consigned: '다른 세일 출품을 취소한 뒤 판매해 주세요.',
+  }[error];
+}

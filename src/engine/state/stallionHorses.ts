@@ -100,6 +100,7 @@ export function createRealStallionHorses(
       }
       stallions.push({
         horseId: rec.key,
+        ...(rec.studRole === undefined ? {} : { studRole: rec.studRole }),
         realKey: rec.key,
         sireLineId: rec.sireLineId,
         fee: TIER_FEE[rec.marketTier],

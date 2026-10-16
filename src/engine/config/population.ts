@@ -50,6 +50,9 @@ export const POPULATION_RETIRE_AGE = 8;
 export const POPULATION_AI_STALLION_ENTRY_PER_YEAR = 10;
 /** AI 종마 편입 최소 선발 기준값(OR 척도) */
 export const POPULATION_AI_STALLION_MIN_VALUE = 100;
+/** NH 종마 편입(M4-F1b): 은퇴한 중장거리·컵 프로필 수말의 연간 편입 상한과 최소 선발 기준값(OR 척도, 평지 기준보다 낮다) */
+export const POPULATION_AI_NH_STALLION_ENTRY_PER_YEAR = 4;
+export const POPULATION_AI_NH_STALLION_MIN_VALUE = 85;
 
 /**
  * 연간 교체: 나라·나이별 하위 정리 비율(선발 기준값 하위, 나라·나이 그룹마다 적용). 8세 이상은 전원 은퇴이므로 없다.

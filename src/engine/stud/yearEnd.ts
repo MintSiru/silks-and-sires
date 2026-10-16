@@ -12,6 +12,7 @@ import { NOMINATION_MAX_PER_SEASON, STUD_MIN_AGE, YEAR_END_GELDING_MAX_AGE } fro
 import type { GameEvent, HorseId, Money, RetainerContract, YearEndChoice, YearEndSubmission } from '../types';
 import { canStandAtStud, freeStudSlots, standPlayerStallion } from './stand';
 import { mareCapacity, playerBroodmareCount } from '../farm/purchase';
+import { applyStudRole, horseProfile } from './nh';
 import { estimateStudFee } from './value';
 import { applyStallionSale, salePriceQuote } from './trade';
 
@@ -81,7 +82,7 @@ export function retainerRenewalsDue(state: GameState): RetainerContract[] {
 
 export type YearEndError = 'not_pending' | 'wrong_year' | 'missing_horse' | 'duplicate_horse'
   | 'unknown_horse' | 'choice_not_allowed' | 'no_free_slot' | 'retainer_mismatch' | 'invalid_nominations'
-  | 'mare_capacity';
+  | 'mare_capacity' | 'role_not_allowed';
 
 /** 전체 제출을 검증한 뒤에만 복제본에 적용한다. eventLog 추가는 호출자가 맡는다. */
 export function submitYearEnd(
@@ -105,7 +106,12 @@ export function submitYearEnd(
   for (const { horseId } of candidates) {
     if (!seen.has(horseId)) return { ok: false, error: 'missing_horse', horseId };
   }
-  for (const { horseId, choice, nominations = 0 } of submission.horses) {
+  for (const { horseId, choice, nominations = 0, studRole } of submission.horses) {
+    if (studRole !== undefined && (choice !== 'stud'
+      || !['flat', 'dual', 'nh'].includes(studRole)
+      || (studRole === 'nh' && horseProfile(state.horses[horseId]!) === 'speed'))) {
+      return { ok: false, error: 'role_not_allowed', horseId };
+    }
     if (!Number.isInteger(nominations) || nominations < 0 || nominations > NOMINATION_MAX_PER_SEASON
       || (choice !== 'sell_domestic' && nominations > 0)) {
       return { ok: false, error: 'invalid_nominations', horseId };
@@ -134,11 +140,14 @@ export function submitYearEnd(
   const date = { year, week: 1 };
   const decisions = [...submission.horses].sort((a, b) =>
     a.horseId < b.horseId ? -1 : a.horseId > b.horseId ? 1 : 0);
-  for (const { horseId, choice, nominations = 0 } of decisions) {
+  for (const { horseId, choice, nominations = 0, studRole = 'flat' } of decisions) {
     const horse = draft.horses[horseId];
     if (horse === undefined) throw new Error(`submitYearEnd: 말 없음: ${horseId}`);
     if (choice === 'geld') horse.gelded = true;
-    if (choice === 'stud') events.push(...standPlayerStallion(draft, horseId, year));
+    if (choice === 'stud') {
+      events.push(...standPlayerStallion(draft, horseId, year));
+      draft.stallions[horseId] = applyStudRole(draft.stallions[horseId]!, studRole);
+    }
     if (choice === 'sell_domestic' || choice === 'sell_overseas') {
       events.push(...applyStallionSale(draft, horseId,
         choice === 'sell_domestic' ? 'domestic' : 'overseas', nominations, date));

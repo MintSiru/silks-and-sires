@@ -311,8 +311,8 @@ it('판매·임대·교배권 없는 시드 20261011의 52주 결과는 변경 �
   expect(first.raceResults.length).toBeGreaterThan(0);
   // M4-H12: 14종 부상·회복 기간 변화로 출주·레이스 결과와 자마 성적 기반 종부료가 바뀌어 재고정, fees 는 M4-H3(종마 제엽염 은퇴·사망) 반영해 다시 재고정. 장부 해시는 유지. 2026-10-16 15회차·17회차 어휘 정리(이름 변화)로 재고정. 2026-10-16 15회차 어휘 정리(이름 변화)로 세 값 모두 재고정. 18·19회차 계통 정리로 fees 재고정. M4-E1 시설 유지비 시스템 등록으로 ledger 재고정. 20~22회차(추가분 포함) 혈통(계통·이름 변화)으로 raceResults·fees 재고정.
   expect(hashes(first)).toEqual({
-    raceResults: '4302fe6a25d772ffec3f0d0d7ce16fc108f5ab00e0bba54db6c75175822aa57f',
-    fees: '03a8e7c659cc5cfb9776b7031f3bb983053a52a45185d7a3506c4937280b9c66',
+    raceResults: '1fe0bcf50aabcf4ccb53c9ebd1a60f237ef0b52de74cb6c52bc509781eac5044',
+    fees: 'd677fbcda62474d30a1c0ba3be012ad133fe9befe413b1f34a7e20cf817c29e5',
     ledger: '3549cabb2de86455f1ac156bbcf584fc2a3d6ee53ba05e0aa6ce14fc0099e824',
   });
   expect(simulate()).toEqual(first);

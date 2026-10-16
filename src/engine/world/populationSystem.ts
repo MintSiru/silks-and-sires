@@ -3,6 +3,8 @@ import { createRng } from '../rng';
 import { makeNameRegistry } from '../naming/context';
 import {
   POPULATION_AI_STALLION_ENTRY_PER_YEAR,
+  POPULATION_AI_NH_STALLION_ENTRY_PER_YEAR,
+  POPULATION_AI_NH_STALLION_MIN_VALUE,
   POPULATION_AI_STALLION_MIN_VALUE,
   POPULATION_BROODMARE_RETIRE_BANDS,
   POPULATION_COUNTRY_ORDER,
@@ -17,6 +19,7 @@ import {
   type PopulationCountry,
 } from '../config/population';
 import { sortStallionRecords } from '../state/stallionHorses';
+import { applyStudRole, chooseStudRole, horseProfile } from '../stud/nh';
 import { buildStallionRecord } from '../stud/stand';
 import type { GameDate, GameEvent, GameState, Horse, HorseStatus, Rng, WeeklySystem } from '../types';
 import {
@@ -205,7 +208,8 @@ export function createPopulationSystem(data: RacingPopulationStaticData): Weekly
       studEntrants.sort((a, b) => selectionValue(b) - selectionValue(a) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
       for (const horse of studEntrants.slice(0, POPULATION_AI_STALLION_ENTRY_PER_YEAR)) {
         const country = racingCountryOf(draft, horse);
-        draft.stallions[horse.id] = { ...buildStallionRecord(draft, horse.id, year, country), aiEntrant: true };
+        draft.stallions[horse.id] = { ...applyStudRole(buildStallionRecord(draft, horse.id, year, country),
+          chooseStudRole(draft, horse)), aiEntrant: true };
         const owner = horse.ownerId === null ? undefined : draft.owners[horse.ownerId];
         const makePrivate = owner !== undefined && !owner.isPlayer && owner.studName !== null
           && owner.tier === 'major'
@@ -241,6 +245,30 @@ export function createPopulationSystem(data: RacingPopulationStaticData): Weekly
             retireHorse(draft, candidates[i] as Horse, date, events, retiredByCountry);
           }
         }
+      }
+
+      // 4b. NH 종마 편입(M4-F1b): 올해 은퇴한 AI 비거세 수말 중 중장거리·컵 프로필은 평지 기준에 못 미쳐도 NH·겸용 종마로 선다.
+      //     (평지 선발 기준만으로는 컵 프로필 편입이 0두라 docs/stamina-and-nh.md 의 'NH 로 피를 잇는' 경로가 없었다.) 공용 rng 미사용.
+      const enteredIds = new Set(studEntrants.slice(0, POPULATION_AI_STALLION_ENTRY_PER_YEAR).map((h) => h.id));
+      const nhEntrants = events
+        .filter((e) => e.type === 'horse_status_changed' && e.to === 'retired')
+        .map((e) => (e.type === 'horse_status_changed' ? draft.horses[e.horseId] : undefined))
+        .filter((h): h is Horse => h !== undefined && !enteredIds.has(h.id) && h.status === 'retired'
+          && h.sex === 'male' && !h.gelded && h.ownerId !== draft.playerOwnerId && draft.stallions[h.id] === undefined
+          && (horseProfile(h) === 'middle' || horseProfile(h) === 'cup')
+          && selectionValue(h) >= POPULATION_AI_NH_STALLION_MIN_VALUE)
+        .sort((a, b) => selectionValue(b) - selectionValue(a) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
+        .slice(0, POPULATION_AI_NH_STALLION_ENTRY_PER_YEAR);
+      for (const horse of nhEntrants) {
+        const country = racingCountryOf(draft, horse);
+        const chosen = chooseStudRole(draft, horse);
+        draft.stallions[horse.id] = { ...applyStudRole(buildStallionRecord(draft, horse.id, year, country),
+          chosen === 'flat' ? 'dual' : chosen), aiEntrant: true };
+        const owner = horse.ownerId === null ? undefined : draft.owners[horse.ownerId];
+        if (owner !== undefined) owner.horseIds = owner.horseIds.filter((id) => id !== horse.id);
+        horse.ownerId = null;
+        horse.status = 'stud';
+        horse.trainerId = null;
       }
 
       // 5. 세일 출신 편입(M4-C4): AI 마주의 어린 말을 현역으로 올린다. 마주·조교사 부하는 은퇴 뒤의 상태로 계산

@@ -29,6 +29,7 @@ import type {
   Stallion,
 } from '../../engine/types';
 import {
+  studRoleKo,
   bookingErrorKo,
   commentText,
   complementKo,
@@ -813,6 +814,7 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
                   >
                     <span>
                       {displayName(state, row.horse)}
+                      <span className="badge">{studRoleKo(row.stallion.studRole)}</span>
                       {privateKo !== null && <span className="badge">{privateKo}</span>}
                     </span>
                     <span>{countryKo(row.stallion.standsIn)}</span>
@@ -936,6 +938,7 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
                     <tr key={row.horseId}>
                       <td>
                         {row.name}
+                        <span className="badge">{studRoleKo(state.stallions[row.horseId]?.studRole)}</span>
                         {row.isPrivate && <span className="badge">비공개</span>}
                       </td>
                       <td>{row.feeKo}</td>

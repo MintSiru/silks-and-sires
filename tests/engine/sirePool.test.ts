@@ -1,6 +1,8 @@
+import { horseProfile } from '../../src/engine/stud/nh';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { START_YEAR, WEEKS_PER_YEAR } from '../../src/engine/config/game';
-import { POPULATION_AI_STALLION_ENTRY_PER_YEAR, POPULATION_AI_STALLION_MIN_VALUE, POPULATION_RETIRE_AGE } from '../../src/engine/config/population';
+import { POPULATION_AI_NH_STALLION_ENTRY_PER_YEAR,
+  POPULATION_AI_STALLION_ENTRY_PER_YEAR, POPULATION_AI_STALLION_MIN_VALUE, POPULATION_RETIRE_AGE } from '../../src/engine/config/population';
 import { PROFILE_DISTANCE, TIER_FEE } from '../../src/engine/config/world';
 import {
   getNamingData, getNicks, getPeopleData, getRaceTemplates, getRacecourses,
@@ -206,11 +208,12 @@ describe('연간 AI 종마 편입', () => {
     expect(state.horses['below-minimum']!.status).toBe('retired');
   });
 
-  it('1년 1~10두 편입, 선발 순서·소유 관계·이벤트를 지키고 2년 진행이 재현된다', () => {
+  it('1년 1~(평지 10 + NH 4)두 편입, 선발 순서·소유 관계·이벤트를 지키고 2년 진행이 재현된다', () => {
     const first = nextPopulationYear(fresh());
     const entrants = Object.values(first.state.stallions).filter((stallion) => stallion.aiEntrant);
     expect(entrants.length).toBeGreaterThanOrEqual(1);
-    expect(entrants.length).toBeLessThanOrEqual(POPULATION_AI_STALLION_ENTRY_PER_YEAR);
+    // M4-F1b: 중장거리·컵 프로필 NH 종마 편입이 따로 연 POPULATION_AI_NH_STALLION_ENTRY_PER_YEAR 두까지 더해진다
+    expect(entrants.length).toBeLessThanOrEqual(POPULATION_AI_STALLION_ENTRY_PER_YEAR + POPULATION_AI_NH_STALLION_ENTRY_PER_YEAR);
     const retiredColts = first.events.flatMap((event) => {
       if (event.type !== 'horse_status_changed' || event.to !== 'retired') return [];
       const horse = first.state.horses[event.horseId]!;
@@ -218,8 +221,13 @@ describe('연간 AI 종마 편입', () => {
       return horse.sex === 'male' && !horse.gelded && value(horse) >= POPULATION_AI_STALLION_MIN_VALUE
         && age < POPULATION_RETIRE_AGE ? [horse] : [];
     }).sort((a, b) => value(b) - value(a) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
-    expect(entrants.map((stallion) => stallion.horseId).sort())
-      .toEqual(retiredColts.slice(0, POPULATION_AI_STALLION_ENTRY_PER_YEAR).map((horse) => horse.id).sort());
+    const flatTrack = retiredColts.slice(0, POPULATION_AI_STALLION_ENTRY_PER_YEAR).map((horse) => horse.id).sort();
+    const entrantIds = entrants.map((stallion) => stallion.horseId);
+    expect(flatTrack.every((id) => entrantIds.includes(id))).toBe(true);
+    // 나머지는 NH 편입(M4-F1b): 중장거리·컵 프로필만, 상한 이내
+    const nhTrack = entrantIds.filter((id) => !flatTrack.includes(id));
+    expect(nhTrack.length).toBeLessThanOrEqual(POPULATION_AI_NH_STALLION_ENTRY_PER_YEAR);
+    for (const id of nhTrack) expect(['middle', 'cup']).toContain(horseProfile(first.state.horses[id]!));
     for (const stallion of entrants) {
       const horse = first.state.horses[stallion.horseId]!;
       expect(horse).toMatchObject({ status: 'stud', ownerId: stallion.privateTo ?? null,

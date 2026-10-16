@@ -1,3 +1,5 @@
+import { canSellToNhStore, nhStoreOpen } from '../../engine/sales/nhStore';
+import { nhStoreQuote } from '../../engine/stud/nh';
 import { displayName } from '../../engine/naming/register';
 import { inspectOfferHorse } from '../../engine/sales/privateTrade';
 import { useEffect, useMemo, useState } from 'react';
@@ -11,6 +13,7 @@ import { ageInYear, compareDates, formatDateKo } from '../../engine/time/calenda
 import type { Assessment, GameState, HorseId, Money, SaleEventDef } from '../../engine/types';
 import HorseCard from '../breeding/HorseCard';
 import {
+  nhStoreErrorKo,
   bidErrorKo,
   bidMinimumKo,
   clearBidErrorKo,
@@ -205,6 +208,7 @@ function SalesView({ game, state, locked }: SalesViewProps): JSX.Element {
         <NoticeLine notice={advanceNotice} />
       </header>
 
+      {nhStoreOpen(state) && <NhStore game={game} state={state} locked={locked} />}
       <section className="panel">
         <h2>개인 거래 제안</h2>
         <PrivateOffers game={game} state={state} locked={locked} />
@@ -860,4 +864,26 @@ function PrivateOffers({ game, state, locked }: SalesViewProps): JSX.Element {
       </table></div>}
     {inspected !== undefined && <InspectBox key={inspected.offerId} state={state} horseId={inspected.horseId} offerId={inspected.offerId} />}
   </>;
+}
+
+function NhStore({ game, state, locked }: SalesViewProps): JSX.Element {
+  const [notice, setNotice] = useState<Notice | null>(null);
+  const horses = Object.values(state.horses).filter(horse => canSellToNhStore(state, horse.id) === null)
+    .sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+  return <section className="panel" aria-label="NH 스토어 세일">
+    <h2>NH 스토어 세일</h2>
+    <p>3~4세 수말·거세마를 NH 시장에 판매합니다. 판매한 말은 평지 경주에서 은퇴합니다.</p>
+    {horses.length === 0 ? <p>판매 가능한 말이 없습니다.</p> : <table>
+      <thead><tr><th>말</th><th>견적</th><th>판매</th></tr></thead>
+      <tbody>{horses.map(horse => <tr key={horse.id}>
+        <td>{displayName(state, horse)}</td><td>{feeKo(nhStoreQuote(state, horse.id)!)}</td>
+        <td><button type="button" disabled={locked} onClick={() => {
+          const result = game.sellToNhStore(horse.id);
+          setNotice(result.ok ? { tone: 'ok', text: 'NH 시장에 판매했습니다.' }
+            : { tone: 'error', text: nhStoreErrorKo(result.error) });
+        }}>판매</button></td>
+      </tr>)}</tbody>
+    </table>}
+    <NoticeLine notice={notice} />
+  </section>;
 }

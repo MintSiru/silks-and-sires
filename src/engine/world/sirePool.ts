@@ -45,6 +45,7 @@ export function aiSireRecords(state: GameState): RealStallionRecord[] {
       surfaceProfile: 'turf',
       marketTier: tierFromFee(stallion.fee),
       confidence: 'low',
+      ...(stallion.studRole === undefined ? {} : { studRole: stallion.studRole }),
       firstCoverYear: stallion.firstSeasonYear,
       ...(stallion.lastSeasonYear === undefined ? {} : { lastCoverYear: stallion.lastSeasonYear }),
     });
