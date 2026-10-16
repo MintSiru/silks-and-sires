@@ -1,5 +1,7 @@
 import { sellToNhStore } from '../../engine/sales/nhStore';
 import { FARM_NAME_ERROR_KO } from './text';
+import { upcomingRaces, type UpcomingRaceWeek } from '../../engine/season/lookahead';
+import { approvePlan, removePlan, replanHorse, setRacePlan } from '../../engine/season/racePlan';
 import { nameSuggestions, registerHorseName } from '../../engine/naming/register';
 import { FarmNameValidationError, renameFarm } from '../../engine/farm/naming';
 import { NAME_SUGGESTION_COUNT } from '../../engine/config/naming';
@@ -61,6 +63,7 @@ import type {
   GameState,
   HomeCountry,
   HorseId,
+  PlannedRace,
   InjuryTreatment,
   Money,
   RaceId,
@@ -91,6 +94,13 @@ export interface NewGameInput {
 }
 
 export interface GameApi {
+  racePlan(horseId: HorseId): PlannedRace[];
+  proposeRacePlan(horseId: HorseId): ReturnType<typeof replanHorse>;
+  approvePlan(horseId: HorseId, planId: string): ReturnType<typeof approvePlan>;
+  removePlan(horseId: HorseId, planId: string): ReturnType<typeof removePlan>;
+  setRacePlan(horseId: HorseId, plans: PlannedRace[]): ReturnType<typeof setRacePlan>;
+  upcomingRaces(weeks: number): UpcomingRaceWeek[];
+  setAutoApproveRacePlans(enabled: boolean): void;
   placeBet(input: Parameters<typeof placeBet>[1]): PlayerResult<BetError>;
   cancelBet(betId: string): ReturnType<typeof cancelBet>;
   state: GameState | null;
@@ -424,6 +434,31 @@ export function useGame(): GameApi {
     return result;
   }, []);
 
+  const racePlan = useCallback((horseId: HorseId): PlannedRace[] => {
+    const current = requireState();
+    if (current.horses[horseId]?.ownerId !== current.playerOwnerId) return [];
+    return structuredClone(current.seasonState.racePlans?.[horseId] ?? []);
+  }, [requireState]);
+
+  const proposePlans = useCallback((horseId: HorseId) =>
+    applyPlayerResult(replanHorse(requireState(), gameStaticData(), horseId)), [requireState, applyPlayerResult]);
+  const approveRacePlan = useCallback((horseId: HorseId, planId: string) =>
+    applyPlayerResult(approvePlan(requireState(), horseId, planId)), [requireState, applyPlayerResult]);
+  const removeRacePlan = useCallback((horseId: HorseId, planId: string) =>
+    applyPlayerResult(removePlan(requireState(), horseId, planId)), [requireState, applyPlayerResult]);
+  const setPlans = useCallback((horseId: HorseId, plans: PlannedRace[]) =>
+    applyPlayerResult(setRacePlan(requireState(), horseId, plans)), [requireState, applyPlayerResult]);
+  const upcoming = useCallback((weeks: number): UpcomingRaceWeek[] => {
+    const current = requireState();
+    return upcomingRaces(current, gameStaticData(), current.date, weeks);
+  }, [requireState]);
+  const setAutoApproveRacePlans = useCallback((enabled: boolean): void => {
+    const current = requireState();
+    const next = { ...current, settings: { ...current.settings, autoApproveRacePlans: enabled } };
+    stateRef.current = next;
+    setState(next);
+  }, [requireState]);
+
   const declarePlayer = useCallback(
     (meetingId: string, raceId: RaceId, horseId: HorseId): PlayerResult<DeclareError> =>
       applyPlayerResult(declarePlayerHorse(requireState(), meetingId, raceId, horseId)),
@@ -572,6 +607,13 @@ export function useGame(): GameApi {
   }, []);
 
   return {
+    racePlan,
+    proposeRacePlan: proposePlans,
+    approvePlan: approveRacePlan,
+    removePlan: removeRacePlan,
+    setRacePlan: setPlans,
+    upcomingRaces: upcoming,
+    setAutoApproveRacePlans,
     state,
     placeBet: placePlayerBet,
     cancelBet: cancelPlayerBet,

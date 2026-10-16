@@ -19,6 +19,8 @@ import {
 } from '../game/text';
 import type { GameApi } from '../game/useGame';
 import ReplayPanel from './ReplayPanel';
+import { racePlanErrorKo, racePlanRows, upcomingRaceRows } from './racePlanView';
+import { RACE_PLAN_WEEKS } from '../../engine/config/racePlan';
 import {
   eligiblePlayerHorses,
   hasPendingPlayerRace,
@@ -106,6 +108,7 @@ function SeasonView({ state, game, locked }: SeasonViewProps): JSX.Element {
   const horses = useMemo(() => playerHorses(state), [state]);
   const meetings = useMemo(() => meetingsView(state), [state]);
   const results = useMemo(() => recentResults(state, RECENT_RESULT_COUNT), [state]);
+  const calendar = useMemo(() => upcomingRaceRows(game.upcomingRaces(RACE_PLAN_WEEKS)), [game, state]);
   const eligibleByRace = useMemo(() => {
     const map = new Map<string, PlayerHorseOption[]>();
     for (const m of meetings) {
@@ -289,6 +292,11 @@ function SeasonView({ state, game, locked }: SeasonViewProps): JSX.Element {
         <section className="panel">
           <h2>내 말 ({horses.length}두)</h2>
           <p className="hint">조교사가 없는 말은 조교사를 정해야 출주할 수 있습니다.</p>
+          <label>
+            <input type="checkbox" checked={state.settings.autoApproveRacePlans ?? false}
+              onChange={(event) => game.setAutoApproveRacePlans(event.target.checked)} />{' '}
+            새 출주 제안 자동 승인
+          </label>
           {horses.length === 0 ? (
             <p className="hint">
               아직 출주시킬 말이 없습니다. 망아지가 자라 2세가 되면 여기서 조교사를 정하고 출주를 등록할 수 있습니다.
@@ -296,16 +304,18 @@ function SeasonView({ state, game, locked }: SeasonViewProps): JSX.Element {
           ) : (
             <div className="horse-list">
               {horses.map((horse) => (
-                <PlayerHorseCard
-                  key={horse.id}
-                  horse={horse}
-                  choices={horse.trainerId === null ? trainerChoices(state, horse.id) : []}
-                  pick={trainerPicks[horse.id]}
-                  onPick={(trainerId) => setTrainerPick(horse.id, trainerId)}
-                  onAssign={() => handleAssign(horse)}
-                  onVetExam={() => handleVetExam(horse.id)}
-                  onTreatment={(treatment) => handleTreatment(horse.id, treatment)}
-                />
+                <div key={horse.id}>
+                  <PlayerHorseCard
+                    horse={horse}
+                    choices={horse.trainerId === null ? trainerChoices(state, horse.id) : []}
+                    pick={trainerPicks[horse.id]}
+                    onPick={(trainerId) => setTrainerPick(horse.id, trainerId)}
+                    onAssign={() => handleAssign(horse)}
+                    onVetExam={() => handleVetExam(horse.id)}
+                    onTreatment={(treatment) => handleTreatment(horse.id, treatment)}
+                  />
+                  <RacePlanPanel horse={horse} game={game} locked={locked} onNotice={setNotice} />
+                </div>
               ))}
             </div>
           )}
@@ -345,6 +355,22 @@ function SeasonView({ state, game, locked }: SeasonViewProps): JSX.Element {
           )}
         </section>
       </div>
+
+      <section className="panel">
+        <details>
+          <summary>앞으로 12주 레이스</summary>
+          <p className="hint">고정 일정은 확정입니다. 일반 개최 후보 중 일부가 매주 선정되며, 예상 종류의 비중은 실제 편성을 보장하지 않습니다.</p>
+          {calendar.map((week) => <details key={week.key}>
+            <summary>{week.dateLabel} · 고정 일정 {week.fixed.length}개</summary>
+            {week.fixed.length === 0 && <p className="hint">고정 일정 레이스 없음</p>}
+            <ul>{week.fixed.map((race) => <li key={race.id}>{race.label}</li>)}</ul>
+            <p className="hint">일반 개최: {week.countLabel || '없음'}</p>
+            <ul>{week.meetings.map((meeting) => <li key={meeting.id}>
+              {meeting.label}<p className="hint">예상: {meeting.expected}</p>
+            </li>)}</ul>
+          </details>)}
+        </details>
+      </section>
 
       {betRace !== null && <BettingPanel
         key={raceKey(betRace.meetingId, betRace.raceId)}
@@ -393,6 +419,43 @@ function SeasonView({ state, game, locked }: SeasonViewProps): JSX.Element {
 }
 
 // ── 하위 컴포넌트 ───────────────────────────────────────────────
+
+function RacePlanPanel({ horse, game, locked, onNotice }: {
+  horse: PlayerHorseView;
+  game: GameApi;
+  locked: boolean;
+  onNotice: (notice: Notice) => void;
+}): JSX.Element {
+  const plans = racePlanRows(game.racePlan(horse.id));
+  const showResult = (result: ReturnType<GameApi['approvePlan']>, text: string): void => {
+    onNotice(result.ok ? { tone: 'ok', text } : { tone: 'error', text: racePlanErrorKo(result.error) });
+  };
+  return (
+    <div className="horse-card">
+      <h4>출주 계획</h4>
+      <button type="button" className="btn"
+        disabled={locked || horse.status !== 'in_training' || horse.trainerId === null}
+        onClick={() => showResult(game.proposeRacePlan(horse.id), '조교사가 출주 계획을 제안했습니다.')}>
+        {plans.length === 0 ? '조교사에게 계획 받기' : '조교사에게 다시 짜기'}
+      </button>
+      {plans.length === 0 && <p className="hint">조교사에게 출주 계획을 요청하세요.</p>}
+      <ul className="season-race-list">
+        {plans.map((plan) => (
+          <li key={plan.id}>
+            <p>{plan.dateLabel} · {plan.name} · <strong>{plan.statusLabel}</strong></p>
+            <p className="hint">{plan.note}</p>
+            {plan.canApprove && <button type="button" className="btn" disabled={locked}
+              onClick={() => showResult(game.approvePlan(horse.id, plan.id), '출주 계획을 승인했습니다.')}>
+              승인</button>}
+            {plan.canRemove && <button type="button" className="btn" disabled={locked}
+              onClick={() => showResult(game.removePlan(horse.id, plan.id), '출주 계획에서 뺐습니다.')}>
+              빼기</button>}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 interface PlayerHorseCardProps {
   horse: PlayerHorseView;

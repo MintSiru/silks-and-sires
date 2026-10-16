@@ -91,6 +91,7 @@ describe('createGameSystems', () => {
       'fee_review',
       'population',
       'nh_store',
+      'race_plans',
       'season',
       'sales',
       'private_trade',

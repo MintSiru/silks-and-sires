@@ -106,7 +106,7 @@ function twoYoAllows(distance: number, week: Week): boolean {
  * 열 수 있는 후보 거리. 같은 거리가 여러 레이아웃에 있으면 첫 항목을 쓴다.
  * twoYo 이면 2세 거리 제한을 건다.
  */
-function distancePool(course: Racecourse, twoYo: boolean, week: Week): CourseDistance[] {
+export function generatedDistancePool(course: Racecourse, twoYo: boolean, week: Week): CourseDistance[] {
   const seen = new Set<number>();
   const pool: CourseDistance[] = [];
   for (const cd of course.distances) {
@@ -174,14 +174,14 @@ export function generateRace(
   let pool: CourseDistance[] = [];
   const turfSeason = isInPhase(opts.week, 'turf_flat');
   if (kind !== 'handicap' && turfSeason && opts.week >= TWO_YO_FROM_WEEK && rng.chance(TWO_YO_SHARE)) {
-    const twoYoPool = distancePool(course, true, opts.week);
+    const twoYoPool = generatedDistancePool(course, true, opts.week);
     if (twoYoPool.length > 0) {
       twoYo = true;
       pool = twoYoPool;
     }
   }
   if (pool.length === 0) {
-    pool = distancePool(course, false, opts.week);
+    pool = generatedDistancePool(course, false, opts.week);
   }
   const cd = pickDistance(rng, pool);
 

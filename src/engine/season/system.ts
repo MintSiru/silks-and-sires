@@ -38,6 +38,7 @@ import type { CourseCountryLookup } from './eligibility';
 import { buildWeekMeetings } from './meetings';
 import { runMeetingInPlace } from './raceday';
 import { emptyLeadingTables } from './state';
+import { settleRacePlans } from './racePlan';
 
 /** 시즌 시스템 정적 데이터 */
 export interface SeasonStaticData {
@@ -345,6 +346,7 @@ export function createSeasonSystem(data: SeasonStaticData): WeeklySystem {
         startNewSeason(draft, data.series, date, rng.fork('awards'), events, gradeById);
       }
       runThisWeek(draft, data, courseCountry, date, rng, events);
+      events.push(...settleRacePlans(draft, date));
       scheduleNextWeek(draft, data, date, rng);
       conditionWeek(draft, date, rng.fork('condition'), events);
       declareNextWeek(draft, date, rng.fork('declare-next'), courseCountry);
