@@ -1,7 +1,7 @@
 import type { CountryCode, HorseId, JockeyId, Money, OwnerId, RaceId, RacecourseId, TrainerId } from './common';
 import type { SampleField } from '../race/sampleField';
 import type { Going } from './going';
-import type { Race, RaceGrade } from './race';
+import type { Race, RaceClass, RaceGrade, RaceKind } from './race';
 import type { GameDate } from './time';
 
 /**
@@ -191,6 +191,41 @@ export interface SeasonState {
   performances: Record<HorseId, PerformanceEntry[]>;
   /** 올해 그룹 레이스 레이팅. 연도 전환 때 비운다 (M3-E1) */
   raceRatings: RaceRatingEntry[];
+  /** 플레이어 말별 출주 계획(UX1, 사용자 요청 2026-10-16). 없으면 계획 없음 — 저장 마이그레이션 불필요 */
+  racePlans?: Record<HorseId, PlannedRace[]>;
+}
+
+/**
+ * 조교사 출주 계획의 조건 목표(UX1). 자동 생성 레이스는 미리 알 수 없으므로 '그 주에 이런 레이스'로 잡고,
+ * 개최가 정해지면 조교사가 가장 맞는 실제 레이스로 바꿔 신청한다.
+ */
+export interface RacePlanTarget {
+  kinds: RaceKind[];
+  minDistance: number;
+  maxDistance: number;
+  /** 이 나라 개최만(없으면 말의 현역 나라) */
+  country?: CountryCode;
+  /** 클래스 범위(1 = 상위). 그룹·리스티드는 클래스 1 */
+  minClass?: RaceClass;
+  maxClass?: RaceClass;
+}
+
+/** 출주 계획 한 칸(UX1). 고정 일정 레이스(templateId) 또는 조건 목표(target) 중 하나만 */
+export interface PlannedRace {
+  /** `${horseId}:${year}-${week}` */
+  id: string;
+  date: GameDate;
+  templateId: RaceId | null;
+  target: RacePlanTarget | null;
+  /**
+   * proposed = 조교사 제안(플레이어 검토 전) / approved = 승인(그 주 출주 접수 때 자동 신청) /
+   * declared = 신청됨 / run = 출주 완료 / skipped = 취소·불가(사유는 note)
+   */
+  status: 'proposed' | 'approved' | 'declared' | 'run' | 'skipped';
+  /** 조교사 한 줄 메모(예: '10f 핸디캡 — 지난 경주 뒤 5주 간격') */
+  note: string;
+  /** declared 이후 실제 레이스 id */
+  raceId?: RaceId;
 }
 
 /** 시상식형(카르티에 모델) 부문 */

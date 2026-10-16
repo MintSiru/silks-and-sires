@@ -1,4 +1,4 @@
-import type { BreederId, HorseId, JockeyId, Money, OwnerId, SireLineId, TrainerId } from './common';
+import type { BreederId, HorseId, JockeyId, Money, OwnerId, RaceId, SireLineId, TrainerId } from './common';
 import type { Horse, HorseStatus, InjuryKind, InjuryRegion, InjuryTreatment, Mare, OffspringStats, Stallion } from './horse';
 import type { CommercialBreeder, Jockey, Owner, Trainer } from './people';
 import type { RaceResult } from './race';
@@ -30,6 +30,9 @@ export type GameEvent =
   | { type: 'stud_fee_set'; stallionId: HorseId; season: number; fee: Money; prevFee: Money; date: GameDate }
   /** M4-E0b: 목장 구매(마주 → 오너브리더 전환 또는 이전) */
   | { type: 'farm_purchased'; country: HomeCountry; size: FarmSize; price: Money; date: GameDate }
+  /** 출주 계획 처리(UX1): 계획대로 신청함 / 조건이 안 맞아 건너뜀(부상·체력·맞는 레이스 없음 등) */
+  | { type: 'race_plan_declared'; horseId: HorseId; raceId: RaceId; date: GameDate }
+  | { type: 'race_plan_skipped'; horseId: HorseId; planId: string; reason: string; date: GameDate }
   /** 플레이어 말을 NH 스토어 세일에 팔았다(M4-F1) */
   | { type: 'nh_store_sold'; horseId: HorseId; price: Money; date: GameDate }
   /** 플레이어 말 이름 등록(M4-E3). auto = 2세 조교 전까지 안 지어 자동 등록됨 */

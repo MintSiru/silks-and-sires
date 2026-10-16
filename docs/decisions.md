@@ -358,3 +358,4 @@
 - 2026-10-16 5대 혈통 23회차 반영(누락 출생국 11두 + 23회차 표 중 확인된 칸, 새 종마 22두). Botticelli 는 역사 인물 목록에서 제거(같은 이름 실존 종마). Crooner 의 부(Sammy Davis / Whistler 상충)·Atlas·Rubaiyat 3~4대 등 미확인 칸은 보류. Amerigo(GB·chestnut)·Wauthi(IE) 데이터 값 유지(표와 다름). 고정 해시·이름 지문 재고정.
 - 2026-10-16 M4 마무리 착수(사용자 요청): F1 NH 시장 타입 — Stallion.studRole·nhReputation, YearEndHorseDecision.studRole, Horse.nhSoldYear, GameEvent 'nh_store_sold', LedgerCategory 'nh_store_sale'. 명세 M4-F1(Codex). G1 30년 검증은 F1 뒤.
 - 2026-10-16 사용자 피드백(세일 말 모마 없음 → BMS 확인 불가): Horse.virtualDam?(이름·부·출생 연도) 추가 — 말 레코드를 늘리지 않는 가벼운 가상 모마. 명세 M4-ST3(Codex, F1 뒤 또는 Codex 사용량 초기화 뒤).
+- 2026-10-16 사용자 피드백(UI/UX 전면 불만, 'Opus 가 플레이해 보고 결정'): Opus 헤드리스 플레이테스트 결과와 화면 재구성 결정을 docs/ux-plan.md 에 기록. 타입 UX0: SeasonState.racePlans·PlannedRace·RacePlanTarget, GameSettings.autoApproveRacePlans, 이벤트 race_plan_declared/skipped. 명세 UX1(조교사 출주 계획·레이스 미리보기). UX1·UX2 를 G1 보다 먼저.

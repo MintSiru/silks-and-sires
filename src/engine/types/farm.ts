@@ -20,6 +20,8 @@ export interface GameSettings {
   difficulty: Difficulty;
   /** 예후불량(경주 중 치명적 부상) 켜기. 기본 true. D9 이른 사망은 이 설정과 무관하게 항상 켬 */
   catastrophicInjuries: boolean;
+  /** 조교사 출주 계획 자동 승인(UX1). true 면 제안이 바로 approved — 세세한 관리를 덜 하고 싶을 때. 없으면 false */
+  autoApproveRacePlans?: boolean;
 }
 
 /**
