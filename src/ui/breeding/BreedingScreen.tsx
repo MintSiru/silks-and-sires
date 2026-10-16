@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import type { FormEvent, JSX } from 'react';
 import { DEFAULT_ECONOMY_MODE, LEGACY_BANKRUPT_WEEKS } from '../../engine/config/economy';
+import { DEFAULT_GAME_SETTINGS, HOME_COUNTRIES } from '../../engine/config/farm';
 import { INBREED_EXCESS_FROM } from '../../engine/config/genetics';
 import { totalBloodPercent } from '../../engine/breeding/inbreeding';
 import { buildMatingPedigree, type PedigreeLookup } from '../../engine/breeding/pedigree';
@@ -14,12 +15,15 @@ import { assessForPlayer, availableStallions, playerHorses } from '../../engine/
 import { ageInYear, formatDateKo } from '../../engine/time/calendar';
 import type {
   Assessment,
+  Difficulty,
   EconomyMode,
   GameEvent,
   GameState,
+  HomeCountry,
   Horse,
   HorseId,
   Mare,
+  StartType,
   Stallion,
 } from '../../engine/types';
 import {
@@ -36,6 +40,14 @@ import {
   phaseKo,
 } from '../game/text';
 import type { GameApi } from '../game/useGame';
+import {
+  CATASTROPHIC_INJURY_HINT_KO,
+  DIFFICULTY_OPTIONS,
+  GRANT_RACEHORSES_HINT_KO,
+  HOME_COUNTRY_HINT_KO,
+  START_TYPE_OPTIONS,
+  startSummaryKo,
+} from '../newGame/newGameView';
 import {
   bookingWindowKo,
   bookStatusOf,
@@ -191,7 +203,13 @@ function NewGamePanel({ game, onDone, onCancel }: NewGamePanelProps): JSX.Elemen
   const [playerName, setPlayerName] = useState('');
   const [seedText, setSeedText] = useState(DEFAULT_SEED_TEXT);
   const [economyMode, setEconomyMode] = useState<EconomyMode>(DEFAULT_ECONOMY_MODE);
+  const [startType, setStartType] = useState<StartType>(DEFAULT_GAME_SETTINGS.startType);
+  const [difficulty, setDifficulty] = useState<Difficulty>(DEFAULT_GAME_SETTINGS.difficulty);
+  const [homeCountry, setHomeCountry] = useState<HomeCountry>('GB');
+  const [grantRacehorses, setGrantRacehorses] = useState(true);
+  const [catastrophicInjuries, setCatastrophicInjuries] = useState(DEFAULT_GAME_SETTINGS.catastrophicInjuries);
   const [error, setError] = useState<string | null>(null);
+  const summary = startSummaryKo(startType, difficulty, grantRacehorses);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
@@ -207,7 +225,16 @@ function NewGamePanel({ game, onDone, onCancel }: NewGamePanelProps): JSX.Elemen
       return;
     }
     try {
-      game.newGame(seed, name, economyMode);
+      game.newGame({
+        seed,
+        playerName: name,
+        economyMode,
+        startType,
+        difficulty,
+        homeCountry,
+        catastrophicInjuries,
+        grantRacehorses,
+      });
       onDone();
     } catch (err) {
       setError(messageOf(err));
@@ -264,6 +291,77 @@ function NewGamePanel({ game, onDone, onCancel }: NewGamePanelProps): JSX.Elemen
             </label>
           ))}
         </fieldset>
+        <fieldset className="field">
+          <legend>시작 유형</legend>
+          {START_TYPE_OPTIONS.map((option) => (
+            <label key={option.value} className="field">
+              <input
+                type="radio"
+                name="start-type"
+                value={option.value}
+                checked={startType === option.value}
+                onChange={() => setStartType(option.value)}
+              />
+              <span>{option.label}</span>
+              <span className="hint">{option.description}</span>
+            </label>
+          ))}
+        </fieldset>
+        <fieldset className="field">
+          <legend>난이도</legend>
+          {DIFFICULTY_OPTIONS.map((option) => (
+            <label key={option.value} className="field">
+              <input
+                type="radio"
+                name="difficulty"
+                value={option.value}
+                checked={difficulty === option.value}
+                onChange={() => setDifficulty(option.value)}
+              />
+              <span>{option.label}</span>
+              <span className="hint">{option.description}</span>
+            </label>
+          ))}
+        </fieldset>
+        <label className="field">
+          <span>소재국</span>
+          <select value={homeCountry} onChange={(e) => setHomeCountry(e.target.value as HomeCountry)}>
+            {HOME_COUNTRIES.map((country) => (
+              <option key={country} value={country}>
+                {countryKo(country)}
+              </option>
+            ))}
+          </select>
+          <span className="hint">{HOME_COUNTRY_HINT_KO}</span>
+        </label>
+        {startType === 'owner_breeder' && (
+          <label className="field">
+            <input
+              type="checkbox"
+              checked={grantRacehorses}
+              onChange={(e) => setGrantRacehorses(e.target.checked)}
+            />
+            <span>현역마 지급</span>
+            <span className="hint">{GRANT_RACEHORSES_HINT_KO}</span>
+          </label>
+        )}
+        <label className="field">
+          <input
+            type="checkbox"
+            checked={catastrophicInjuries}
+            onChange={(e) => setCatastrophicInjuries(e.target.checked)}
+          />
+          <span>예후불량(경주 중 치명적 부상)</span>
+          <span className="hint">{CATASTROPHIC_INJURY_HINT_KO}</span>
+        </label>
+        <section className="field" aria-label="고른 시작 조건">
+          <span>고른 시작 조건</span>
+          <ul className="hint">
+            {summary.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+        </section>
         {error !== null && <p className="notice notice--error" role="alert">{error}</p>}
         <div className="new-game__actions">
           <button type="submit" className="btn btn--primary">

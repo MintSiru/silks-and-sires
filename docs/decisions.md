@@ -336,3 +336,6 @@
 - 2026-10-16 5대 혈통 17회차 반영(80칸, 조상 31두 — #25 Soderini 는 사용자 값 1961·bay·GB(출처 갈림)·부 Crepello). Sea-Bird·Arctic Tern·Bering 계통 Scat Daddy → Native Dancer(부 Dan Cupid, Native Dancer 의 자식), Balidar 마지막 교배 1991, 어휘 Realm 제거·연상어 Empire 에 Province 보충. Darshaan bay 유지(생산자·NZ 공식 등록부 bay). Rockefella chestnut·1968, High Line chestnut 은 사용자 답 전까지 기본값. 고정 해시 재고정.
 - 2026-10-16 M4-E0 승인(Codex): 새 게임 옵션(startType·difficulty·homeCountry·catastrophicInjuries·grantRacehorses), 난이도 안 A 패키지(STARTING_PACKAGES), 소재국 같은 나라 계류 종마 ×3(측정: IE 소재 기초 암말 부 IE 계류 38% vs GB 소재 15%), 예후불량 경주 중 중증 골절 40%(측정 40.9%). difficulty 생략 시 기존과 동일(고정 해시 불변).
 - 2026-10-16 사용자 승인: E0b 목장 구매(소·중·대 6/15/30두, 기준가 €0.4M/1.0M/2.5M, 나라 배수 GB1·IE0.9·FR0.95·DE0.7·IT0.6, 매물 ±10%, 이전 시 기존 목장 75% 매각·시설 유지)·E1 시설 9종 수치안(공사비 €60k/150k/350k, 종마사·마방 ×1.5, 유지비 단계 합×€8k/년, 공사 4주). FarmState.construction 추가.
+- 2026-10-16 5대 혈통 18회차 반영(98칸, 조상 32두). Rockefella brown·1968, Welsh Pageant 출생국 FR·bay·마지막 교배 1981, Peintre Celebre 출생국 US, Sir Tor bay(사망 미상), Mount Hagen chestnut(사용자 확인), Riverman bay 유지. 고정 해시 재고정(newGameSettings LEGACY_HASH 포함).
+- 2026-10-16 M4-E0ui 승인(haiku): 새 게임 폼 시작 유형·난이도·소재국·현역마 지급·예후불량 + 시작 조건 요약(startSummaryKo), useGame.newGame(NewGameInput).
+- 2026-10-16 M4-E0a 타입: Silks.design?(SilksDesign 몸통·소매·모자 × 바탕 + 층 0~2). design 없는 기존 저장·AI 마주는 유도 함수로 그림 — 저장 마이그레이션 없음, AI 생성·고정 해시 불변.

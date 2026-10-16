@@ -63,8 +63,8 @@ const BOOT_DATA: BootstrapData = {
  * 2026-10-16 재고정: 5대 혈통 17회차(조상 31두·Sea-Bird 계열 계통 정정·어휘 Realm 제거)로 바뀜.
  */
 const PRE_CHANGE_PROJECTION_SHA: Record<number, string> = {
-  20261011: 'e4a130a3524a148cbe62e53d9e886fd5cb69fc34c60cc2e489c2a1fb75822e02',
-  7: 'df4bbcf31ced58114a1e421b834ad8ed509ecc2c42fee2f104fa072045090978',
+  20261011: 'bf756936d92b884ae199b9b2e0acd0dd88504af744306f082eecfddbc0c71a1d',
+  7: '40e8959a24d204327d0519b7fe741c8130e35dbc7fb50cdb6725e8d5d234fd3b',
 };
 
 function boot(seed: number): GameState {
