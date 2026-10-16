@@ -1,4 +1,5 @@
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 import { EVENT_LOG_LIMIT, START_YEAR, WEEKS_PER_YEAR } from '../../src/engine/config/game';
@@ -39,7 +40,7 @@ import type {
 } from '../../src/engine/types';
 
 /**
- * M4-G1 30년 자동 진행 측정(명세 docs/specs/M4-G1-30year-verify.md). 측정 전용: 엔진은 건드리지 않는다.
+ * M4-G1 30년 자동 진행 측정(명세 docs/specs/M4-G1-30year-verify.md). M4-G2에서 자금 흐름·프로파일·보존 정책 측정을 추가했다.
  * 실행: G1_OUT=<결과 JSON 경로> [G1_YEARS=30] npx vitest run tests/verify/g1ThirtyYears.test.ts
  * G1_OUT 이 없으면 건너뛴다. 이 테스트는 무결성(예외·NaN·음수 두수·파산 중단)만 단언하고,
  * 밸런스 판정 1~6 은 JSON 의 judgements 에 적어 리포트가 ✅/❌ 로 옮긴다(프로젝트 관례: season.test.ts 와 같다).
@@ -452,7 +453,11 @@ interface YearRow {
   races: { run: number; priced: number; favWinRate: number | null; g1Priced: number; g1FavWinRate: number | null; missingResult: number };
   relations: { count: number; mean: number | null; quantiles: Record<string, number | null>; reputation: number };
   horses: { total: number; byStatus: Record<string, number> };
-  perf: { weeks: number; advanceMsTotal: number; advanceMsMax: number; saveBytes: number; saveChars: number };
+  moneyFlow: { aiTotals: GameState['economy']['currentYear']['aiTotals']; player: GameState['economy']['currentYear']['player']; breederMedian: number | null; breederTotal: number; aiTotal: number };
+  stateSizes: Record<string, number>;
+  profileMs: Record<string, number>;
+  breederFlows: Record<string, number>;
+  perf: { advanceMsMedian: number | null; weeks: number; advanceMsTotal: number; advanceMsMax: number; saveBytes: number; saveChars: number };
 }
 
 function emptyProfileCounts(): Record<string, { n: number; nh: number; dual: number; flat: number }> {
@@ -472,6 +477,9 @@ function countEntrants(list: readonly EntrantRec[]): Record<string, { n: number;
   }
   return out;
 }
+
+const profileByYear = new Map<number, Record<string, number>>();
+const breederFlows = new Map<number, Record<string, number>>();
 
 function snapshotYear(state: GameState, label: number, c: Collector, n: number): YearRow {
   const aiFunds: number[] = [];
@@ -537,7 +545,21 @@ function snapshotYear(state: GameState, label: number, c: Collector, n: number):
       reputation: state.relations.reputation,
     },
     horses: { total: Object.keys(state.horses).length, byStatus },
+    moneyFlow: {
+      aiTotals: { ...state.economy.currentYear.aiTotals }, player: { ...state.economy.currentYear.player },
+      breederMedian: median(Object.values(state.breeders).map((b) => b.funds)),
+      breederTotal: Object.values(state.breeders).reduce((a, b) => a + b.funds, 0),
+      aiTotal: aiFunds.reduce((a, b) => a + b, 0),
+    },
+    stateSizes: Object.fromEntries([
+      ...Object.entries(state).map(([k, v]) => [k, new TextEncoder().encode(JSON.stringify(v)).length]),
+      ...Object.entries(state.seasonState).map(([k, v]) => [`seasonState.${k}`, new TextEncoder().encode(JSON.stringify(v)).length]),
+    ]),
+    profileMs: { ...profileByYear.get(label), cloneAndDispatch: t.reduce((a, b) => a + b, 0)
+      - Object.values(profileByYear.get(label) ?? {}).reduce((a, b) => a + b, 0) },
+    breederFlows: { ...breederFlows.get(label) },
     perf: {
+      advanceMsMedian: median(t),
       weeks: t.length,
       advanceMsTotal: t.reduce((acc, x) => acc + x, 0),
       advanceMsMax: t.length === 0 ? 0 : Math.max(...t),
@@ -569,16 +591,41 @@ interface RunOutcome {
   finalDate: GameState['date'];
   finalState: GameState | null;
   totalMs: number;
+  initialBalances: { ai: number; breeders: number; player: number };
   races: Map<number, RaceAgg>;
 }
 
 function runYears(years: number): RunOutcome {
-  const systems = createGameSystems(STATIC_GAME);
+  profileByYear.clear();
+  breederFlows.clear();
+  const systems = createGameSystems(STATIC_GAME).map((system) => ({
+    id: system.id,
+    run: (draft: GameState, ctx: Parameters<typeof system.run>[1]) => {
+      const breederBefore = system.id === 'sales' || system.id === 'capital'
+        ? Object.values(draft.breeders).reduce((a, b) => a + b.funds, 0) : null;
+      const started = performance.now();
+      const events = system.run(draft, ctx);
+      if (breederBefore !== null) {
+        const flows = breederFlows.get(ctx.date.year) ?? {};
+        flows[system.id] = (flows[system.id] ?? 0) + Object.values(draft.breeders).reduce((a, b) => a + b.funds, 0) - breederBefore;
+        breederFlows.set(ctx.date.year, flows);
+      }
+      const totals = profileByYear.get(ctx.date.year) ?? {};
+      totals[system.id] = (totals[system.id] ?? 0) + performance.now() - started;
+      profileByYear.set(ctx.date.year, totals);
+      return events;
+    },
+  }));
   const t0 = performance.now();
   let state = bootstrapGame(
     { seed: SEED, playerName: PLAYER_NAME, silks: { ...SILKS }, difficulty: 'normal', startType: 'owner_breeder' },
     BOOT_DATA,
   );
+  const initialBalances = {
+    ai: Object.values(state.owners).filter((o) => !o.isPlayer).reduce((a, o) => a + o.funds, 0),
+    breeders: Object.values(state.breeders).reduce((a, b) => a + b.funds, 0),
+    player: state.owners[state.playerOwnerId]!.funds,
+  };
   const collector = newCollector(state);
   const rows: YearRow[] = [];
   const errors: string[] = [];
@@ -635,6 +682,11 @@ function runYears(years: number): RunOutcome {
     if (state.date.week === 1 && labelled >= START_YEAR && labelled - START_YEAR === rows.length) {
       const row = snapshotYear(state, labelled, collector, rows.length + 1);
       rows.push(row);
+      if (G1_OUT) {
+        const progress = resolve(process.cwd(), `${G1_OUT}.progress.jsonl`);
+        mkdirSync(dirname(progress), { recursive: true });
+        appendFileSync(progress, `${JSON.stringify(row)}\n`);
+      }
       process.stdout.write(
         `[G1] ${labelled}년 끝: AI 중앙값 ${row.funds.aiMedian?.toFixed(0) ?? '-'} · 플레이어 ${row.funds.playerFunds} · `
         + `말 ${row.horses.total} · 저장 ${row.perf.saveBytes}B · 주당 누적 ${row.perf.advanceMsTotal.toFixed(0)}ms\n`,
@@ -653,6 +705,7 @@ function runYears(years: number): RunOutcome {
     finalDate: { ...state.date },
     finalState: state,
     totalMs: performance.now() - t0,
+    initialBalances,
     races: collector.races,
   };
 }
@@ -683,10 +736,13 @@ function judge(out: RunOutcome, years: number): { judgements: Judgement[]; deriv
     return mean(vals);
   };
   const yearlyRatio = ratio(yearlingMa(LONG_RUN_YEAR_FOR_RATIO), yearlingMa(BASE_YEAR_FOR_RATIO));
+  const breederRatio = ratio(at(LONG_RUN_YEAR_FOR_RATIO)?.moneyFlow.breederMedian, at(BASE_YEAR_FOR_RATIO)?.moneyFlow.breederMedian);
+  derived.breederMedianRatio30vs5 = breederRatio;
   derived.aiMedianRatio30vs5 = aiRatio;
   derived.yearlingAvgMa3Ratio30vs5 = yearlyRatio;
   const j1 = allOf([
     aiRatio === null ? null : inRange(aiRatio, INFLATION_MIN, INFLATION_MAX),
+    breederRatio === null ? null : inRange(breederRatio, INFLATION_MIN, INFLATION_MAX),
     yearlyRatio === null ? null : inRange(yearlyRatio, INFLATION_MIN, INFLATION_MAX),
   ]);
 
@@ -716,18 +772,24 @@ function judge(out: RunOutcome, years: number): { judgements: Judgement[]; deriv
 
   // 4. 인기 1위 승률 (해마다 전체)
   const favRates = out.years.map((r) => ({ year: r.year, rate: r.races.favWinRate, priced: r.races.priced }));
-  const favOut = favRates.filter((r) => r.rate !== null && !inRange(r.rate, FAV_TARGET_MIN, FAV_TARGET_MAX));
+  const favOut = favRates.filter((r) => r.rate !== null && r.rate > FAV_SPEC_MAX);
+  const favAverage = mean(favRates.flatMap((r) => r.rate === null ? [] : [r.rate]));
+  derived.favWinRateAnnualMean = favAverage;
+  derived.favWinRateMax = Math.max(...favRates.map((r) => r.rate ?? 0));
   const favNone = favRates.filter((r) => r.rate === null).length;
   const favSpecOut = favRates.filter((r) => r.rate !== null && !inRange(r.rate, FAV_SPEC_MIN, FAV_SPEC_MAX));
   derived.favWinRateSpecRange28to38Outside = favSpecOut.length;
-  const j4 = favOut.length > 0 ? false : favNone > 0 ? null : favRates.length === 0 ? null : true;
+  const j4 = favOut.length > 0 ? false : favNone > 0 || favAverage === null ? null : inRange(favAverage, FAV_TARGET_MIN, FAV_TARGET_MAX);
 
   // 5. 말 레코드·저장 크기 성장
   const horseRatio = ratio(at(LONG_RUN_YEAR_FOR_RATIO)?.horses.total, at(HORSE_RATIO_BASE_YEAR)?.horses.total);
   const sizeRatio = ratio(at(LONG_RUN_YEAR_FOR_RATIO)?.perf.saveBytes, at(HORSE_RATIO_BASE_YEAR)?.perf.saveBytes);
+  const weekRatio = ratio(at(LONG_RUN_YEAR_FOR_RATIO)?.perf.advanceMsMedian, at(1)?.perf.advanceMsMedian);
+  derived.weekMedianRatio30vs1 = weekRatio;
   derived.horseRecordRatio30vs10 = horseRatio;
   derived.saveSizeRatio30vs10 = sizeRatio;
   const j5 = allOf([
+    weekRatio === null ? null : weekRatio <= 2,
     horseRatio === null ? null : horseRatio <= GROWTH_MAX,
     sizeRatio === null ? null : sizeRatio <= GROWTH_MAX,
   ]);
@@ -740,7 +802,7 @@ function judge(out: RunOutcome, years: number): { judgements: Judgement[]; deriv
       no: 1,
       name: '인플레 없음',
       pass: j1,
-      detail: `AI 자금 중앙값 30년차/5년차 = ${fmtRatio(aiRatio)} (0.67~1.5), 1세 세일 평균가 3년 이동평균 30년차/5년차 = ${fmtRatio(yearlyRatio)}`,
+      detail: `AI 자금 중앙값 30년차/5년차 = ${fmtRatio(aiRatio)} (0.67~1.5), 생산자 중앙값 비 ${fmtRatio(breederRatio)}, 1세 세일 평균가 3년 이동평균 30년차/5년차 = ${fmtRatio(yearlyRatio)}`,
     },
     {
       no: 2,
@@ -757,15 +819,15 @@ function judge(out: RunOutcome, years: number): { judgements: Judgement[]; deriv
     },
     {
       no: 4,
-      name: '인기 1위 승률 해마다 25%~35% (season.test 기준)',
+      name: '인기 1위 승률 연평균 25%~35%, 어느 해도 38% 이하 (M4-G2)',
       pass: j4,
-      detail: `연도별 ${favRates.map((r) => `${r.year}:${fmtPct(r.rate)}`).join(', ')}; 명세 본문 28~38% 기준 이탈 연도 ${favSpecOut.length}개`,
+      detail: `연평균 ${fmtPct(favAverage)}; 연도별 ${favRates.map((r) => `${r.year}:${fmtPct(r.rate)}`).join(', ')}; 명세 본문 28~38% 기준 이탈 연도 ${favSpecOut.length}개`,
     },
     {
       no: 5,
       name: '말 레코드·저장 크기 30년차/10년차 ≤1.5',
       pass: j5,
-      detail: `말 레코드 비 ${fmtRatio(horseRatio)}, 저장 크기 비 ${fmtRatio(sizeRatio)}`,
+      detail: `말 레코드 비 ${fmtRatio(horseRatio)}, 저장 크기 비 ${fmtRatio(sizeRatio)}, 주당 중앙값 비(30/1) ${fmtRatio(weekRatio)}`,
     },
     {
       no: 6,
@@ -823,10 +885,29 @@ function negativeCountIssues(rows: readonly YearRow[]): string[] {
 /* ------------------------------------------------------------------ */
 
 describe('M4-G1 30년 자동 진행 측정', () => {
+  it.skipIf(!process.env.G1_REPRO_OUT)('G1 실제 조건·연말 게이트로 2년 두 번 결정성 확인', () => {
+    const first = runYears(2);
+    const second = runYears(2);
+    const a = serializeGame(first.finalState!, SAVED_AT);
+    const b = serializeGame(second.finalState!, SAVED_AT);
+    const result = { seed: SEED, years: 2, advances: [first.advances, second.advances],
+      errors: [...first.errors, ...second.errors], identical: a === b,
+      hashes: [a, b].map((s) => createHash('sha256').update(s).digest('hex')) };
+    const path = resolve(process.cwd(), process.env.G1_REPRO_OUT!);
+    mkdirSync(dirname(path), { recursive: true });
+    writeFileSync(path, `${JSON.stringify(result, null, 2)}\n`);
+    expect(result.errors).toEqual([]);
+    expect(result.advances).toEqual([104, 104]);
+    expect(result.identical).toBe(true);
+  }, RUN_TIMEOUT_MS);
+
   it.skipIf(!G1_OUT)(
     `시드 ${SEED} 보통·오너브리더 ${DEFAULT_YEARS}년(G1_YEARS) 무입력 진행, 연별 지표를 G1_OUT 에 JSON 으로 기록`,
     () => {
       const years = parseYears(process.env.G1_YEARS);
+      const progress = resolve(process.cwd(), `${G1_OUT}.progress.jsonl`);
+      mkdirSync(dirname(progress), { recursive: true });
+      writeFileSync(progress, '');
       const out = runYears(years);
       const { judgements, derived } = judge(out, years);
 
@@ -840,8 +921,11 @@ describe('M4-G1 30년 자동 진행 측정', () => {
       };
 
       const final = out.finalState;
+      nonFinitePaths(final, 'finalState', nonFinite);
       const result = {
+        previousG1: process.env.G1_PREVIOUS ? JSON.parse(readFileSync(process.env.G1_PREVIOUS, 'utf8')) as unknown : null,
         meta: {
+          initialBalances: out.initialBalances,
           seed: SEED,
           difficulty: 'normal',
           startType: 'owner_breeder',

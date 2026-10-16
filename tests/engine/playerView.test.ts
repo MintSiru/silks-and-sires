@@ -99,8 +99,10 @@ describe('createGameSystems', () => {
       'legacy',
       'private_trade',
       'contracts',
+      'retention',
       'facilities',
       'costs',
+      'capital',
       'solvency',
       'relations',
     ]);

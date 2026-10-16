@@ -1,0 +1,20 @@
+{
+  "seeds": [
+    20261011
+  ],
+  "seasons": 1,
+  "races": 1331,
+  "favouriteWinRate": 0.33583771600300527,
+  "g1Mean": 9.540816326530612,
+  "allMean": 11.984973703981968,
+  "deadHeatShare": 0.003005259203606311,
+  "weekMedianMs": 254.56205500000215,
+  "deviations": [
+    {
+      "metric": "그해 최고 OR (시드 20261011, 2026)",
+      "measured": "123",
+      "target": "124~132",
+      "verdict": "미달"
+    }
+  ]
+}

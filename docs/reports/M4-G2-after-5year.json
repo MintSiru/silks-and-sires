@@ -1,0 +1,2040 @@
+{
+  "meta": {
+    "seed": 20261011,
+    "difficulty": "normal",
+    "startType": "owner_breeder",
+    "economyMode": "casual",
+    "years": 5,
+    "weeksPerYear": 52,
+    "advances": 260,
+    "submissions": 4,
+    "startDate": {
+      "year": 2026,
+      "week": 1
+    },
+    "endDate": {
+      "year": 2031,
+      "week": 1
+    },
+    "totalMs": 134015
+  },
+  "years": [
+    {
+      "year": 2026,
+      "n": 1,
+      "funds": {
+        "aiCount": 304,
+        "aiMedian": 1068345.5,
+        "aiP10": 593932.3,
+        "aiP90": 8046134.399999999,
+        "aiNegative": 0,
+        "playerFunds": 556224,
+        "playerDebt": 0,
+        "economyMode": "casual",
+        "bankrupt": false,
+        "negativeWeeks": 0
+      },
+      "sales": {
+        "kinds": {
+          "yearling": {
+            "offered": 552,
+            "sold": 503,
+            "rate": 0.9112318840579711,
+            "avgPrice": 165181.5546719682,
+            "medianPrice": 63438,
+            "withdrawn": 0,
+            "boughtBack": 49,
+            "unresolved": 0
+          },
+          "breeze_up": {
+            "offered": 48,
+            "sold": 42,
+            "rate": 0.875,
+            "avgPrice": 177760.61904761905,
+            "medianPrice": 72677,
+            "withdrawn": 0,
+            "boughtBack": 6,
+            "unresolved": 0
+          },
+          "foal": {
+            "offered": 72,
+            "sold": 71,
+            "rate": 0.9861111111111112,
+            "avgPrice": 106512.77464788733,
+            "medianPrice": 24650,
+            "withdrawn": 0,
+            "boughtBack": 1,
+            "unresolved": 0
+          },
+          "breeding_stock": {
+            "offered": 44,
+            "sold": 41,
+            "rate": 0.9318181818181818,
+            "avgPrice": 46301.41463414634,
+            "medianPrice": 21277,
+            "withdrawn": 0,
+            "boughtBack": 3,
+            "unresolved": 0
+          },
+          "horses_in_training": {
+            "offered": 22,
+            "sold": 20,
+            "rate": 0.9090909090909091,
+            "avgPrice": 37197.85,
+            "medianPrice": 18858.5,
+            "withdrawn": 0,
+            "boughtBack": 2,
+            "unresolved": 0
+          }
+        },
+        "total": {
+          "offered": 738,
+          "sold": 677,
+          "rate": 0.9173441734417345,
+          "avgPrice": 148828.6410635155,
+          "medianPrice": 56084,
+          "withdrawn": 0,
+          "boughtBack": 61,
+          "unresolved": 0
+        }
+      },
+      "nh": {
+        "storeSales": 116,
+        "storeHorsesSoldYear": 116,
+        "avgPrice": 12968.706896551725,
+        "totalAmount": 1504370,
+        "playerSales": 0,
+        "playerAvgPrice": null
+      },
+      "races": {
+        "run": 1311,
+        "priced": 1311,
+        "favWinRate": 0.3340961098398169,
+        "g1Priced": 95,
+        "g1FavWinRate": 0.25263157894736843,
+        "missingResult": 0
+      },
+      "relations": {
+        "count": 1,
+        "mean": 9.2,
+        "quantiles": {
+          "p10": 9.2,
+          "p50": 9.2,
+          "p90": 9.2
+        },
+        "reputation": 10
+      },
+      "horses": {
+        "total": 3983,
+        "byStatus": {
+          "historical": 781,
+          "stud": 204,
+          "retired": 156,
+          "dead": 3,
+          "broodmare": 2,
+          "in_training": 2285,
+          "yearling": 481,
+          "weanling": 71
+        }
+      },
+      "moneyFlow": {
+        "aiTotals": {
+          "training_fee": -65432880,
+          "prize": 67484434,
+          "entry_fee": -7134159,
+          "transport": -3426000,
+          "sale_purchase": -100756990,
+          "sale_commission": -4786941,
+          "farm_upkeep": -1026876,
+          "sale_proceeds": 743957,
+          "private_sale": 0,
+          "other": 6098341
+        },
+        "player": {
+          "facility": -72020,
+          "training_fee": -18720,
+          "farm_upkeep": -20800,
+          "stud_fee_paid": -12000,
+          "prize": 115580,
+          "entry_fee": -29816,
+          "transport": -6000
+        },
+        "breederMedian": 1741268,
+        "breederTotal": 127032739,
+        "aiTotal": 2202951820
+      },
+      "stateSizes": {
+        "schemaVersion": 2,
+        "initialSeed": 8,
+        "rng": 66,
+        "date": 22,
+        "season": 224,
+        "playerOwnerId": 14,
+        "horses": 6278353,
+        "stallions": 83313,
+        "mares": 363,
+        "owners": 142688,
+        "breeders": 7442,
+        "trainers": 71882,
+        "jockeys": 69593,
+        "breeding": 553,
+        "nextHorseNumber": 4,
+        "raceResults": 1151515,
+        "seasonState": 2102334,
+        "awardsHistory": 2,
+        "sireStats": 24870,
+        "eventLog": 26593,
+        "economy": 16464,
+        "relations": 67,
+        "sales": 44520,
+        "betting": 38,
+        "yearEnd": 48,
+        "stud": 515,
+        "settings": 79,
+        "farm": 235,
+        "farmListings": 2315
+      },
+      "profileMs": {
+        "calendar": 4.431455999998434,
+        "farm_listings": 1.13374799999292,
+        "growth": 486.61717600001793,
+        "breeding": 6.843983000006119,
+        "stud_books": 17.821926000011445,
+        "mating_plans": 293.94883100001607,
+        "stud_leases": 0.2799580000064452,
+        "stud_fertility": 6.0637600000045495,
+        "stud_rotation": 0.8514279999944847,
+        "mortality": 3.54958599998281,
+        "breeding_health": 4.701799999991636,
+        "fee_review": 24.718495000000985,
+        "population": 0.5797280000151659,
+        "nh_store": 33.69726699999592,
+        "race_plans": 665.4992349999993,
+        "season": 7006.327401999995,
+        "sales": 601.5360590000164,
+        "private_trade": 8.950584000001982,
+        "contracts": 0.29483800000161864,
+        "facilities": 1.2731719999974302,
+        "retention": 155.08290300000226,
+        "costs": 279.73062399999617,
+        "capital": 1.4533820000033302,
+        "solvency": 10.001425999995263,
+        "relations": 83.4573030000065
+      },
+      "breederFlows": {
+        "sales": 95012359,
+        "capital": -48532708
+      },
+      "perf": {
+        "advanceMsMedian": 326.48207699999966,
+        "weeks": 52,
+        "advanceMsTotal": 17379.298714000004,
+        "advanceMsMax": 655.6669519999996,
+        "saveBytes": 10024570,
+        "saveChars": 10024041
+      }
+    },
+    {
+      "year": 2027,
+      "n": 2,
+      "funds": {
+        "aiCount": 304,
+        "aiMedian": 959562.5,
+        "aiP10": 701080.5,
+        "aiP90": 7160445.599999999,
+        "aiNegative": 0,
+        "playerFunds": 501244,
+        "playerDebt": 0,
+        "economyMode": "casual",
+        "bankrupt": false,
+        "negativeWeeks": 0
+      },
+      "sales": {
+        "kinds": {
+          "yearling": {
+            "offered": 552,
+            "sold": 487,
+            "rate": 0.8822463768115942,
+            "avgPrice": 190820.22381930184,
+            "medianPrice": 71671,
+            "withdrawn": 0,
+            "boughtBack": 65,
+            "unresolved": 0
+          },
+          "breeze_up": {
+            "offered": 48,
+            "sold": 42,
+            "rate": 0.875,
+            "avgPrice": 268801.3095238095,
+            "medianPrice": 78102.5,
+            "withdrawn": 0,
+            "boughtBack": 6,
+            "unresolved": 0
+          },
+          "foal": {
+            "offered": 72,
+            "sold": 69,
+            "rate": 0.9583333333333334,
+            "avgPrice": 152552.21739130435,
+            "medianPrice": 48900,
+            "withdrawn": 0,
+            "boughtBack": 3,
+            "unresolved": 0
+          },
+          "breeding_stock": {
+            "offered": 44,
+            "sold": 40,
+            "rate": 0.9090909090909091,
+            "avgPrice": 43438.425,
+            "medianPrice": 11698.5,
+            "withdrawn": 0,
+            "boughtBack": 4,
+            "unresolved": 0
+          },
+          "horses_in_training": {
+            "offered": 22,
+            "sold": 21,
+            "rate": 0.9545454545454546,
+            "avgPrice": 46012.619047619046,
+            "medianPrice": 19160,
+            "withdrawn": 0,
+            "boughtBack": 1,
+            "unresolved": 0
+          }
+        },
+        "total": {
+          "offered": 738,
+          "sold": 659,
+          "rate": 0.8929539295392954,
+          "avgPrice": 178223.0789074355,
+          "medianPrice": 62508,
+          "withdrawn": 0,
+          "boughtBack": 79,
+          "unresolved": 0
+        }
+      },
+      "nh": {
+        "storeSales": 134,
+        "storeHorsesSoldYear": 134,
+        "avgPrice": 13248.014925373134,
+        "totalAmount": 1775234,
+        "playerSales": 0,
+        "playerAvgPrice": null
+      },
+      "races": {
+        "run": 1318,
+        "priced": 1318,
+        "favWinRate": 0.3490136570561457,
+        "g1Priced": 97,
+        "g1FavWinRate": 0.26804123711340205,
+        "missingResult": 0
+      },
+      "relations": {
+        "count": 1,
+        "mean": 23.4,
+        "quantiles": {
+          "p10": 23.4,
+          "p50": 23.4,
+          "p90": 23.4
+        },
+        "reputation": 11.07
+      },
+      "horses": {
+        "total": 4803,
+        "byStatus": {
+          "historical": 781,
+          "stud": 208,
+          "retired": 942,
+          "dead": 5,
+          "broodmare": 2,
+          "in_training": 2266,
+          "yearling": 528,
+          "weanling": 71
+        }
+      },
+      "moneyFlow": {
+        "aiTotals": {
+          "prize": 69093834,
+          "entry_fee": -6983980,
+          "training_fee": -65307960,
+          "farm_upkeep": -1423642,
+          "transport": -3268500,
+          "sale_purchase": -117449009,
+          "sale_commission": -5537265,
+          "sale_proceeds": 966265,
+          "other": 66966680
+        },
+        "player": {
+          "facility": -72020,
+          "training_fee": -18720,
+          "farm_upkeep": -28040,
+          "stud_fee_paid": -11500,
+          "prize": 102300,
+          "entry_fee": -25500,
+          "transport": -1500
+        },
+        "breederMedian": 2341792,
+        "breederTotal": 158095691,
+        "aiTotal": 2142083477
+      },
+      "stateSizes": {
+        "schemaVersion": 2,
+        "initialSeed": 8,
+        "rng": 66,
+        "date": 22,
+        "season": 224,
+        "playerOwnerId": 14,
+        "horses": 7597874,
+        "stallions": 98147,
+        "mares": 379,
+        "owners": 142975,
+        "breeders": 7444,
+        "trainers": 71969,
+        "jockeys": 69688,
+        "breeding": 583,
+        "nextHorseNumber": 4,
+        "raceResults": 2241117,
+        "seasonState": 2668483,
+        "awardsHistory": 67531,
+        "sireStats": 27937,
+        "eventLog": 26449,
+        "economy": 32021,
+        "relations": 71,
+        "sales": 47550,
+        "betting": 38,
+        "yearEnd": 48,
+        "stud": 534,
+        "settings": 79,
+        "farm": 235,
+        "farmListings": 2540
+      },
+      "profileMs": {
+        "calendar": 1.4212839999381686,
+        "farm_listings": 0.5445219999892288,
+        "growth": 442.23588900002505,
+        "breeding": 17.611487000016496,
+        "stud_books": 27.103068999989773,
+        "mating_plans": 410.06466099998215,
+        "stud_leases": 0.15345599997090176,
+        "stud_fertility": 7.197922000013932,
+        "stud_rotation": 0.575721999965026,
+        "mortality": 18.62218400000711,
+        "breeding_health": 14.641046999997343,
+        "fee_review": 14.464575999998488,
+        "population": 265.51637199999095,
+        "nh_store": 50.46050199999445,
+        "race_plans": 734.1076999999714,
+        "season": 5824.992955000031,
+        "sales": 634.0618530000138,
+        "private_trade": 18.25773900000786,
+        "contracts": 0.2104900000122143,
+        "facilities": 1.0545200000342447,
+        "retention": 185.00771099994745,
+        "costs": 188.79524899999524,
+        "capital": 0.7569269999949029,
+        "solvency": 7.385340999979235,
+        "relations": 80.51111899998796
+      },
+      "breederFlows": {
+        "sales": 110658610,
+        "capital": -79595658
+      },
+      "perf": {
+        "advanceMsMedian": 370.06860349999806,
+        "weeks": 52,
+        "advanceMsTotal": 20156.705479,
+        "advanceMsMax": 853.1980350000013,
+        "saveBytes": 13104480,
+        "saveChars": 13104166
+      }
+    },
+    {
+      "year": 2028,
+      "n": 3,
+      "funds": {
+        "aiCount": 304,
+        "aiMedian": 893532.5,
+        "aiP10": 737484.4,
+        "aiP90": 7031449.299999995,
+        "aiNegative": 0,
+        "playerFunds": 343133,
+        "playerDebt": 0,
+        "economyMode": "casual",
+        "bankrupt": false,
+        "negativeWeeks": 0
+      },
+      "sales": {
+        "kinds": {
+          "yearling": {
+            "offered": 552,
+            "sold": 472,
+            "rate": 0.855072463768116,
+            "avgPrice": 191246.9004237288,
+            "medianPrice": 63731.5,
+            "withdrawn": 0,
+            "boughtBack": 80,
+            "unresolved": 0
+          },
+          "breeze_up": {
+            "offered": 48,
+            "sold": 47,
+            "rate": 0.9791666666666666,
+            "avgPrice": 286467.7021276596,
+            "medianPrice": 72330,
+            "withdrawn": 0,
+            "boughtBack": 1,
+            "unresolved": 0
+          },
+          "foal": {
+            "offered": 72,
+            "sold": 69,
+            "rate": 0.9583333333333334,
+            "avgPrice": 139108.34782608695,
+            "medianPrice": 48300,
+            "withdrawn": 0,
+            "boughtBack": 3,
+            "unresolved": 0
+          },
+          "breeding_stock": {
+            "offered": 44,
+            "sold": 41,
+            "rate": 0.9318181818181818,
+            "avgPrice": 37860.170731707316,
+            "medianPrice": 19867,
+            "withdrawn": 0,
+            "boughtBack": 3,
+            "unresolved": 0
+          },
+          "horses_in_training": {
+            "offered": 22,
+            "sold": 21,
+            "rate": 0.9545454545454546,
+            "avgPrice": 26458.666666666668,
+            "medianPrice": 19957,
+            "withdrawn": 0,
+            "boughtBack": 1,
+            "unresolved": 0
+          }
+        },
+        "total": {
+          "offered": 738,
+          "sold": 650,
+          "rate": 0.8807588075880759,
+          "avgPrice": 177598.29846153845,
+          "medianPrice": 51202,
+          "withdrawn": 0,
+          "boughtBack": 88,
+          "unresolved": 0
+        }
+      },
+      "nh": {
+        "storeSales": 154,
+        "storeHorsesSoldYear": 154,
+        "avgPrice": 12709.616883116883,
+        "totalAmount": 1957281,
+        "playerSales": 0,
+        "playerAvgPrice": null
+      },
+      "races": {
+        "run": 1314,
+        "priced": 1314,
+        "favWinRate": 0.3318112633181126,
+        "g1Priced": 97,
+        "g1FavWinRate": 0.38144329896907214,
+        "missingResult": 0
+      },
+      "relations": {
+        "count": 1,
+        "mean": 28.6,
+        "quantiles": {
+          "p10": 28.6,
+          "p50": 28.6,
+          "p90": 28.6
+        },
+        "reputation": 10
+      },
+      "horses": {
+        "total": 5529,
+        "byStatus": {
+          "historical": 781,
+          "stud": 210,
+          "retired": 1683,
+          "dead": 8,
+          "broodmare": 2,
+          "in_training": 2247,
+          "yearling": 527,
+          "weanling": 71
+        }
+      },
+      "moneyFlow": {
+        "aiTotals": {
+          "prize": 69481067,
+          "entry_fee": -7030941,
+          "training_fee": -64806120,
+          "farm_upkeep": -1415002,
+          "transport": -3535500,
+          "sale_purchase": -115438894,
+          "sale_commission": -5477148,
+          "sale_proceeds": 555632,
+          "other": 96188155
+        },
+        "player": {
+          "facility": -72020,
+          "training_fee": -18720,
+          "farm_upkeep": -40520,
+          "stud_fee_paid": -11000,
+          "entry_fee": -11101,
+          "transport": -7000,
+          "prize": 2250
+        },
+        "breederMedian": 2304165.5,
+        "breederTotal": 172867404,
+        "aiTotal": 2112862007
+      },
+      "stateSizes": {
+        "schemaVersion": 2,
+        "initialSeed": 8,
+        "rng": 64,
+        "date": 22,
+        "season": 224,
+        "playerOwnerId": 14,
+        "horses": 8769788,
+        "stallions": 112734,
+        "mares": 404,
+        "owners": 142752,
+        "breeders": 7447,
+        "trainers": 72013,
+        "jockeys": 69727,
+        "breeding": 583,
+        "nextHorseNumber": 4,
+        "raceResults": 3359174,
+        "seasonState": 3147782,
+        "awardsHistory": 134978,
+        "sireStats": 29611,
+        "eventLog": 26603,
+        "economy": 47408,
+        "relations": 68,
+        "sales": 51054,
+        "betting": 38,
+        "yearEnd": 48,
+        "stud": 526,
+        "settings": 79,
+        "farm": 235,
+        "farmListings": 2424
+      },
+      "profileMs": {
+        "calendar": 1.5556450000294717,
+        "farm_listings": 24.939804999987246,
+        "growth": 740.7893730000214,
+        "breeding": 15.404913999984274,
+        "stud_books": 40.379642999963835,
+        "mating_plans": 525.5627760000061,
+        "stud_leases": 0.15513799994369037,
+        "stud_fertility": 1.7572379999910481,
+        "stud_rotation": 0.48068500000226777,
+        "mortality": 4.805409999986296,
+        "breeding_health": 5.1750929999834625,
+        "fee_review": 32.04535300000862,
+        "population": 281.3376250000292,
+        "nh_store": 12.66959200000565,
+        "race_plans": 985.391895000037,
+        "season": 6753.278124000019,
+        "sales": 626.3179109999619,
+        "private_trade": 7.795418000037898,
+        "contracts": 0.2294199999596458,
+        "facilities": 1.1286289999407018,
+        "retention": 197.32312300002377,
+        "costs": 254.84230999997817,
+        "capital": 0.7371079999866197,
+        "solvency": 3.249184000000241,
+        "relations": 79.92606200001319
+      },
+      "breederFlows": {
+        "sales": 109139085,
+        "capital": -94367372
+      },
+      "perf": {
+        "advanceMsMedian": 490.2851694999954,
+        "weeks": 52,
+        "advanceMsTotal": 27708.691894000047,
+        "advanceMsMax": 1085.1028970000043,
+        "saveBytes": 15976262,
+        "saveChars": 15975934
+      }
+    },
+    {
+      "year": 2029,
+      "n": 4,
+      "funds": {
+        "aiCount": 304,
+        "aiMedian": 866796,
+        "aiP10": 760388.3,
+        "aiP90": 6811545.499999995,
+        "aiNegative": 0,
+        "playerFunds": 168042,
+        "playerDebt": 0,
+        "economyMode": "casual",
+        "bankrupt": false,
+        "negativeWeeks": 0
+      },
+      "sales": {
+        "kinds": {
+          "yearling": {
+            "offered": 552,
+            "sold": 487,
+            "rate": 0.8822463768115942,
+            "avgPrice": 186124.24435318276,
+            "medianPrice": 68041,
+            "withdrawn": 0,
+            "boughtBack": 65,
+            "unresolved": 0
+          },
+          "breeze_up": {
+            "offered": 48,
+            "sold": 44,
+            "rate": 0.9166666666666666,
+            "avgPrice": 152233.77272727274,
+            "medianPrice": 65629.5,
+            "withdrawn": 0,
+            "boughtBack": 4,
+            "unresolved": 0
+          },
+          "foal": {
+            "offered": 72,
+            "sold": 66,
+            "rate": 0.9166666666666666,
+            "avgPrice": 125441.9696969697,
+            "medianPrice": 40337,
+            "withdrawn": 0,
+            "boughtBack": 6,
+            "unresolved": 0
+          },
+          "breeding_stock": {
+            "offered": 44,
+            "sold": 39,
+            "rate": 0.8863636363636364,
+            "avgPrice": 34247.333333333336,
+            "medianPrice": 16317,
+            "withdrawn": 0,
+            "boughtBack": 5,
+            "unresolved": 0
+          },
+          "horses_in_training": {
+            "offered": 22,
+            "sold": 21,
+            "rate": 0.9545454545454546,
+            "avgPrice": 24278.47619047619,
+            "medianPrice": 15951,
+            "withdrawn": 0,
+            "boughtBack": 1,
+            "unresolved": 0
+          }
+        },
+        "total": {
+          "offered": 738,
+          "sold": 657,
+          "rate": 0.8902439024390244,
+          "avgPrice": 163569.94977168948,
+          "medianPrice": 55500,
+          "withdrawn": 0,
+          "boughtBack": 81,
+          "unresolved": 0
+        }
+      },
+      "nh": {
+        "storeSales": 149,
+        "storeHorsesSoldYear": 149,
+        "avgPrice": 12777.711409395974,
+        "totalAmount": 1903879,
+        "playerSales": 0,
+        "playerAvgPrice": null
+      },
+      "races": {
+        "run": 1302,
+        "priced": 1302,
+        "favWinRate": 0.33640552995391704,
+        "g1Priced": 92,
+        "g1FavWinRate": 0.33695652173913043,
+        "missingResult": 0
+      },
+      "relations": {
+        "count": 1,
+        "mean": 33.8,
+        "quantiles": {
+          "p10": 33.8,
+          "p50": 33.8,
+          "p90": 33.8
+        },
+        "reputation": 10
+      },
+      "horses": {
+        "total": 6285,
+        "byStatus": {
+          "historical": 781,
+          "stud": 214,
+          "retired": 2413,
+          "dead": 13,
+          "broodmare": 2,
+          "in_training": 2260,
+          "yearling": 534,
+          "weanling": 68
+        }
+      },
+      "moneyFlow": {
+        "aiTotals": {
+          "prize": 66435890,
+          "entry_fee": -6847013,
+          "training_fee": -65247660,
+          "farm_upkeep": -1439144,
+          "transport": -3192000,
+          "sale_purchase": -107465457,
+          "sale_commission": -5154915,
+          "sale_proceeds": 509848,
+          "other": 108192355
+        },
+        "player": {
+          "facility": -72020,
+          "training_fee": -18720,
+          "farm_upkeep": -53000,
+          "stud_fee_paid": -11000,
+          "entry_fee": -11851,
+          "transport": -8500
+        },
+        "breederMedian": 2348397,
+        "breederTotal": 176487623,
+        "aiTotal": 2100857790
+      },
+      "stateSizes": {
+        "schemaVersion": 2,
+        "initialSeed": 8,
+        "rng": 64,
+        "date": 22,
+        "season": 224,
+        "playerOwnerId": 14,
+        "horses": 9989776,
+        "stallions": 127747,
+        "mares": 422,
+        "owners": 142955,
+        "breeders": 7450,
+        "trainers": 72051,
+        "jockeys": 69760,
+        "breeding": 583,
+        "nextHorseNumber": 4,
+        "raceResults": 3302695,
+        "seasonState": 3631986,
+        "awardsHistory": 202527,
+        "sireStats": 30846,
+        "eventLog": 26506,
+        "economy": 47136,
+        "relations": 68,
+        "sales": 53737,
+        "betting": 38,
+        "yearEnd": 48,
+        "stud": 537,
+        "settings": 79,
+        "farm": 235,
+        "farmListings": 2031
+      },
+      "profileMs": {
+        "calendar": 1.393672000078368,
+        "farm_listings": 0.5969720000139205,
+        "growth": 626.1609150000149,
+        "breeding": 22.12843499997689,
+        "stud_books": 52.876972000012756,
+        "mating_plans": 577.6682690001326,
+        "stud_leases": 0.15850500005763024,
+        "stud_fertility": 1.9933199999650242,
+        "stud_rotation": 0.4550139999919338,
+        "mortality": 4.879540000052657,
+        "breeding_health": 11.766875000015716,
+        "fee_review": 19.113155999977607,
+        "population": 345.63213000002725,
+        "nh_store": 14.486660000082338,
+        "race_plans": 689.5067209999834,
+        "season": 7241.69418599995,
+        "sales": 517.1731309999741,
+        "private_trade": 42.39910299994517,
+        "contracts": 0.16804900007264223,
+        "facilities": 1.226992000010796,
+        "retention": 227.13700899995456,
+        "costs": 237.76557999999204,
+        "capital": 0.6728930000244873,
+        "solvency": 3.1936580000037793,
+        "relations": 98.87624899996445
+      },
+      "breederFlows": {
+        "sales": 101607811,
+        "capital": -97987592
+      },
+      "perf": {
+        "advanceMsMedian": 567.2599790000022,
+        "weeks": 52,
+        "advanceMsTotal": 29249.866284999967,
+        "advanceMsMax": 1023.3095389999944,
+        "saveBytes": 17709999,
+        "saveChars": 17709518
+      }
+    },
+    {
+      "year": 2030,
+      "n": 5,
+      "funds": {
+        "aiCount": 304,
+        "aiMedian": 861103,
+        "aiP10": 753930.2,
+        "aiP90": 6491893.399999999,
+        "aiNegative": 0,
+        "playerFunds": 0,
+        "playerDebt": 16426,
+        "economyMode": "casual",
+        "bankrupt": false,
+        "negativeWeeks": 0
+      },
+      "sales": {
+        "kinds": {
+          "yearling": {
+            "offered": 552,
+            "sold": 490,
+            "rate": 0.8876811594202898,
+            "avgPrice": 194256.42448979593,
+            "medianPrice": 82525,
+            "withdrawn": 0,
+            "boughtBack": 62,
+            "unresolved": 0
+          },
+          "breeze_up": {
+            "offered": 48,
+            "sold": 38,
+            "rate": 0.7916666666666666,
+            "avgPrice": 248321.34210526315,
+            "medianPrice": 84275.5,
+            "withdrawn": 0,
+            "boughtBack": 10,
+            "unresolved": 0
+          },
+          "foal": {
+            "offered": 72,
+            "sold": 66,
+            "rate": 0.9166666666666666,
+            "avgPrice": 112023.36363636363,
+            "medianPrice": 30222.5,
+            "withdrawn": 0,
+            "boughtBack": 6,
+            "unresolved": 0
+          },
+          "breeding_stock": {
+            "offered": 44,
+            "sold": 41,
+            "rate": 0.9318181818181818,
+            "avgPrice": 36752.756097560974,
+            "medianPrice": 20242,
+            "withdrawn": 0,
+            "boughtBack": 3,
+            "unresolved": 0
+          },
+          "horses_in_training": {
+            "offered": 22,
+            "sold": 22,
+            "rate": 1,
+            "avgPrice": 24305.454545454544,
+            "medianPrice": 14883.5,
+            "withdrawn": 0,
+            "boughtBack": 0,
+            "unresolved": 0
+          }
+        },
+        "total": {
+          "offered": 738,
+          "sold": 657,
+          "rate": 0.8902439024390244,
+          "avgPrice": 173602.71537290714,
+          "medianPrice": 66110,
+          "withdrawn": 0,
+          "boughtBack": 81,
+          "unresolved": 0
+        }
+      },
+      "nh": {
+        "storeSales": 154,
+        "storeHorsesSoldYear": 154,
+        "avgPrice": 12194.954545454546,
+        "totalAmount": 1878023,
+        "playerSales": 0,
+        "playerAvgPrice": null
+      },
+      "races": {
+        "run": 1286,
+        "priced": 1286,
+        "favWinRate": 0.36003110419906686,
+        "g1Priced": 95,
+        "g1FavWinRate": 0.37894736842105264,
+        "missingResult": 0
+      },
+      "relations": {
+        "count": 1,
+        "mean": 39,
+        "quantiles": {
+          "p10": 39,
+          "p50": 39,
+          "p90": 39
+        },
+        "reputation": 10
+      },
+      "horses": {
+        "total": 7033,
+        "byStatus": {
+          "historical": 781,
+          "stud": 221,
+          "retired": 3137,
+          "dead": 18,
+          "broodmare": 2,
+          "in_training": 2263,
+          "yearling": 543,
+          "weanling": 68
+        }
+      },
+      "moneyFlow": {
+        "aiTotals": {
+          "prize": 68228527,
+          "entry_fee": -7037418,
+          "training_fee": -66252600,
+          "farm_upkeep": -1475260,
+          "transport": -3319500,
+          "sale_purchase": -114056984,
+          "sale_commission": -5395179,
+          "sale_proceeds": 534720,
+          "other": 117394026
+        },
+        "player": {
+          "facility": -72020,
+          "training_fee": -18720,
+          "farm_upkeep": -65480,
+          "stud_fee_paid": -10500,
+          "entry_fee": -4700,
+          "transport": -13000,
+          "interest": -48
+        },
+        "breederMedian": 2338569.5,
+        "breederTotal": 181416894,
+        "aiTotal": 2091656145
+      },
+      "stateSizes": {
+        "schemaVersion": 2,
+        "initialSeed": 8,
+        "rng": 66,
+        "date": 22,
+        "season": 224,
+        "playerOwnerId": 14,
+        "horses": 11198739,
+        "stallions": 142956,
+        "mares": 451,
+        "owners": 143114,
+        "breeders": 7451,
+        "trainers": 72070,
+        "jockeys": 69778,
+        "breeding": 583,
+        "nextHorseNumber": 4,
+        "raceResults": 3356638,
+        "seasonState": 4073194,
+        "awardsHistory": 270077,
+        "sireStats": 32989,
+        "eventLog": 26568,
+        "economy": 48555,
+        "relations": 66,
+        "sales": 53810,
+        "betting": 38,
+        "yearEnd": 48,
+        "stud": 524,
+        "settings": 79,
+        "farm": 235,
+        "farmListings": 2025
+      },
+      "profileMs": {
+        "calendar": 1.5909509999619331,
+        "farm_listings": 0.46224200003780425,
+        "growth": 1133.2351380000473,
+        "breeding": 23.62487000002875,
+        "stud_books": 29.060623999976087,
+        "mating_plans": 783.580438999983,
+        "stud_leases": 0.15182399997138418,
+        "stud_fertility": 2.0582340001128614,
+        "stud_rotation": 0.5295520000217948,
+        "mortality": 6.034624000021722,
+        "breeding_health": 5.264849999977741,
+        "fee_review": 22.418721000110963,
+        "population": 274.7777529999439,
+        "nh_store": 6.372538999916287,
+        "race_plans": 1012.5231080000231,
+        "season": 7184.402065000031,
+        "sales": 788.89834600006,
+        "private_trade": 6.933692999969935,
+        "contracts": 0.16805100004421547,
+        "facilities": 1.1927160001068842,
+        "retention": 233.49710599999526,
+        "costs": 274.7337619999307,
+        "capital": 1.570627000008244,
+        "solvency": 4.0946810000168625,
+        "relations": 161.55674200004432
+      },
+      "breederFlows": {
+        "sales": 107846129,
+        "capital": -102916858
+      },
+      "perf": {
+        "advanceMsMedian": 613.4033154999925,
+        "weeks": 52,
+        "advanceMsTotal": 34466.34185400001,
+        "advanceMsMax": 1365.9383339999913,
+        "saveBytes": 19500776,
+        "saveChars": 19500283
+      }
+    }
+  ],
+  "engineYearSummaries": [
+    {
+      "year": 2026,
+      "player": {
+        "facility": -72020,
+        "training_fee": -18720,
+        "farm_upkeep": -20800,
+        "stud_fee_paid": -12000,
+        "prize": 115580,
+        "entry_fee": -29816,
+        "transport": -6000
+      },
+      "aiTotals": {
+        "training_fee": -65432880,
+        "prize": 67484434,
+        "entry_fee": -7134159,
+        "transport": -3426000,
+        "sale_purchase": -100756990,
+        "sale_commission": -4786941,
+        "farm_upkeep": -1026876,
+        "sale_proceeds": 743957,
+        "private_sale": 0,
+        "other": 6098341,
+        "series_bonus": 300000
+      },
+      "aiFundsMedian": 1068345,
+      "aiFundsTotal": 2203251820,
+      "playerFunds": 556224,
+      "playerDebt": 0
+    },
+    {
+      "year": 2027,
+      "player": {
+        "facility": -72020,
+        "training_fee": -18720,
+        "farm_upkeep": -28040,
+        "stud_fee_paid": -11500,
+        "prize": 102300,
+        "entry_fee": -25500,
+        "transport": -1500
+      },
+      "aiTotals": {
+        "prize": 69093834,
+        "entry_fee": -6983980,
+        "training_fee": -65307960,
+        "farm_upkeep": -1423642,
+        "transport": -3268500,
+        "sale_purchase": -117449009,
+        "sale_commission": -5537265,
+        "sale_proceeds": 966265,
+        "other": 66966680,
+        "series_bonus": 300000
+      },
+      "aiFundsMedian": 959562,
+      "aiFundsTotal": 2142383477,
+      "playerFunds": 501244,
+      "playerDebt": 0
+    },
+    {
+      "year": 2028,
+      "player": {
+        "facility": -72020,
+        "training_fee": -18720,
+        "farm_upkeep": -40520,
+        "stud_fee_paid": -11000,
+        "entry_fee": -11101,
+        "transport": -7000,
+        "prize": 2250
+      },
+      "aiTotals": {
+        "prize": 69481067,
+        "entry_fee": -7030941,
+        "training_fee": -64806120,
+        "farm_upkeep": -1415002,
+        "transport": -3535500,
+        "sale_purchase": -115438894,
+        "sale_commission": -5477148,
+        "sale_proceeds": 555632,
+        "other": 96188155,
+        "series_bonus": 300000
+      },
+      "aiFundsMedian": 893532,
+      "aiFundsTotal": 2113162007,
+      "playerFunds": 343133,
+      "playerDebt": 0
+    },
+    {
+      "year": 2029,
+      "player": {
+        "facility": -72020,
+        "training_fee": -18720,
+        "farm_upkeep": -53000,
+        "stud_fee_paid": -11000,
+        "entry_fee": -11851,
+        "transport": -8500
+      },
+      "aiTotals": {
+        "prize": 66435890,
+        "entry_fee": -6847013,
+        "training_fee": -65247660,
+        "farm_upkeep": -1439144,
+        "transport": -3192000,
+        "sale_purchase": -107465457,
+        "sale_commission": -5154915,
+        "sale_proceeds": 509848,
+        "other": 108192355,
+        "series_bonus": 300000
+      },
+      "aiFundsMedian": 866796,
+      "aiFundsTotal": 2101157790,
+      "playerFunds": 168042,
+      "playerDebt": 0
+    }
+  ],
+  "entrants": {
+    "cumulative": {
+      "total": 55,
+      "byProfile": {
+        "speed": {
+          "n": 14,
+          "nh": 0,
+          "dual": 0,
+          "flat": 14
+        },
+        "classic": {
+          "n": 15,
+          "nh": 0,
+          "dual": 0,
+          "flat": 15
+        },
+        "middle": {
+          "n": 26,
+          "nh": 6,
+          "dual": 17,
+          "flat": 3
+        },
+        "cup": {
+          "n": 0,
+          "nh": 0,
+          "dual": 0,
+          "flat": 0
+        },
+        "unknown": {
+          "n": 0,
+          "nh": 0,
+          "dual": 0,
+          "flat": 0
+        }
+      }
+    },
+    "byYear": [
+      {
+        "year": 2026,
+        "entered": 14,
+        "byProfile": {
+          "speed": {
+            "n": 2,
+            "nh": 0,
+            "dual": 0,
+            "flat": 2
+          },
+          "classic": {
+            "n": 2,
+            "nh": 0,
+            "dual": 0,
+            "flat": 2
+          },
+          "middle": {
+            "n": 10,
+            "nh": 2,
+            "dual": 6,
+            "flat": 2
+          },
+          "cup": {
+            "n": 0,
+            "nh": 0,
+            "dual": 0,
+            "flat": 0
+          },
+          "unknown": {
+            "n": 0,
+            "nh": 0,
+            "dual": 0,
+            "flat": 0
+          }
+        }
+      },
+      {
+        "year": 2027,
+        "entered": 13,
+        "byProfile": {
+          "speed": {
+            "n": 3,
+            "nh": 0,
+            "dual": 0,
+            "flat": 3
+          },
+          "classic": {
+            "n": 6,
+            "nh": 0,
+            "dual": 0,
+            "flat": 6
+          },
+          "middle": {
+            "n": 4,
+            "nh": 1,
+            "dual": 3,
+            "flat": 0
+          },
+          "cup": {
+            "n": 0,
+            "nh": 0,
+            "dual": 0,
+            "flat": 0
+          },
+          "unknown": {
+            "n": 0,
+            "nh": 0,
+            "dual": 0,
+            "flat": 0
+          }
+        }
+      },
+      {
+        "year": 2028,
+        "entered": 14,
+        "byProfile": {
+          "speed": {
+            "n": 4,
+            "nh": 0,
+            "dual": 0,
+            "flat": 4
+          },
+          "classic": {
+            "n": 4,
+            "nh": 0,
+            "dual": 0,
+            "flat": 4
+          },
+          "middle": {
+            "n": 6,
+            "nh": 2,
+            "dual": 4,
+            "flat": 0
+          },
+          "cup": {
+            "n": 0,
+            "nh": 0,
+            "dual": 0,
+            "flat": 0
+          },
+          "unknown": {
+            "n": 0,
+            "nh": 0,
+            "dual": 0,
+            "flat": 0
+          }
+        }
+      },
+      {
+        "year": 2029,
+        "entered": 14,
+        "byProfile": {
+          "speed": {
+            "n": 5,
+            "nh": 0,
+            "dual": 0,
+            "flat": 5
+          },
+          "classic": {
+            "n": 3,
+            "nh": 0,
+            "dual": 0,
+            "flat": 3
+          },
+          "middle": {
+            "n": 6,
+            "nh": 1,
+            "dual": 4,
+            "flat": 1
+          },
+          "cup": {
+            "n": 0,
+            "nh": 0,
+            "dual": 0,
+            "flat": 0
+          },
+          "unknown": {
+            "n": 0,
+            "nh": 0,
+            "dual": 0,
+            "flat": 0
+          }
+        }
+      },
+      {
+        "year": 2030,
+        "entered": 0,
+        "byProfile": {
+          "speed": {
+            "n": 0,
+            "nh": 0,
+            "dual": 0,
+            "flat": 0
+          },
+          "classic": {
+            "n": 0,
+            "nh": 0,
+            "dual": 0,
+            "flat": 0
+          },
+          "middle": {
+            "n": 0,
+            "nh": 0,
+            "dual": 0,
+            "flat": 0
+          },
+          "cup": {
+            "n": 0,
+            "nh": 0,
+            "dual": 0,
+            "flat": 0
+          },
+          "unknown": {
+            "n": 0,
+            "nh": 0,
+            "dual": 0,
+            "flat": 0
+          }
+        }
+      }
+    ],
+    "list": [
+      {
+        "id": "h-001127",
+        "firstSeasonYear": 2027,
+        "detected": {
+          "year": 2027,
+          "week": 2
+        },
+        "profile": "speed",
+        "role": "flat"
+      },
+      {
+        "id": "h-002097",
+        "firstSeasonYear": 2027,
+        "detected": {
+          "year": 2027,
+          "week": 2
+        },
+        "profile": "classic",
+        "role": "flat"
+      },
+      {
+        "id": "h-001771",
+        "firstSeasonYear": 2027,
+        "detected": {
+          "year": 2027,
+          "week": 2
+        },
+        "profile": "middle",
+        "role": "nh"
+      },
+      {
+        "id": "h-002132",
+        "firstSeasonYear": 2027,
+        "detected": {
+          "year": 2027,
+          "week": 2
+        },
+        "profile": "speed",
+        "role": "flat"
+      },
+      {
+        "id": "h-001044",
+        "firstSeasonYear": 2027,
+        "detected": {
+          "year": 2027,
+          "week": 2
+        },
+        "profile": "middle",
+        "role": "nh"
+      },
+      {
+        "id": "h-001104",
+        "firstSeasonYear": 2027,
+        "detected": {
+          "year": 2027,
+          "week": 2
+        },
+        "profile": "middle",
+        "role": "flat"
+      },
+      {
+        "id": "h-000345",
+        "firstSeasonYear": 2027,
+        "detected": {
+          "year": 2027,
+          "week": 2
+        },
+        "profile": "middle",
+        "role": "dual"
+      },
+      {
+        "id": "h-001210",
+        "firstSeasonYear": 2027,
+        "detected": {
+          "year": 2027,
+          "week": 2
+        },
+        "profile": "middle",
+        "role": "flat"
+      },
+      {
+        "id": "h-001653",
+        "firstSeasonYear": 2027,
+        "detected": {
+          "year": 2027,
+          "week": 2
+        },
+        "profile": "classic",
+        "role": "flat"
+      },
+      {
+        "id": "h-001837",
+        "firstSeasonYear": 2027,
+        "detected": {
+          "year": 2027,
+          "week": 2
+        },
+        "profile": "middle",
+        "role": "dual"
+      },
+      {
+        "id": "h-002174",
+        "firstSeasonYear": 2027,
+        "detected": {
+          "year": 2027,
+          "week": 2
+        },
+        "profile": "middle",
+        "role": "dual"
+      },
+      {
+        "id": "h-000426",
+        "firstSeasonYear": 2027,
+        "detected": {
+          "year": 2027,
+          "week": 2
+        },
+        "profile": "middle",
+        "role": "dual"
+      },
+      {
+        "id": "h-001151",
+        "firstSeasonYear": 2027,
+        "detected": {
+          "year": 2027,
+          "week": 2
+        },
+        "profile": "middle",
+        "role": "dual"
+      },
+      {
+        "id": "h-001590",
+        "firstSeasonYear": 2027,
+        "detected": {
+          "year": 2027,
+          "week": 2
+        },
+        "profile": "middle",
+        "role": "dual"
+      },
+      {
+        "id": "h-001668",
+        "firstSeasonYear": 2028,
+        "detected": {
+          "year": 2028,
+          "week": 2
+        },
+        "profile": "classic",
+        "role": "flat"
+      },
+      {
+        "id": "h-001112",
+        "firstSeasonYear": 2028,
+        "detected": {
+          "year": 2028,
+          "week": 2
+        },
+        "profile": "classic",
+        "role": "flat"
+      },
+      {
+        "id": "h-001877",
+        "firstSeasonYear": 2028,
+        "detected": {
+          "year": 2028,
+          "week": 2
+        },
+        "profile": "classic",
+        "role": "flat"
+      },
+      {
+        "id": "h-000124",
+        "firstSeasonYear": 2028,
+        "detected": {
+          "year": 2028,
+          "week": 2
+        },
+        "profile": "classic",
+        "role": "flat"
+      },
+      {
+        "id": "h-000459",
+        "firstSeasonYear": 2028,
+        "detected": {
+          "year": 2028,
+          "week": 2
+        },
+        "profile": "speed",
+        "role": "flat"
+      },
+      {
+        "id": "h-002053",
+        "firstSeasonYear": 2028,
+        "detected": {
+          "year": 2028,
+          "week": 2
+        },
+        "profile": "middle",
+        "role": "nh"
+      },
+      {
+        "id": "h-000487",
+        "firstSeasonYear": 2028,
+        "detected": {
+          "year": 2028,
+          "week": 2
+        },
+        "profile": "classic",
+        "role": "flat"
+      },
+      {
+        "id": "h-001520",
+        "firstSeasonYear": 2028,
+        "detected": {
+          "year": 2028,
+          "week": 2
+        },
+        "profile": "classic",
+        "role": "flat"
+      },
+      {
+        "id": "h-000911",
+        "firstSeasonYear": 2028,
+        "detected": {
+          "year": 2028,
+          "week": 2
+        },
+        "profile": "speed",
+        "role": "flat"
+      },
+      {
+        "id": "h-001191",
+        "firstSeasonYear": 2028,
+        "detected": {
+          "year": 2028,
+          "week": 2
+        },
+        "profile": "speed",
+        "role": "flat"
+      },
+      {
+        "id": "h-001178",
+        "firstSeasonYear": 2028,
+        "detected": {
+          "year": 2028,
+          "week": 2
+        },
+        "profile": "middle",
+        "role": "dual"
+      },
+      {
+        "id": "h-001804",
+        "firstSeasonYear": 2028,
+        "detected": {
+          "year": 2028,
+          "week": 2
+        },
+        "profile": "middle",
+        "role": "dual"
+      },
+      {
+        "id": "h-000789",
+        "firstSeasonYear": 2028,
+        "detected": {
+          "year": 2028,
+          "week": 2
+        },
+        "profile": "middle",
+        "role": "dual"
+      },
+      {
+        "id": "h-002930",
+        "firstSeasonYear": 2029,
+        "detected": {
+          "year": 2029,
+          "week": 2
+        },
+        "profile": "speed",
+        "role": "flat"
+      },
+      {
+        "id": "h-003260",
+        "firstSeasonYear": 2029,
+        "detected": {
+          "year": 2029,
+          "week": 2
+        },
+        "profile": "speed",
+        "role": "flat"
+      },
+      {
+        "id": "h-003342",
+        "firstSeasonYear": 2029,
+        "detected": {
+          "year": 2029,
+          "week": 2
+        },
+        "profile": "middle",
+        "role": "dual"
+      },
+      {
+        "id": "h-000373",
+        "firstSeasonYear": 2029,
+        "detected": {
+          "year": 2029,
+          "week": 2
+        },
+        "profile": "classic",
+        "role": "flat"
+      },
+      {
+        "id": "h-000957",
+        "firstSeasonYear": 2029,
+        "detected": {
+          "year": 2029,
+          "week": 2
+        },
+        "profile": "middle",
+        "role": "nh"
+      },
+      {
+        "id": "h-002051",
+        "firstSeasonYear": 2029,
+        "detected": {
+          "year": 2029,
+          "week": 2
+        },
+        "profile": "speed",
+        "role": "flat"
+      },
+      {
+        "id": "h-003374",
+        "firstSeasonYear": 2029,
+        "detected": {
+          "year": 2029,
+          "week": 2
+        },
+        "profile": "classic",
+        "role": "flat"
+      },
+      {
+        "id": "h-001518",
+        "firstSeasonYear": 2029,
+        "detected": {
+          "year": 2029,
+          "week": 2
+        },
+        "profile": "classic",
+        "role": "flat"
+      },
+      {
+        "id": "h-002542",
+        "firstSeasonYear": 2029,
+        "detected": {
+          "year": 2029,
+          "week": 2
+        },
+        "profile": "classic",
+        "role": "flat"
+      },
+      {
+        "id": "h-002875",
+        "firstSeasonYear": 2029,
+        "detected": {
+          "year": 2029,
+          "week": 2
+        },
+        "profile": "speed",
+        "role": "flat"
+      },
+      {
+        "id": "h-000114",
+        "firstSeasonYear": 2029,
+        "detected": {
+          "year": 2029,
+          "week": 2
+        },
+        "profile": "middle",
+        "role": "nh"
+      },
+      {
+        "id": "h-000145",
+        "firstSeasonYear": 2029,
+        "detected": {
+          "year": 2029,
+          "week": 2
+        },
+        "profile": "middle",
+        "role": "dual"
+      },
+      {
+        "id": "h-001279",
+        "firstSeasonYear": 2029,
+        "detected": {
+          "year": 2029,
+          "week": 2
+        },
+        "profile": "middle",
+        "role": "dual"
+      },
+      {
+        "id": "h-001853",
+        "firstSeasonYear": 2029,
+        "detected": {
+          "year": 2029,
+          "week": 2
+        },
+        "profile": "middle",
+        "role": "dual"
+      },
+      {
+        "id": "h-002801",
+        "firstSeasonYear": 2030,
+        "detected": {
+          "year": 2030,
+          "week": 2
+        },
+        "profile": "speed",
+        "role": "flat"
+      },
+      {
+        "id": "h-004137",
+        "firstSeasonYear": 2030,
+        "detected": {
+          "year": 2030,
+          "week": 2
+        },
+        "profile": "speed",
+        "role": "flat"
+      },
+      {
+        "id": "h-002890",
+        "firstSeasonYear": 2030,
+        "detected": {
+          "year": 2030,
+          "week": 2
+        },
+        "profile": "classic",
+        "role": "flat"
+      },
+      {
+        "id": "h-003844",
+        "firstSeasonYear": 2030,
+        "detected": {
+          "year": 2030,
+          "week": 2
+        },
+        "profile": "classic",
+        "role": "flat"
+      },
+      {
+        "id": "h-003423",
+        "firstSeasonYear": 2030,
+        "detected": {
+          "year": 2030,
+          "week": 2
+        },
+        "profile": "middle",
+        "role": "flat"
+      },
+      {
+        "id": "h-000977",
+        "firstSeasonYear": 2030,
+        "detected": {
+          "year": 2030,
+          "week": 2
+        },
+        "profile": "speed",
+        "role": "flat"
+      },
+      {
+        "id": "h-003768",
+        "firstSeasonYear": 2030,
+        "detected": {
+          "year": 2030,
+          "week": 2
+        },
+        "profile": "middle",
+        "role": "dual"
+      },
+      {
+        "id": "h-002049",
+        "firstSeasonYear": 2030,
+        "detected": {
+          "year": 2030,
+          "week": 2
+        },
+        "profile": "classic",
+        "role": "flat"
+      },
+      {
+        "id": "h-002870",
+        "firstSeasonYear": 2030,
+        "detected": {
+          "year": 2030,
+          "week": 2
+        },
+        "profile": "speed",
+        "role": "flat"
+      },
+      {
+        "id": "h-002292",
+        "firstSeasonYear": 2030,
+        "detected": {
+          "year": 2030,
+          "week": 2
+        },
+        "profile": "speed",
+        "role": "flat"
+      },
+      {
+        "id": "h-003136",
+        "firstSeasonYear": 2030,
+        "detected": {
+          "year": 2030,
+          "week": 2
+        },
+        "profile": "middle",
+        "role": "nh"
+      },
+      {
+        "id": "h-002143",
+        "firstSeasonYear": 2030,
+        "detected": {
+          "year": 2030,
+          "week": 2
+        },
+        "profile": "middle",
+        "role": "dual"
+      },
+      {
+        "id": "h-002320",
+        "firstSeasonYear": 2030,
+        "detected": {
+          "year": 2030,
+          "week": 2
+        },
+        "profile": "middle",
+        "role": "dual"
+      },
+      {
+        "id": "h-000598",
+        "firstSeasonYear": 2030,
+        "detected": {
+          "year": 2030,
+          "week": 2
+        },
+        "profile": "middle",
+        "role": "dual"
+      }
+    ]
+  },
+  "derived": {
+    "breederMedianRatio30vs5": null,
+    "aiMedianRatio30vs5": null,
+    "yearlingAvgMa3Ratio30vs5": null,
+    "cupNhOrDualShare": null,
+    "middleNhOrDualShare": 0.8846153846153846,
+    "speedNhShare": 0,
+    "cupEntrants": 0,
+    "speedEntrants": 14,
+    "favWinRateAnnualMean": 0.34227153287341183,
+    "favWinRateMax": 0.36003110419906686,
+    "favWinRateSpecRange28to38Outside": 0,
+    "weekMedianRatio30vs1": null,
+    "horseRecordRatio30vs10": null,
+    "saveSizeRatio30vs10": null
+  },
+  "judgements": [
+    {
+      "no": 1,
+      "name": "인플레 없음",
+      "pass": null,
+      "detail": "AI 자금 중앙값 30년차/5년차 = 측정 불가 (0.67~1.5), 생산자 중앙값 비 측정 불가, 1세 세일 평균가 3년 이동평균 30년차/5년차 = 측정 불가"
+    },
+    {
+      "no": 2,
+      "name": "컵 프로필 편입 종마 NH·겸용 비율 ≥70%, speed NH ≤10%",
+      "pass": null,
+      "detail": "컵 편입 0두 중 NH·겸용 - (중장거리 26두 중 88.5%); speed 14두 중 NH 0.0%"
+    },
+    {
+      "no": 3,
+      "name": "세일 낙찰률 해마다 30%~95%",
+      "pass": true,
+      "detail": "연도별 낙찰률 2026:91.7%, 2027:89.3%, 2028:88.1%, 2029:89.0%, 2030:89.0%"
+    },
+    {
+      "no": 4,
+      "name": "인기 1위 승률 연평균 25%~35%, 어느 해도 38% 이하 (M4-G2)",
+      "pass": true,
+      "detail": "연평균 34.2%; 연도별 2026:33.4%, 2027:34.9%, 2028:33.2%, 2029:33.6%, 2030:36.0%; 명세 본문 28~38% 기준 이탈 연도 0개"
+    },
+    {
+      "no": 5,
+      "name": "말 레코드·저장 크기 30년차/10년차 ≤1.5",
+      "pass": null,
+      "detail": "말 레코드 비 측정 불가, 저장 크기 비 측정 불가, 주당 중앙값 비(30/1) 측정 불가"
+    },
+    {
+      "no": 6,
+      "name": "예외·NaN·음수 두수 없음",
+      "pass": true,
+      "detail": "예외 0건, 파산·중단 없음, 연수 5/5"
+    }
+  ],
+  "integrity": {
+    "errors": [],
+    "halted": null,
+    "nonFinitePaths": [],
+    "negativeIssues": [],
+    "missingRaceResults": 0,
+    "unknownSaleEvents": 0
+  }
+}

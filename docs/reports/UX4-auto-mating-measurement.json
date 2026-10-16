@@ -13,8 +13,8 @@
   },
   "playerMares": 2,
   "startFunds": 600000,
-  "endFunds": 486944,
-  "fundsChange": -113056,
+  "endFunds": 490244,
+  "fundsChange": -109756,
   "seasons": [
     {
       "season": 2026,
@@ -43,8 +43,8 @@
       "skipped": [],
       "covers": 0,
       "foals": 0,
-      "totalFee": 12000,
-      "averageFee": 6000
+      "totalFee": 11000,
+      "averageFee": 5500
     }
   ],
   "note": "2028은 2027년 44주 이후 선지급 예약만 포함. 자금 변화는 전체 게임 수입·비용 포함. 실제 교배는 conception 판정 건수."

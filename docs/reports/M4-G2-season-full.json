@@ -1,0 +1,28 @@
+{
+  "seeds": [
+    20261011,
+    7,
+    424242
+  ],
+  "seasons": 5,
+  "races": 19590,
+  "favouriteWinRate": 0.33685553854007144,
+  "g1Mean": 9.473936899862826,
+  "allMean": 11.770444104134762,
+  "deadHeatShare": 0.0017866258295048494,
+  "weekMedianMs": 523.4578040000051,
+  "deviations": [
+    {
+      "metric": "5두 미만 레이스 비율",
+      "measured": "5.9%",
+      "target": "≤ 5.0%",
+      "verdict": "초과"
+    },
+    {
+      "metric": "그해 최고 OR (시드 20261011, 2026)",
+      "measured": "123",
+      "target": "124~132",
+      "verdict": "미달"
+    }
+  ]
+}

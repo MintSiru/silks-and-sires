@@ -10,6 +10,7 @@ import {
   POPULATION_COUNTRY_ORDER,
   POPULATION_CUT_SHARE_BY_AGE,
   POPULATION_ENTRY_AGE,
+  POPULATION_IN_TRAINING,
   POPULATION_GELDING_MIN_AGE,
   POPULATION_GELDING_SHARE,
   POPULATION_RATING_MIN_AGE,
@@ -57,7 +58,8 @@ function isPopulationCountry(country: string): country is PopulationCountry {
 }
 
 /**
- * 은퇴 처리: status 를 'retired' 로 바꾸고 조교사 연결을 끊는다. 마주 연결(ownerId·horseIds)은 유지한다.
+ * 은퇴 처리: status 를 'retired' 로 바꾸고 조교사 연결을 끊는다.
+ * 종마 선발에서 원래 마주를 확인한 뒤 retention 시스템이 AI 은퇴마의 소유 연결도 끊는다.
  * 나라별 은퇴 두수를 retiredByCountry 에 센다(같은 해 신규 투입 두수가 된다).
  */
 function retireHorse(
@@ -313,6 +315,25 @@ export function createPopulationSystem(data: RacingPopulationStaticData): Weekly
             { country, birthYear: year - POPULATION_ENTRY_AGE, currentYear: year, sex, gelded },
             records,
           );
+        }
+      }
+
+      // NH 판매·부상 은퇴·사망은 연초 retiredByCountry 에 포함되지 않는다.
+      // G1에서 현역이 2,285→1,968두(5년), 900두 미만(30년)으로 감소했다.
+      // 기존 교체의 RNG 소비는 유지하고, 빠진 두수만 독립 스트림으로 보충한다.
+      const activeCounts = new Map<PopulationCountry, number>();
+      for (const id of racingHorseIds(draft)) {
+        const horse = draft.horses[id]!;
+        const country = racingCountryOf(draft, horse);
+        activeCounts.set(country, (activeCounts.get(country) ?? 0) + 1);
+      }
+      const refillRng = createRng(`${draft.initialSeed}:population-refill:${year}`);
+      for (const country of POPULATION_COUNTRY_ORDER) {
+        const missing = Math.max(0, POPULATION_IN_TRAINING[country] - (activeCounts.get(country) ?? 0));
+        for (let i = 0; i < missing; i++) {
+          const { sex, gelded } = drawSexAndGelding(refillRng, POPULATION_ENTRY_AGE);
+          spawnRacingHorse(draft, data, refillRng, market, registry,
+            { country, birthYear: year - POPULATION_ENTRY_AGE, currentYear: year, sex, gelded }, records);
         }
       }
 

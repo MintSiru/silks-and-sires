@@ -3,13 +3,13 @@
   "seasons": 2,
   "startYear": 2026,
   "weeks": 105,
-  "total": 41,
+  "total": 39,
   "counts": {
     "first_runner": 1,
     "first_win": 1,
-    "world_classic": 39
+    "world_classic": 37
   },
-  "classicWinners": 39,
+  "classicWinners": 37,
   "playerGroupWins": 0,
   "sameRaceResults": true,
   "sameSharedRng": true

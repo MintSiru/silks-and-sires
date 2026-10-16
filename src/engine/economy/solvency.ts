@@ -15,7 +15,7 @@ import {
   LEGACY_BANKRUPT_WEEKS,
   LEGACY_WARNING_INTERVAL_WEEKS,
 } from '../config/economy';
-import { racingHorseIds } from '../world/population';
+import { isRacingHorse } from '../world/population';
 import { meanAbility, ratingFromAbility } from '../world/rating';
 import type {
   GameDate,
@@ -139,9 +139,9 @@ function distressSales(draft: GameState, date: GameDate): void {
     // 이전 판매로 말 소유가 바뀌었을 수 있으므로 판매 직전마다 다시 모은다
     let lowest: Horse | null = null;
     let lowestValue = 0;
-    for (const horseId of racingHorseIds(draft)) {
+    for (const horseId of seller.horseIds.slice().sort()) {
       const horse = draft.horses[horseId];
-      if (horse === undefined || horse.ownerId !== seller.id) continue;
+      if (horse === undefined || horse.ownerId !== seller.id || !isRacingHorse(draft, horse)) continue;
       const value = valueOf(horse);
       if (lowest === null || value < lowestValue) {
         lowest = horse;

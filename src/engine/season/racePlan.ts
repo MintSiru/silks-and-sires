@@ -22,7 +22,7 @@ import type {
 } from '../types';
 import { isDistanceFit, isEligible } from './eligibility';
 import { upcomingRaces, type RaceCalendarData, type UpcomingRaceWeek } from './lookahead';
-import { declarePlayerHorse, type DeclareError, type PlayerResult } from './player';
+import { declarePlayerHorseInPlace, type DeclareError, type PlayerResult } from './player';
 
 export type RacePlanError = 'not_found' | 'not_player_horse' | 'invalid_status' | 'invalid_plan' | 'plan_not_found';
 type PlanResult = PlayerResult<RacePlanError>;
@@ -327,10 +327,8 @@ export function createRacePlansSystem(data: RaceCalendarData): WeeklySystem {
         if (reason !== null && late < slack) continue; // 다음 주에 다시 찾는다(알림 없음)
         if (reason !== null) { skip(plan, horseId, reason, ctx.date, events); continue; }
         const chosen = candidate!;
-        const result = declarePlayerHorse(draft, chosen.meeting.id, chosen.sr.race.id, horseId);
+        const result = declarePlayerHorseInPlace(draft, chosen.meeting.id, chosen.sr.race.id, horseId);
         if (!result.ok) { skip(plan, horseId, DECLARE_REASON[result.error], ctx.date, events); continue; }
-        // API 는 전체 상태를 복제하므로 현재 plans 참조를 유지하며 개최 변경만 반영한다.
-        draft.seasonState.meetings = result.state.seasonState.meetings;
         plan.status = 'declared';
         plan.raceId = chosen.sr.race.id;
         events.push({ type: 'race_plan_declared', horseId, raceId: chosen.sr.race.id, date: { ...ctx.date } });

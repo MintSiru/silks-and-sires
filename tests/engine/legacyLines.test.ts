@@ -4,7 +4,7 @@ import { START_YEAR } from '../../src/engine/config/game';
 import { getRaceTemplates } from '../../src/engine/data/staticData';
 import { generateHorse } from '../../src/engine/horse/generate';
 import {
-  createLegacySystem, establishedLineOf, familyCandidates, familyOf, lineCandidates, lineLabel,
+  createLegacySystem, establishedLineOf, familyCandidates, familyOf, lineCandidates, lineLabel, tallyRemovedFamilyWinners,
 } from '../../src/engine/legacy/lines';
 import { createRng } from '../../src/engine/rng';
 import { deserializeGame, serializeGame } from '../../src/engine/save/serialize';
@@ -163,6 +163,19 @@ describe('M5-C 명문 모계', () => {
     state.raceResults.push(result, structuredClone(result));
     expect(familyCandidates(state)[0]).toMatchObject({ blackTypeWinners: 5, groupWinners: 1, eligible: true });
     expect(run(state).state.legacy!.families).toHaveLength(1);
+  });
+
+  it('기록 정리(retention)로 우승마 기록이 지워져도 누적 집계로 같은 수를 센다', () => {
+    const state = fresh();
+    mare(state, 'root');
+    for (let i = 0; i < 5; i++) win(state, `winner-${i}`, 'root', i === 0);
+    const before = familyCandidates(state).find((c) => c.founderMareId === 'root')!;
+    const removed = ['winner-0', 'winner-1', 'winner-2'];
+    tallyRemovedFamilyWinners(state, removed);
+    for (const id of removed) delete state.horses[id];
+    const after = familyCandidates(state).find((c) => c.founderMareId === 'root')!;
+    expect(after).toEqual(before);
+    expect(state.legacy!.familyTally!.root).toEqual({ blackTypeWinners: 3, groupWinners: 1 });
   });
 
   it.each([[4, 1, false], [5, 0, false], [5, 1, true]])(

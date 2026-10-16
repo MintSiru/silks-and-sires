@@ -91,7 +91,13 @@ export function declarePlayerHorse(
   raceId: RaceId,
   horseId: HorseId,
 ): PlayerResult<DeclareError> {
-  const next = structuredClone(state);
+  return declarePlayerHorseInPlace(structuredClone(state), meetingId, raceId, horseId);
+}
+
+/** 주간 시스템 내부용. 호출자가 이미 복제한 draft 를 넘긴다. */
+export function declarePlayerHorseInPlace(
+  next: GameState, meetingId: string, raceId: RaceId, horseId: HorseId,
+): PlayerResult<DeclareError> {
   const found = locate(next, meetingId, raceId);
   const horse = next.horses[horseId];
   if (found === undefined || horse === undefined) return fail('not_found');

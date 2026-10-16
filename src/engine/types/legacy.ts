@@ -90,6 +90,11 @@ export interface FemaleFamily {
 export interface LegacyState {
   lines: EstablishedLine[];
   families: FemaleFamily[];
+  /**
+   * 기록 정리(M4-G2 retention)로 지운 블랙타입 우승마의 몫(M5): 기초 암말 id → 모계 3대 안 우승마 수.
+   * 명문 모계 판정은 남아 있는 기록 + 이 누적값으로 센다. 없으면 빈 것
+   */
+  familyTally?: Record<HorseId, { blackTypeWinners: number; groupWinners: number }>;
 }
 
 /** 라이벌이 된 이유 */

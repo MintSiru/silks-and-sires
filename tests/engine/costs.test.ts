@@ -379,7 +379,9 @@ describe('시스템 순서·재현성·저장 왕복 (M4-A2b)', () => {
     const ids = createGameSystems(STATIC_GAME).map((s) => s.id);
     expect(ids[ids.length - 1]).toBe('relations');
     expect(ids[ids.length - 2]).toBe('solvency');
-    expect(ids[ids.length - 3]).toBe('costs');
+    // M4-G2: 연말 외부 자본 정산(capital)은 비용 뒤·자금 판정 앞
+    expect(ids[ids.length - 3]).toBe('capital');
+    expect(ids[ids.length - 4]).toBe('costs');
     expect(ids.indexOf('season')).toBeLessThan(ids.indexOf('costs'));
   });
 

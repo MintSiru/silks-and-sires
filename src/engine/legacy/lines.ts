@@ -9,7 +9,7 @@ import {
   LINE_MIN_STUD_SONS,
   LINE_MIN_TOTAL_GROUP_WINNERS,
 } from '../config/legacy';
-import type { EstablishedLine, FemaleFamily, GameEvent, GameState, HorseId, SireLine, SireLineId, WeeklySystem } from '../types';
+import type { EstablishedLine, FemaleFamily, GameEvent, GameState, Horse, HorseId, SireLine, SireLineId, WeeklySystem } from '../types';
 import { appendChronicle } from './chronicle';
 
 export interface LineCandidate {
@@ -57,7 +57,7 @@ export function lineCandidates(state: GameState): LineCandidate[] {
  * 현재 공용 타입에는 통산 리스티드 우승 필드가 없다. 보존된 결과·시즌 기록으로 확인한 우승만 세며,
  * 이미 지워진 옛 리스티드 우승은 복원할 수 없다(입상 수 blackTypePlacings 로 추측하지 않는다).
  */
-export function familyCandidates(state: GameState): FamilyCandidate[] {
+function listedWinnerIds(state: GameState): Set<HorseId> {
   const listedRaceIds = new Set(getRaceTemplates().filter((race) => race.grade === 'L').map((race) => race.id));
   const listedWinners = new Set<HorseId>();
   for (const result of state.raceResults) {
@@ -66,6 +66,50 @@ export function familyCandidates(state: GameState): FamilyCandidate[] {
       if (runner.position === 1) listedWinners.add(runner.horseId);
     }
   }
+  return listedWinners;
+}
+
+function blackTypeOf(state: GameState, horse: Horse, listedWinners: Set<HorseId>): 'group' | 'listed' | null {
+  if (horse.record.groupWins > 0) return 'group';
+  return listedWinners.has(horse.id) || (state.seasonState.performances[horse.id] ?? [])
+    .some((run) => run.grade !== null && run.position === 1) ? 'listed' : null;
+}
+
+/** 모계 3대 기초 암말 id(가까운 순). 순환 방지 */
+function femaleAncestors(state: GameState, horse: Horse): HorseId[] {
+  const out: HorseId[] = [];
+  const seen = new Set<HorseId>([horse.id]);
+  let damId = horse.damId;
+  for (let generation = 0; generation < FAMILY_GENERATIONS && damId !== null && !seen.has(damId); generation++) {
+    seen.add(damId);
+    out.push(damId);
+    damId = state.horses[damId]?.damId ?? null;
+  }
+  return out;
+}
+
+/**
+ * 기록 정리(retention)가 말 기록을 지우기 직전에 부른다. 지워질 블랙타입 우승마의 몫을
+ * legacy.familyTally 에 옮겨 명문 모계 판정이 줄어들지 않게 한다. 난수 미사용.
+ */
+export function tallyRemovedFamilyWinners(draft: GameState, removedIds: readonly HorseId[]): void {
+  const listedWinners = listedWinnerIds(draft);
+  for (const id of removedIds) {
+    const horse = draft.horses[id];
+    if (horse === undefined) continue;
+    const kind = blackTypeOf(draft, horse, listedWinners);
+    if (kind === null) continue;
+    const tally = ((draft.legacy ??= { lines: [], families: [] }).familyTally ??= {});
+    for (const damId of femaleAncestors(draft, horse)) {
+      const entry = (tally[damId] ??= { blackTypeWinners: 0, groupWinners: 0 });
+      entry.blackTypeWinners++;
+      if (kind === 'group') entry.groupWinners++;
+    }
+  }
+}
+
+export function familyCandidates(state: GameState): FamilyCandidate[] {
+  const listedWinners = listedWinnerIds(state);
   const candidates = new Map<HorseId, FamilyCandidate>();
   for (const horse of Object.values(state.horses)) {
     // 번식 레코드는 사망·은퇴 뒤에도 보존된다. 과거 혈통표 전용 말은 제외한다.
@@ -75,21 +119,22 @@ export function familyCandidates(state: GameState): FamilyCandidate[] {
     }
   }
   for (const horse of Object.values(state.horses)) {
-    const groupWinner = horse.record.groupWins > 0;
-    const blackTypeWinner = groupWinner || listedWinners.has(horse.id) || (state.seasonState.performances[horse.id] ?? [])
-      .some((run) => run.grade !== null && run.position === 1);
-    if (!blackTypeWinner) continue;
-    const seen = new Set<HorseId>([horse.id]);
-    let damId = horse.damId;
-    for (let generation = 0; generation < FAMILY_GENERATIONS && damId !== null && !seen.has(damId); generation++) {
-      seen.add(damId);
+    const kind = blackTypeOf(state, horse, listedWinners);
+    if (kind === null) continue;
+    for (const damId of femaleAncestors(state, horse)) {
       const candidate = candidates.get(damId);
       if (candidate !== undefined) {
         candidate.blackTypeWinners++;
-        if (groupWinner) candidate.groupWinners++;
+        if (kind === 'group') candidate.groupWinners++;
       }
-      damId = state.horses[damId]?.damId ?? null;
     }
+  }
+  // 기록 정리로 지워진 우승마의 몫(retention 이 옮겨 둔 값)
+  for (const [mareId, tally] of Object.entries(state.legacy?.familyTally ?? {})) {
+    const candidate = candidates.get(mareId);
+    if (candidate === undefined) continue;
+    candidate.blackTypeWinners += tally.blackTypeWinners;
+    candidate.groupWinners += tally.groupWinners;
   }
   return [...candidates.values()].sort((a, b) => compareId(a.founderMareId, b.founderMareId)).map((candidate) => ({
     ...candidate, eligible: candidate.blackTypeWinners >= FAMILY_MIN_BLACK_TYPE_WINNERS

@@ -10,6 +10,7 @@ import {
   getPeopleData,
   getRaceTemplates,
   getRacecourses,
+  getSalesData,
   getSeriesDefinitions,
   getStallionNames,
   getStallionRecords,
@@ -69,7 +70,7 @@ const FULL_SEEDS: readonly number[] = [20261011, 7, 424242];
 const SEASONS = FULL ? 5 : 1;
 /** 시즌 n개 = 52주씩 n개 + 마지막 연도 전환 1주 (시상은 그 1주에서 확정된다) */
 const TOTAL_WEEKS = WEEKS_PER_YEAR * SEASONS + 1;
-const REPRO_WEEKS = WEEKS_PER_YEAR + 1;
+const REPRO_WEEKS = WEEKS_PER_YEAR * 2 + 1;
 const REPRO_SAVE_WEEK = 26;
 const TEST_TIMEOUT_MS = FULL ? 7_200_000 : 600_000;
 const REPORT_PATH = fileURLToPath(new URL('../../docs/reports/2026-10-12-m3-season.md', import.meta.url));
@@ -116,6 +117,7 @@ const STATIC_GAME: GameStaticData = {
   courses: COURSES,
   templates: getRaceTemplates(),
   series: SERIES_DEFS,
+  sales: getSalesData(),
 };
 
 const BOOT_DATA: BootstrapData = {
@@ -635,7 +637,7 @@ function renderReport(m: Metrics, seeds: readonly number[]): string {
   const snapsAll = runs.flatMap((r) => r.snaps);
   const yearsOf = (r: RunResult): number[] => r.snaps.map((s) => s.year);
 
-  L.push('# M3-F1 시즌 자동 진행 검증 (2026-10-12)');
+  L.push('# M3-F1 시즌 자동 진행 검증 (M4-G2 재검증, 2026-10-16)');
   L.push('');
   L.push('자동 생성: `tests/verify/season.test.ts` (`VERIFY=1 npx vitest run tests/verify/season.test.ts`).');
   L.push('');
@@ -921,14 +923,14 @@ describe('시즌 자동 진행 검증 (M3-F1)', () => {
     const seeds = FULL ? FULL_SEEDS : [BASE_SEED];
     const runs: RunResult[] = [];
     for (const seed of seeds) {
-      const checkpoint = seed === seeds[0] ? REPRO_WEEKS : null;
+      const checkpoint = seed === seeds[0] ? Math.min(REPRO_WEEKS, TOTAL_WEEKS) : null;
       runs.push(simulate(seed, TOTAL_WEEKS, true, checkpoint));
     }
 
     // 관찰 실행과 무관찰 실행의 같은 시점 상태가 같아야 한다(관찰이 상태를 바꾸지 않는다)
     const first = runs[0];
     if (first === undefined) throw new Error('실행 결과가 없다');
-    const reference = simulate(BASE_SEED, REPRO_WEEKS, false, null);
+    const reference = simulate(BASE_SEED, Math.min(REPRO_WEEKS, TOTAL_WEEKS), false, null);
     expect(first.checkpointJson).toBe(serializeGame(reference.finalState, SAVED_AT));
 
     const m = aggregate(runs);
@@ -955,6 +957,11 @@ describe('시즌 자동 진행 검증 (M3-F1)', () => {
       expect(r.finalState.awardsHistory.length).toBeGreaterThanOrEqual(1);
     }
 
+    const metricsPath = process.env.SEASON_OUT ?? 'docs/reports/M4-G2-season.json';
+    mkdirSync(dirname(metricsPath), { recursive: true });
+    writeFileSync(metricsPath, `${JSON.stringify({ seeds, seasons: SEASONS, races: m.races.length,
+      favouriteWinRate: m.favAll, g1Mean: m.g1Mean, allMean: m.allMean,
+      deadHeatShare: m.deadAll, weekMedianMs: m.weekMedianMs, deviations: m.deviations }, null, 2)}\n`);
     if (FULL) {
       const text = renderReport(m, seeds);
       mkdirSync(dirname(REPORT_PATH), { recursive: true });
