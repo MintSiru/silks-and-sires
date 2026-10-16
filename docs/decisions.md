@@ -339,3 +339,4 @@
 - 2026-10-16 5대 혈통 18회차 반영(98칸, 조상 32두). Rockefella brown·1968, Welsh Pageant 출생국 FR·bay·마지막 교배 1981, Peintre Celebre 출생국 US, Sir Tor bay(사망 미상), Mount Hagen chestnut(사용자 확인), Riverman bay 유지. 고정 해시 재고정(newGameSettings LEGACY_HASH 포함).
 - 2026-10-16 M4-E0ui 승인(haiku): 새 게임 폼 시작 유형·난이도·소재국·현역마 지급·예후불량 + 시작 조건 요약(startSummaryKo), useGame.newGame(NewGameInput).
 - 2026-10-16 M4-E0a 타입: Silks.design?(SilksDesign 몸통·소매·모자 × 바탕 + 층 0~2). design 없는 기존 저장·AI 마주는 유도 함수로 그림 — 저장 마이그레이션 없음, AI 생성·고정 해시 불변.
+- 2026-10-16 5대 혈통 19회차 반영(93칸, 조상 24두 — T4 잔여 70칸 + T5 Accon~Alter Adler). Satingo 털색 brown(dark bay/brown)으로 수정, Green Desert bay·Warning brown·미국·Zafonic brown 유지(사용자 확인), Monsun bay·Windwurf brown 은 데이터 값 유지. 고정 해시 재고정.
