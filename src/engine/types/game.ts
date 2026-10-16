@@ -30,6 +30,8 @@ export type GameEvent =
   | { type: 'stud_fee_set'; stallionId: HorseId; season: number; fee: Money; prevFee: Money; date: GameDate }
   /** M4-E0b: 목장 구매(마주 → 오너브리더 전환 또는 이전) */
   | { type: 'farm_purchased'; country: HomeCountry; size: FarmSize; price: Money; date: GameDate }
+  /** 플레이어 말 이름 등록(M4-E3). auto = 2세 조교 전까지 안 지어 자동 등록됨 */
+  | { type: 'horse_named'; horseId: HorseId; name: string; auto: boolean; date: GameDate }
   /** M4-E1: 시설 업그레이드 */
   | { type: 'facility_upgraded'; facility: FacilityKind; level: number; cost: Money; date: GameDate }
   /** M4-E0: 예후불량(경주 중 치명적 부상) — 설정이 켜져 있을 때만 */

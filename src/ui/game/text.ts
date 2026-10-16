@@ -413,6 +413,8 @@ export function eventKo(e: GameEvent, nameOf: (id: HorseId) => string): string {
       return `${formatDateKo(e.date)} · 이상 증세: ${nameOf(e.horseId)} — ${INJURY_REGION_HINT_KO[e.region]}`;
     case 'injury_diagnosed':
       return `${formatDateKo(e.date)} · 확진: ${nameOf(e.horseId)} (${injuryKo(e.kind)}, 약 ${e.weeksOut}주)`;
+    case 'horse_named':
+      return `${formatDateKo(e.date)} · 이름 등록: ${e.name}${e.auto ? ' (자동 등록)' : ''}`;
     case 'farm_purchased':
       return `${formatDateKo(e.date)} · 목장 구매: ${COUNTRY_KO[e.country]} ${FARM_SIZE_KO[e.size]} 목장 (${feeKo(e.price)})`;
     case 'facility_upgraded':

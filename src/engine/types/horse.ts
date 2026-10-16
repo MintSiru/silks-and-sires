@@ -149,6 +149,12 @@ export interface Horse {
   id: HorseId;
   /** 18자 이내, 전역 중복 금지 */
   name: string;
+  /**
+   * false = 아직 등록 전(플레이어 생산마, M4-E3 사용자 결정 2026-10-16): name 은 자동 후보로 갖고 있지만 화면에는
+   * '어미명 연도 성별' 무명 표기로 보이고, 플레이어가 2세 조교 전까지 이름을 등록한다(안 하면 그 이름으로 자동 등록).
+   * 없거나 undefined = 등록된 이름(기존 말·AI 말 전부 — 저장 마이그레이션 불필요).
+   */
+  nameRegistered?: false;
   sex: Sex;
   gelded: boolean;
   /** 나이 = 현재 연도 - birthYear (1월 1일 일괄 가령) */
