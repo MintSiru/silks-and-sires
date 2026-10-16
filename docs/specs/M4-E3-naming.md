@@ -13,7 +13,7 @@
 ## 범위
 1. 망아지 출산: 플레이어 소유 망아지는 지금처럼 nameForHorse 로 이름을 정하되(공용 rng 소비 순서 그대로) `nameRegistered: false` 를 붙인다. AI 망아지는 그대로.
 2. `src/engine/naming/register.ts`(신규, 순수):
-   - `unnamedLabel(state, horse): string` — 무명 표기 '어미명 + 출생 연도 2자리 + 성별'(예: "Silver Tide '27 수말", 어미 없으면 '무명 27년생 수말'). 화면은 이 함수로만 무명 이름을 보인다.
+   - `unnamedLabel(state, horse): string` — 무명 표기 '어미명 + 출생 연도 뒤 두 자리'(예: "Silver Tide 27", 사용자 결정 2026-10-16 — 성별 없음; 어미 없으면 "무명 27"). 화면은 이 함수로만 무명 이름을 보인다.
    - `displayName(state, horse)` — 등록됐으면 name, 아니면 unnamedLabel.
    - `nameSuggestions(state, horseId, count = 8): string[]` — 그 말의 혈통 문맥으로 suggestNames, 독립 스트림 `${initialSeed}:name-suggest:${horseId}:${round}`(round = 같은 말에서 '다른 후보' 누른 횟수 — 인자로 받는다), 현재 name 후보는 첫 줄에 포함.
    - `registerHorseName(state, horseId, name): { ok: true; state; events } | { ok: false; error: 'not_found' | 'not_player' | 'already_registered' | NameRejectReason }` — 미등록 플레이어 말만, validateHorseName(지금 자기 자신의 후보 이름은 중복에서 제외) 통과 시 name 교체·nameRegistered 삭제·이벤트(auto false). 원본 불변, eventLog 는 호출자.

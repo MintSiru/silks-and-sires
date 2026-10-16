@@ -348,3 +348,4 @@
 - 2026-10-16 5대 혈통 20회차 반영(92칸, 새 종마 17두 — Star Appeal 1970·IE·bay·마지막 교배 1987, Sham 1970·US·brown·1993). Sternkönig 출생국 IE·사망 2010, Darshaan brown, Chop Chop bay(사용자 확인), Marino chestnut·Doyoun GB 유지, The Gurkha 모계 Slew o' Gold → Shirley Heights. 새 종마 Bolero 와 겹친 실제 작품명 landmarks 'Bolero' 제거. naming 휴리스틱 테스트는 작품·명소 제목 후보(Clair de Lune)를 제외, population 테스트는 개인 종마(privateTo) 소유 유지 반영. 고정 해시 재고정(raceResults 포함).
 - 2026-10-16 5대 혈통 21회차 반영(95칸, 새 종마 32두 — Kronzeuge·Tropique FR bay, Anfield IE bay 등). My Babu FR·Bold Ruler brown 은 데이터 값 유지(표와 다름, 사용자 확인 대기). Hoist the Flag 표기 정리. 고정 해시 재고정.
 - 2026-10-16 사용자 결정: 경주마 이름은 '무명 → 2세 조교 전 등록'(안 지으면 자동 등록), 목장 이름은 새 게임 + 목장 화면·구매/이전 때 지정. 여러 나라 목장 동시 소유(최대 3, 나라 달리)는 호주·미국 등 나라 추가 때로 보류. 타입: Horse.nameRegistered?: false, GameEvent 'horse_named'. 명세 M4-E3.
+- 2026-10-16 사용자 결정: 무명 표기는 '어미명 + 출생 연도 뒤 두 자리'(예: Silver Tide 27).
