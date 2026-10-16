@@ -1,6 +1,7 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import * as data from '../../src/engine/data/staticData';
 import { MIN_FITNESS_TO_RUN, MIN_WEEKS_BETWEEN_RUNS } from '../../src/engine/config/entries';
+import { RACE_PLAN_TARGET_SLACK_WEEKS } from '../../src/engine/config/racePlan';
 import { createRng } from '../../src/engine/rng';
 import { deserializeGame, serializeGame } from '../../src/engine/save/serialize';
 import { isEligible } from '../../src/engine/season/eligibility';
@@ -181,6 +182,20 @@ describe('주간 자동 신청', () => {
     expect(result.state.seasonState.racePlans![horseId]!.find((p) => p.id === plan.id)!.status).toBe('run');
     expect(result.state.raceResults.some((r) => r.raceId === plan.templateId && r.runners.some((runner) => runner.horseId === horseId))).toBe(true);
     expect(state.seasonState.racePlans![horseId]![0]!.status).toBe('approved');
+  });
+
+  it('조건 목표에 맞는 레이스가 없으면 유예 기간 동안 승인 상태로 기다리고, 지나면 skipped', () => {
+    const { state, plan } = dueFixture();
+    plan.templateId = null;
+    plan.target = { kinds: ['listed'], minDistance: 100, maxDistance: 200 };
+    const first = systemRun(state);
+    const waiting = first.state.seasonState.racePlans![horseId]!.find((p) => p.id === plan.id)!;
+    expect(waiting.status).toBe('approved');
+    expect(first.events.filter((e) => e.type === 'race_plan_skipped')).toEqual([]);
+    const late = structuredClone(first.state);
+    late.date = addWeeks(state.date, RACE_PLAN_TARGET_SLACK_WEEKS + 1);
+    const after = systemRun(late);
+    expect(after.state.seasonState.racePlans![horseId]!.find((p) => p.id === plan.id)!.status).toBe('skipped');
   });
 
   it.each(['injury', 'fitness', 'fatigue', 'unnamed', 'no_trainer', 'no_race', 'not_eligible'] as const)('실패 %s 는 skipped 와 한글 사유를 남긴다', (failure) => {

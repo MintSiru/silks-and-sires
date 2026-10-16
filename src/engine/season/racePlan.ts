@@ -11,7 +11,7 @@ import {
 import { BASE_WEIGHT_LB, HANDICAP_OR_RANGE } from '../config/meetings';
 import {
   RACE_PLAN_CLASS_SCORE, RACE_PLAN_DISTANCE_SCORE, RACE_PLAN_INTERVAL,
-  RACE_PLAN_HISTORY_WEEKS, RACE_PLAN_MAX_RUNS, RACE_PLAN_RENEW_WEEKS, RACE_PLAN_WEEKS,
+  RACE_PLAN_HISTORY_WEEKS, RACE_PLAN_MAX_RUNS, RACE_PLAN_RENEW_WEEKS, RACE_PLAN_TARGET_SLACK_WEEKS, RACE_PLAN_WEEKS,
 } from '../config/racePlan';
 import { CONDITION_MAX } from '../config/season';
 import { WEEKS_PER_YEAR } from '../config/game';
@@ -258,9 +258,10 @@ export function settleRacePlans(draft: GameState, date: GameDate): GameEvent[] {
         continue;
       }
       if (plan.status !== 'declared' || compareDates(plan.date, date) > 0) continue;
-      if (draft.raceResults.some((r) => r.raceId === plan.raceId && compareDates(r.date, plan.date) === 0
+      // 조건 목표는 계획 주 뒤(유예 기간)에 신청될 수 있으므로 날짜가 아니라 레이스 id 로 확인한다.
+      if (draft.raceResults.some((r) => r.raceId === plan.raceId
         && r.runners.some((runner) => runner.horseId === horseId))) plan.status = 'run';
-      else if (!draft.seasonState.meetings.some((m) => compareDates(m.date, plan.date) === 0)) {
+      else if (!draft.seasonState.meetings.some((m) => m.races.some((sr) => sr.race.id === plan.raceId))) {
         skip(plan, horseId, '신청한 레이스가 취소되었거나 출주하지 못함', date, events);
       }
     }
@@ -291,28 +292,31 @@ export function createRacePlansSystem(data: RaceCalendarData): WeeklySystem {
         if ((p.status === 'run' || p.status === 'skipped') && weeksBetween(p.date, ctx.date) > RACE_PLAN_HISTORY_WEEKS) plans.splice(i, 1);
       }
       for (const plan of plans) {
-        const elapsed = compareDates(plan.date, ctx.date);
-        if (elapsed < 0 && plan.status === 'proposed') {
+        const late = weeksBetween(plan.date, ctx.date);
+        if (late > 0 && plan.status === 'proposed') {
           expire(plan);
           continue;
         }
-        if (elapsed < 0 && plan.status === 'approved') {
-          skip(plan, horseId, '계획한 출주일이 지나감', ctx.date, events);
+        // 조건 목표(자동 생성 레이스)는 그 주에 맞는 레이스가 없을 수 있어 몇 주 늦게까지 찾는다.
+        const slack = plan.target !== null ? RACE_PLAN_TARGET_SLACK_WEEKS : 0;
+        if (late > slack && plan.status === 'approved') {
+          skip(plan, horseId, slack > 0 ? `계획 주부터 ${slack}주 안에 맞는 레이스 없음` : '계획한 출주일이 지나감', ctx.date, events);
           continue;
         }
-        if (elapsed !== 0 || plan.status !== 'approved') continue;
+        if (late < 0 || plan.status !== 'approved') continue;
         let reason: string | null = horse.condition.injury !== null ? '부상으로 출주할 수 없음'
           : horse.condition.fitness < MIN_FITNESS_TO_RUN ? '체력 부족으로 출주할 수 없음'
             : horse.condition.fatigue > MAX_FATIGUE_TO_RUN ? '피로가 높아 출주할 수 없음' : null;
-        const races = draft.seasonState.meetings.filter((m) => compareDates(m.date, plan.date) === 0)
+        const races = draft.seasonState.meetings.filter((m) => compareDates(m.date, ctx.date) === 0)
           .flatMap((meeting) => meeting.races.map((sr) => ({ meeting, sr })))
           .filter(({ sr }) => plan.templateId !== null ? sr.templateId === plan.templateId
             : sr.status === 'open' && plan.target !== null && matchesTarget(draft, data, horse, sr.race, plan.target)
-              && raceFits(draft, horse, sr.race, plan.date))
+              && raceFits(draft, horse, sr.race, ctx.date))
           .sort((a, b) => suitability(horse, a.sr.race) - suitability(horse, b.sr.race)
             || compareId(a.sr.race.id, b.sr.race.id));
         const candidate = races[0];
         if (candidate === undefined) reason ??= '조건과 자격에 맞는 레이스 없음';
+        if (reason !== null && late < slack) continue; // 다음 주에 다시 찾는다(알림 없음)
         if (reason !== null) { skip(plan, horseId, reason, ctx.date, events); continue; }
         const chosen = candidate!;
         const result = declarePlayerHorse(draft, chosen.meeting.id, chosen.sr.race.id, horseId);
@@ -323,7 +327,8 @@ export function createRacePlansSystem(data: RaceCalendarData): WeeklySystem {
         plan.raceId = chosen.sr.race.id;
         events.push({ type: 'race_plan_declared', horseId, raceId: chosen.sr.race.id, date: { ...ctx.date } });
       }
-      const future = plans.filter((p) => compareDates(p.date, ctx.date) >= 0 && p.status !== 'skipped' && p.status !== 'run');
+      // 유예 중인 조건 목표 계획도 아직 살아 있는 계획으로 본다(지난 계획은 위에서 이미 정리됨).
+      const future = plans.filter((p) => p.status !== 'skipped' && p.status !== 'run');
       const last = future.at(-1);
       if (last === undefined || weeksBetween(ctx.date, last.date) <= RACE_PLAN_RENEW_WEEKS) {
         const state = last === undefined ? draft : { ...draft, seasonState: { ...draft.seasonState,

@@ -8,3 +8,5 @@ export const RACE_PLAN_HISTORY_WEEKS = 26;
 /** 거리 오차와 클래스 차이를 같은 점수 척도로 비교한다. */
 export const RACE_PLAN_DISTANCE_SCORE = 10;
 export const RACE_PLAN_CLASS_SCORE = 2;
+/** 조건 목표 계획은 계획 주에 맞는 레이스가 없으면 이 주 수만큼 늦게까지 찾는다(겨울 올웨더는 주 1개최·3레이스뿐) */
+export const RACE_PLAN_TARGET_SLACK_WEEKS = 2;
