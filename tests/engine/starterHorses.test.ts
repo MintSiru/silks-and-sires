@@ -12,6 +12,8 @@ import { weekOfSlot } from '../../src/engine/season/schedule';
 import { createRng } from '../../src/engine/rng';
 import { bootstrapGame, type BootstrapData } from '../../src/engine/state/bootstrap';
 import { initialOfficialRating } from '../../src/engine/world/rating';
+import { racingHorseIds } from '../../src/engine/world/population';
+import { canSireIn, coverYearForFoal } from '../../src/engine/world/sireWindow';
 import type { GameState, Horse, RealStallionRecord } from '../../src/engine/types';
 
 const SEED = 20261011;
@@ -19,6 +21,7 @@ const OTHER_SEED = 20261012;
 const SILKS = { primary: '#1d4e89', secondary: '#ffd23f', pattern: 'hoops' } as const;
 const APRIL_FIRST_WEEK = weekOfSlot({ month: 4, weekOfMonth: 1 });
 const MID_TIMEOUT = 180_000;
+const LONG_TIMEOUT = 1_200_000;
 
 const BOOT_DATA: BootstrapData = {
   stallionRecords: getStallionRecords(),
@@ -155,6 +158,65 @@ describe('시작 현역마 지급 (grantStarterHorses / bootstrapGame)', () => {
       expect(ok, `${h.id} 2세 주 2세 메이든 출주 가능`).toBe(true);
     }
   }, MID_TIMEOUT);
+});
+
+describe('지급마 가상 모마 (M4-ST2)', () => {
+  const RECORDS = getStallionRecords();
+  const SEED_RANGE = Array.from({ length: 20 }, (_, i) => i + 1);
+
+  it('1. 시드 1~20 새 게임의 지급 현역마 전부(수말·거세마 포함)에 damId 가 있고, 모마는 historical 암말·이름 있음·무소유·실명 종마 부이며 출생 연도 차 6~12, 모마의 부는 교배 연도에 교배 가능하다', () => {
+    for (const seed of SEED_RANGE) {
+      const state = seed === SEED ? BASE : boot(seed);
+      const horses = starters(state);
+      expect(horses.length, `seed ${seed} 지급마 수`).toBeGreaterThan(0);
+      for (const h of horses) {
+        const tag = `seed ${seed} ${h.id}`;
+        expect(h.damId, `${tag} damId`).not.toBeNull();
+        const dam = state.horses[h.damId ?? ''];
+        expect(dam, `${tag} 모마 레코드`).toBeDefined();
+        if (dam === undefined) continue;
+        expect(dam.status, `${tag} 모마 status`).toBe('historical');
+        expect(dam.sex, `${tag} 모마 성별`).toBe('female');
+        expect(dam.name.trim().length, `${tag} 모마 이름`).toBeGreaterThan(0);
+        expect(dam.ownerId, `${tag} 모마 소유`).toBeNull();
+        expect(dam.familyId, `${tag} 모마 familyId`).toBe(dam.id);
+        expect(h.familyId, `${tag} 지급마 familyId`).toBe(dam.id);
+        expect(dam.countryOfBirth, `${tag} 모마 출생국`).toBe(h.countryOfBirth);
+
+        const gap = h.birthYear - dam.birthYear;
+        expect(gap, `${tag} 출생 연도 차`).toBeGreaterThanOrEqual(6);
+        expect(gap, `${tag} 출생 연도 차`).toBeLessThanOrEqual(12);
+
+        const sire = RECORDS.find((r) => r.key === dam.sireId);
+        expect(sire, `${tag} 모마 부(실명 종마)`).toBeDefined();
+        if (sire === undefined) continue;
+        expect(canSireIn(sire, coverYearForFoal(dam.birthYear)), `${tag} 모마 부 교배 가능`).toBe(true);
+      }
+    }
+  }, LONG_TIMEOUT);
+
+  it('2. 지급마가 아닌 AI 현역마의 damId 는 그대로 null 이다', () => {
+    const aiIds = racingHorseIds(BASE);
+    expect(aiIds.length).toBeGreaterThan(0);
+    for (const id of aiIds) {
+      const horse = BASE.horses[id];
+      expect(horse?.damId, `${id} AI 현역마 damId`).toBeNull();
+    }
+  });
+
+  it('3. 같은 시드면 모마 id·이름·부가 같고, 다른 시드면 모마 이름이 다르다', () => {
+    const damSnapshot = (state: GameState) =>
+      starters(state).map((h) => {
+        const dam = state.horses[h.damId ?? ''];
+        return { damId: h.damId, name: dam?.name, sireId: dam?.sireId, birthYear: dam?.birthYear };
+      });
+    const a = damSnapshot(BASE);
+    const again = damSnapshot(boot(SEED));
+    expect(again).toEqual(a);
+
+    const b = damSnapshot(OTHER);
+    expect(b.map((d) => d.name)).not.toEqual(a.map((d) => d.name));
+  }, LONG_TIMEOUT);
 });
 
 describe('엔진 순수성', () => {

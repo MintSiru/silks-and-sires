@@ -52,7 +52,7 @@ export function allocateHorseId(state: GameState): HorseId {
  * 후보 목록(key 오름차순)에서 MARE_SIRE_TIER_WEIGHT × europeanSireWeightMult 가중으로 한 마리를 고른다.
  * rng.next() 를 정확히 1회 쓴다.
  */
-function pickWeightedSire(rng: Rng, candidates: readonly RealStallionRecord[]): RealStallionRecord {
+export function pickWeightedSire(rng: Rng, candidates: readonly RealStallionRecord[]): RealStallionRecord {
   if (candidates.length === 0) {
     throw new RangeError('pickWeightedSire: 부(父) 후보가 없다');
   }

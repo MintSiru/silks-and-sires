@@ -330,3 +330,4 @@
 - 2026-10-16 사용자 요청: 지급 현역마(2·3세, 성별 무관 — 사용자 정정)에도 가상 모마(부 = 실명 종마) 기재 — M4-ST2.
 - 2026-10-16 M4-H4 승인(haiku-coder, 중단 뒤 재개 에이전트가 마무리 확인): 내 말 카드 부상 영역(확진 전 단서·검사 버튼, 확진 종류·남은 주·치료 버튼, 병력 5건), injuryErrorKo, GameApi.orderVetExam·chooseTreatment. Opus: 부상 API 가 eventLog 에 직접 쓰던 것을 다른 플레이어 API 처럼 events 만 돌려주게 맞추고 화면이 기록.
 - 2026-10-16 사용자 결정: 5대 혈통 표는 17회차부터 회차당 75~100칸.
+- 2026-10-16 M4-ST2 승인(haiku-coder): 지급 현역마 전부(성별 무관)에 가상 모마(부 = 그 시대 교배 가능 실명 종마, 독립 스트림 starter-dam), world.ts pickWeightedSire export. 고정 해시(breeders 2·starterStrength AI 세계)는 모마 3두 추가만 원인임을 확인하고 값 갱신(필터는 유지).

@@ -26,7 +26,14 @@ import {
   STARTER_HORSES,
   STARTER_SIRE_TIER,
 } from '../config/starter';
-import { PROFILE_DISTANCE, TIER_FEE } from '../config/world';
+import {
+  DAM_AGE_GAP_MAX,
+  DAM_AGE_GAP_MIN,
+  MARE_LEVEL,
+  MARE_LEVEL_SPREAD,
+  PROFILE_DISTANCE,
+  TIER_FEE,
+} from '../config/world';
 import { GROWTH_DECLINE_RATE, GROWTH_PEAK_AGE } from '../config/horse';
 import { generateHorse } from '../horse/generate';
 import { abilityAtAge } from '../horse/growthCurve';
@@ -34,8 +41,9 @@ import { makeNameRegistry, namingContextFor, type MutableNameRegistry } from '..
 import { nameForHorse } from '../naming/generate';
 import type { NamingData } from '../naming/types';
 import { pickBreederFor } from '../people/breeders';
+import { createRng } from '../rng';
 import { sortStallionRecords } from '../state/stallionHorses';
-import { allocateHorseId } from '../state/world';
+import { allocateHorseId, pickWeightedSire } from '../state/world';
 import type {
   GameState,
   Horse,
@@ -398,6 +406,48 @@ export function bootstrapRacingPopulation(
 }
 
 /**
+ * 지급마 한 마리의 가상 모마를 만들어 state.horses 에 넣고, 지급마의 damId·familyId 를 모마 id 로 잇는다(M4-ST2).
+ * 모마는 기초 암말의 어미(world.ts c 단계)와 같은 규칙: 출생 연도 = 지급마 출생 연도 − gap,
+ * 부 = 교배 연도(모마 출생 연도 − 1)에 교배 가능한 전체 실명 종마 중 가중 선택, status historical, 소유 없음.
+ * 난수는 `${initialSeed}:starter-dam:${horse.id}` 독립 스트림만 쓴다.
+ */
+function attachStarterDam(
+  state: GameState,
+  data: RacingPopulationStaticData,
+  records: readonly RealStallionRecord[],
+  registry: MutableNameRegistry,
+  horse: Horse,
+): void {
+  const rng = createRng(`${state.initialSeed}:starter-dam:${horse.id}`);
+  const currentYear = state.date.year;
+  const gap = rng.int(DAM_AGE_GAP_MIN, DAM_AGE_GAP_MAX);
+  const damBirth = horse.birthYear - gap;
+  const damSireRec = pickWeightedSire(rng, filterSiresForCover(records, coverYearForFoal(damBirth)));
+  const damId = allocateHorseId(state);
+  const damNaming = namingContextFor(state, { ownerId: null, sireId: damSireRec.key, damId: null }, data);
+  const damName = nameForHorse(damNaming, data.naming, rng, registry);
+  registry.add(damName);
+  const dam: Horse = generateHorse(rng, {
+    id: damId,
+    name: damName,
+    sex: 'female',
+    birthYear: damBirth,
+    currentYear,
+    countryOfBirth: horse.countryOfBirth,
+    status: 'historical',
+    level: MARE_LEVEL,
+    spread: MARE_LEVEL_SPREAD,
+    sireId: damSireRec.key,
+    damId: null,
+    familyId: damId,
+    sireLineId: damSireRec.sireLineId,
+  });
+  state.horses[dam.id] = dam;
+  horse.damId = dam.id;
+  horse.familyId = dam.id;
+}
+
+/**
  * 새 게임 시작 현역마를 플레이어 마주에게 지급한다(STARTER_HORSES 두수·나이 대로, state 직접 수정).
  * 조교사는 spawnRacingHorse 가 고른 GB 조교사, 부는 STARTER_SIRE_TIER 종마 중에서 고른다.
  * breederId 는 같은 나라 상업 생산자(M4-C0, 생산자가 없으면 null). 3세 이상에는 초기 OR, 전 두수 fitness = STARTER_FITNESS.
@@ -448,6 +498,14 @@ export function grantStarterHorses(
         horse.officialRating = initialOfficialRating(horse);
       }
       granted.push(horse.id);
+    }
+  }
+
+  // M4-ST2: 모든 지급을 마친 뒤 지급 순서대로 지급마 전부(성별 무관)에 가상 모마를 붙인다.
+  for (const id of granted) {
+    const horse = state.horses[id];
+    if (horse !== undefined) {
+      attachStarterDam(state, data, records, registry, horse);
     }
   }
 

@@ -58,10 +58,11 @@ const BOOT_DATA: BootstrapData = {
  * 2026-10-15 재고정: 8회차(조상 23두, Turn-to IE·Deputy Minister brown)로 바뀜.
  * 2026-10-15 재고정: M4-ST1 지급마 능력 상향·성장형 고정(플레이어 지급마의 ability·potential·growth·officialRating 만 바뀜, AI 말 불변 확인).
  * 2026-10-15 재고정: 5대 혈통 15회차(조상 13두·Cadeaux Genereux 계통 정정·어휘 Cormorant 제거)로 바뀜.
+ * 2026-10-16 재고정: M4-ST2 지급마 가상 모마 3두 추가(지급마 damId·familyId 연결)로 바뀜. 지급마 모마를 빼고 연결을 지우면 이전 값과 같다(확인 완료).
  */
 const PRE_CHANGE_PROJECTION_SHA: Record<number, string> = {
-  20261011: '4bf27fa9e5f8d9f6fac2ac177cf1ec961bfeaa41d7716ba29653aae7c428bd43',
-  7: 'c68aedbb8ebd6183057c0c7246d1c95401cad58d800225b34e1f66ab2228146f',
+  20261011: 'de2b8a2f43c73716f75cc4c2fb05b8ddf7e2924a7ce1b04f6d052f93fc560fc2',
+  7: 'eabf6b678c986567782e10916da32b6ad02c88a6e1c8c11013520131d5435f63',
 };
 
 function boot(seed: number): GameState {
