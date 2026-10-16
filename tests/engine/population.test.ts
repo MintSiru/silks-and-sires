@@ -257,7 +257,8 @@ describe('연간 교체 (createPopulationSystem)', () => {
         // AI 종마 편입은 기존 은퇴 이벤트를 보존하고 최종 상태만 stud 로 올린다(M4-D7b).
         const aiEntrant = draft.stallions[e.horseId]?.aiEntrant === true;
         expect(draft.horses[e.horseId]?.status).toBe(aiEntrant ? 'stud' : 'retired');
-        if (aiEntrant) expect(draft.horses[e.horseId]?.ownerId).toBeNull();
+        // 대형 AI 마주의 개인 종마(privateTo, M4-D7b)는 소유를 유지하고, 나머지는 소유자가 비워진다.
+        if (aiEntrant) expect(draft.horses[e.horseId]?.ownerId).toBe(draft.stallions[e.horseId]?.privateTo ?? null);
       }
     }
     expect(racingHorses(draft).some((h) => START_YEAR + 1 - h.birthYear >= 8)).toBe(false);

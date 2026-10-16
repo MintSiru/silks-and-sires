@@ -309,10 +309,10 @@ it('판매·임대·교배권 없는 시드 20261011의 52주 결과는 변경 �
   expect(first.stud.leases).toEqual([]);
   expect(first.stud.nominations).toEqual([]);
   expect(first.raceResults.length).toBeGreaterThan(0);
-  // M4-H12: 14종 부상·회복 기간 변화로 출주·레이스 결과와 자마 성적 기반 종부료가 바뀌어 재고정, fees 는 M4-H3(종마 제엽염 은퇴·사망) 반영해 다시 재고정. 장부 해시는 유지. 2026-10-16 15회차·17회차 어휘 정리(이름 변화)로 재고정. 2026-10-16 15회차 어휘 정리(이름 변화)로 세 값 모두 재고정. 18·19회차 계통 정리로 fees 재고정. M4-E1 시설 유지비 시스템 등록으로 ledger 재고정.
+  // M4-H12: 14종 부상·회복 기간 변화로 출주·레이스 결과와 자마 성적 기반 종부료가 바뀌어 재고정, fees 는 M4-H3(종마 제엽염 은퇴·사망) 반영해 다시 재고정. 장부 해시는 유지. 2026-10-16 15회차·17회차 어휘 정리(이름 변화)로 재고정. 2026-10-16 15회차 어휘 정리(이름 변화)로 세 값 모두 재고정. 18·19회차 계통 정리로 fees 재고정. M4-E1 시설 유지비 시스템 등록으로 ledger 재고정. 20회차 혈통(계통·이름 변화)으로 raceResults·fees 재고정.
   expect(hashes(first)).toEqual({
-    raceResults: 'af8aa9ab345886bd56c4444073c63ba1c9093a58e7f5cd0e8beafcddb6792e1f',
-    fees: '4dff2754302b172ce1baed7beb26afb15aee95867dbca7865948b21f599449cb',
+    raceResults: 'db498171e2c6894fd52f327c103d851a390df24f87430f731b905ddc2ca187a2',
+    fees: '7e4d3b9bb711225a99d9ab2fee9ae0d1f6ba02cc843a2f09a2fc19e4ee681eab',
     ledger: '3549cabb2de86455f1ac156bbcf584fc2a3d6ee53ba05e0aa6ce14fc0099e824',
   });
   expect(simulate()).toEqual(first);

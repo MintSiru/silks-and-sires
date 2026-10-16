@@ -680,7 +680,6 @@
     {"name":"Spring Sonata","kind":"music","year":1801,"titleType":"phrase"},
     {"name":"Eroica","kind":"music","year":1804,"titleType":"phrase"},
     {"name":"Clair de Lune","kind":"music","year":1905,"titleType":"phrase"},
-    {"name":"Bolero","kind":"music","year":1928,"titleType":"phrase"},
     {"name":"Gymnopedies","kind":"music","year":1888,"titleType":"phrase"},
     {"name":"Valse Triste","kind":"music","year":1904,"titleType":"phrase"},
     {"name":"Scheherazade","kind":"music","year":1888,"titleType":"proper","creatorDeathYear":1908},

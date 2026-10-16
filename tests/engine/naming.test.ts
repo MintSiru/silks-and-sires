@@ -481,6 +481,8 @@ describe('마주 국적별 언어와 실제 지명 (M3-C7d)', () => {
       const style = pickOwnerStyle(`owner-${seed}`, null, data.styles);
       for (const c of suggestNames(contextFor(style), data, createRng(seed), 8, NONE)) {
         const words = c.name.split(' ').map((w) => w.toLowerCase());
+        // 실제 작품·명소 제목(source 'culture'·'historical'·'place', 예: Clair de Lune)은 모국어 조합이 아니므로 제외(2026-10-16)
+        if (c.source !== 'foreign' && c.source !== 'pedigree' && c.source !== 'tribute') continue;
         if (words.length >= 2 && words.every((w) => foreign.has(w) && !english.has(w))) {
           nativeLike++;
         }
