@@ -1,4 +1,4 @@
-import { PLAYER_SIRE_CROP_PER_CONCEPTION } from '../config/stud';
+import { PLAYER_SIRE_CROP_PER_CONCEPTION, PRIVATE_STALLION_CHANCE } from '../config/stud';
 import { createRng } from '../rng';
 import { makeNameRegistry } from '../naming/context';
 import {
@@ -201,15 +201,21 @@ export function createPopulationSystem(data: RacingPopulationStaticData): Weekly
         }
       }
 
-      // 종마 편입은 난수를 쓰지 않는다. 수태율은 buildStallionRecord 의 독립 스트림으로 정한다.
+      // 종마 편입의 비공개 판정·수태율은 말별 독립 스트림으로 정한다.
       studEntrants.sort((a, b) => selectionValue(b) - selectionValue(a) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
       for (const horse of studEntrants.slice(0, POPULATION_AI_STALLION_ENTRY_PER_YEAR)) {
         const country = racingCountryOf(draft, horse);
         draft.stallions[horse.id] = { ...buildStallionRecord(draft, horse.id, year, country), aiEntrant: true };
         const owner = horse.ownerId === null ? undefined : draft.owners[horse.ownerId];
-        if (owner !== undefined) owner.horseIds = owner.horseIds.filter((id) => id !== horse.id);
+        const makePrivate = owner !== undefined && !owner.isPlayer && owner.studName !== null
+          && owner.tier === 'major'
+          && createRng(`${draft.initialSeed}:private-stallion:${horse.id}`).chance(PRIVATE_STALLION_CHANCE);
+        if (makePrivate) draft.stallions[horse.id]!.privateTo = owner.id;
+        else {
+          if (owner !== undefined) owner.horseIds = owner.horseIds.filter((id) => id !== horse.id);
+          horse.ownerId = null;
+        }
         horse.status = 'stud';
-        horse.ownerId = null;
         horse.trainerId = null;
       }
 

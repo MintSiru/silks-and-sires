@@ -1,3 +1,10 @@
+import { RELATION_TIER_WARM } from './economy';
+
+/** 대형 오너브리더 출신 AI 편입 종마의 비공개 확률과 자기 목장 수요 몫. */
+export const PRIVATE_STALLION_CHANCE = 0.3;
+export const PRIVATE_DEMAND_SHARE = 0.3;
+export const PRIVATE_RELATION_MIN = RELATION_TIER_WARM;
+
 /** 첫 종마 사업은 기본 한 칸, 새해 세 살부터 시작한다. */
 export const STUD_BASE_SLOTS = 1;
 export const STUD_MIN_AGE = 3;

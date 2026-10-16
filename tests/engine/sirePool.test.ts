@@ -222,8 +222,10 @@ describe('연간 AI 종마 편입', () => {
       .toEqual(retiredColts.slice(0, POPULATION_AI_STALLION_ENTRY_PER_YEAR).map((horse) => horse.id).sort());
     for (const stallion of entrants) {
       const horse = first.state.horses[stallion.horseId]!;
-      expect(horse).toMatchObject({ status: 'stud', ownerId: null, trainerId: null, sex: 'male', gelded: false });
-      expect(Object.values(first.state.owners).some((owner) => owner.horseIds.includes(horse.id))).toBe(false);
+      expect(horse).toMatchObject({ status: 'stud', ownerId: stallion.privateTo ?? null,
+        trainerId: null, sex: 'male', gelded: false });
+      expect(Object.values(first.state.owners).filter((owner) => owner.horseIds.includes(horse.id)).map((owner) => owner.id))
+        .toEqual(stallion.privateTo == null ? [] : [stallion.privateTo]);
       expect(stallion.firstSeasonYear).toBe(START_YEAR + 1);
       expect(first.events.filter((event) => event.type === 'horse_status_changed' && event.horseId === horse.id))
         .toMatchObject([{ to: 'retired' }]);

@@ -15,6 +15,7 @@ import { makeNameRegistry, namingContextFor, type MutableNameRegistry } from '..
 import { nameForHorse } from '../naming/generate';
 import type { NamingData } from '../naming/types';
 import { allocateHorseId } from '../state/world';
+import { privateAccess } from '../stud/private';
 import { addWeeks, isInPhase } from '../time/calendar';
 import type {
   GameDate,
@@ -46,6 +47,7 @@ export type BookingError =
   | 'already_covered'
   | 'stallion_not_available'
   | 'book_full'
+  | 'private_stallion'
   | 'insufficient_funds';
 
 export type BookingResult =
@@ -203,6 +205,7 @@ export function bookCovering(
   if (seasonStallion.bookedThisSeason >= seasonStallion.bookLimit) return fail('book_full');
 
   const ownStallion = state.horses[stallionId]?.ownerId === ownerId;
+  if (!ownStallion && privateAccess(state, stallionId, ownerId) === 'denied') return fail('private_stallion');
   const useNomination = !ownStallion && ownerId === state.playerOwnerId &&
     nominationsLeft(state, stallionId, season) > 0;
   const fee = ownStallion || useNomination ? 0 : stallion.fee;

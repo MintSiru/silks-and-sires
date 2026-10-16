@@ -260,6 +260,7 @@ const BOOKING_ERROR_KO: Record<BookingError, string> = {
   already_covered: '이번 시즌에 이미 교배가 예약된 암말입니다.',
   stallion_not_available: '교배할 수 없는 종마입니다.',
   book_full: '이 종마의 이번 시즌 교배 두수가 가득 찼습니다.',
+  private_stallion: '비공개 종마입니다. 그 마주와 관계가 더 가까워야 예약할 수 있습니다.',
   insufficient_funds: '자금이 부족해 종부료를 낼 수 없습니다.',
 };
 

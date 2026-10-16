@@ -45,10 +45,20 @@ export function createStudBooksSystem(): WeeklySystem {
         const stallion = state.stallions[id]!;
         const horse = state.horses[id];
         if (horse?.status !== 'stud') continue;
+        const playerPrivate = stallion.privateTo === state.playerOwnerId;
+        if (playerPrivate) {
+          stallion.bookedThisSeason -= stallion.aiBooked;
+          stallion.aiDemand = 0;
+          stallion.aiBooked = 0;
+        }
         if (season !== null && season >= stallion.firstSeasonYear) {
           rollBookingSeason(stallion, season);
           if (stallion.leasedAwayUntil != null && season < stallion.leasedAwayUntil) continue;
-          if (stallion.aiDemand === 0) stallion.aiDemand = Math.max(1, seasonDemand(state, id, season));
+          if (!playerPrivate && stallion.aiDemand === 0) {
+            const demand = seasonDemand(state, id, season);
+            stallion.aiDemand = stallion.privateTo != null
+              ? Math.max(1, Math.floor(demand * config.PRIVATE_DEMAND_SHARE)) : Math.max(1, demand);
+          }
           const progress = accrualProgress(date, season);
           const target = Math.floor(stallion.aiDemand * (1 - (1 - progress) ** config.BOOK_ACCRUAL_SHAPE));
           const playerBooked = stallion.bookedThisSeason - stallion.aiBooked;
