@@ -4,6 +4,9 @@
 
 목적: M5 엔진(연대기·왕조 목표·부계·모계·라이벌·시상식 보상)을 플레이어가 보고 즐길 수 있게 한다.
 
+## 진행
+- M5-E1(순수 뷰 함수 `src/ui/legacy/legacyView.ts` + tests/ui/legacyView.test.ts)은 완료·커밋. 이 티켓(M5-E2)은 그 함수를 써서 화면·메뉴·시상식 창·홈 카드·말 상세 표시·스모크를 만든다(뷰 함수가 부족하면 같은 파일에 더한다).
+
 ## 사용할 API (엔진 수정 금지)
 - useGame: `chronicle()`, `dynastyGoals()`, `rivals()`(M5-D), 상태 `state.legacy`(lines·families), `state.awardsHistory`
 - legacy/lines.ts: `establishedLineOf`, `lineLabel`, `familyOf`
