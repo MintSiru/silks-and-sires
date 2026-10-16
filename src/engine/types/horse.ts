@@ -146,6 +146,13 @@ export interface CareerRecord {
   groupWins: number;
 }
 
+/** 가상 모마 요약(M4-ST3). sireId 는 실명 종마 key 또는 게임 말 id */
+export interface VirtualDam {
+  name: string;
+  sireId: HorseId;
+  birthYear: number;
+}
+
 export interface Horse {
   id: HorseId;
   /** 18자 이내, 전역 중복 금지 */
@@ -156,6 +163,11 @@ export interface Horse {
    * 없거나 undefined = 등록된 이름(기존 말·AI 말 전부 — 저장 마이그레이션 불필요).
    */
   nameRegistered?: false;
+  /**
+   * 가상 모마(M4-ST3): 세일 생성 말·AI 현역마처럼 어미 Horse 레코드 없이 만든 말의 모마 요약.
+   * 말 레코드를 늘리지 않고 혈통표·외조부(BMS)·니크·근친 계산에 모마 칸(이름 + 부)을 제공한다. damId 가 있으면 쓰지 않는다.
+   */
+  virtualDam?: VirtualDam;
   /** NH 스토어 세일로 팔려 평지에서 빠진 해(M4-F1). 있으면 status 'retired' */
   nhSoldYear?: number;
   sex: Sex;
