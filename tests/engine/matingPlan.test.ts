@@ -330,8 +330,11 @@ describe('주간 자동 교배', () => {
       startDate: base.date, endDate: state.date, playerMares: ids.length,
       startFunds, endFunds: state.owners[state.playerOwnerId]!.funds, fundsChange: state.owners[state.playerOwnerId]!.funds - startFunds,
       seasons: rows, note: '2028은 2027년 44주 이후 선지급 예약만 포함. 자금 변화는 전체 게임 수입·비용 포함. 실제 교배는 conception 판정 건수.' };
-    mkdirSync(new URL('../../docs/reports/', import.meta.url), { recursive: true });
-    writeFileSync(new URL('../../docs/reports/UX4-auto-mating-measurement.json', import.meta.url), JSON.stringify(measurement, null, 2) + '\n');
+    // 측정 파일은 요청할 때만 쓴다(평소 테스트가 작업 트리를 바꾸지 않게): WRITE_REPORTS=1 npm test
+    if (process.env.WRITE_REPORTS) {
+      mkdirSync(new URL('../../docs/reports/', import.meta.url), { recursive: true });
+      writeFileSync(new URL('../../docs/reports/UX4-auto-mating-measurement.json', import.meta.url), JSON.stringify(measurement, null, 2) + '\n');
+    }
     expect(state.date).toEqual({ year: 2028, week: 1 });
     for (const season of [2026, 2027]) {
       for (const id of ids) expect(records.get(`${season}:${id}`)?.status).toMatch(/booked|skipped/);

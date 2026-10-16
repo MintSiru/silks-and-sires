@@ -957,9 +957,10 @@ describe('시즌 자동 진행 검증 (M3-F1)', () => {
       expect(r.finalState.awardsHistory.length).toBeGreaterThanOrEqual(1);
     }
 
-    const metricsPath = process.env.SEASON_OUT ?? 'docs/reports/M4-G2-season.json';
-    mkdirSync(dirname(metricsPath), { recursive: true });
-    writeFileSync(metricsPath, `${JSON.stringify({ seeds, seasons: SEASONS, races: m.races.length,
+    // 수치 파일은 요청할 때만 쓴다(벽시계 시간이 들어 있어 평소 테스트가 작업 트리를 바꾼다)
+    const metricsPath = process.env.SEASON_OUT ?? (process.env.WRITE_REPORTS ? 'docs/reports/M4-G2-season.json' : null);
+    if (metricsPath !== null) mkdirSync(dirname(metricsPath), { recursive: true });
+    if (metricsPath !== null) writeFileSync(metricsPath, `${JSON.stringify({ seeds, seasons: SEASONS, races: m.races.length,
       favouriteWinRate: m.favAll, g1Mean: m.g1Mean, allMean: m.allMean,
       deadHeatShare: m.deadAll, weekMedianMs: m.weekMedianMs, deviations: m.deviations }, null, 2)}\n`);
     if (FULL) {

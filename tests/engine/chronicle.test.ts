@@ -227,10 +227,13 @@ it('2시즌 고정 시드: 레이스·공용 RNG 동일, 전체 클래식·플�
   const entries = withChronicle.chronicle ?? [];
   const counts = Object.fromEntries([...new Set(entries.map((e) => e.kind))].sort()
     .map((kind) => [kind, entries.filter((e) => e.kind === kind).length])) as Partial<Record<ChronicleKind, number>>;
-  mkdirSync('docs/reports', { recursive: true });
-  writeFileSync('docs/reports/m5-b-chronicle-measurement.json', JSON.stringify({ seed: options.seed, seasons: 2,
-    startYear: START_YEAR, weeks: WEEKS_PER_YEAR * 2 + 1, total: entries.length, counts, classicWinners, playerGroupWins,
-    sameRaceResults: true, sameSharedRng: true }, null, 2) + '\n');
+  // 측정 파일은 요청할 때만 쓴다: WRITE_REPORTS=1 npm test
+  if (process.env.WRITE_REPORTS) {
+    mkdirSync('docs/reports', { recursive: true });
+    writeFileSync('docs/reports/m5-b-chronicle-measurement.json', JSON.stringify({ seed: options.seed, seasons: 2,
+      startYear: START_YEAR, weeks: WEEKS_PER_YEAR * 2 + 1, total: entries.length, counts, classicWinners, playerGroupWins,
+      sameRaceResults: true, sameSharedRng: true }, null, 2) + '\n');
+  }
   expect(counts.first_runner).toBe(1);
   expect(counts.first_win).toBe(1);
   expect(counts.group_win ?? 0).toBe(playerGroupWins);

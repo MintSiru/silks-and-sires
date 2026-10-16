@@ -1,4 +1,5 @@
 import { dynastyGoals as calculateDynastyGoals } from '../../engine/legacy/goals';
+import { rivalViews, type RivalView } from '../../engine/legacy/rivals';
 import { approveMating, approveAllMatings, changeMating, removeMating, replanMatings, setMatingFeeCap } from '../../engine/breeding/matingPlan';
 import { sellToNhStore } from '../../engine/sales/nhStore';
 import { FARM_NAME_ERROR_KO } from './text';
@@ -100,6 +101,8 @@ export interface NewGameInput {
 
 export interface GameApi {
   chronicle(): ChronicleEntry[];
+  /** 라이벌 마주(M5-D1): 활성 라이벌이 먼저, 그다음 지난 라이벌. 마주 이름·맞대결 기록 포함 */
+  rivals(): RivalView[];
   dynastyGoals(): DynastyGoalProgress[];
   matingProposals(): MatingProposal[];
   proposeMatings(): ReturnType<typeof replanMatings>;
@@ -661,6 +664,7 @@ export function useGame(): GameApi {
 
   return {
     chronicle: () => structuredClone(requireState().chronicle ?? []),
+    rivals: () => rivalViews(requireState()),
     dynastyGoals: () => calculateDynastyGoals(requireState(), gameStaticData()),
     matingProposals,
     proposeMatings,
