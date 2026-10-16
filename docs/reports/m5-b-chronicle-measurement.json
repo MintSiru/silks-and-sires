@@ -1,0 +1,16 @@
+{
+  "seed": 20261016,
+  "seasons": 2,
+  "startYear": 2026,
+  "weeks": 105,
+  "total": 41,
+  "counts": {
+    "first_runner": 1,
+    "first_win": 1,
+    "world_classic": 39
+  },
+  "classicWinners": 39,
+  "playerGroupWins": 0,
+  "sameRaceResults": true,
+  "sameSharedRng": true
+}

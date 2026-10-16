@@ -1,5 +1,5 @@
 import type { NhStoreError } from '../../engine/sales/nhStore';
-import type { OwnerId, RivalReason, StudRole } from '../../engine/types';
+import type { ChronicleEntry, OwnerId, RivalReason, StudRole } from '../../engine/types';
 import type { RegisterHorseNameError } from '../../engine/naming/register';
 import type { FarmNameError } from '../../engine/farm/naming';
 import { BET_MIN_STAKE } from '../../engine/config/betting';
@@ -1022,4 +1022,37 @@ export function nhStoreErrorKo(error: NhStoreError): string {
     wrong_age: '3~4세 말만 판매할 수 있습니다.', not_racing: '현역마만 판매할 수 있습니다.',
     consigned: '다른 세일 출품을 취소한 뒤 판매해 주세요.',
   }[error];
+}
+
+/** 연대기는 값만 저장하고, 한국어 문구는 조회 시 만든다. */
+export function chronicleKo(
+  entry: ChronicleEntry,
+  nameOf: (id: HorseId) => string,
+  ownerNameOf: (id: OwnerId) => string,
+): string {
+  const horse = entry.horseId === undefined ? '말' : nameOf(entry.horseId);
+  const owner = entry.ownerId === undefined ? '마주' : ownerNameOf(entry.ownerId);
+  const race = entry.label ?? '레이스';
+  switch (entry.kind) {
+    case 'first_runner': return `${horse}, 첫 출주`;
+    case 'first_win': return `${horse}, 첫 승리`;
+    case 'first_group_win': return `${horse}, 첫 그룹 우승`;
+    case 'group_win': return `${horse}, ${race} 우승 · 통산 그룹 ${entry.count ?? 1}승`;
+    case 'g1_win': return `${horse}, ${race} G1 우승`;
+    case 'classic_win': return `${horse}, ${race} 클래식 우승`;
+    case 'world_classic': return `${race} 우승마 ${horse}`;
+    case 'series_champion': return `${horse}, ${seriesNameKo(entry.label ?? '')} 달성`;
+    case 'laurel_award': return `${horse}, Laurel ${LAUREL_CATEGORY_KO[entry.label as LaurelCategory] ?? entry.label ?? '부문상'} 수상`;
+    case 'leading_title': {
+      const [scope, rank] = (entry.label ?? '').split(':');
+      const region = scope === 'europe' ? '유럽' : COUNTRY_KO[scope as CountryCode] ?? scope;
+      return `${entry.horseId === undefined ? owner : horse}, ${region} 리딩 ${rank ?? '1'}위`;
+    }
+    case 'sire_line_established': return `${horse}, 부계 확립`;
+    case 'female_family_established': return `${horse}, 명문 모계 인정`;
+    case 'homebred_stallion': return `${horse}, 생산마 종마 전환`;
+    case 'record_sale': return `${horse}, ${race} 최고가 ${feeKo(entry.amount ?? 0)}`;
+    case 'rival_declared': return `${owner}, 새로운 라이벌`;
+    case 'rival_clash': return `${owner}와 대레이스 맞대결 · 통산 ${entry.count ?? 1}회`;
+  }
 }

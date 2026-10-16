@@ -1,0 +1,381 @@
+{
+  "completed": true,
+  "seed": 20261011,
+  "years": 5,
+  "annual": [
+    {
+      "year": 2027,
+      "horses": 4106,
+      "judgmentMs": 21.99086100000568,
+      "lines": 0,
+      "families": 0,
+      "topLines": [
+        {
+          "founderId": "h-000375",
+          "sons": 0,
+          "founderGroupWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Wadi"
+        },
+        {
+          "founderId": "h-000392",
+          "sons": 0,
+          "founderGroupWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Cornwall Beck"
+        },
+        {
+          "founderId": "h-000428",
+          "sons": 0,
+          "founderGroupWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Badr"
+        },
+        {
+          "founderId": "h-000446",
+          "sons": 0,
+          "founderGroupWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Carve Lorezz"
+        },
+        {
+          "founderId": "h-000815",
+          "sons": 0,
+          "founderGroupWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Taste Of Tendresse"
+        }
+      ],
+      "topFamilies": [
+        {
+          "founderMareId": "h-000002",
+          "blackTypeWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Speketheclipper"
+        },
+        {
+          "founderMareId": "h-000004",
+          "blackTypeWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Petrel's Integrity"
+        },
+        {
+          "founderMareId": "h-000006",
+          "blackTypeWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Elegance's Abbey"
+        }
+      ]
+    },
+    {
+      "year": 2028,
+      "horses": 4686,
+      "judgmentMs": 58.127880000000005,
+      "lines": 0,
+      "families": 0,
+      "topLines": [
+        {
+          "founderId": "h-000176",
+          "sons": 0,
+          "founderGroupWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Balmy Sea"
+        },
+        {
+          "founderId": "h-000239",
+          "sons": 0,
+          "founderGroupWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Palace Otter"
+        },
+        {
+          "founderId": "h-000375",
+          "sons": 0,
+          "founderGroupWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Wadi"
+        },
+        {
+          "founderId": "h-000392",
+          "sons": 0,
+          "founderGroupWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Cornwall Beck"
+        },
+        {
+          "founderId": "h-000421",
+          "sons": 0,
+          "founderGroupWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Auburn Bretagne"
+        }
+      ],
+      "topFamilies": [
+        {
+          "founderMareId": "h-000002",
+          "blackTypeWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Speketheclipper"
+        },
+        {
+          "founderMareId": "h-000004",
+          "blackTypeWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Petrel's Integrity"
+        },
+        {
+          "founderMareId": "h-000006",
+          "blackTypeWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Elegance's Abbey"
+        }
+      ]
+    },
+    {
+      "year": 2029,
+      "horses": 5241,
+      "judgmentMs": 19.265941000019666,
+      "lines": 0,
+      "families": 0,
+      "topLines": [
+        {
+          "founderId": "h-000049",
+          "sons": 0,
+          "founderGroupWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Bierstadt's Armour"
+        },
+        {
+          "founderId": "h-000171",
+          "sons": 0,
+          "founderGroupWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Forever Torrent"
+        },
+        {
+          "founderId": "h-000176",
+          "sons": 0,
+          "founderGroupWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Balmy Sea"
+        },
+        {
+          "founderId": "h-000228",
+          "sons": 0,
+          "founderGroupWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Daroond Heritage"
+        },
+        {
+          "founderId": "h-000239",
+          "sons": 0,
+          "founderGroupWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Palace Otter"
+        }
+      ],
+      "topFamilies": [
+        {
+          "founderMareId": "h-000002",
+          "blackTypeWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Speketheclipper"
+        },
+        {
+          "founderMareId": "h-000004",
+          "blackTypeWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Petrel's Integrity"
+        },
+        {
+          "founderMareId": "h-000006",
+          "blackTypeWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Elegance's Abbey"
+        }
+      ]
+    },
+    {
+      "year": 2030,
+      "horses": 5787,
+      "judgmentMs": 22.810365000012098,
+      "lines": 0,
+      "families": 0,
+      "topLines": [
+        {
+          "founderId": "h-000018",
+          "sons": 0,
+          "founderGroupWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Crown Of Glenaveen"
+        },
+        {
+          "founderId": "h-000049",
+          "sons": 0,
+          "founderGroupWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Bierstadt's Armour"
+        },
+        {
+          "founderId": "h-000171",
+          "sons": 0,
+          "founderGroupWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Forever Torrent"
+        },
+        {
+          "founderId": "h-000176",
+          "sons": 0,
+          "founderGroupWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Balmy Sea"
+        },
+        {
+          "founderId": "h-000228",
+          "sons": 0,
+          "founderGroupWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Daroond Heritage"
+        }
+      ],
+      "topFamilies": [
+        {
+          "founderMareId": "h-000002",
+          "blackTypeWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Speketheclipper"
+        },
+        {
+          "founderMareId": "h-000004",
+          "blackTypeWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Petrel's Integrity"
+        },
+        {
+          "founderMareId": "h-000006",
+          "blackTypeWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Elegance's Abbey"
+        }
+      ]
+    },
+    {
+      "year": 2031,
+      "horses": 6254,
+      "judgmentMs": 8.858761999988928,
+      "lines": 0,
+      "families": 0,
+      "topLines": [
+        {
+          "founderId": "h-001118",
+          "sons": 0,
+          "founderGroupWinners": 2,
+          "groupWinners": 2,
+          "eligible": false,
+          "name": "Farah Al Ghalib"
+        },
+        {
+          "founderId": "h-000392",
+          "sons": 0,
+          "founderGroupWinners": 1,
+          "groupWinners": 1,
+          "eligible": false,
+          "name": "Cornwall Beck"
+        },
+        {
+          "founderId": "h-000018",
+          "sons": 0,
+          "founderGroupWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Crown Of Glenaveen"
+        },
+        {
+          "founderId": "h-000049",
+          "sons": 0,
+          "founderGroupWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Bierstadt's Armour"
+        },
+        {
+          "founderId": "h-000171",
+          "sons": 0,
+          "founderGroupWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Forever Torrent"
+        }
+      ],
+      "topFamilies": [
+        {
+          "founderMareId": "h-000002",
+          "blackTypeWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Speketheclipper"
+        },
+        {
+          "founderMareId": "h-000004",
+          "blackTypeWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Petrel's Integrity"
+        },
+        {
+          "founderMareId": "h-000006",
+          "blackTypeWinners": 0,
+          "groupWinners": 0,
+          "eligible": false,
+          "name": "Elegance's Abbey"
+        }
+      ]
+    }
+  ],
+  "finalDate": {
+    "year": 2031,
+    "week": 2
+  },
+  "horses": 6254,
+  "legacy": {
+    "lines": [],
+    "families": []
+  },
+  "rngEqual": true,
+  "gameplayEqual": true,
+  "saveRoundTrip": true,
+  "limitation": "통산 리스티드 우승 필드가 없어 보존 기간 밖의 리스티드 우승은 집계 불가. 공용 타입 변경 확인 필요.",
+  "elapsedMs": 337054.843793
+}

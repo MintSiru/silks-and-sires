@@ -95,6 +95,8 @@ describe('createGameSystems', () => {
       'race_plans',
       'season',
       'sales',
+      'chronicle',
+      'legacy',
       'private_trade',
       'contracts',
       'facilities',

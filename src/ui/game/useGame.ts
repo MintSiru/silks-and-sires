@@ -1,3 +1,4 @@
+import { dynastyGoals as calculateDynastyGoals } from '../../engine/legacy/goals';
 import { approveMating, approveAllMatings, changeMating, removeMating, replanMatings, setMatingFeeCap } from '../../engine/breeding/matingPlan';
 import { sellToNhStore } from '../../engine/sales/nhStore';
 import { FARM_NAME_ERROR_KO } from './text';
@@ -56,6 +57,8 @@ import { clearMaxBid, setMaxBid, type BidError } from '../../engine/sales/biddin
 import { consignToSale, withdrawConsignment, type ConsignError } from '../../engine/sales/player';
 import type { SalesStaticData } from '../../engine/sales/system';
 import type {
+  ChronicleEntry,
+  DynastyGoalProgress,
   CalendarPhaseId,
   Difficulty,
   FacilityKind,
@@ -96,6 +99,8 @@ export interface NewGameInput {
 }
 
 export interface GameApi {
+  chronicle(): ChronicleEntry[];
+  dynastyGoals(): DynastyGoalProgress[];
   matingProposals(): MatingProposal[];
   proposeMatings(): ReturnType<typeof replanMatings>;
   approveMating(mareId: HorseId): ReturnType<typeof approveMating>;
@@ -655,6 +660,8 @@ export function useGame(): GameApi {
   }, []);
 
   return {
+    chronicle: () => structuredClone(requireState().chronicle ?? []),
+    dynastyGoals: () => calculateDynastyGoals(requireState(), gameStaticData()),
     matingProposals,
     proposeMatings,
     approveMating: approveMatingWith,
