@@ -1,4 +1,4 @@
-/* global console, process, URL, document, window, requestAnimationFrame */
+/* global console, process, URL, document, window, requestAnimationFrame, indexedDB */
 // 먼저 npm run build -- --configLoader runner 를 실행한다.
 // npm run dev 없이 빌드 산출물을 Playwright 요청 가로채기로 제공한다.
 // 실행: node tests/ui/ux2-shell.smoke.mjs
@@ -12,7 +12,8 @@ const measurements = {};
 const screenshots = [];
 const layoutFailures = [];
 const errors = [];
-const menuNames = ['홈', '마구간', '번식', '경주', '세일', '목장', '경영'];
+const menuNames = ['홈', '마구간', '번식', '경주', '세일', '목장', '경영', '기록'];
+const legacyTabs = ['연대기', '왕조 목표', '부계·모계', '명예의 전당', '라이벌'];
 function writeReport(extra = {}) {
   const report = {
     result: layoutFailures.length || errors.length ? 'FAIL' : 'PASS',
@@ -83,7 +84,7 @@ function writeReport(extra = {}) {
     await page.getByRole('button', { name: '새 게임 시작', exact: true }).click();
     const nav = page.getByRole('navigation', { name: '화면 선택' });
     await expect(nav).toBeVisible({ timeout: 60000 });
-    await expect(nav.getByRole('button')).toHaveCount(7);
+    await expect(nav.getByRole('button')).toHaveCount(8);
     const startDate = await page.getByTestId('game-date').innerText();
     async function measureMenus(phase, mobile = false) {
       for (const name of menuNames) {
@@ -94,6 +95,17 @@ function writeReport(extra = {}) {
           await page.screenshot({ path: shot, fullPage: true });
           screenshots.push(shot);
         }
+      }
+      await measureLegacyTabs(phase, mobile);
+    }
+    async function measureLegacyTabs(phase, mobile = false) {
+      await nav.getByRole('button', { name: '기록', exact: true }).click();
+      const tabs = page.getByRole('navigation', { name: '기록 구분' });
+      await expect(tabs.getByRole('button')).toHaveCount(5);
+      for (const name of legacyTabs) {
+        await tabs.getByRole('button', { name, exact: true }).click();
+        await measure(`기록/${name}`, phase, mobile);
+        if (name === '왕조 목표') await expect(page.locator('.legacy-goals > .panel')).toHaveCount(12);
       }
     }
     await measureMenus('desktop');
@@ -155,6 +167,97 @@ function writeReport(extra = {}) {
       true,
       '좁은 화면에서 문서 가로 넘침 없음',
     );
+    // 실제 저장·불러오기 경로로 다년 기록을 넣어 빈 화면 이외의 모든 기록 탭을 확인한다.
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.getByRole('button', { name: '메뉴', exact: true }).click();
+    await page.getByRole('button', { name: '저장', exact: true }).click();
+    await expect(page.getByRole('status').filter({ hasText: '저장했습니다.' })).toBeVisible();
+    const fixture = await page.evaluate(async () => {
+      const db = await new Promise((resolve, reject) => {
+        const request = indexedDB.open('silks-and-sires');
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+      const record = await new Promise((resolve, reject) => {
+        const request = db.transaction('data', 'readonly').objectStore('data').get('autosave');
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+      const envelope = JSON.parse(record.json);
+      const state = envelope.state;
+      const horses = Object.values(state.horses).filter((horse) => horse.ownerId === state.playerOwnerId);
+      const runner = horses.find((horse) => horse.status === 'in_training');
+      const sire = state.horses[runner.sireId];
+      const mare = horses.find((horse) => horse.status === 'broodmare');
+      runner.damId = mare.id;
+      const rivals = Object.values(state.owners).filter((owner) => !owner.isPlayer).slice(0, 3);
+      const year = state.date.year;
+      state.chronicle = Array.from({ length: 90 }, (_, index) => ({
+        id: `${year}-${index + 1}`, kind: 'g1_win', date: { year, week: index % 52 + 1 },
+        horseId: runner.id, player: true, label: '구름들 컵',
+      }));
+      state.chronicle.push({ id: `${year - 1}-1`, kind: 'first_win', date: { year: year - 1, week: 3 }, horseId: runner.id, player: true });
+      state.chronicle.push({ id: `${year}-91`, kind: 'world_classic', date: { year, week: 20 }, horseId: runner.id, player: false, label: '푸른들 Derby' });
+      state.chronicle.push({ id: `${year}-92`, kind: 'rival_clash', date: { year, week: 24 }, ownerId: rivals[0].id, horseId: runner.id, player: true, count: 3 });
+      state.rivals = rivals.map((owner, index) => ({ ownerId: owner.id, since: year - 1, reason: 'big_race', active: index < 2, intensity: index < 2 ? 65 : 0, playerAhead: 2, rivalAhead: 1 }));
+      state.legacy = {
+        lines: [{ id: `line_${sire.id}`, founderId: sire.id, parentLineId: sire.sireLineId, establishedYear: year, sons: 3, groupWinners: 8, playerBred: true }],
+        families: [{ founderMareId: mare.id, establishedYear: year, blackTypeWinners: 5, playerBred: true }],
+      };
+      // 새해 첫 주 1회 진행으로 실제 awards_announced 이벤트를 발생시킨다.
+      state.date = { year: year + 1, week: 1 };
+      state.season.year = year + 1;
+      state.yearEnd.lastSubmittedYear = year + 1;
+      record.json = JSON.stringify(envelope);
+      await new Promise((resolve, reject) => {
+        const tx = db.transaction('data', 'readwrite');
+        tx.objectStore('data').put(record);
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+      });
+      db.close();
+      return { name: runner.name, year };
+    });
+    await page.getByRole('button', { name: '불러오기', exact: true }).click();
+    await measureMenus('legacy-fixture');
+    await nav.getByRole('button', { name: '기록', exact: true }).click();
+    // 앞 단계가 마지막 탭(라이벌)에 머물러 있으므로 연대기 탭으로 돌아간다.
+    await page.getByRole('navigation', { name: '기록 구분' }).getByRole('button', { name: '연대기', exact: true }).click();
+    const timeline = page.getByRole('region', { name: '연대기 목록' });
+    await expect(timeline.locator('details').first()).toHaveAttribute('open', '');
+    await expect(timeline.locator('details').last()).not.toHaveAttribute('open', '');
+    assert(await timeline.evaluate((element) => element.scrollHeight > element.clientHeight), '긴 연대기는 내부 스크롤');
+    await page.getByLabel('기록 범위').selectOption('world');
+    await expect(timeline).toContainText('푸른들 Derby');
+    await expect(timeline.locator('li')).toHaveCount(1);
+    await page.getByLabel('기록 범위').selectOption('mine');
+    await timeline.locator('.horse-link').first().click();
+    dialog = page.getByRole('dialog');
+    await expect(dialog.getByRole('heading', { name: fixture.name, exact: true })).toBeVisible();
+    await expect(dialog.locator('.legacy-timeline')).toContainText('구름들 컵');
+    await dialog.getByRole('button', { name: '혈통', exact: true }).click();
+    await expect(dialog.locator('.legacy-badges')).toContainText('확립 부계');
+    await expect(dialog.locator('.legacy-badges')).toContainText('명문 모계');
+    await dialog.getByRole('button', { name: '말 상세 닫기' }).click();
+    await nav.getByRole('button', { name: '홈', exact: true }).click();
+    await expect(page.locator('.home-rival-row')).toHaveCount(2);
+    await page.getByRole('button', { name: '1주 진행', exact: true }).click();
+    const ceremony = page.getByRole('dialog', { name: `${fixture.year}년 연말 시상식` });
+    await expect(ceremony).toBeVisible();
+    await expect(ceremony).toContainText('명성 보상 합계');
+    await measure('시상식', 'legacy-fixture');
+    await page.setViewportSize({ width: 390, height: 844 });
+    await measure('시상식', 'legacy-mobile', true);
+    await ceremony.getByRole('button', { name: '시상식 닫기' }).click();
+    await measureMenus('legacy-mobile', true);
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await nav.getByRole('button', { name: '경주', exact: true }).click();
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+    await page.getByRole('button', { name: '순위·시상', exact: true }).click();
+    await page.getByRole('button', { name: '지난 시상', exact: true }).click();
+    await page.getByRole('button', { name: '연말 시상식 다시 보기', exact: true }).click();
+    await expect(ceremony).toBeVisible();
+    await ceremony.getByRole('button', { name: '시상식 닫기' }).click();
     screenshots.push('/tmp/ux2-home.png', '/tmp/ux2-horse-plans.png', '/tmp/ux2-mobile.png');
     const report = writeReport({ startDate, endDate, horseName, proposedBefore });
     console.log(JSON.stringify(report, null, 2));

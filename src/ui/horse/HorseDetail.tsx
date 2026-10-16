@@ -33,6 +33,8 @@ import HorseLink, { HorseNavigation, type HorseTab } from './HorseLink';
 import InjuryBlock from './InjuryBlock';
 import RacePlanPanel from './RacePlanPanel';
 import { HORSE_TAB_LABELS, horseEvents, horsePedigree, horseRunRows, horseTabs } from './horseDetailView';
+import { horseChronicleRows, horseLegacyBadges } from '../legacy/legacyView';
+import { ChronicleList } from '../legacy/LegacyScreen';
 
 export default function HorseDetail({
   game,
@@ -79,6 +81,8 @@ export default function HorseDetail({
   const stallion = state.stallions[horseId];
   const runs = horseRunRows(state, horseId);
   const events = horseEvents(state, horseId);
+  const chronicle = horseChronicleRows(state, horseId, nameOf);
+  const legacyBadges = horseLegacyBadges(state, horseId);
   const health = playerHorses(state).find((h) => h.id === horseId);
   const offspring = state.sireStats[horseId];
   return (
@@ -299,6 +303,9 @@ export default function HorseDetail({
         {activeTab === 'pedigree' && (
           <section>
             <h3>5대 혈통</h3>
+            {legacyBadges.length > 0 && <div className="legacy-badges">
+              {legacyBadges.map((label) => <span className="status-chip status-chip--good" key={label}>{label}</span>)}
+            </div>}
             <p>{pedigree.summary}</p>
             <PedigreeView root={pedigree.root} nameOf={nameOf} />
           </section>
@@ -306,7 +313,12 @@ export default function HorseDetail({
         {activeTab === 'events' && (
           <section>
             <h3>이 말의 기록</h3>
-            {events.length === 0 && <p className="empty-state">아직 기록이 없습니다.</p>}
+            {events.length === 0 && chronicle.length === 0 && <p className="empty-state">아직 기록이 없습니다.</p>}
+            {chronicle.length > 0 && <>
+              <h4>연대기</h4>
+              <div className="table-scroll"><ChronicleList rows={chronicle} /></div>
+            </>}
+            {events.length > 0 && <h4>최근 이벤트</h4>}
             <ol className="event-list">
               {events.map((e, i) => (
                 <li key={i}>

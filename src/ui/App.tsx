@@ -10,6 +10,8 @@ import { feeKo, economyModeKo, fundsWarningKo } from './game/text';
 import { fundsBanner } from './economy/economyView';
 import NewGameScreen from './newGame/NewGameScreen';
 import HomeScreen from './home/HomeScreen';
+import LegacyScreen from './legacy/LegacyScreen';
+import AwardsCeremony from './legacy/AwardsCeremony';
 import { homeTasks } from './home/homeView';
 import StableScreen from './stable/StableScreen';
 import HorseDetail from './horse/HorseDetail';
@@ -27,7 +29,7 @@ import SilksEditor from './silks/SilksEditor';
 import { SILKS_ERROR_KO } from './silks/silksText';
 import RaceDemo from './RaceDemo';
 
-type Screen = 'home' | 'stable' | 'breeding' | 'races' | 'sales' | 'farm' | 'management';
+type Screen = 'home' | 'stable' | 'breeding' | 'races' | 'sales' | 'farm' | 'management' | 'legacy';
 const SCREENS: { id: Screen; label: string }[] = [
   { id: 'home', label: '홈' },
   { id: 'stable', label: '마구간' },
@@ -36,6 +38,7 @@ const SCREENS: { id: Screen; label: string }[] = [
   { id: 'sales', label: '세일' },
   { id: 'farm', label: '목장' },
   { id: 'management', label: '경영' },
+  { id: 'legacy', label: '기록' },
 ];
 function messageOf(error: unknown) {
   return error instanceof Error ? error.message : '작업을 완료하지 못했습니다.';
@@ -70,6 +73,7 @@ function AppContent() {
   const [screen, setScreen] = useState<Screen>('home');
   const [racesTab, setRacesTab] = useState<'calendar' | 'results' | 'standings'>('calendar');
   const [managementTab, setManagementTab] = useState<'funds' | 'staff'>('funds');
+  const [legacyTab, setLegacyTab] = useState<'chronicle' | 'rivals'>('chronicle');
   const [newGame, setNewGame] = useState(false);
   const [menu, setMenu] = useState(false);
   const [yearEnd, setYearEnd] = useState(false);
@@ -338,6 +342,7 @@ function AppContent() {
               className={screen === s.id ? 'shell-nav__item is-active' : 'shell-nav__item'}
               onClick={() => {
                 setScreen(s.id);
+                if (s.id === 'legacy') setLegacyTab('chronicle');
                 setNewGame(false);
                 setYearEnd(false);
                 setMenu(false);
@@ -366,6 +371,10 @@ function AppContent() {
                     onNavigate={(target) => {
                       if (target === 'yearEnd') setYearEnd(true);
                       else if (target === 'sales') setScreen('sales');
+                      else if (target === 'legacy') {
+                        setLegacyTab('rivals');
+                        setScreen('legacy');
+                      }
                       else {
                         setScreen('races');
                         setRacesTab('results');
@@ -374,6 +383,7 @@ function AppContent() {
                   />
                 ))}
               {screen === 'stable' && <StableScreen state={state} />}
+              {screen === 'legacy' && <LegacyScreen key={legacyTab} state={state} initialTab={legacyTab} />}
               {screen === 'breeding' && <BreedingScreen game={game} locked={locked} />}
               {screen === 'races' && (
                 <>
@@ -433,6 +443,7 @@ function AppContent() {
             </>
           )}
         </main>
+        <AwardsCeremony state={state} events={game.lastEvents} />
         {selected && state.horses[selected.id] && (
           <HorseDetail
             key={`${selected.id}:${selected.tab ?? 'overview'}`}

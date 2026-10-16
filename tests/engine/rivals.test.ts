@@ -373,11 +373,11 @@ describe('라이벌 없는 게임과 공용 결과 불변', () => {
     sales: getSalesData(),
   };
 
-  it('라이벌 시스템을 넣어도 레이스 결과·공용 RNG 가 매주 같다 (2시즌)', () => {
+  it('플레이어 입찰·출주가 없으면 라이벌 시스템을 넣어도 레이스 결과·공용 RNG 가 매주 같다 (2시즌)', () => {
     let withRivals = bootstrapGame({ ...OPTIONS, economyMode: 'casual' }, data);
-    withRivals.settings.autoApproveRacePlans = true;
+    withRivals.settings.autoApproveRacePlans = false;
     let without = structuredClone(withRivals);
-    const systems = createGameSystems(data);
+    const systems = createGameSystems(data).filter((system) => system.id !== 'rivals');
     const at = systems.findIndex((s) => s.id === 'sales') + 1;
     const registered = [...systems.slice(0, at), createRivalsSystem(), ...systems.slice(at)];
     for (let week = 0; week < WEEKS_PER_YEAR * 2; week++) {

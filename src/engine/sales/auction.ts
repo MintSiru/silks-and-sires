@@ -4,6 +4,7 @@
  * settleLot 만 draft 를 바꾼다(돈·소유 이전·세계에서 빼기·이벤트). 호출 순서(로트 번호 순)는 sales/system 이 정한다.
  */
 import { playerPremiumRate } from './patron';
+import { RIVAL_BID_BOOST } from '../config/rivals';
 import {
   SALE_AI_BIDS_STORED,
   SALE_BID_LADDER,
@@ -161,15 +162,21 @@ function lotIsLive(state: GameState, lot: SaleLot): boolean {
 export function collectBidders(state: GameState, lot: SaleLot, event: SaleEventDef, playerMax: Money | null): Bidder[] {
   const rate = event.buyerPremiumRate;
   const seller = vendorOwnerId(lot.vendor);
+  const playerBidded = playerBidValid(state, event, lot, playerMax);
   const bidders: Bidder[] = [];
   for (const bid of lot.aiBids) {
     const owner = state.owners[bid.ownerId];
     if (owner === undefined || owner.isPlayer || bid.ownerId === seller) continue;
     if (!(bid.max >= event.minimumBid)) continue;
     if (!(owner.funds >= bid.max * (1 + rate))) continue;
-    bidders.push({ ownerId: owner.id, max: bid.max, isPlayer: false });
+    // 저장 상한은 유지한다. 실제 플레이어 입찰이 있을 때만 기존 후보의 예산 안에서 가중한다.
+    const rival = playerBidded ? state.rivals?.find((r) => r.active && r.ownerId === owner.id) : undefined;
+    const max = rival === undefined || rival.intensity <= 0 ? bid.max
+      : Math.max(bid.max, Math.floor(Math.min(bid.max * (1 + rival.intensity / 100 * RIVAL_BID_BOOST), budgetOf(owner))));
+    if (!(max >= event.minimumBid) || !(owner.funds >= max * (1 + rate))) continue;
+    bidders.push({ ownerId: owner.id, max, isPlayer: false });
   }
-  if (playerBidValid(state, event, lot, playerMax)) {
+  if (playerBidded) {
     bidders.push({ ownerId: state.playerOwnerId, max: Math.floor(playerMax as Money), isPlayer: true });
   }
   return bidders;

@@ -1,0 +1,125 @@
+{
+  "completed": true,
+  "seed": 20261011,
+  "years": 3,
+  "weeks": 156,
+  "scenario": "기본 시작마·캐주얼 경제. 각 세일 북의 평가액 상위 3개 로트에 max(€50,000, 평가액 × 0.8) 입찰. 현재 자금으로 유효한 입찰만 저장. 매주 거리 적합한 시작·소유마를 가능한 G1에 수동 접수. 말 능력·AI 자금·라이벌은 조작하지 않음.",
+  "companionDefinition": "경주 실행 직전 활성 라이벌과 플레이어가 함께 실제 출주한 (G1 레이스, 라이벌 마주) 쌍. 효과로 추가된 출주만의 인과 추정값은 아님.",
+  "annual": [
+    {
+      "year": 2026,
+      "playerBids": 90,
+      "validBidsAtSale": 90,
+      "playerG1Entries": 17,
+      "playerG1Starts": 17,
+      "saleBattleRivals": 1,
+      "rivalG1CompanionPairs": 2
+    },
+    {
+      "year": 2027,
+      "playerBids": 91,
+      "validBidsAtSale": 91,
+      "playerG1Entries": 46,
+      "playerG1Starts": 46,
+      "saleBattleRivals": 0,
+      "rivalG1CompanionPairs": 2
+    },
+    {
+      "year": 2028,
+      "playerBids": 93,
+      "validBidsAtSale": 93,
+      "playerG1Entries": 51,
+      "playerG1Starts": 51,
+      "saleBattleRivals": 0,
+      "rivalG1CompanionPairs": 0
+    }
+  ],
+  "saleBattleRivals": 1,
+  "rivalG1CompanionPairs": 4,
+  "rivalG1CompanionRaces": 4,
+  "declaredRivals": [
+    {
+      "type": "rival_declared",
+      "ownerId": "ow-000084",
+      "reason": "same_tier",
+      "date": {
+        "year": 2026,
+        "week": 1
+      }
+    },
+    {
+      "type": "rival_declared",
+      "ownerId": "ow-000074",
+      "reason": "sale_battle",
+      "date": {
+        "year": 2026,
+        "week": 16
+      }
+    }
+  ],
+  "companions": [
+    {
+      "year": 2026,
+      "week": 37,
+      "raceId": "kilcarrow_juvenile_stakes",
+      "ownerId": "ow-000074",
+      "horses": [
+        "h-000925",
+        "h-001018"
+      ]
+    },
+    {
+      "year": 2026,
+      "week": 43,
+      "raceId": "dunholme_futurity",
+      "ownerId": "ow-000074",
+      "horses": [
+        "h-001006",
+        "h-001018"
+      ]
+    },
+    {
+      "year": 2027,
+      "week": 36,
+      "raceId": "grosser_preis_von_lichtenau",
+      "ownerId": "ow-000084",
+      "horses": [
+        "h-001333"
+      ]
+    },
+    {
+      "year": 2027,
+      "week": 42,
+      "raceId": "kingsmere_autumn_mile",
+      "ownerId": "ow-000084",
+      "horses": [
+        "h-001333"
+      ]
+    }
+  ],
+  "finalRivals": [
+    {
+      "ownerId": "ow-000084",
+      "since": 2026,
+      "reason": "same_tier",
+      "playerAhead": 1,
+      "rivalAhead": 1,
+      "intensity": 26,
+      "active": true
+    },
+    {
+      "ownerId": "ow-000074",
+      "since": 2026,
+      "reason": "sale_battle",
+      "playerAhead": 1,
+      "rivalAhead": 1,
+      "intensity": 34,
+      "active": true
+    }
+  ],
+  "finalDate": {
+    "year": 2029,
+    "week": 1
+  },
+  "elapsedMs": 88951.769614
+}

@@ -1,4 +1,7 @@
 import HorseLink from '../horse/HorseLink';
+import { displayName } from '../../engine/naming/register';
+import { ceremonyView } from '../legacy/legacyView';
+import { CeremonyDialog } from '../legacy/AwardsCeremony';
 import { useMemo, useState } from 'react';
 import type { JSX } from 'react';
 import { getSeriesDefinitions } from '../../engine/data/staticData';
@@ -217,6 +220,7 @@ function LeadingSection({ state }: { state: GameState }): JSX.Element {
 function AwardsSection({ state }: { state: GameState }): JSX.Element {
   const years = useMemo(() => awardYears(state), [state]);
   const [yearPick, setYearPick] = useState<number | null>(null);
+  const [ceremonyOpen, setCeremonyOpen] = useState(false);
   // 고른 해가 없으면 가장 최근 해를 보인다
   const year = yearPick !== null && years.includes(yearPick) ? yearPick : (years[0] ?? null);
   const view = useMemo(() => (year === null ? null : awardsView(state, year)), [state, year]);
@@ -245,6 +249,11 @@ function AwardsSection({ state }: { state: GameState }): JSX.Element {
           </select>
         </label>
       </div>
+
+      <button type="button" className="btn" onClick={() => setCeremonyOpen(true)}>연말 시상식 다시 보기</button>
+      {ceremonyOpen && <CeremonyDialog
+        view={ceremonyView(state, view.year, (id) => state.horses[id] ? displayName(state, state.horses[id]!) : id)!}
+        onClose={() => setCeremonyOpen(false)} />}
 
       <h3>라우렐 레이싱 어워즈 (부문 수상)</h3>
       <table>

@@ -4,12 +4,13 @@ import type { GameState } from '../../engine/types';
 import HorseEventText from '../horse/HorseEventText';
 import HorseLink, { HorseNavigation } from '../horse/HorseLink';
 import { homeView } from './homeView';
+import RivalCard from '../legacy/RivalCard';
 export default function HomeScreen({
   state,
   onNavigate,
 }: {
   state: GameState;
-  onNavigate: (screen: 'yearEnd' | 'sales' | 'results') => void;
+  onNavigate: (screen: 'yearEnd' | 'sales' | 'results' | 'legacy') => void;
 }) {
   const view = homeView(state);
   const { openHorse } = useContext(HorseNavigation);
@@ -98,6 +99,7 @@ export default function HomeScreen({
           </ol>
         </section>
       </div>
+      <RivalCard state={state} onOpen={() => onNavigate('legacy')} />
     </>
   );
 }

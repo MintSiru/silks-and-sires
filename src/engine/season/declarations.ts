@@ -15,6 +15,8 @@ import {
   type FieldSizeRange,
 } from '../config/entries';
 import { racingHorseIds } from '../world/population';
+import { RIVAL_BIG_RACE_ENTRY_WEIGHT } from '../config/rivals';
+import { createRng, rngFromState } from '../rng';
 import { meanAbility } from '../world/rating';
 import { ageInYear } from '../time/calendar';
 import type {
@@ -29,6 +31,7 @@ import type {
   Race,
   RaceGrade,
   Rng,
+  ScheduledRace,
 } from '../types';
 import { isDistanceFit, isEligible, raceCountryOf, type CourseCountryLookup } from './eligibility';
 import { pickWeighted } from './generateRace';
@@ -126,6 +129,17 @@ interface SelectContext {
   weekUsed: Set<HorseId>;
   /** AI 현역마(id 오름차순) */
   pool: readonly Horse[];
+  rivalWeights: ReadonlyMap<OwnerId, number>;
+}
+
+/** 실제 플레이어 접수가 있는 G1만 견제 대상이다. */
+function rivalTarget(state: GameState, sr: ScheduledRace): boolean {
+  return sr.race.grade === 'G1' && sr.declarations.some((d) => d.ownerId === state.playerOwnerId);
+}
+
+function rivalWeights(state: GameState): Map<OwnerId, number> {
+  return new Map((state.rivals ?? []).filter((r) => r.active && r.intensity > 0 && state.owners[r.ownerId] !== undefined)
+    .map((r) => [r.ownerId, 1 + r.intensity / 100 * RIVAL_BIG_RACE_ENTRY_WEIGHT]));
 }
 
 /** 레이스 한 개에 채울 말을 고른다(최대 need 두). 후보가 모자라면 있는 만큼. */
@@ -135,6 +149,7 @@ function selectHorses(
   date: GameDate,
   raceCountry: CountryCode | null,
   need: number,
+  challenge: boolean,
 ): Candidate[] {
   const cands: Candidate[] = [];
   for (const horse of ctx.pool) {
@@ -155,7 +170,9 @@ function selectHorses(
   if (isGroupLike(race)) {
     const scored = cands.map((c) => ({
       c,
-      score: (c.value ?? 0) + ctx.rng.normal(0, GROUP_SCORE_NOISE_SD),
+      // 자격·거리·나라·OR 판단을 통과한 기존 후보의 선발 점수만 가중한다. 추가 난수 없음.
+      score: ((c.value ?? 0) + ctx.rng.normal(0, GROUP_SCORE_NOISE_SD))
+        * (challenge ? ctx.rivalWeights.get(c.ownerId) ?? 1 : 1),
     }));
     scored.sort((a, b) => b.score - a.score || (a.c.horse.id < b.c.horse.id ? -1 : 1));
     return scored.slice(0, need).map((s) => s.c);
@@ -185,6 +202,24 @@ export function declareAiRunners(
   rng: Rng,
   courseCountry: CourseCountryLookup,
 ): Meeting[] {
+  const weights = rivalWeights(state);
+  if (weights.size === 0 || !meetings.some((m) => m.races.some((sr) => sr.status === 'open' && rivalTarget(state, sr)))) {
+    return declareRunners(state, meetings, rng, courseCountry, new Map());
+  }
+  // 가중 선발로 weekUsed 가 달라지면 뒤 레이스의 후보 수와 난수 소비도 바뀐다.
+  // 공용 스트림은 기존 경로로만 진행시키고, 동일한 시작 상태의 복제 스트림에서 가중 결과를 계산한다.
+  const effectRng = rngFromState(rng.getState());
+  declareRunners(state, meetings, rng, courseCountry, new Map());
+  return declareRunners(state, meetings, effectRng, courseCountry, weights);
+}
+
+function declareRunners(
+  state: GameState,
+  meetings: readonly Meeting[],
+  rng: Rng,
+  courseCountry: CourseCountryLookup,
+  weights: ReadonlyMap<OwnerId, number>,
+): Meeting[] {
   const out: Meeting[] = structuredClone([...meetings]);
 
   const weekUsed = new Set<HorseId>();
@@ -199,7 +234,7 @@ export function declareAiRunners(
     const horse = state.horses[id];
     if (horse !== undefined) pool.push(horse);
   }
-  const ctx: SelectContext = { state, rng, weekUsed, pool };
+  const ctx: SelectContext = { state, rng, weekUsed, pool, rivalWeights: weights };
 
   interface Slot {
     mi: number;
@@ -225,7 +260,7 @@ export function declareAiRunners(
     const target = Math.min(rng.int(range.min, range.max), sr.race.maxRunners);
     const need = target - sr.declarations.length;
     const raceCountry = raceCountryOf(courseCountry, sr.race.racecourseId);
-    const picks = need > 0 ? selectHorses(ctx, sr.race, meeting.date, raceCountry, need) : [];
+    const picks = need > 0 ? selectHorses(ctx, sr.race, meeting.date, raceCountry, need, rivalTarget(state, sr)) : [];
 
     if (sr.declarations.length + picks.length < MIN_FIELD_SIZE) {
       sr.status = 'abandoned';
@@ -246,5 +281,50 @@ export function declareAiRunners(
     sr.status = 'closed';
   }
 
+  return out;
+}
+
+/**
+ * AI는 전주에 미리 접수한다. 이후 들어온 플레이어 G1 접수는 개최 확정 때 독립 스트림으로 재검토한다.
+ * 동일 스트림의 무가중 선발과 비교해 가중 덕분에 선발된 라이벌 말만 기존 비라이벌 말과 교체한다.
+ * 다른 레이스 접수·목표 두수·기존 후보 판단을 지키고, 견제할 후보가 없으면 기존 선언 그대로다.
+ */
+export function reconsiderRivalG1Entries(
+  state: GameState, meetings: readonly Meeting[], courseCountry: CourseCountryLookup,
+): Meeting[] {
+  const weights = rivalWeights(state);
+  if (weights.size === 0) return [...meetings];
+  const targets = meetings.flatMap((m) => m.races.filter((sr) => sr.status === 'open'
+    && rivalTarget(state, sr) && sr.declarations.some((d) => !d.isPlayer)));
+  if (targets.length === 0) return [...meetings];
+  const prepared = structuredClone([...meetings]);
+  for (let mi = 0; mi < prepared.length; mi++) {
+    for (const sr of prepared[mi]!.races) {
+      const original = meetings[mi]!.races.find((r) => r.race.id === sr.race.id)!;
+      if (targets.includes(original)) sr.declarations = sr.declarations.filter((d) => d.isPlayer);
+      else if (sr.status === 'open') sr.status = 'closed';
+    }
+  }
+  const date = meetings[0]!.date;
+  const rng = createRng(`${state.initialSeed}:rival-effect:entries:${date.year}:${date.week}`);
+  const baseline = declareRunners(state, prepared, rngFromState(rng.getState()), courseCountry, new Map());
+  const challenged = declareRunners(state, prepared, rng, courseCountry, weights);
+  const out = structuredClone([...meetings]);
+  const used = new Set(out.flatMap((m) => m.races.flatMap((sr) => sr.declarations.map((d) => d.horseId))));
+  out.forEach((m, mi) => m.races.forEach((sr, ri) => {
+    if (!targets.includes(meetings[mi]!.races[ri]!)) return;
+    const previous = baseline[mi]!.races[ri]!.declarations;
+    const additions = challenged[mi]!.races[ri]!.declarations.filter((d) => !d.isPlayer && weights.has(d.ownerId)
+      && !previous.some((p) => p.horseId === d.horseId) && !used.has(d.horseId));
+    for (const addition of additions) {
+      const displaced = sr.declarations.filter((d) => !d.isPlayer && !weights.has(d.ownerId))
+        .sort((a, b) => (state.horses[a.horseId]?.officialRating ?? 0) - (state.horses[b.horseId]?.officialRating ?? 0)
+          || a.horseId.localeCompare(b.horseId))[0];
+      if (displaced === undefined) break;
+      sr.declarations[sr.declarations.indexOf(displaced)] = addition;
+      used.delete(displaced.horseId);
+      used.add(addition.horseId);
+    }
+  }));
   return out;
 }

@@ -17,7 +17,7 @@ import {
 import { RIVAL_INTENSITY_MAX } from '../../engine/config/rivals';
 import type { ChronicleStaticData } from '../../engine/legacy/chronicleSystem';
 import { dynastyGoals } from '../../engine/legacy/goals';
-import { lineLabel } from '../../engine/legacy/lines';
+import { establishedLineOf, familyOf, lineLabel } from '../../engine/legacy/lines';
 import { rivalViews, type RivalView } from '../../engine/legacy/rivals';
 import { formatDateKo } from '../../engine/time/calendar';
 import type {
@@ -154,6 +154,8 @@ export interface CeremonyView {
   highlights: string[];
   /** 시상식 명성 보상 합계(연간 상한 적용) */
   reputation: number;
+  /** 내 Laurel·리딩·시리즈 수상 내역(시상 확정 연대기 기준) */
+  honors: string[];
 }
 
 /** Laurel 부문 표시 순서 */
@@ -286,6 +288,24 @@ export function chronicleYearGroups(
           player: entry.player,
         })),
     }));
+}
+
+/** 말 상세의 영구 연대기. 현재 소유 여부와 무관하게 세계 기록도 포함한다. */
+export function horseChronicleRows(state: GameState, horseId: HorseId, nameOf: (id: HorseId) => string): ChronicleRow[] {
+  return chronicleYearGroups(
+    { ...state, chronicle: (state.chronicle ?? []).filter((entry) => entry.horseId === horseId) },
+    'all', nameOf, (id) => ownerLabelOf(state, id),
+  ).flatMap((group) => group.rows);
+}
+
+/** 혈통 계산은 그대로 두고 가장 가까운 확립 부계·명문 모계 칭호만 표시한다. */
+export function horseLegacyBadges(state: GameState, horseId: HorseId): string[] {
+  const line = establishedLineOf(state, horseId);
+  const family = familyOf(state, horseId);
+  return [
+    ...(line === null ? [] : [`확립 부계 · ${lineLabel(state, line)} · ${line.establishedYear}년`]),
+    ...(family === null ? [] : [`명문 모계 · ${horseNameOf(state, family.founderMareId)} · ${family.establishedYear}년`]),
+  ];
 }
 
 /** 왕조 목표 12개 카드. 진행값은 목표치에서 자르고, 비율은 0~1 로 둔다 */
@@ -459,5 +479,8 @@ export function ceremonyView(
     leading,
     highlights: seasonHighlights(state, year, nameOf),
     reputation: ceremonyReputation(state, year),
+    honors: (state.chronicle ?? [])
+      .filter((entry) => entry.player && entry.date.year === year + 1 && REPUTATION_KINDS.has(entry.kind))
+      .map((entry) => chronicleKo(entry, nameOf, (id) => ownerLabelOf(state, id))),
   };
 }

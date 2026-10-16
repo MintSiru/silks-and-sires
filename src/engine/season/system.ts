@@ -33,7 +33,7 @@ import { closeEconomyYear, prunePlayerLedger, recordMoney } from '../economy/led
 import { adjustReputation, reputationFromLeadingOwners } from '../economy/relations';
 import { REPUTATION_SERIES } from '../config/economy';
 import { computeSeasonAwards, hadRacesIn } from './awards';
-import { declareAiRunners } from './declarations';
+import { declareAiRunners, reconsiderRivalG1Entries } from './declarations';
 import type { CourseCountryLookup } from './eligibility';
 import { buildWeekMeetings } from './meetings';
 import { runMeetingInPlace } from './raceday';
@@ -194,11 +194,12 @@ function runThisWeek(
   rng: Rng,
   events: GameEvent[],
 ): void {
-  const thisWeek = draft.seasonState.meetings.filter((m) => sameDate(m.date, date));
+  let thisWeek = draft.seasonState.meetings.filter((m) => sameDate(m.date, date));
   if (thisWeek.length === 0) return;
   draft.seasonState.meetings = draft.seasonState.meetings.filter((m) => !sameDate(m.date, date));
 
   const hasLegacy = thisWeek.some((m) => !m.races.some((sr) => sr.declarations.some((d) => !d.isPlayer)));
+  thisWeek = reconsiderRivalG1Entries(draft, thisWeek, courseCountry);
   for (const meeting of thisWeek) {
     const hasAi = meeting.races.some((sr) => sr.declarations.some((d) => !d.isPlayer));
     if (!hasAi) continue;

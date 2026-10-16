@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import sireLines from '../../data/stallions/sire_lines.json';
 import { START_YEAR } from '../../src/engine/config/game';
 import {
@@ -35,9 +37,15 @@ import {
   femaleFamilyRows,
   goalCards,
   hallOfFameRows,
+  horseChronicleRows,
+  horseLegacyBadges,
   lineConditionText,
   rivalRows,
 } from '../../src/ui/legacy/legacyView';
+import LegacyScreen from '../../src/ui/legacy/LegacyScreen';
+import { CeremonyContent } from '../../src/ui/legacy/AwardsCeremony';
+import RivalCard from '../../src/ui/legacy/RivalCard';
+import { HorseNavigation } from '../../src/ui/horse/HorseLink';
 
 const OPTIONS = {
   seed: 20261016,
@@ -402,6 +410,16 @@ describe('연말 시상식 창 데이터', () => {
       CEREMONY_REPUTATION.annualCap,
     ));
     expect(view.reputation).toBe(15);
+    expect(view.honors).toEqual(state.chronicle!
+      .filter((entry) => entry.date.year === 2031)
+      .map((entry) => chronicleKo(entry, nameOf, ownerNameFor(state))));
+    const html = renderToStaticMarkup(createElement(HorseNavigation.Provider,
+      { value: { state, openHorse: () => {} } }, createElement(CeremonyContent, { view })));
+    expect(html).toContain('명성 보상 합계 +15');
+    expect(html).toContain('ceremony-mine');
+    expect(html).toContain('내 말 이름');
+    expect(html).toContain('라이벌 A');
+    expect(html).toContain('내 수상 내역');
   });
 
   it('상한 안에서는 명성 보상을 그대로 합산하고, 시상이 없는 해는 null 이다', () => {
@@ -419,7 +437,76 @@ describe('연말 시상식 창 데이터', () => {
     state.awardsHistory = [awardsOf(2030, {}, {})];
     const view = ceremonyView(state, 2030, nameOfFor(state))!;
     expect(view.highlights).toEqual([]);
+    expect(view.honors).toEqual([]);
     expect(view.reputation).toBe(0);
     expect(view.laurel.every((row) => row.horseId === null && !row.mine)).toBe(true);
+  });
+});
+
+describe('M5-E2 말 상세와 기록 화면 연결', () => {
+  it('소유권과 무관하게 해당 말의 영구 연대기만 최신순으로 표시한다', () => {
+    const state = base();
+    horse(state, 'sold', '먼들', 'other');
+    add(state, { kind: 'first_win', date: { year: 2028, week: 4 }, player: true, horseId: 'sold' });
+    add(state, { kind: 'first_win', date: { year: 2029, week: 4 }, player: true, horseId: 'different' });
+    add(state, { kind: 'world_classic', date: { year: 2029, week: 20 }, player: false, horseId: 'sold', label: '구름들 Derby' });
+    const before = structuredClone(state);
+    const rows = horseChronicleRows(state, 'sold', nameOfFor(state));
+    expect(rows.map((row) => row.id)).toEqual(['2029-2', '2028-1']);
+    expect(rows.every((row) => row.horseId === 'sold')).toBe(true);
+    expect(rows[0]!.text).toContain('먼들');
+    expect(horseChronicleRows(state, 'missing', nameOfFor(state))).toEqual([]);
+    expect(state).toEqual(before);
+  });
+
+  it('확립 부계·모계 칭호를 자손 혈통 배지로 표시하고 옛 저장본은 빈 배지다', () => {
+    const state = base();
+    horse(state, 'sire', '구름들');
+    horse(state, 'dam', '푸른들');
+    horse(state, 'child', '새들');
+    state.horses.child!.sireId = 'sire';
+    state.horses.child!.damId = 'dam';
+    state.legacy = {
+      lines: [{ id: 'line_sire', founderId: 'sire', parentLineId: 'original', establishedYear: 2030, sons: 3, groupWinners: 8, playerBred: true }],
+      families: [{ founderMareId: 'dam', establishedYear: 2029, blackTypeWinners: 5, playerBred: true }],
+    };
+    const before = structuredClone(state);
+    expect(horseLegacyBadges(state, 'child')).toEqual(['확립 부계 · 구름들 계통 · 2030년', '명문 모계 · 푸른들 · 2029년']);
+    expect(horseLegacyBadges(state, 'sire')).toEqual(['확립 부계 · 구름들 계통 · 2030년']);
+    expect(horseLegacyBadges(state, 'missing')).toEqual([]);
+    expect(state).toEqual(before);
+    delete state.legacy;
+    expect(horseLegacyBadges(state, 'child')).toEqual([]);
+  });
+
+  it('기록 메뉴의 연대기와 12개 목표·부계·모계·명예의 전당·라이벌을 렌더링한다', () => {
+    const state = base();
+    horse(state, 'h1', '첫말');
+    owner(state, 'rival', '구름들 라이벌');
+    add(state, { kind: 'g1_win', date: { year: 2030, week: 4 }, player: true, horseId: 'h1', label: '구름들 컵' });
+    state.rivals = [{ ownerId: 'rival', since: 2030, reason: 'big_race', active: true, intensity: 40, playerAhead: 2, rivalAhead: 1 }];
+    const renderTab = (initialTab: 'chronicle' | 'goals' | 'lines' | 'hall' | 'rivals') => renderToStaticMarkup(createElement(
+      HorseNavigation.Provider, { value: { state, openHorse: () => {} } }, createElement(LegacyScreen, { state, initialTab }),
+    ));
+    expect(renderTab('chronicle')).toContain('구름들 컵 G1 우승');
+    expect(renderTab('chronicle')).toContain('horse-link');
+    expect(renderTab('goals').match(/<h3>/g)).toHaveLength(12);
+    expect(renderTab('lines')).toContain(lineConditionText());
+    expect(renderTab('lines')).toContain(familyConditionText());
+    expect(renderTab('hall')).toContain('첫말');
+    expect(renderTab('rivals')).toContain('2승 1패');
+    expect(renderTab('rivals')).toContain('승부복 앞모습');
+    expect(renderTab('rivals')).toContain('지난 라이벌');
+  });
+
+  it('홈 카드는 활성 라이벌만 최대 두 명 표시한다', () => {
+    const state = base();
+    for (const id of ['a', 'b', 'old']) owner(state, id, `구름들 ${id}`);
+    state.rivals = ['a', 'b', 'old'].map((id) => ({ ownerId: id, since: 2030, reason: 'same_tier', active: id !== 'old', intensity: 30, playerAhead: 1, rivalAhead: 2 }));
+    const html = renderToStaticMarkup(createElement(RivalCard, { state, onOpen: () => {} }));
+    expect(html).toContain('구름들 a');
+    expect(html).toContain('구름들 b');
+    expect(html).not.toContain('구름들 old');
+    expect(html).toContain('아직 맞대결이 없습니다.');
   });
 });

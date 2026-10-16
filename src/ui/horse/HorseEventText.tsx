@@ -20,7 +20,7 @@ export default function HorseEventText({ event }: { event: GameEvent }) {
     .filter((id) => state?.horses[id])
     .map((id) => ({ id, name: nameOf(id) }))
     .sort((a, b) => b.name.length - a.name.length);
-  let remaining = eventKo(event, nameOf);
+  let remaining = eventKo(event, nameOf, (id) => state?.owners[id]?.name ?? id);
   const nodes: ReactNode[] = [];
   while (remaining.length) {
     const match = names

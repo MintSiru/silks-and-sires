@@ -753,6 +753,48 @@ summary { cursor: pointer; padding: 12px 0; }
 .panel { min-width: 0; overflow-x: auto; }
 .stallion-row { box-sizing: border-box; }
 
+/* M5 기록: 긴 역사는 내부에서 탐색하고 홈은 기존 두 줄 카드 높이를 유지한다. */
+.legacy-scroll { height: min(520px, calc(100dvh - 380px)); min-height: 220px; overflow: auto; overscroll-behavior: contain; box-sizing: border-box; }
+.legacy-filter { display: block; margin-bottom: 12px; }
+.legacy-timeline { list-style: none; padding: 0; margin: 0; }
+.legacy-timeline li { display: grid; grid-template-columns: 155px minmax(0, 1fr) 60px; gap: 12px; align-items: baseline; padding: 10px 0; border-bottom: 1px solid var(--border); overflow-wrap: anywhere; }
+.legacy-timeline time { color: #a8b2c0; font-size: .9rem; }
+.legacy-timeline .link-btn { text-align: left; white-space: normal; }
+.legacy-goals { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.legacy-goals .panel { margin: 0; }
+.legacy-goals p { margin: 6px 0; }
+.legacy-goals progress { width: 100%; accent-color: var(--status-good); }
+.legacy-badges { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.legacy-badges .status-chip { white-space: normal; }
+.legacy-card-head, .legacy-rival__identity { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.legacy-card-head h3 { margin: 0; }
+.legacy-rival__identity { justify-content: flex-start; flex-wrap: wrap; }
+.legacy-rival { border-bottom: 1px solid var(--border); padding: 12px 0; }
+.legacy-rival:last-child { border-bottom: 0; }
+.legacy-rival p { margin: 6px 0; }
+.home-rivals { margin-top: 12px; }
+.home-rival-row { display: grid; grid-template-columns: minmax(280px, auto) minmax(0, 1fr); gap: 16px; align-items: center; padding-top: 8px; }
+.home-rival-row > .hint { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.awards-ceremony { width: min(1000px, calc(100vw - 32px)); max-width: 100vw; max-height: calc(100dvh - 32px); padding: 20px; box-sizing: border-box; background: #181e26; color: #e8e8e8; border: 1px solid var(--border); border-radius: 8px; overflow: auto; }
+.awards-ceremony::backdrop { background: rgb(0 0 0 / 65%); }
+.ceremony-body { overflow-wrap: anywhere; }
+.ceremony-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 24px; }
+.ceremony-grid h4 { margin: 8px 0; }
+.ceremony-leading { margin: 0; padding-left: 24px; }
+.ceremony-mine { color: var(--status-good); background: rgb(148 217 178 / 7%); }
+.ceremony-mine .badge { margin-left: 6px; }
+@media (min-width: 801px) {
+  .home-grid:has(+ .home-rivals) > .panel { max-height: 230px; }
+}
+@media (max-width: 800px) {
+  .legacy-goals { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .legacy-timeline li { grid-template-columns: minmax(0, 1fr) auto; gap: 4px; }
+  .legacy-timeline time { grid-column: 1 / -1; }
+  .home-rival-row, .ceremony-grid { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .awards-ceremony { padding: 12px; }
+  .legacy-card-head { flex-wrap: wrap; }
+}
+
 /* UX3: 한 화면에서 판단하고, 긴 자료는 표·패널 안에서 펼쳐 본다. */
 :root {
   color-scheme: dark;
