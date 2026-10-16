@@ -39,7 +39,7 @@
   정의가 아직 로드되지 않았다면 Agent 도구 호출 시 model 을 "haiku" 로 직접 지정한다.
 
 ### 외부 모델 (사용자 결정 2026-10-15, 사용자 구독 계정 — 세션마다 로그인 필요)
-- Codex(ChatGPT 구독, `codex exec`): Haiku 와 같은 구현 담당으로 쓸 수 있다. 모델은 gpt-6.1-sol, 추론 강도 high(사용자 결정 2026-10-15) — 세션 시작 때 ~/.codex/config.toml 에 `model = "gpt-6.1-sol"`, `model_reasoning_effort = "high"` 를 넣거나 호출마다 `-m gpt-6.1-sol -c model_reasoning_effort="high"` 로 지정한다. 명세 → 구현 → Opus 검수 사이클·보고 양식·금지 사항은 Haiku 와 똑같이 적용한다. git commit 은 하지 않게 한다.
+- Codex(ChatGPT 구독, `codex exec`): Haiku 와 같은 구현 담당으로 쓸 수 있다. 모델은 gpt-6.1-sol, 추론 강도 high(사용자 결정 2026-10-15) — 세션 시작 때 ~/.codex/config.toml 에 `model = "gpt-6.1-sol"`, `model_reasoning_effort = "high"` 를 넣거나 호출마다 `-m gpt-6.1-sol -c model_reasoning_effort="high"` 로 지정한다. gpt-6.1-sol 은 프런티어 바로 아래 급이므로 Opus·Sonnet 급으로 보고 맡긴다(사용자 결정 2026-10-16): 4장의 '파일 5개·300줄' 쪼개기 기준은 Haiku 용이고, Codex 에는 한 기능 단위(파일 10개 내외)와 세부 설계 판단이 섞인 구현·리팩터링·장기 시뮬레이션 분석도 맡긴다. 명세 → 구현 → Opus 검수 사이클·보고 양식·금지 사항은 Haiku 와 똑같이 적용한다. git commit 은 하지 않게 한다.
 - Gemini(구글 구독): 비전(스크린샷·도안·이미지 판독)과 작문(서사 문구·이벤트 텍스트·가상 이름 후보 등)에 쓰기로 했으나, 2026-10-15 확인 결과 Gemini CLI 의 개인 구독 로그인이 구글 쪽에서 막혀 있다("migrate to Antigravity"). 연결 방법이 생기기 전까지 이 역할은 Opus 가 맡는다. 작문·비전 작업이 필요하면 Opus 가 Gemini 에 보낼 지시문(프로젝트 내용만)을 정리해 사용자에게 주고, 사용자가 Gemini 에 중개해 결과를 돌려준다(사용자 결정 2026-10-16). Antigravity CLI(agy)는 헤드리스 구독 로그인이 막혀 보류. 산출물은 Opus 가 원칙 1(실명)·문체를 검수한 뒤 반영한다.
 - 이미지 판독(스크린샷·도안·사용자 첨부 그림)은 당분간 Opus 와 Codex(`codex exec "<지시>" -i <이미지>` — 프롬프트를 -i 앞에 둔다)를 나란히 쓰고, 결과가 다르면 Opus 가 비교해 판단한다(사용자 결정 2026-10-15). 몇 번 써 본 뒤 더 나은 쪽으로 정한다.
 - 로그인이 안 돼 있거나 사용 한도에 걸리면 Haiku 로 대신한다. 사용자가 Codex 사용을 잠시 멈추라고 해도 이미 실행 중인 Codex 작업은 끝까지 마치게 하고, 새 작업부터 Haiku 로 돌린다(사용자 결정 2026-10-15). 외부 모델에 보내는 내용은 프로젝트 코드·명세·데이터로 한정한다(사용자 개인 정보·자격 증명 금지).

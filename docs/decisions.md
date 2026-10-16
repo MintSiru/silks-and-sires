@@ -319,3 +319,4 @@
 - 2026-10-16 사용자 결정: Antigravity CLI(agy) 연결 보류 — 컨테이너에서 개인 구독 헤드리스 로그인 불가(google-antigravity/antigravity-cli #1194), Gemini API 키 없음. Gemini 역할은 계속 Opus 가 맡는다.
 - 2026-10-16 사용자 결정: Gemini 작문·비전은 사용자가 중개 — Opus 가 지시문을 정리해 주면 사용자가 Gemini 에 넣고 결과를 돌려준다(CLAUDE.md §3).
 - 2026-10-16 사용자 결정: M4-H 단계부터 서브에이전트 병렬 위임을 늘려도 된다(파일이 겹치지 않는 티켓은 Codex·Haiku 를 여러 개 동시에).
+- 2026-10-16 사용자 결정: Codex(gpt-6.1-sol)는 Opus·Sonnet 급으로 보고 기능 단위(파일 10개 내외)·세부 설계 판단이 섞인 티켓도 맡긴다. 쪼개기 기준(파일 5개·300줄)은 Haiku 에만 적용.
