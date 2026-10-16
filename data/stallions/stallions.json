@@ -1701,7 +1701,8 @@
     "confidence": "high",
     "femaleLineSireKeys": [
       "stl_turkoman",
-      "stl_my_babu"
+      "stl_my_babu",
+      "stl_polynesian"
     ]
   },
   {
@@ -2102,7 +2103,10 @@
     "marketTier": 3,
     "coatColour": "bay",
     "confidence": "high",
-    "lastCoverYear": 2021
+    "lastCoverYear": 2021,
+    "femaleLineSireKeys": [
+      "stl_spectacular_bid"
+    ]
   },
   {
     "key": "stl_malibu_moon",
@@ -2233,7 +2237,12 @@
     "surfaceProfile": "both",
     "marketTier": 3,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "femaleLineSireKeys": [
+      "stl_go_for_gin",
+      "stl_crafty_prospector",
+      "stl_medieval_man"
+    ]
   },
   {
     "key": "stl_harry_angel",
@@ -2712,7 +2721,12 @@
     "surfaceProfile": "dirt",
     "marketTier": 3,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "femaleLineSireKeys": [
+      "stl_storm_cat",
+      "stl_affirmed",
+      "stl_round_table"
+    ]
   },
   {
     "key": "stl_midshipman",
@@ -3199,7 +3213,8 @@
     "confidence": "high",
     "lastCoverYear": 2023,
     "femaleLineSireKeys": [
-      "stl_chieftain"
+      "stl_chieftain",
+      "stl_buckpasser"
     ]
   },
   {
@@ -3482,7 +3497,12 @@
     "surfaceProfile": "dirt",
     "marketTier": 3,
     "coatColour": "chestnut",
-    "confidence": "high"
+    "confidence": "high",
+    "femaleLineSireKeys": [
+      "stl_lord_at_war",
+      "stl_secretariat",
+      "stl_hail_to_reason"
+    ]
   },
   {
     "key": "stl_territories",
@@ -3557,7 +3577,12 @@
     "surfaceProfile": "dirt",
     "marketTier": 3,
     "coatColour": "bay",
-    "confidence": "high"
+    "confidence": "high",
+    "femaleLineSireKeys": [
+      "stl_private_account",
+      "stl_seattle_slew",
+      "stl_raise_a_native"
+    ]
   },
   {
     "key": "stl_speakers_corner",
@@ -4045,7 +4070,8 @@
     "confidence": "low",
     "lastCoverYear": 2021,
     "femaleLineSireKeys": [
-      "stl_mr_leader"
+      "stl_mr_leader",
+      "stl_sailor"
     ]
   },
   {
@@ -4062,7 +4088,10 @@
     "marketTier": 5,
     "coatColour": "chestnut",
     "confidence": "low",
-    "lastCoverYear": 2020
+    "lastCoverYear": 2020,
+    "femaleLineSireKeys": [
+      "stl_danzig"
+    ]
   },
   {
     "key": "stl_war_chant",
@@ -4533,9 +4562,9 @@
     "key": "stl_tiznow",
     "foaled": 1997,
     "countryOfBirth": "US",
-    "sireKey": null,
-    "damsireKey": null,
-    "sireLineId": "sl_ap_indy",
+    "sireKey": "stl_cee_s_tizzy",
+    "damsireKey": "stl_seattle_song",
+    "sireLineId": "sl_intentionally",
     "status": "pensioned",
     "standsIn": null,
     "distanceProfile": "speed",
@@ -4543,7 +4572,10 @@
     "marketTier": 5,
     "coatColour": "bay",
     "confidence": "low",
-    "lastCoverYear": 2020
+    "lastCoverYear": 2020,
+    "femaleLineSireKeys": [
+      "stl_nice_dancer"
+    ]
   },
   {
     "key": "stl_cadeaux_genereux",
@@ -5017,7 +5049,7 @@
     "foaled": 1991,
     "countryOfBirth": "US",
     "sireKey": "stl_great_above",
-    "damsireKey": null,
+    "damsireKey": "stl_al_hattab",
     "sireLineId": "sl_phalaris",
     "status": "historical",
     "standsIn": null,
@@ -5026,14 +5058,17 @@
     "marketTier": 5,
     "coatColour": "grey",
     "confidence": "high",
-    "lastCoverYear": 2012
+    "lastCoverYear": 2012,
+    "femaleLineSireKeys": [
+      "stl_grey_dawn_ii"
+    ]
   },
   {
     "key": "stl_include",
     "foaled": 1997,
     "countryOfBirth": "US",
-    "sireKey": null,
-    "damsireKey": null,
+    "sireKey": "stl_broad_brush",
+    "damsireKey": "stl_stop_the_music",
     "sireLineId": "sl_phalaris",
     "status": "pensioned",
     "standsIn": null,
@@ -5042,7 +5077,10 @@
     "marketTier": 5,
     "coatColour": "bay",
     "confidence": "high",
-    "lastCoverYear": 2021
+    "lastCoverYear": 2021,
+    "femaleLineSireKeys": [
+      "stl_baldski"
+    ]
   },
   {
     "key": "stl_kaldounevees",
@@ -5601,7 +5639,7 @@
     "foaled": 1999,
     "countryOfBirth": "US",
     "sireKey": "stl_ap_indy",
-    "damsireKey": null,
+    "damsireKey": "stl_mr_prospector",
     "sireLineId": "sl_ap_indy",
     "status": "pensioned",
     "standsIn": null,
@@ -5609,7 +5647,11 @@
     "surfaceProfile": "dirt",
     "marketTier": 5,
     "coatColour": "bay",
-    "confidence": "medium"
+    "confidence": "medium",
+    "femaleLineSireKeys": [
+      "stl_northern_dancer",
+      "stl_graustark"
+    ]
   },
   {
     "key": "stl_carson_city",
@@ -5697,7 +5739,12 @@
     "marketTier": 3,
     "studRole": "flat",
     "coatColour": "bay",
-    "confidence": "medium"
+    "confidence": "medium",
+    "femaleLineSireKeys": [
+      "stl_gone_west",
+      "stl_damascus",
+      "stl_buckpasser"
+    ]
   },
   {
     "key": "stl_yaupon",
@@ -9450,7 +9497,7 @@
     "key": "stl_chieftain",
     "foaled": 1961,
     "countryOfBirth": "US",
-    "sireKey": null,
+    "sireKey": "stl_bold_ruler",
     "damsireKey": null,
     "sireLineId": "sl_phalaris",
     "status": "historical",
@@ -10321,7 +10368,7 @@
     "key": "stl_mr_leader",
     "foaled": 1966,
     "countryOfBirth": "US",
-    "sireKey": null,
+    "sireKey": "stl_hail_to_reason",
     "damsireKey": null,
     "sireLineId": "sl_phalaris",
     "status": "historical",
@@ -11347,7 +11394,7 @@
     "key": "stl_crafty_admiral",
     "foaled": 1948,
     "countryOfBirth": "US",
-    "sireKey": null,
+    "sireKey": "stl_fighting_fox",
     "damsireKey": null,
     "sireLineId": "sl_phalaris",
     "status": "historical",
@@ -11397,7 +11444,7 @@
     "key": "stl_my_babu",
     "foaled": 1945,
     "countryOfBirth": "FR",
-    "sireKey": null,
+    "sireKey": "stl_djebel",
     "damsireKey": null,
     "sireLineId": "sl_phalaris",
     "status": "historical",
@@ -12151,7 +12198,7 @@
     "countryOfBirth": "US",
     "sireKey": "stl_majestic_light",
     "damsireKey": null,
-    "sireLineId": "sl_phalaris",
+    "sireLineId": "sl_native_dancer",
     "status": "historical",
     "standsIn": null,
     "distanceProfile": "classic",
@@ -12266,7 +12313,7 @@
     "key": "stl_petition",
     "foaled": 1944,
     "countryOfBirth": "GB",
-    "sireKey": null,
+    "sireKey": "stl_fair_trial",
     "damsireKey": null,
     "sireLineId": "sl_phalaris",
     "status": "historical",
@@ -12521,7 +12568,7 @@
     "countryOfBirth": "US",
     "sireKey": "stl_majestic_prince",
     "damsireKey": "stl_ribot",
-    "sireLineId": "sl_phalaris",
+    "sireLineId": "sl_native_dancer",
     "status": "historical",
     "standsIn": null,
     "distanceProfile": "classic",
@@ -13119,9 +13166,9 @@
     "key": "stl_majestic_prince",
     "foaled": 1966,
     "countryOfBirth": "US",
-    "sireKey": null,
+    "sireKey": "stl_raise_a_native",
     "damsireKey": null,
-    "sireLineId": "sl_phalaris",
+    "sireLineId": "sl_native_dancer",
     "status": "historical",
     "standsIn": null,
     "distanceProfile": "classic",
@@ -13150,10 +13197,10 @@
   },
   {
     "key": "stl_medieval_man",
-    "foaled": 1976,
+    "foaled": 1974,
     "countryOfBirth": "US",
-    "sireKey": null,
-    "damsireKey": null,
+    "sireKey": "stl_noholme",
+    "damsireKey": "stl_tim_tam",
     "sireLineId": "sl_phalaris",
     "status": "historical",
     "standsIn": null,
@@ -13162,7 +13209,8 @@
     "marketTier": 5,
     "studRole": "flat",
     "confidence": "medium",
-    "coatColour": "bay"
+    "coatColour": "chestnut",
+    "lastCoverYear": 1999
   },
   {
     "key": "stl_distinctive",
@@ -13185,9 +13233,9 @@
     "key": "stl_cee_s_tizzy",
     "foaled": 1987,
     "countryOfBirth": "US",
-    "sireKey": null,
+    "sireKey": "stl_relaunch",
     "damsireKey": null,
-    "sireLineId": "sl_phalaris",
+    "sireLineId": "sl_intentionally",
     "status": "historical",
     "standsIn": null,
     "distanceProfile": "classic",
@@ -13219,8 +13267,8 @@
     "key": "stl_cherokee_run",
     "foaled": 1990,
     "countryOfBirth": "US",
-    "sireKey": null,
-    "damsireKey": null,
+    "sireKey": "stl_runaway_groom",
+    "damsireKey": "stl_silver_saber",
     "sireLineId": "sl_phalaris",
     "status": "historical",
     "standsIn": null,
@@ -13236,7 +13284,7 @@
     "key": "stl_virginia_rapids",
     "foaled": 1986,
     "countryOfBirth": "US",
-    "sireKey": null,
+    "sireKey": "stl_riverman",
     "damsireKey": null,
     "sireLineId": "sl_phalaris",
     "status": "historical",
@@ -13286,9 +13334,9 @@
     "key": "stl_king_of_kings",
     "foaled": 1995,
     "countryOfBirth": "IE",
-    "sireKey": null,
-    "damsireKey": null,
-    "sireLineId": "sl_phalaris",
+    "sireKey": "stl_sadlers_wells",
+    "damsireKey": "stl_habitat",
+    "sireLineId": "sl_sadlers_wells",
     "status": "historical",
     "standsIn": null,
     "distanceProfile": "classic",
@@ -13302,7 +13350,7 @@
     "key": "stl_ela_mana_mou",
     "foaled": 1976,
     "countryOfBirth": "IE",
-    "sireKey": null,
+    "sireKey": "stl_pitcairn",
     "damsireKey": null,
     "sireLineId": "sl_phalaris",
     "status": "historical",
@@ -13319,9 +13367,9 @@
     "key": "stl_mutakddim",
     "foaled": 1991,
     "countryOfBirth": "US",
-    "sireKey": null,
-    "damsireKey": null,
-    "sireLineId": "sl_phalaris",
+    "sireKey": "stl_seeking_the_gold",
+    "damsireKey": "stl_seattle_slew",
+    "sireLineId": "sl_mr_prospector",
     "status": "historical",
     "standsIn": null,
     "distanceProfile": "classic",
@@ -13335,9 +13383,9 @@
     "key": "stl_falstaff",
     "foaled": 1981,
     "countryOfBirth": "US",
-    "sireKey": null,
+    "sireKey": "stl_lyphard",
     "damsireKey": null,
-    "sireLineId": "sl_phalaris",
+    "sireLineId": "sl_northern_dancer",
     "status": "historical",
     "standsIn": null,
     "distanceProfile": "classic",
@@ -13367,7 +13415,7 @@
     "key": "stl_olimpio",
     "foaled": 1988,
     "countryOfBirth": "US",
-    "sireKey": null,
+    "sireKey": "stl_naskra",
     "damsireKey": null,
     "sireLineId": "sl_phalaris",
     "status": "historical",
@@ -13434,7 +13482,7 @@
     "key": "stl_table_play",
     "foaled": 1963,
     "countryOfBirth": "US",
-    "sireKey": null,
+    "sireKey": "stl_round_table",
     "damsireKey": null,
     "sireLineId": "sl_phalaris",
     "status": "historical",
@@ -13478,5 +13526,241 @@
     "studRole": "flat",
     "confidence": "medium",
     "coatColour": "chestnut"
+  },
+  {
+    "key": "stl_noholme",
+    "foaled": 1956,
+    "countryOfBirth": "AU",
+    "sireKey": null,
+    "damsireKey": null,
+    "sireLineId": "sl_phalaris",
+    "status": "historical",
+    "standsIn": null,
+    "distanceProfile": "classic",
+    "surfaceProfile": "turf",
+    "marketTier": 5,
+    "studRole": "flat",
+    "confidence": "medium",
+    "coatColour": "chestnut",
+    "lastCoverYear": 1983
+  },
+  {
+    "key": "stl_runaway_groom",
+    "foaled": 1979,
+    "countryOfBirth": "CA",
+    "sireKey": null,
+    "damsireKey": null,
+    "sireLineId": "sl_phalaris",
+    "status": "historical",
+    "standsIn": null,
+    "distanceProfile": "classic",
+    "surfaceProfile": "dirt",
+    "marketTier": 5,
+    "studRole": "flat",
+    "confidence": "medium",
+    "coatColour": "grey",
+    "lastCoverYear": 2007
+  },
+  {
+    "key": "stl_silver_saber",
+    "foaled": 1972,
+    "countryOfBirth": "GB",
+    "sireKey": null,
+    "damsireKey": null,
+    "sireLineId": "sl_phalaris",
+    "status": "historical",
+    "standsIn": null,
+    "distanceProfile": "classic",
+    "surfaceProfile": "turf",
+    "marketTier": 5,
+    "studRole": "flat",
+    "confidence": "medium",
+    "coatColour": "grey"
+  },
+  {
+    "key": "stl_pitcairn",
+    "foaled": 1971,
+    "countryOfBirth": "IE",
+    "sireKey": null,
+    "damsireKey": null,
+    "sireLineId": "sl_phalaris",
+    "status": "historical",
+    "standsIn": null,
+    "distanceProfile": "classic",
+    "surfaceProfile": "turf",
+    "marketTier": 5,
+    "studRole": "flat",
+    "confidence": "medium",
+    "coatColour": "brown"
+  },
+  {
+    "key": "stl_naskra",
+    "foaled": 1967,
+    "countryOfBirth": "US",
+    "sireKey": null,
+    "damsireKey": null,
+    "sireLineId": "sl_phalaris",
+    "status": "historical",
+    "standsIn": null,
+    "distanceProfile": "classic",
+    "surfaceProfile": "dirt",
+    "marketTier": 5,
+    "studRole": "flat",
+    "confidence": "medium",
+    "coatColour": "bay",
+    "lastCoverYear": 1990
+  },
+  {
+    "key": "stl_fighting_fox",
+    "foaled": 1935,
+    "countryOfBirth": "US",
+    "sireKey": null,
+    "damsireKey": null,
+    "sireLineId": "sl_phalaris",
+    "status": "historical",
+    "standsIn": null,
+    "distanceProfile": "classic",
+    "surfaceProfile": "dirt",
+    "marketTier": 5,
+    "studRole": "flat",
+    "confidence": "medium",
+    "coatColour": "bay",
+    "lastCoverYear": 1959
+  },
+  {
+    "key": "stl_fair_trial",
+    "foaled": 1932,
+    "countryOfBirth": "GB",
+    "sireKey": null,
+    "damsireKey": null,
+    "sireLineId": "sl_phalaris",
+    "status": "historical",
+    "standsIn": null,
+    "distanceProfile": "classic",
+    "surfaceProfile": "turf",
+    "marketTier": 5,
+    "studRole": "flat",
+    "confidence": "medium",
+    "coatColour": "chestnut",
+    "lastCoverYear": 1958
+  },
+  {
+    "key": "stl_djebel",
+    "foaled": 1937,
+    "countryOfBirth": "FR",
+    "sireKey": null,
+    "damsireKey": null,
+    "sireLineId": "sl_phalaris",
+    "status": "historical",
+    "standsIn": null,
+    "distanceProfile": "classic",
+    "surfaceProfile": "turf",
+    "marketTier": 5,
+    "studRole": "flat",
+    "confidence": "medium",
+    "coatColour": "bay",
+    "lastCoverYear": 1958
+  },
+  {
+    "key": "stl_spectacular_bid",
+    "foaled": 1976,
+    "countryOfBirth": "US",
+    "sireKey": null,
+    "damsireKey": null,
+    "sireLineId": "sl_phalaris",
+    "status": "historical",
+    "standsIn": null,
+    "distanceProfile": "classic",
+    "surfaceProfile": "dirt",
+    "marketTier": 5,
+    "studRole": "flat",
+    "confidence": "medium",
+    "coatColour": "grey",
+    "lastCoverYear": 2003
+  },
+  {
+    "key": "stl_broad_brush",
+    "foaled": 1983,
+    "countryOfBirth": "US",
+    "sireKey": null,
+    "damsireKey": null,
+    "sireLineId": "sl_phalaris",
+    "status": "historical",
+    "standsIn": null,
+    "distanceProfile": "classic",
+    "surfaceProfile": "dirt",
+    "marketTier": 5,
+    "studRole": "flat",
+    "confidence": "medium",
+    "coatColour": "bay",
+    "lastCoverYear": 2009
+  },
+  {
+    "key": "stl_private_account",
+    "foaled": 1976,
+    "countryOfBirth": "US",
+    "sireKey": null,
+    "damsireKey": null,
+    "sireLineId": "sl_phalaris",
+    "status": "historical",
+    "standsIn": null,
+    "distanceProfile": "classic",
+    "surfaceProfile": "dirt",
+    "marketTier": 5,
+    "studRole": "flat",
+    "confidence": "medium",
+    "coatColour": "bay",
+    "lastCoverYear": 2004
+  },
+  {
+    "key": "stl_nice_dancer",
+    "foaled": 1969,
+    "countryOfBirth": "CA",
+    "sireKey": null,
+    "damsireKey": null,
+    "sireLineId": "sl_phalaris",
+    "status": "historical",
+    "standsIn": null,
+    "distanceProfile": "classic",
+    "surfaceProfile": "dirt",
+    "marketTier": 5,
+    "studRole": "flat",
+    "confidence": "medium",
+    "coatColour": "bay",
+    "lastCoverYear": 1997
+  },
+  {
+    "key": "stl_go_for_gin",
+    "foaled": 1991,
+    "countryOfBirth": "US",
+    "sireKey": null,
+    "damsireKey": null,
+    "sireLineId": "sl_phalaris",
+    "status": "historical",
+    "standsIn": null,
+    "distanceProfile": "classic",
+    "surfaceProfile": "dirt",
+    "marketTier": 5,
+    "studRole": "flat",
+    "confidence": "medium",
+    "coatColour": "bay",
+    "lastCoverYear": 2022
+  },
+  {
+    "key": "stl_crafty_prospector",
+    "foaled": 1979,
+    "countryOfBirth": "US",
+    "sireKey": null,
+    "damsireKey": null,
+    "sireLineId": "sl_phalaris",
+    "status": "historical",
+    "standsIn": null,
+    "distanceProfile": "classic",
+    "surfaceProfile": "dirt",
+    "marketTier": 5,
+    "studRole": "flat",
+    "confidence": "medium",
+    "coatColour": "chestnut",
+    "lastCoverYear": 2010
   }
 ]
