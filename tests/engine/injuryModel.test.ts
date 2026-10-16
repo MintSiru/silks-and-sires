@@ -2,7 +2,6 @@ import { writeFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
   INJURY_HISTORY_LIMIT, INJURY_KINDS, INJURY_RECUR_YEARS, INJURY_LATE_DIAGNOSIS_MULT,
-  VET_EXAM_COST,
 } from '../../src/engine/config/injury';
 import { generateHorse } from '../../src/engine/horse/generate';
 import { weeklyConditionInPlace } from '../../src/engine/horse/conditioning';
@@ -125,13 +124,14 @@ describe('플레이어 진단·치료 API', () => {
   it('검사 비용·확진·장부·이벤트·원본 불변·공용 RNG 보존', () => {
     const state = stateWith();
     const before = structuredClone(state);
+    const examCost = 225; // 기본 검사 설비 1단계: €300 × 0.75(M4-E1).
     const out = orderVetExam(state, 'injury-horse');
     expect(out.ok).toBe(true);
     if (!out.ok) throw new Error(out.error);
     expect(state).toEqual(before);
     expect(out.state.horses['injury-horse']!.condition.injury!.diagnosed).toBe(true);
-    expect(out.state.owners[state.playerOwnerId]!.funds).toBe(state.owners[state.playerOwnerId]!.funds - VET_EXAM_COST);
-    expect(out.state.economy.playerLedger.at(-1)).toMatchObject({ category: 'vet_fee', amount: -VET_EXAM_COST });
+    expect(out.state.owners[state.playerOwnerId]!.funds).toBe(state.owners[state.playerOwnerId]!.funds - examCost);
+    expect(out.state.economy.playerLedger.at(-1)).toMatchObject({ category: 'vet_fee', amount: -examCost });
     expect(out.events[0]).toMatchObject({ type: 'injury_diagnosed', kind: 'tendon' });
     expect(out.state.eventLog).toEqual(state.eventLog); // 기록은 호출자 몫
     expect(out.state.rng).toEqual(state.rng);
@@ -144,7 +144,7 @@ describe('플레이어 진단·치료 API', () => {
     for (const debt of [false, true]) {
       const poor = structuredClone(state);
       if (debt) { poor.economy.mode = 'casual'; poor.economy.debt = 1; }
-      else poor.owners[state.playerOwnerId]!.funds = VET_EXAM_COST - 1;
+      else poor.owners[state.playerOwnerId]!.funds = examCost - 1;
       expect(orderVetExam(poor, 'injury-horse')).toEqual({ ok: false, error: 'insufficient_funds' });
     }
   });

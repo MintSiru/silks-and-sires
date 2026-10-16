@@ -1,4 +1,6 @@
 import { useState, type JSX } from 'react';
+import { silksDesignOf } from '../../engine/people/silks';
+import SilksSvg from '../silks/SilksSvg';
 import { BET_MIN_STAKE } from '../../engine/config/betting';
 import { getBookmakers } from '../../engine/data/staticData';
 import type { BetKind, GameState } from '../../engine/types';
@@ -44,10 +46,17 @@ export default function BettingPanel({ state, game, meetingId, raceId, locked }:
         <h2>{race.raceName} · {race.dateKo}</h2>
         <p>{race.eachWayKo} · 남은 지출 한도 {race.limitLeftKo}</p>
         <table>
-          <thead><tr><th>번호</th><th>말</th><th>예상 오즈</th></tr></thead>
-          <tbody>{race.runners.map((r) => <tr key={r.horseId}>
-            <td>{r.saddle}</td><td>{r.name}{r.isMine ? ' (내 말)' : ''}</td><td>{r.forecastKo}</td>
-          </tr>)}</tbody>
+          <thead><tr><th>번호</th><th>승부복</th><th>말</th><th>예상 오즈</th></tr></thead>
+          <tbody>{race.runners.map((r) => {
+            const ownerId = state.horses[r.horseId]?.ownerId;
+            const owner = ownerId == null ? undefined : state.owners[ownerId];
+            return <tr key={r.horseId}>
+              <td>{r.saddle}</td>
+              <td>{owner !== undefined && <SilksSvg design={silksDesignOf(owner.silks, owner.id)} size={40} />}</td>
+              <td>{r.name}{r.isMine ? ' (내 말)' : ''}</td>
+              <td>{r.forecastKo}</td>
+            </tr>;
+          })}</tbody>
         </table>
         {race.runners.length === 0 && <p className="hint">아직 출주 선언된 말이 없습니다. 출주 선언 후 베팅할 수 있습니다.</p>}
         {race.canBet && <form onSubmit={(e) => { e.preventDefault(); submit(); }}>

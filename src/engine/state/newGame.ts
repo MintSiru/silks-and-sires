@@ -55,7 +55,14 @@ export function createNewGame(opts: NewGameOptions): GameState {
     name: playerName,
     country: start === undefined ? (opts.country ?? 'GB') : homeCountry,
     isPlayer: true,
-    silks: { ...opts.silks },
+    silks: {
+      ...opts.silks,
+      ...(opts.silks.design === undefined ? {} : { design: {
+        body: { ...opts.silks.design.body, layers: opts.silks.design.body.layers.map((layer) => ({ ...layer })) },
+        sleeves: { ...opts.silks.design.sleeves, layers: opts.silks.design.sleeves.layers.map((layer) => ({ ...layer })) },
+        cap: { ...opts.silks.design.cap, layers: opts.silks.design.cap.layers.map((layer) => ({ ...layer })) },
+      } }),
+    },
     funds: start?.funds ?? STARTING_FUNDS,
     studName,
     retainedJockeyId: null,

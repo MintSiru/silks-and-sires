@@ -76,3 +76,18 @@ export const FACILITY_UPKEEP_PER_LEVEL_YEAR = 8_000;
 export const FACILITY_BUILD_WEEKS = 4;
 /** 마방 증축 단계별 번식 암말 수용 보너스(인덱스 = 단계) */
 export const STABLE_BLOCK_CAPACITY_BONUS: readonly number[] = [0, 3, 6, 10];
+
+/** 시설 효과: 사용자 승인 수치안(2026-10-16), 모두 단계당 보정. */
+export const PADDOCK_GROWTH_PER_LEVEL = 0.04;
+export const POOL_REST_RECOVERY_PER_LEVEL = 0.2;
+export const POOL_INJURY_RECOVERY_CHANCE_PER_LEVEL = 0.1;
+export const HILL_GALLOP_STAMINA_PER_LEVEL = 0.05;
+export const INDOOR_RESPIRATORY_REDUCTION_PER_LEVEL = 0.15;
+export const VET_EXAM_REDUCTION_PER_LEVEL = 0.25;
+export const VET_DIAGNOSIS_WEEKS_PER_LEVEL = 1;
+export const VET_INJURY_REDUCTION_PER_LEVEL = 0.05;
+export const YEARLING_COMPLEX_GROWTH_PER_LEVEL = 0.03;
+export const YEARLING_COMPLEX_START_FITNESS_PER_LEVEL = 10;
+export const FOALING_UNIT_LOSS_REDUCTION_PER_LEVEL = 0.2;
+/** 목장 매물 가격 반올림 단위(€, M4-E0b) */
+export const FARM_LISTING_PRICE_ROUND = 10_000;

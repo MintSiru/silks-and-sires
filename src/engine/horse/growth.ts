@@ -1,5 +1,7 @@
 import { WEEKS_PER_YEAR } from '../config/game';
 import { GROWING_STATUSES, WEANING_WEEK } from '../config/growth';
+import { HILL_GALLOP_STAMINA_PER_LEVEL, PADDOCK_GROWTH_PER_LEVEL, YEARLING_COMPLEX_GROWTH_PER_LEVEL } from '../config/farm';
+import { facilityLevel } from '../farm/facilities';
 import type {
   GameDate,
   GameEvent,
@@ -61,6 +63,21 @@ export const growthSystem: WeeklySystem = {
         ageInYearsAt(horse.birthYear, ctx.date),
         horse.growth,
       );
+      if (horse.ownerId === draft.playerOwnerId) {
+        const age = ctx.date.year - horse.birthYear;
+        const untrained = horse.status === 'foal' || horse.status === 'weanling' || horse.status === 'yearling';
+        const paddock = age >= 0 && age <= 1
+          ? 1 + PADDOCK_GROWTH_PER_LEVEL * facilityLevel(draft, 'paddock') : 1;
+        const hill = age === 1 || (age === 2 && untrained)
+          ? 1 + HILL_GALLOP_STAMINA_PER_LEVEL * facilityLevel(draft, 'hill_gallop') : 1;
+        const complex = (age === 1 || age === 2) && untrained
+          ? 1 + YEARLING_COMPLEX_GROWTH_PER_LEVEL * facilityLevel(draft, 'yearling_complex') : 1;
+        for (const key of Object.keys(horse.ability) as (keyof Horse['ability'])[]) {
+          const multiplier = paddock * (key === 'stamina' ? hill
+            : key === 'speed' || key === 'acceleration' ? complex : 1);
+          if (multiplier !== 1) horse.ability[key] = Math.min(horse.potential[key], horse.ability[key] * multiplier);
+        }
+      }
       advanceStatus(horse, ctx.date, events);
     }
     return events;

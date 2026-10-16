@@ -11,6 +11,7 @@ import { MARE_MIN_BREEDING_AGE } from '../config/breedingSeason';
 import { NOMINATION_MAX_PER_SEASON, STUD_MIN_AGE, YEAR_END_GELDING_MAX_AGE } from '../config/stud';
 import type { GameEvent, HorseId, Money, RetainerContract, YearEndChoice, YearEndSubmission } from '../types';
 import { canStandAtStud, freeStudSlots, standPlayerStallion } from './stand';
+import { mareCapacity, playerBroodmareCount } from '../farm/purchase';
 import { estimateStudFee } from './value';
 import { applyStallionSale, salePriceQuote } from './trade';
 
@@ -60,7 +61,7 @@ export function yearEndCandidates(state: GameState): YearEndCandidate[] {
         if (horse.sex === 'male' && !horse.gelded && newAge >= STUD_MIN_AGE) {
           allowed.push('sell_domestic', 'sell_overseas');
         }
-        if (horse.sex === 'female' && newAge >= MARE_MIN_BREEDING_AGE) allowed.push('broodmare');
+        if (horse.sex === 'female' && newAge >= MARE_MIN_BREEDING_AGE && state.farm.owned) allowed.push('broodmare');
         allowed.push('retire');
       }
       const recommended = (['continue', 'stud', 'broodmare', 'retire'] as const)
@@ -79,7 +80,8 @@ export function retainerRenewalsDue(state: GameState): RetainerContract[] {
 }
 
 export type YearEndError = 'not_pending' | 'wrong_year' | 'missing_horse' | 'duplicate_horse'
-  | 'unknown_horse' | 'choice_not_allowed' | 'no_free_slot' | 'retainer_mismatch' | 'invalid_nominations';
+  | 'unknown_horse' | 'choice_not_allowed' | 'no_free_slot' | 'retainer_mismatch' | 'invalid_nominations'
+  | 'mare_capacity';
 
 /** 전체 제출을 검증한 뒤에만 복제본에 적용한다. eventLog 추가는 호출자가 맡는다. */
 export function submitYearEnd(
@@ -114,6 +116,11 @@ export function submitYearEnd(
   }
   if (submission.horses.filter(({ choice }) => choice === 'stud').length > freeStudSlots(state)) {
     return { ok: false, error: 'no_free_slot' };
+  }
+  // 이번 제출로 새 번식 암말이 생기는데 총수가 목장 수용 한도를 넘으면 거절(M4-E0b)
+  const newMares = submission.horses.filter(({ choice }) => choice === 'broodmare').length;
+  if (newMares > 0 && playerBroodmareCount(state) + newMares > mareCapacity(state)) {
+    return { ok: false, error: 'mare_capacity' };
   }
   const due = new Set(retainerRenewalsDue(state).map((c) => `${c.kind}:${c.personId}`));
   const submitted = new Set(submission.retainers.map((c) => `${c.kind}:${c.personId}`));

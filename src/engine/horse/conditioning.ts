@@ -41,6 +41,8 @@ import {
 } from '../config/conditioning';
 import { JUVENILE_AGE } from '../config/entries';
 import { CATASTROPHIC_FRACTURE_SHARE } from '../config/injury';
+import { POOL_REST_RECOVERY_PER_LEVEL, VET_INJURY_REDUCTION_PER_LEVEL } from '../config/farm';
+import { facilityLevel } from '../farm/facilities';
 import { createRng } from '../rng';
 import { CONDITION_MAX, CONDITION_MIN } from '../config/season';
 import type { Horse, Injury, Rng, Trainer } from '../types';
@@ -100,15 +102,21 @@ function detrainToFloor(fitness: number, detrain: number, floor: number): number
 function applyInjuredWeek(horse: Horse, context: InjuryContext): void {
   const c = horse.condition;
   c.fitness = detrainToFloor(c.fitness, INJURED_DETRAIN, INJURED_FITNESS_FLOOR);
-  c.fatigue = clamp(c.fatigue - REST_FATIGUE_RECOVERY, CONDITION_MIN, CONDITION_MAX);
+  const recovery = horse.status === 'resting' ? restFatigueRecovery(context) : REST_FATIGUE_RECOVERY;
+  c.fatigue = clamp(c.fatigue - recovery, CONDITION_MIN, CONDITION_MAX);
   progressInjuryInPlace(horse, context);
 }
 
+function restFatigueRecovery(context: InjuryContext): number {
+  const pool = context.isPlayer && context.farm !== undefined ? facilityLevel({ farm: context.farm }, 'pool') : 0;
+  return REST_FATIGUE_RECOVERY * (1 + POOL_REST_RECOVERY_PER_LEVEL * pool);
+}
+
 /** 휴양(resting) 한 주 */
-function applyRestWeek(horse: Horse, ranThisWeek: boolean): void {
+function applyRestWeek(horse: Horse, ranThisWeek: boolean, context: InjuryContext): void {
   const c = horse.condition;
   c.fitness = detrainToFloor(c.fitness, REST_DETRAIN, REST_FITNESS_FLOOR);
-  c.fatigue = clamp(c.fatigue - REST_FATIGUE_RECOVERY, CONDITION_MIN, CONDITION_MAX);
+  c.fatigue = clamp(c.fatigue - restFatigueRecovery(context), CONDITION_MIN, CONDITION_MAX);
   let mental = c.mental + REST_MENTAL_GAIN;
   if (ranThisWeek) mental -= MENTAL_RACE_LOSS;
   c.mental = clamp(mental, CONDITION_MIN, CONDITION_MAX);
@@ -147,6 +155,11 @@ export function weeklyConditionInPlace(
 ): Injury | null {
   if (horse.status !== 'in_training' && horse.status !== 'resting') return null;
 
+  const vet = context.isPlayer && context.farm !== undefined ? facilityLevel({ farm: context.farm }, 'vet_clinic') : 0;
+  const prevented = (phase: string): boolean => vet > 0
+    && createRng(`${context.initialSeed}:facility-injury-prevention:${horse.id}:${context.date.year}:${context.date.week}:${phase}`)
+      .chance(VET_INJURY_REDUCTION_PER_LEVEL * vet);
+
   // (1) 부상 중
   if (horse.condition.injury !== null) {
     applyInjuredWeek(horse, context);
@@ -154,38 +167,44 @@ export function weeklyConditionInPlace(
   }
 
   // (2) 출주 부상
+  let racePrevented = false;
   if (ranThisWeek) {
     const raceRisk = RACE_INJURY_BASE * soundnessFactor(horse.soundness);
     if (rng.chance(raceRisk)) {
       const injury = rollInjury(age, rng, { ...context, horse, racing: true });
-      horse.condition.injury = { ...injury };
-      if (injury.kind === 'fracture' && context.catastrophicInjuries === true && context.raceId !== undefined
-        && createRng(`${context.initialSeed}:catastrophic:${horse.id}:${context.raceId}`).chance(CATASTROPHIC_FRACTURE_SHARE)) {
-        horse.status = 'dead';
-        horse.diedYear = context.date.year;
-        horse.trainerId = null;
-        if (context.isPlayer) context.events?.push({ type: 'horse_fatally_injured', horseId: horse.id,
-          raceId: context.raceId, date: { ...context.date } });
+      // 기존 발생·종류·기간 추첨을 모두 소비한 뒤 독립 스트림으로 예방한다.
+      racePrevented = prevented('race');
+      if (!racePrevented) {
+        horse.condition.injury = { ...injury };
+        if (injury.kind === 'fracture' && context.catastrophicInjuries === true && context.raceId !== undefined
+          && createRng(`${context.initialSeed}:catastrophic:${horse.id}:${context.raceId}`).chance(CATASTROPHIC_FRACTURE_SHARE)) {
+          horse.status = 'dead';
+          horse.diedYear = context.date.year;
+          horse.trainerId = null;
+          if (context.isPlayer) context.events?.push({ type: 'horse_fatally_injured', horseId: horse.id,
+            raceId: context.raceId, date: { ...context.date } });
+        }
+        return injury;
       }
-      return injury;
     }
   }
 
   // (3) 조교 또는 휴양
   if (horse.status === 'resting') {
-    applyRestWeek(horse, ranThisWeek);
+    applyRestWeek(horse, ranThisWeek, context);
   } else {
     applyTrainingWeek(horse, trainingEnvOf(trainer), age, ranThisWeek);
   }
 
   // (4) 주간 부상 (조교 중 말만)
-  if (horse.status === 'in_training') {
+  if (horse.status === 'in_training' && !racePrevented) {
     const weeklyRisk =
       WEEKLY_INJURY_BASE *
       (1 + horse.condition.fatigue / INJURY_FATIGUE_SCALE) *
       soundnessFactor(horse.soundness);
     if (rng.chance(weeklyRisk)) {
       const injury = rollInjury(age, rng, { ...context, horse, racing: false });
+      if (prevented('training')) return null;
       horse.condition.injury = { ...injury };
       return injury;
     }

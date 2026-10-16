@@ -6,12 +6,17 @@ import {
 } from '../config/injury';
 import { SORE_SHINS_KNOCK_AGE } from '../config/conditioning';
 import { WEEKS_PER_YEAR } from '../config/game';
+import {
+  INDOOR_RESPIRATORY_REDUCTION_PER_LEVEL, POOL_INJURY_RECOVERY_CHANCE_PER_LEVEL,
+  VET_DIAGNOSIS_WEEKS_PER_LEVEL, VET_EXAM_REDUCTION_PER_LEVEL,
+} from '../config/farm';
+import { facilityLevel } from '../farm/facilities';
 import { recordMoney } from '../economy/ledger';
 import { canSpendDiscretionary } from '../economy/solvency';
 import { createRng } from '../rng';
 import { monthOfWeek, weeksBetween } from '../time/calendar';
 import type {
-  GameDate, GameEvent, GameState, Going, Horse, Injury, InjuryKind, InjuryRecord,
+  FarmState, GameDate, GameEvent, GameState, Going, Horse, Injury, InjuryKind, InjuryRecord,
   InjuryTreatment, PermanentInjuryEffect, Rng,
 } from '../types';
 
@@ -24,6 +29,7 @@ export interface InjuryContext {
   events?: GameEvent[];
   catastrophicInjuries?: boolean;
   raceId?: string;
+  farm?: FarmState;
 }
 export interface InjuryRollContext {
   horse?: Horse;
@@ -32,6 +38,7 @@ export interface InjuryRollContext {
   racing?: boolean;
   isPlayer?: boolean;
   initialSeed?: number;
+  farm?: FarmState;
 }
 
 function treatmentRng(seed: number, horseId: string, injury: Pick<Injury, 'kind' | 'since' | 'treatment'>): Rng {
@@ -68,6 +75,9 @@ export function injuryWeights(age: number, context: InjuryRollContext = {}): Rec
     if (kind === 'respiratory' && context.date !== undefined && INJURY_WINTER_MONTHS.includes(monthOfWeek(context.date.week))) {
       weight *= INJURY_WINTER_RESPIRATORY_MULT;
     }
+    if (kind === 'respiratory' && context.isPlayer === true && context.farm !== undefined) {
+      weight *= 1 - INDOOR_RESPIRATORY_REDUCTION_PER_LEVEL * facilityLevel({ farm: context.farm }, 'indoor_school');
+    }
     if (context.horse !== undefined && context.date !== undefined) {
       weight *= injuryRecurrenceMultiplier(kind, context.horse, context.date, context.initialSeed);
     }
@@ -103,7 +113,12 @@ export function progressInjuryInPlace(horse: Horse, context: InjuryContext): voi
   if (injury === null) return;
   injury.since ??= { ...context.date };
   injury.weeksOut--;
-  if (injury.diagnosed === false && weeksBetween(injury.since, context.date) >= INJURY_AUTO_DIAGNOSE_WEEKS) {
+  const vet = context.isPlayer && context.farm !== undefined ? facilityLevel({ farm: context.farm }, 'vet_clinic') : 0;
+  const pool = context.isPlayer && context.farm !== undefined ? facilityLevel({ farm: context.farm }, 'pool') : 0;
+  if (pool > 0 && createRng(`${context.initialSeed}:facility-pool:${horse.id}:${context.date.year}:${context.date.week}`)
+    .chance(POOL_INJURY_RECOVERY_CHANCE_PER_LEVEL * pool)) injury.weeksOut--;
+  const diagnosisWeeks = Math.max(1, INJURY_AUTO_DIAGNOSE_WEEKS - VET_DIAGNOSIS_WEEKS_PER_LEVEL * vet);
+  if (injury.diagnosed === false && weeksBetween(injury.since, context.date) >= diagnosisWeeks) {
     injury.diagnosed = true;
     injury.weeksOut = Math.max(1, Math.ceil(injury.weeksOut * INJURY_LATE_DIAGNOSIS_MULT));
     if (context.isPlayer) context.events?.push({ type: 'injury_diagnosed', horseId: horse.id,
@@ -179,11 +194,12 @@ export function orderVetExam(state: GameState, horseId: string): InjuryActionRes
   const error = validateHorse(state, horseId);
   if (error !== null) return { ok: false, error };
   if (state.horses[horseId]!.condition.injury!.diagnosed !== false) return { ok: false, error: 'already_diagnosed' };
-  if (!canSpendDiscretionary(state, VET_EXAM_COST)) return { ok: false, error: 'insufficient_funds' };
+  const cost = Math.round(VET_EXAM_COST * (1 - VET_EXAM_REDUCTION_PER_LEVEL * facilityLevel(state, 'vet_clinic')));
+  if (!canSpendDiscretionary(state, cost)) return { ok: false, error: 'insufficient_funds' };
   const draft = structuredClone(state);
   const injury = draft.horses[horseId]!.condition.injury!;
   injury.diagnosed = true;
-  recordMoney(draft, draft.playerOwnerId, 'vet_fee', -VET_EXAM_COST, draft.date, horseId);
+  recordMoney(draft, draft.playerOwnerId, 'vet_fee', -cost, draft.date, horseId);
   const events: GameEvent[] = [{ type: 'injury_diagnosed', horseId, kind: injury.kind,
     weeksOut: injury.weeksOut, date: { ...draft.date } }];
   return { ok: true, state: draft, events };

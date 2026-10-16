@@ -3,7 +3,9 @@
  * 실패는 예외가 아니라 { ok: false, error } 로 돌려준다.
  */
 import { RETAINER_EXTRA_BOXES } from '../config/economy';
-import { PLAYER_TRAINING_START_AGE } from '../config/season';
+import { CONDITION_MAX, PLAYER_TRAINING_START_AGE } from '../config/season';
+import { YEARLING_COMPLEX_START_FITNESS_PER_LEVEL } from '../config/farm';
+import { facilityLevel } from '../farm/facilities';
 import { meanAbility, ratingFromAbility } from '../world/rating';
 import { contractFor } from '../economy/contractQuery';
 import { ageInYear } from '../time/calendar';
@@ -168,6 +170,8 @@ export function assignTrainer(
   horse.trainerId = trainerId;
   if (from === 'yearling' && ageInYear(horse.birthYear, next.date.year) >= PLAYER_TRAINING_START_AGE) {
     horse.status = 'in_training';
+    horse.condition.fitness = Math.min(CONDITION_MAX, horse.condition.fitness
+      + YEARLING_COMPLEX_START_FITNESS_PER_LEVEL * facilityLevel(next, 'yearling_complex'));
     events.push({
       type: 'horse_status_changed',
       horseId,

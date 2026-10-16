@@ -294,6 +294,7 @@ function conditionWeek(draft: GameState, date: GameDate, rng: Rng, events: GameE
       notable: (draft.stallions[id]?.realKey ?? null) !== null, events,
       going: goingByHorse.get(id),
       catastrophicInjuries: draft.settings.catastrophicInjuries, raceId: raceByHorse.get(id),
+      farm: draft.farm,
     });
     if (horse.status === 'dead' && horse.ownerId !== null) {
       const owner = draft.owners[horse.ownerId];

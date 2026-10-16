@@ -93,6 +93,8 @@ describe('임신 전체 유산 확률', () => {
     const rates: number[] = [];
     for (const age of [17, 18]) {
       const state = emptyState();
+      // 시설 없는 기존 임신 위험을 검증한다. 기본 산실 1단계는 M4-E1부터 위험을 줄인다.
+      state.farm.facilities.foaling_unit = 0;
       const count = 10_000;
       for (let i = 0; i < count; i++) {
         const id = `mare-${i}`;

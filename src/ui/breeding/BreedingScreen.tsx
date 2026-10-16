@@ -39,7 +39,12 @@ import {
   nickLabelKo,
   phaseKo,
 } from '../game/text';
-import type { GameApi } from '../game/useGame';
+import { PLAYER_SILKS, type GameApi } from '../game/useGame';
+import { silksDesignOf, silksFromDesign } from '../../engine/people/silks';
+import type { SilksDesign } from '../../engine/types';
+import SilksEditor from '../silks/SilksEditor';
+import SilksSvg from '../silks/SilksSvg';
+import { SILKS_ERROR_KO } from '../silks/silksText';
 import {
   CATASTROPHIC_INJURY_HINT_KO,
   DIFFICULTY_OPTIONS,
@@ -200,6 +205,7 @@ interface NewGamePanelProps {
 }
 
 function NewGamePanel({ game, onDone, onCancel }: NewGamePanelProps): JSX.Element {
+  const [silks, setSilks] = useState(() => silksDesignOf(PLAYER_SILKS, 'owner-player'));
   const [playerName, setPlayerName] = useState('');
   const [seedText, setSeedText] = useState(DEFAULT_SEED_TEXT);
   const [economyMode, setEconomyMode] = useState<EconomyMode>(DEFAULT_ECONOMY_MODE);
@@ -228,6 +234,7 @@ function NewGamePanel({ game, onDone, onCancel }: NewGamePanelProps): JSX.Elemen
       game.newGame({
         seed,
         playerName: name,
+        silks: silksFromDesign(silks),
         economyMode,
         startType,
         difficulty,
@@ -362,6 +369,7 @@ function NewGamePanel({ game, onDone, onCancel }: NewGamePanelProps): JSX.Elemen
             ))}
           </ul>
         </section>
+        <SilksEditor design={silks} onChange={setSilks} />
         {error !== null && <p className="notice notice--error" role="alert">{error}</p>}
         <div className="new-game__actions">
           <button type="submit" className="btn btn--primary">
@@ -392,6 +400,8 @@ interface BreedingViewProps {
 }
 
 function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JSX.Element {
+  const [silksDraft, setSilksDraft] = useState<SilksDesign | null>(null);
+  const [savingSilks, setSavingSilks] = useState(false);
   const [mareId, setMareId] = useState<HorseId | null>(null);
   const [stallionId, setStallionId] = useState<HorseId | null>(null);
   const [query, setQuery] = useState('');
@@ -618,6 +628,7 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
     try {
       const loaded = await game.load();
       if (loaded) {
+        setSilksDraft(null);
         setMareId(null);
         setStallionId(null);
         setNotice({ tone: 'ok', text: '자동 저장본을 불러왔습니다.' });
@@ -634,10 +645,15 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
       <header className="topbar panel">
         <div className="topbar__info">
           <span className="topbar__date">{formatDateKo(state.date)}</span>
+          {owner !== undefined && <SilksSvg design={silksDesignOf(owner.silks, owner.id)} size={48} />}
           <span>마주 {owner?.name ?? NO_VALUE}</span>
           <span>자금 {feeKo(owner?.funds ?? 0)}</span>
         </div>
         <div className="topbar__buttons">
+          <button type="button" className="btn" disabled={owner === undefined || savingSilks}
+            onClick={() => { if (owner !== undefined) setSilksDraft(silksDesignOf(owner.silks, owner.id)); }}>
+            승부복 바꾸기
+          </button>
           <button
             type="button"
             className="btn"
@@ -683,6 +699,22 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
           </p>
         )}
       </header>
+
+      {silksDraft !== null && <section className="panel" aria-label="승부복 바꾸기">
+        <SilksEditor design={silksDraft} onChange={setSilksDraft} />
+        <p className="hint">다음 출주부터 적용됩니다. 이미 만든 출주표와 결과는 그대로입니다.</p>
+        <button type="button" className="btn" disabled={savingSilks} onClick={() => {
+          setSavingSilks(true);
+          void game.setSilks(silksDraft).then((result) => {
+            if (result.ok) {
+              setSilksDraft(null);
+              setNotice({ tone: 'ok', text: '승부복을 바꾸고 저장했습니다.' });
+            } else setNotice({ tone: 'error', text: SILKS_ERROR_KO[result.error] });
+          }).catch((error: unknown) => setNotice({ tone: 'error', text: `승부복 저장 실패: ${messageOf(error)}` }))
+            .finally(() => setSavingSilks(false));
+        }}>적용하고 저장</button>
+        <button type="button" className="btn" disabled={savingSilks} onClick={() => setSilksDraft(null)}>취소</button>
+      </section>}
 
       <section className="panel">
         <h2>최근 이벤트</h2>

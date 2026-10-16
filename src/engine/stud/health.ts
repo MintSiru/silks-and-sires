@@ -1,4 +1,6 @@
 import { GESTATION_WEEKS } from '../config/breedingSeason';
+import { FOALING_UNIT_LOSS_REDUCTION_PER_LEVEL } from '../config/farm';
+import { facilityLevel } from '../farm/facilities';
 import * as config from '../config/health';
 import { MORTALITY_CHECK_WEEK } from '../config/mortality';
 import { createRng } from '../rng';
@@ -24,7 +26,9 @@ function judgeMareLoss(draft: GameState, id: HorseId, date: GameDate, events: Ga
   const ageMultiplier = date.year - horse.birthYear >= config.MARE_LOSS_OLDER_AGE
     ? config.MARE_LOSS_OLDER_MULTIPLIER : 1;
   const pregnancyRisk = config.MARE_LOSS_PER_PREGNANCY * ageMultiplier;
-  const weeklyRisk = 1 - (1 - pregnancyRisk) ** (1 / GESTATION_WEEKS);
+  const facilityMult = horse.ownerId === draft.playerOwnerId
+    ? 1 - FOALING_UNIT_LOSS_REDUCTION_PER_LEVEL * facilityLevel(draft, 'foaling_unit') : 1;
+  const weeklyRisk = (1 - (1 - pregnancyRisk) ** (1 / GESTATION_WEEKS)) * facilityMult;
   const rng = createRng(`${draft.initialSeed}:mare-loss:${id}:${date.year}:${date.week}`);
   if (!rng.chance(weeklyRisk)) return;
   mare.pregnant = false;

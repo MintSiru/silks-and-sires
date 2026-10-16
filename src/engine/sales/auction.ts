@@ -23,6 +23,7 @@ import {
 import type { PopulationCountry } from '../config/population';
 import { recordMoney } from '../economy/ledger';
 import { canSpendDiscretionary } from '../economy/solvency';
+import { mareCapacity, playerBroodmareCount } from '../farm/purchase';
 import { createRng } from '../rng';
 import { buildMarket, pickTrainer, pickWeightedIndex } from '../world/population';
 import { racingCountryOf } from '../world/populationSystem';
@@ -136,10 +137,12 @@ export function computeAiBids(
 /**
  * 플레이어 입찰이 이 경매에 들어갈 수 있는가: 상한이 있고, 판매자가 플레이어가 아니고,
  * 상한(정수로 내림)이 minimumBid 이상이고, canSpendDiscretionary(상한 × (1 + 구매자 수수료)).
+ * 번식마 세일(breeding_stock)은 번식 암말 수가 목장 수용 한도에 찰 때 입찰하지 못한다(M4-E0b).
  */
 export function playerBidValid(state: GameState, event: SaleEventDef, lot: SaleLot, playerMax: Money | null): boolean {
   if (playerMax === null) return false;
   if (vendorOwnerId(lot.vendor) === state.playerOwnerId) return false;
+  if (event.kind === 'breeding_stock' && playerBroodmareCount(state) >= mareCapacity(state)) return false;
   const max = Math.floor(playerMax);
   if (!(max >= event.minimumBid)) return false;
   return canSpendDiscretionary(state, max * (1 + playerPremiumRate(state, event)));

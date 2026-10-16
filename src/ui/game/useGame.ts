@@ -1,3 +1,5 @@
+import { setPlayerSilks, validateSilksDesign } from '../../engine/people/silks';
+import { SILKS_ERROR_KO } from '../silks/silksText';
 import { placeBet, cancelBet, type BetError } from '../../engine/betting/betting';
 import { acceptPrivateOffer, declinePrivateOffer, type AcceptPrivateOfferError, type DeclinePrivateOfferError } from '../../engine/sales/privateTrade';
 import { useCallback, useRef, useState } from 'react';
@@ -55,6 +57,7 @@ import type {
   Money,
   RaceId,
   Silks,
+  SilksDesign,
   StartType,
   TrainerId,
   WeeklySystem,
@@ -65,8 +68,9 @@ import {
   type SaveStore,
 } from '../storage/saveStore';
 
-/** 새 게임 폼에서 고른 값(bootstrapGame 옵션과 같은 이름). silks 는 훅이 고정한다. */
+/** 새 게임 폼에서 고른 값(bootstrapGame 옵션과 같은 이름). 승부복을 포함한다. */
 export interface NewGameInput {
+  silks: Silks;
   seed: number;
   playerName: string;
   economyMode: EconomyMode;
@@ -119,6 +123,7 @@ export interface GameApi {
   terminateRetainer(kind: RetainerKind, personId: string): PlayerResult<'not_contracted'>;
   acceptPrivateOffer(offerId: string): PlayerResult<AcceptPrivateOfferError>;
   declinePrivateOffer(offerId: string): PlayerResult<DeclinePrivateOfferError>;
+  setSilks(design: SilksDesign): Promise<ReturnType<typeof setPlayerSilks>>;
   save(): Promise<void>;            // createIndexedDbSaveStore, 슬롯 id 'autosave'
   load(): Promise<boolean>;
 }
@@ -130,8 +135,8 @@ function appendEvents(state: GameState, events: GameEvent[]): GameState {
   return { ...state, eventLog: trimmed };
 }
 
-/** 플레이어 승부복(고정). 띠 뷰어 원판 색은 primary. */
-const PLAYER_SILKS: Silks = { primary: '#1f4e9c', secondary: '#f5c518', pattern: 'hoops' };
+/** 새 게임 승부복 기본값. 띠 뷰어 원판 색은 primary. */
+export const PLAYER_SILKS: Silks = { primary: '#1f4e9c', secondary: '#f5c518', pattern: 'hoops' };
 const AUTOSAVE_SLOT_ID = 'autosave';
 const AUTOSAVE_NAME = '자동 저장';
 
@@ -199,7 +204,11 @@ export function useGame(): GameApi {
   }, []);
 
   const newGame = useCallback((options: NewGameInput): void => {
-    const world = bootstrapGame({ ...options, silks: PLAYER_SILKS }, bootstrapData());
+    if (options.silks.design !== undefined) {
+      const error = validateSilksDesign(options.silks.design);
+      if (error !== null) throw new Error(SILKS_ERROR_KO[error]);
+    }
+    const world = bootstrapGame(options, bootstrapData());
     stateRef.current = world;
     setState(world);
     setLastEvents([]);
@@ -471,6 +480,15 @@ export function useGame(): GameApi {
     await saveStore().save(meta, json);
   }, [requireState]);
 
+  const setSilks = useCallback(async (design: SilksDesign): Promise<ReturnType<typeof setPlayerSilks>> => {
+    const result = setPlayerSilks(requireState(), design);
+    if (!result.ok) return result;
+    stateRef.current = result.state;
+    setState(result.state);
+    await save();
+    return result;
+  }, [requireState, save]);
+
   const load = useCallback(async (): Promise<boolean> => {
     const json = await saveStore().load(AUTOSAVE_SLOT_ID);
     if (json === null) return false;
@@ -488,6 +506,7 @@ export function useGame(): GameApi {
     cancelBet: cancelPlayerBet,
     lastEvents,
     newGame,
+    setSilks,
     advance,
     advanceToPhase,
     advanceUntil,

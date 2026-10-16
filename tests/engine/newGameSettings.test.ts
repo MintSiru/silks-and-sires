@@ -62,6 +62,8 @@ function fractureRng(racing: boolean, kind: InjuryKind = 'fracture'): Rng {
 
 function raceState(catastrophicInjuries: boolean, isPlayer = true): GameState {
   const state = createNewGame({ ...OPTIONS, catastrophicInjuries });
+  // 예후불량 판정을 고립한다. 기본 시설은 M4-E1부터 발생 확률·종류 가중치를 보정한다.
+  state.farm.facilities = uniformFacilities(0);
   state.date = { ...DATE };
   const h = fixtureHorse();
   if (!isPlayer) state.owners.ai = { ...structuredClone(state.owners[state.playerOwnerId]!), id: 'ai', isPlayer: false };
