@@ -1,4 +1,5 @@
 import { SAVE_SCHEMA_VERSION, START_YEAR, WEEKS_PER_YEAR } from '../config/game';
+import { DEFAULT_GAME_SETTINGS, HOME_COUNTRIES, uniformFacilities } from '../config/farm';
 import { STUD_BASE_SLOTS } from '../config/stud';
 import { createEmptyEconomyState, createEmptyRelationsState } from '../economy/state';
 import { defaultCoat, neutralPersonality } from '../horse/traits';
@@ -159,6 +160,21 @@ export const MIGRATIONS: Readonly<Record<number, Migration>> = {
     const stud = state.stud as Record<string, unknown> | undefined;
     if (stud === undefined || stud === null) return state;
     return { ...state, stud: { ...stud, nominations: stud.nominations ?? [], leases: stud.leases ?? [], sales: stud.sales ?? [] } };
+  },
+  /** v17 → v18 (M4-E0): 새 게임 설정·목장. 옛 저장본은 보통 난이도 오너브리더, 플레이어 나라(유럽 5개국 밖이면 GB) 중형 목장, 시설 1단계 */
+  17: (state) => {
+    const owners = state.owners as Record<string, { country?: string; studName?: string | null }> | undefined;
+    const player = owners?.[state.playerOwnerId as string];
+    const country = player?.country !== undefined && (HOME_COUNTRIES as readonly string[]).includes(player.country)
+      ? player.country : 'GB';
+    const date = state.date as { year?: number } | undefined;
+    return {
+      ...state,
+      settings: state.settings ?? { ...DEFAULT_GAME_SETTINGS },
+      farm: state.farm ?? { owned: true, country, size: 'medium', name: player?.studName ?? null,
+        facilities: uniformFacilities(1), acquiredYear: date?.year ?? START_YEAR },
+      farmListings: state.farmListings ?? [],
+    };
   },
 };
 

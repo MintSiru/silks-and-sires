@@ -9,6 +9,7 @@ import type { EconomyState, RelationsState } from './economy';
 import type { SaleEventId, SaleLotResult, SalesState } from './sales';
 import type { BettingState } from './betting';
 import type { StallionSaleMode, StudState, YearEndState } from './stud';
+import type { FacilityKind, FarmListing, FarmSize, FarmState, GameSettings, HomeCountry } from './farm';
 
 /** 주 진행 중 발생한 사건. M3 이후 종류가 늘어난다(판별 유니온에 추가). */
 export type GameEvent =
@@ -27,6 +28,12 @@ export type GameEvent =
   | { type: 'stallion_pensioned'; stallionId: HorseId; reason: 'fertility' | 'player' | 'age'; date: GameDate }
   /** 종부료 연간 재산정(M4-D8). 플레이어 종마만 이벤트로 남긴다 */
   | { type: 'stud_fee_set'; stallionId: HorseId; season: number; fee: Money; prevFee: Money; date: GameDate }
+  /** M4-E0b: 목장 구매(마주 → 오너브리더 전환 또는 이전) */
+  | { type: 'farm_purchased'; country: HomeCountry; size: FarmSize; price: Money; date: GameDate }
+  /** M4-E1: 시설 업그레이드 */
+  | { type: 'facility_upgraded'; facility: FacilityKind; level: number; cost: Money; date: GameDate }
+  /** M4-E0: 예후불량(경주 중 치명적 부상) — 설정이 켜져 있을 때만 */
+  | { type: 'horse_fatally_injured'; horseId: HorseId; raceId: string; date: GameDate }
   /** M4-D4: 플레이어 종마(또는 종마로 은퇴하는 수말) 판매 */
   | { type: 'stallion_sold'; horseId: HorseId; mode: StallionSaleMode; price: Money; nominations: number; date: GameDate }
   /** M4-D4: 임대 시작 */
@@ -179,6 +186,12 @@ export interface GameState {
   yearEnd: YearEndState;
   /** 플레이어 종마 사업(M4-D2·D3) */
   stud: StudState;
+  /** 새 게임 설정(M4-E0). 옛 저장본은 마이그레이션 기본값 */
+  settings: GameSettings;
+  /** 플레이어 목장(M4-E0·E1) */
+  farm: FarmState;
+  /** 올해 목장 매물(M4-E0b, 마주 시작·이전용). 없으면 빈 배열 */
+  farmListings: FarmListing[];
 }
 
 /** advanceWeek 가 각 시스템에 넘기는 문맥 */

@@ -32,6 +32,8 @@ import {
   type GrowthProfile,
   type HorseId,
   type HorseStatus,
+  type FacilityKind,
+  type FarmSize,
   type InjuryKind,
   type InjuryRegion,
   type InjuryTreatment,
@@ -298,6 +300,7 @@ const LEDGER_CATEGORY_KO: Record<LedgerCategory, string> = {
   stallion_sale: '종마 판매',
   stud_lease: '종마 임대료',
   vet_fee: '수의 비용',
+  farm_purchase: '목장 구매',
   facility: '목장 시설',
   interest: '빚 이자',
   other: '기타',
@@ -410,6 +413,12 @@ export function eventKo(e: GameEvent, nameOf: (id: HorseId) => string): string {
       return `${formatDateKo(e.date)} · 이상 증세: ${nameOf(e.horseId)} — ${INJURY_REGION_HINT_KO[e.region]}`;
     case 'injury_diagnosed':
       return `${formatDateKo(e.date)} · 확진: ${nameOf(e.horseId)} (${injuryKo(e.kind)}, 약 ${e.weeksOut}주)`;
+    case 'farm_purchased':
+      return `${formatDateKo(e.date)} · 목장 구매: ${COUNTRY_KO[e.country]} ${FARM_SIZE_KO[e.size]} 목장 (${feeKo(e.price)})`;
+    case 'facility_upgraded':
+      return `${formatDateKo(e.date)} · 시설 공사: ${FACILITY_KO[e.facility]} ${e.level}단계${e.cost > 0 ? ` (${feeKo(e.cost)})` : ''}`;
+    case 'horse_fatally_injured':
+      return `${formatDateKo(e.date)} · 예후불량: ${nameOf(e.horseId)} — 경주 중 치명적 부상`;
     case 'mare_lost_foal':
       return `${formatDateKo(e.date)} · 유산: ${nameOf(e.mareId)}`;
     case 'stud_ailment':
@@ -468,6 +477,16 @@ export const INJURY_REGION_HINT_KO: Record<InjuryRegion, string> = {
   respiratory: '숨소리가 거칠다고 합니다',
   digestive: '사료를 잘 먹지 않는다고 합니다',
   muscle: '근육이 굳어 보인다고 합니다',
+};
+
+/** 목장 규모 한국어 */
+export const FARM_SIZE_KO: Record<FarmSize, string> = { small: '소형', medium: '중형', large: '대형' };
+
+/** 시설 이름 한국어 */
+export const FACILITY_KO: Record<FacilityKind, string> = {
+  paddock: '방목지', pool: '수영장', hill_gallop: '언덕 코스', indoor_school: '실내 마장',
+  vet_clinic: '검사 설비', stallion_barn: '종마사', stable_block: '마방 증축',
+  yearling_complex: '육성 시설', foaling_unit: '산실',
 };
 
 /** 치료 선택 한국어 */

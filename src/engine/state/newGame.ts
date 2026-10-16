@@ -16,6 +16,7 @@ import { createRng } from '../rng';
 import { seasonForYear } from '../time/calendar';
 import type { CountryCode, EconomyMode, GameState, Owner, Silks } from '../types';
 import { createEmptySeasonState } from '../season/state';
+import { DEFAULT_GAME_SETTINGS, uniformFacilities } from '../config/farm';
 
 export interface NewGameOptions {
   seed: number;
@@ -77,5 +78,10 @@ export function createNewGame(opts: NewGameOptions): GameState {
     // 시작 연도는 연말 정산을 이미 마친 것으로 둔다(첫해에는 화면이 뜨지 않음, M4-D1)
     yearEnd: { lastSubmittedYear: START_YEAR, declinedRenewals: [] },
     stud: { slots: STUD_BASE_SLOTS, seasons: [], nominations: [], leases: [], sales: [] },
+    // M4-E0: 기본은 보통 난이도 오너브리더(설정 화면·bootstrap 옵션은 E0 티켓에서 연결). 시설은 모두 1단계
+    settings: { ...DEFAULT_GAME_SETTINGS },
+    farm: { owned: true, country: 'GB', size: 'medium', name: opts.studName ?? null,
+      facilities: uniformFacilities(1), acquiredYear: START_YEAR },
+    farmListings: [],
   };
 }
