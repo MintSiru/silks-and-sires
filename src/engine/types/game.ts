@@ -1,5 +1,5 @@
 import type { BreederId, HorseId, JockeyId, Money, OwnerId, SireLineId, TrainerId } from './common';
-import type { Horse, HorseStatus, InjuryKind, Mare, OffspringStats, Stallion } from './horse';
+import type { Horse, HorseStatus, InjuryKind, InjuryRegion, InjuryTreatment, Mare, OffspringStats, Stallion } from './horse';
 import type { CommercialBreeder, Jockey, Owner, Trainer } from './people';
 import type { RaceResult } from './race';
 import type { Rng, RngState } from './rng';
@@ -48,6 +48,16 @@ export type GameEvent =
   | { type: 'series_completed'; seriesId: SeriesId; horseId: HorseId; date: GameDate }
   /** 플레이어 말 부상(M3-C1). AI 말 부상은 이벤트로 남기지 않는다 */
   | { type: 'horse_injured'; horseId: HorseId; kind: InjuryKind; weeksOut: number; date: GameDate }
+  /** M4-H2: 플레이어 말이 확진 전 이상 증세를 보임(종류·기간은 숨김, 부위 단서만) */
+  | { type: 'injury_suspected'; horseId: HorseId; region: InjuryRegion; date: GameDate }
+  /** M4-H2: 검사 또는 시간 경과로 확진 */
+  | { type: 'injury_diagnosed'; horseId: HorseId; kind: InjuryKind; weeksOut: number; date: GameDate }
+  /** M4-H3: 번식 암말 유산(임신 해제) */
+  | { type: 'mare_lost_foal'; mareId: HorseId; date: GameDate }
+  /** M4-H3: 종마·번식 암말 질환(제엽염·산통)과 결과 */
+  | { type: 'stud_ailment'; horseId: HorseId; ailment: 'laminitis' | 'colic'; outcome: 'recovered' | 'retired' | 'died'; date: GameDate }
+  /** M4-H2: 치료 선택(비용은 장부 vet_fee) */
+  | { type: 'injury_treated'; horseId: HorseId; treatment: InjuryTreatment; cost: Money; weeksOut: number; date: GameDate }
   /** 성적으로 닉스가 확인됨(그 배합의 말이 그룹 레이스 우승, M3-C4) */
   | { type: 'nick_revealed'; sireLineId: SireLineId; damsireLineId: SireLineId; horseId: HorseId; date: GameDate }
   /** 지난 시즌 시상·순위 확정(연도 전환 때, M3-E1). 내용은 awardsHistory 의 마지막 항목 */

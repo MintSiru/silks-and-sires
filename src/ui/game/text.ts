@@ -32,6 +32,8 @@ import {
   type HorseId,
   type HorseStatus,
   type InjuryKind,
+  type InjuryRegion,
+  type InjuryTreatment,
   type LaurelCategory,
   type LeadingCategory,
   type LedgerCategory,
@@ -294,6 +296,7 @@ const LEDGER_CATEGORY_KO: Record<LedgerCategory, string> = {
   private_sale: '개인 거래',
   stallion_sale: '종마 판매',
   stud_lease: '종마 임대료',
+  vet_fee: '수의 비용',
   facility: '목장 시설',
   interest: '빚 이자',
   other: '기타',
@@ -402,6 +405,16 @@ export function eventKo(e: GameEvent, nameOf: (id: HorseId) => string): string {
       return `${formatDateKo(e.date)} · ${e.year}년 시상·순위 발표`;
     case 'horse_injured':
       return `${formatDateKo(e.date)} · 부상: ${nameOf(e.horseId)} (${injuryKo(e.kind)}, 약 ${e.weeksOut}주)`;
+    case 'injury_suspected':
+      return `${formatDateKo(e.date)} · 이상 증세: ${nameOf(e.horseId)} — ${INJURY_REGION_HINT_KO[e.region]}`;
+    case 'injury_diagnosed':
+      return `${formatDateKo(e.date)} · 확진: ${nameOf(e.horseId)} (${injuryKo(e.kind)}, 약 ${e.weeksOut}주)`;
+    case 'mare_lost_foal':
+      return `${formatDateKo(e.date)} · 유산: ${nameOf(e.mareId)}`;
+    case 'stud_ailment':
+      return `${formatDateKo(e.date)} · ${e.ailment === 'laminitis' ? '제엽염' : '산통'}: ${nameOf(e.horseId)} — ${e.outcome === 'recovered' ? '회복' : e.outcome === 'retired' ? '은퇴' : '사망'}`;
+    case 'injury_treated':
+      return `${formatDateKo(e.date)} · 치료: ${nameOf(e.horseId)} — ${INJURY_TREATMENT_KO[e.treatment]}${e.cost > 0 ? ` (${feeKo(e.cost)})` : ''}, 복귀까지 약 ${e.weeksOut}주`;
     case 'economy_warning':
       return e.kind === 'debt_started'
         ? `${formatDateKo(e.date)} · 자금이 바닥나 빚이 생겼습니다`
@@ -444,16 +457,53 @@ export function eventKo(e: GameEvent, nameOf: (id: HorseId) => string): string {
 }
 
 /** 부상 종류 한국어 */
+/** 확진 전 조교사 단서(부위별) */
+export const INJURY_REGION_HINT_KO: Record<InjuryRegion, string> = {
+  general: '몸 상태가 조금 무거워 보인다고 합니다',
+  bone: '조금 저는 것 같다고 합니다',
+  joint: '관절이 부어 보인다고 합니다',
+  tendon: '다리에 열감이 있다고 합니다',
+  foot: '발을 디딜 때 불편해한다고 합니다',
+  respiratory: '숨소리가 거칠다고 합니다',
+  digestive: '사료를 잘 먹지 않는다고 합니다',
+  muscle: '근육이 굳어 보인다고 합니다',
+};
+
+/** 치료 선택 한국어 */
+export const INJURY_TREATMENT_KO: Record<InjuryTreatment, string> = {
+  rest: '휴양', medical: '치료', surgery: '수술',
+};
+
 export function injuryKo(kind: InjuryKind): string {
   switch (kind) {
     case 'knock':
       return '타박';
     case 'sore_shins':
       return '정강이 통증';
-    case 'tendon':
-      return '건 손상';
+    case 'stress_fracture':
+      return '피로 골절';
+    case 'chip_fracture':
+      return '관절 내 골편';
     case 'fracture':
-      return '골절';
+      return '중증 골절';
+    case 'joint':
+      return '관절염';
+    case 'tendon':
+      return '굴건염';
+    case 'suspensory':
+      return '현수인대염';
+    case 'foot':
+      return '발굽 손상';
+    case 'bleeding':
+      return '폐출혈';
+    case 'respiratory':
+      return '호흡기 감염';
+    case 'laryngeal':
+      return '후두 이상';
+    case 'colic':
+      return '산통';
+    case 'tying_up':
+      return '근육 경련';
     default:
       return assertNever(kind);
   }

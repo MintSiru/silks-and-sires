@@ -42,6 +42,8 @@ export type LedgerCategory =
   | 'stallion_sale'
   /** 종마 임대료(M4-D4, 셔틀·장기 임대) */
   | 'stud_lease'
+  /** 수의 비용(M4-H2: 검사·치료·수술) */
+  | 'vet_fee'
   /** 목장 시설 공사·유지(M4-E) */
   | 'facility'
   /** 빚 이자(캐주얼 모드) */

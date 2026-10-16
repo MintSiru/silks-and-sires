@@ -1,4 +1,5 @@
 import type { BreederId, CountryCode, HorseId, Money, OwnerId, SireLineId, TrainerId } from './common';
+import type { GameDate } from './time';
 
 export type Sex = 'male' | 'female';
 
@@ -66,12 +67,57 @@ export interface GrowthProfile {
 }
 
 /** 부상 종류(M3-C1). 가벼운 순: 타박 → 정강이 통증 → 건 손상 → 골절 */
-export type InjuryKind = 'knock' | 'sore_shins' | 'tendon' | 'fracture';
+/**
+ * 부상 종류(M4-H, 사용자 결정 2026-10-16 14종).
+ * knock 타박 / sore_shins 정강이 통증(2~3세) / stress_fracture 피로 골절 / chip_fracture 관절 내 골편 /
+ * fracture 중증 골절 / joint 관절염(구절염) / tendon 굴건염 / suspensory 현수인대염 /
+ * foot 발굽 손상(멍·농양·갈라짐) / bleeding 운동 유발성 폐출혈 / respiratory 호흡기 감염 /
+ * laryngeal 후두 이상(소리 내는 말) / colic 산통 / tying_up 근육 경련(횡문근)
+ */
+export type InjuryKind = 'knock' | 'sore_shins' | 'stress_fracture' | 'chip_fracture' | 'fracture'
+  | 'joint' | 'tendon' | 'suspensory' | 'foot' | 'bleeding' | 'respiratory' | 'laryngeal'
+  | 'colic' | 'tying_up';
+
+/** 부상 부위(재발 판정·진단 단서 문구에 쓴다) */
+export type InjuryRegion = 'general' | 'bone' | 'joint' | 'tendon' | 'foot' | 'respiratory'
+  | 'digestive' | 'muscle';
+
+/** 치료 선택(M4-H2). rest 휴양 / medical 내과·보존 치료(비용) / surgery 수술(비용, 기간·회복 다름) */
+export type InjuryTreatment = 'rest' | 'medical' | 'surgery';
 
 export interface Injury {
   kind: InjuryKind;
   /** 복귀까지 남은 주 */
   weeksOut: number;
+  /**
+   * 확진 여부(M4-H2). false 면 플레이어에게 종류·기간을 숨기고 조교사 단서('조금 저는 것 같다')만 보인다.
+   * 검사(비용)로 확진하거나 시간이 지나면 확진된다. 없으면 확진된 것으로 본다(옛 저장본·AI 말)
+   */
+  diagnosed?: boolean;
+  /** 선택한 치료. 없거나 null 이면 아직 고르지 않음(휴양으로 진행) */
+  treatment?: InjuryTreatment | null;
+  /** 부상이 생긴 날짜(병력 기록용). 옛 저장본은 없음 */
+  since?: GameDate;
+}
+
+/** 부상 뒤 남는 영구 영향(M4-H1). 능력 감소는 생길 때 ability·potential 에 바로 반영하고 여기엔 기록만 남긴다 */
+export interface PermanentInjuryEffect {
+  /** 스피드 감소량(능력 점수) */
+  speed?: number;
+  /** 스태미나 감소량(능력 점수) */
+  stamina?: number;
+  /** 성적 기복 가산(Horse.formVariance 에 더한 값) */
+  formVariance?: number;
+}
+
+/** 병력 한 줄(M4-H1). 부상이 끝날 때(복귀·은퇴·사망) 남긴다 */
+export interface InjuryRecord {
+  kind: InjuryKind;
+  since: GameDate;
+  /** 실제로 쉰 주 수 */
+  weeks: number;
+  treatment: InjuryTreatment;
+  permanent?: PermanentInjuryEffect;
 }
 
 export interface Condition {
@@ -138,6 +184,10 @@ export interface Horse {
   record: CareerRecord;
   /** 사망 연도(M4-D9). status 'dead' 일 때만. 이 해 뒤의 교배 연도에는 부가 될 수 없다. 옛 저장본은 키 없음 */
   diedYear?: number;
+  /** 병력(M4-H1, 오래된 것부터, 최근 기록 상한은 config). 재발 판정에 쓴다. 없으면 병력 없음 */
+  injuryHistory?: InjuryRecord[];
+  /** 부상으로 생긴 성적 기복 가산(M4-H1, 0 이상). 레이스 컨디션 난수 폭에 더한다. 없으면 0 */
+  formVariance?: number;
 }
 
 /**
