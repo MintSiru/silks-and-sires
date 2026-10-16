@@ -52,7 +52,7 @@ function EconomyView({ state }: { state: GameState }): JSX.Element {
   );
 
   return (
-    <section aria-label="경제">
+    <section className="economy-layout" aria-label="경제">
       <section className="panel">
         <h2>손익 ({pnl === null ? NO_VALUE : `${pnl.year}년${pnl.current ? ' · 올해' : ''}`})</h2>
         <div className="field">
@@ -82,7 +82,7 @@ function EconomyView({ state }: { state: GameState }): JSX.Element {
         {ledger.length === 0 ? (
           <p className="hint">아직 장부에 남은 거래가 없습니다.</p>
         ) : (
-          <table>
+          <div className="table-scroll"><table>
             <thead>
               <tr>
                 <th>날짜</th>
@@ -103,17 +103,17 @@ function EconomyView({ state }: { state: GameState }): JSX.Element {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         )}
       </section>
 
-      <section className="panel">
-        <h2>연도별 추이</h2>
+      <details className="panel economy-history">
+        <summary>연도별 추이</summary>
         <p className="hint">지난 해의 순익과 연말 자금·빚입니다.</p>
         {history.length === 0 ? (
           <p className="hint">아직 한 해가 끝나지 않았습니다.</p>
         ) : (
-          <table>
+          <div className="table-scroll"><table>
             <thead>
               <tr>
                 <th>연도</th>
@@ -154,9 +154,9 @@ function EconomyView({ state }: { state: GameState }): JSX.Element {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         )}
-      </section>
+      </details>
     </section>
   );
 }
@@ -167,7 +167,7 @@ function PnlTable({ pnl }: { pnl: YearPnlView }): JSX.Element {
     return <p className="hint">이 해에는 아직 거래가 없습니다.</p>;
   }
   return (
-    <table>
+    <div className="table-scroll"><table>
       <thead>
         <tr>
           <th>구분</th>
@@ -202,7 +202,7 @@ function PnlTable({ pnl }: { pnl: YearPnlView }): JSX.Element {
           </td>
         </tr>
       </tbody>
-    </table>
+    </table></div>
   );
 }
 

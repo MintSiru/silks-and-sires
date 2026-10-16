@@ -34,7 +34,11 @@ export default function SeasonScreen({
   const [betRace, setBetRace] = useState<{ meetingId: string; raceId: string } | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [racePicks, setRacePicks] = useState<Record<string, string>>({});
-  const calendar = useMemo(() => upcomingRaceRows(game.state === null ? [] : game.upcomingRaces(12)), [game]);
+  const calendar = useMemo(
+    () =>
+      upcomingRaceRows(game.state === null ? [] : game.upcomingRaces(12), game.state ?? undefined),
+    [game],
+  );
   const state = game.state;
   if (state === null) return null;
   const meetings = meetingsView(state);
@@ -48,73 +52,102 @@ export default function SeasonScreen({
       )}
       {section === 'calendar' ? (
         <>
-          <section className="panel">
+          <section className="panel calendar-panel">
             <h2>앞으로 12주 레이스</h2>
             <p className="hint">
-              고정 일정은 확정입니다. 일반 개최 후보와 예상 종류는 실제 편성을 보장하지 않습니다. 출주 계획은
-              말 상세에서 검토하세요.
+              고정 일정은 확정입니다. 일반 개최 후보와 예상 종류는 실제 편성을 보장하지 않습니다.
+              출주 계획은 말 상세에서 검토하세요.
             </p>
-            {calendar.map((week) => (
-              <details key={week.key}>
-                <summary>
-                  {week.dateLabel} · 고정 일정 {week.fixed.length}개
-                </summary>
-                <ul>
-                  {week.fixed.map((race) => (
-                    <li key={race.id}>{race.label}</li>
-                  ))}
-                </ul>
-                <p className="hint">일반 개최: {week.countLabel || '없음'}</p>
-                <ul>
-                  {week.meetings.map((meeting) => (
-                    <li key={meeting.id}>
-                      {meeting.label}
-                      <p className="hint">예상: {meeting.expected}</p>
-                    </li>
-                  ))}
-                </ul>
-              </details>
-            ))}
-          </section>
-          <section className="panel">
-            <h2>이번 주·다음 주 개최</h2>
-            {meetings.length === 0 && <p className="hint">예정된 개최가 없습니다.</p>}
-            {meetings.map((m) => (
-              <details key={m.meetingId}>
-                <summary>
-                  {m.courseName} · {m.dateLabel} · 마장 {m.goingLabel}
-                </summary>
-                <ul className="season-race-list">
-                  {m.races.map((race) => {
-                    const key = raceKey(race.meetingId, race.raceId);
-                    return (
-                      <RaceRow
-                        key={key}
-                        race={race}
-                        locked={locked}
-                        eligible={eligiblePlayerHorses(state, race.meetingId, race.raceId)}
-                        pick={racePicks[key]}
-                        onPick={(id) => setRacePicks((prev) => ({ ...prev, [key]: id }))}
-                        onBet={() => setBetRace({ meetingId: race.meetingId, raceId: race.raceId })}
-                        onDeclare={() => {
-                          const id = racePicks[key];
-                          if (!id) {
-                            setNotice('출주시킬 말을 고르세요.');
-                            return;
+            <div className="calendar-weeks">
+              {calendar.map((week) => (
+                <details key={week.key}>
+                  <summary className="calendar-week">
+                    <span className="calendar-week__date">{week.dateLabel}</span>
+                    <span className="calendar-week__races" title={week.fixedSummary}>
+                      {week.fixedSummary || '일반 개최'}
+                    </span>
+                    <span title={week.meetingSummary}>
+                      {week.meetingSummary || '개최 예정 없음'}
+                    </span>
+                    <span title={week.kindsSummary}>{week.kindsSummary || '—'}</span>
+                    <span
+                      className="calendar-week__horses"
+                      title={week.playerPlans.map((h) => h.name).join(' · ')}
+                    >
+                      {week.playerPlans.map((h) => (
+                        <span className="status-chip status-chip--good" key={h.horseId}>
+                          <HorseLink horseId={h.horseId} name={h.name} />
+                        </span>
+                      ))}
+                    </span>
+                  </summary>
+                  <ul>
+                    {week.fixed.map((race) => (
+                      <li key={race.id}>{race.label}</li>
+                    ))}
+                  </ul>
+                  <p className="hint">일반 개최: {week.countLabel || '없음'}</p>
+                  <ul>
+                    {week.meetings.map((meeting) => (
+                      <li key={meeting.id}>
+                        {meeting.label}
+                        <p className="hint">예상: {meeting.expected}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              ))}
+            </div>
+            <details className="meeting-details">
+              <summary>이번 주·다음 주 개최 · 출주 신청 ({meetings.length}곳)</summary>
+              {meetings.length === 0 && <p className="hint">예정된 개최가 없습니다.</p>}
+              {meetings.map((m) => (
+                <details key={m.meetingId}>
+                  <summary>
+                    {m.courseName} · {m.dateLabel} · 마장 {m.goingLabel}
+                  </summary>
+                  <ul className="season-race-list">
+                    {m.races.map((race) => {
+                      const key = raceKey(race.meetingId, race.raceId);
+                      return (
+                        <RaceRow
+                          key={key}
+                          race={race}
+                          locked={locked}
+                          eligible={eligiblePlayerHorses(state, race.meetingId, race.raceId)}
+                          pick={racePicks[key]}
+                          onPick={(id) => setRacePicks((prev) => ({ ...prev, [key]: id }))}
+                          onBet={() =>
+                            setBetRace({ meetingId: race.meetingId, raceId: race.raceId })
                           }
-                          const result = game.declarePlayerHorse(race.meetingId, race.raceId, id);
-                          setNotice(result.ok ? '출주를 접수했습니다.' : declareErrorKo(result.error));
-                        }}
-                        onWithdraw={(id) => {
-                          const result = game.withdrawPlayerHorse(race.meetingId, race.raceId, id);
-                          setNotice(result.ok ? '출주를 취소했습니다.' : withdrawErrorKo(result.error));
-                        }}
-                      />
-                    );
-                  })}
-                </ul>
-              </details>
-            ))}
+                          onDeclare={() => {
+                            const id = racePicks[key];
+                            if (!id) {
+                              setNotice('출주시킬 말을 고르세요.');
+                              return;
+                            }
+                            const result = game.declarePlayerHorse(race.meetingId, race.raceId, id);
+                            setNotice(
+                              result.ok ? '출주를 접수했습니다.' : declareErrorKo(result.error),
+                            );
+                          }}
+                          onWithdraw={(id) => {
+                            const result = game.withdrawPlayerHorse(
+                              race.meetingId,
+                              race.raceId,
+                              id,
+                            );
+                            setNotice(
+                              result.ok ? '출주를 취소했습니다.' : withdrawErrorKo(result.error),
+                            );
+                          }}
+                        />
+                      );
+                    })}
+                  </ul>
+                </details>
+              ))}
+            </details>
           </section>
           {betRace !== null && (
             <BettingPanel
@@ -214,7 +247,8 @@ function RaceRow({
         )}
       </div>
       <p className="hint">
-        {race.conditionsLabel} · 총상금 {feeKo(race.totalPrize)} · 출주 {race.runners}/{race.maxRunners}두
+        {race.conditionsLabel} · 총상금 {feeKo(race.totalPrize)} · 출주 {race.runners}/
+        {race.maxRunners}두
       </p>
       {declared.map((d) => (
         <p key={d.horseId} className="notice notice--ok">
@@ -222,7 +256,12 @@ function RaceRow({
           {open && (
             <>
               {' '}
-              <button type="button" className="btn" disabled={locked} onClick={() => onWithdraw(d.horseId)}>
+              <button
+                type="button"
+                className="btn"
+                disabled={locked}
+                onClick={() => onWithdraw(d.horseId)}
+              >
                 취소
               </button>
             </>

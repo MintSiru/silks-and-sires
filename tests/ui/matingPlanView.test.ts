@@ -43,7 +43,7 @@ it('공개 니크·근친·거리·상태·수준을 순수하게 표로 만든�
 
 it('번식 화면 맨 위 슬롯에서 일괄 승인·자동 승인·상한·대안·빼기를 제공한다', () => {
   const html = renderToStaticMarkup(createElement(BreedingScreen, { game: { ...game, state } }));
-  expect(html.indexOf('data-slot="breeding-proposals"')).toBeLessThan(html.indexOf('<h2>배합</h2>'));
+  expect(html.indexOf('data-slot="breeding-proposals"')).toBeLessThan(html.indexOf('수동 배합'));
   for (const text of ['교배 제안', '모두 승인', '자동 승인', '한 두당 종부료 상한', '니크', '근친', '거리 보완', '대안으로 바꾸기', '승인</button>', '빼기</button>']) expect(html).toContain(text);
   const locked = renderToStaticMarkup(createElement(MatingPlanPanel, { state, game, locked: true }));
   expect(locked).toContain('disabled=""');

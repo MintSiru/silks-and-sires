@@ -6,6 +6,8 @@ import { formatDateKo, weeksBetween } from '../../engine/time/calendar';
 import type { GameState } from '../../engine/types';
 import { recentResults } from '../season/seasonView';
 import type { HorseTab } from '../horse/HorseLink';
+import { eventInvolvesHorse } from '../horse/horseDetailView';
+import { racePlanRows } from '../season/racePlanView';
 export interface HomeTask {
   id: string;
   label: string;
@@ -21,8 +23,10 @@ export function homeTasks(state: GameState): HomeTask[] {
     (h) => h.ownerId === state.playerOwnerId && !['dead', 'historical'].includes(h.status),
   )) {
     const name = displayName(state, h);
-    const count = (state.seasonState.racePlans?.[h.id] ?? []).filter((p) => p.status === 'proposed').length;
-    if (count)
+    const count = (state.seasonState.racePlans?.[h.id] ?? []).filter(
+      (p) => p.status === 'proposed',
+    ).length;
+    if (count && state.settings.autoApproveRacePlans === false)
       tasks.push({
         id: `plan:${h.id}`,
         label: `${name} · 출주 계획 제안 ${count}건 검토`,
@@ -31,7 +35,12 @@ export function homeTasks(state: GameState): HomeTask[] {
         horseTab: 'plan',
       });
     if (h.nameRegistered === false)
-      tasks.push({ id: `name:${h.id}`, label: `${name} · 이름 짓기`, screen: 'horse', horseId: h.id });
+      tasks.push({
+        id: `name:${h.id}`,
+        label: `${name} · 이름 짓기`,
+        screen: 'horse',
+        horseId: h.id,
+      });
     if (
       h.condition.injury &&
       (h.condition.injury.diagnosed === false || h.condition.injury.treatment == null)
@@ -62,26 +71,71 @@ export function homeTasks(state: GameState): HomeTask[] {
   return tasks;
 }
 export function homeView(state: GameState) {
+  const ownedIds = Object.values(state.horses)
+    .filter((h) => h.ownerId === state.playerOwnerId)
+    .map((h) => h.id);
+  const owned = new Set(ownedIds);
+  const results = recentResults(state, state.raceResults.length);
+  const entries = state.seasonState.meetings
+    .filter((m) => weeksBetween(state.date, m.date) >= 0 && weeksBetween(state.date, m.date) <= 1)
+    .flatMap((m) =>
+      m.races
+        .filter((r) => r.status !== 'run' && r.status !== 'abandoned')
+        .flatMap((r) =>
+          r.declarations
+            .filter((d) => d.isPlayer && owned.has(d.horseId))
+            .map((d) => ({
+              key: `${m.date.year}:${m.date.week}:${d.horseId}`,
+              horseId: d.horseId,
+              weekLabel: weeksBetween(state.date, m.date) === 0 ? '이번 주' : '다음 주',
+              raceName: r.race.name,
+              statusLabel: '출주 신청됨',
+            })),
+        ),
+    );
+  for (const horseId of owned) {
+    const plans = (state.seasonState.racePlans?.[horseId] ?? []).filter(
+      (p) =>
+        ['proposed', 'approved', 'declared'].includes(p.status) &&
+        weeksBetween(state.date, p.date) >= 0 &&
+        weeksBetween(state.date, p.date) <= 1,
+    );
+    for (const plan of plans) {
+      const key = `${plan.date.year}:${plan.date.week}:${horseId}`;
+      if (entries.some((e) => e.key === key)) continue;
+      const horse = state.horses[horseId]!;
+      const row = racePlanRows([plan], {
+        requireApproval: state.settings.autoApproveRacePlans === false,
+        country:
+          (horse.trainerId === null ? undefined : state.trainers[horse.trainerId]?.country) ??
+          horse.countryOfBirth,
+      })[0]!;
+      entries.push({
+        key,
+        horseId,
+        weekLabel: weeksBetween(state.date, plan.date) === 0 ? '이번 주' : '다음 주',
+        raceName: `${row.name}${row.away}`,
+        statusLabel: row.statusLabel,
+      });
+    }
+  }
+  entries.sort(
+    (a, b) =>
+      (a.weekLabel === '이번 주' ? 0 : 1) - (b.weekLabel === '이번 주' ? 0 : 1) ||
+      a.key.localeCompare(b.key),
+  );
   return {
     tasks: homeTasks(state),
-    entries: state.seasonState.meetings
-      .filter((m) => m.date.year === state.date.year && m.date.week === state.date.week)
-      .flatMap((m) =>
-        m.races
-          .filter((r) => r.status !== 'run' && r.status !== 'abandoned')
-          .flatMap((r) =>
-            r.declarations
-              .filter((d) => d.isPlayer)
-              .map((d) => ({
-                key: `${m.id}:${r.race.id}:${d.horseId}`,
-                horseId: d.horseId,
-                raceName: r.race.name,
-              })),
-          ),
-      ),
-    results: recentResults(state, 3),
+    entries,
+    results: results.filter((r) => r.playerRuns.length > 0).slice(0, 3),
+    majorResult: results.find((r) => r.playerRuns.length === 0) ?? null,
     events: state.eventLog
-      .filter((e) => e.type !== 'week_started')
+      .filter(
+        (e) =>
+          ownedIds.some((id) => eventInvolvesHorse(e, id)) ||
+          (e.type === 'horse_sold' &&
+            (e.fromOwnerId === state.playerOwnerId || e.toOwnerId === state.playerOwnerId)),
+      )
       .slice(-5)
       .reverse(),
   };

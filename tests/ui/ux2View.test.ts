@@ -85,8 +85,9 @@ describe('UX2 마구간·셸', () => {
     const active = addHorse(state, 'in_training');
     addHorse(state, 'broodmare');
     state.seasonState.racePlans = { [active.id]: [plan(active, state)] };
+    state.settings.autoApproveRacePlans = false;
     expect(stableRows(state, 'active')[0]!.warnings).toContain('제안 검토');
-    expect(stableRows(state, 'active')[0]!.next).toContain('새 제안');
+    expect(stableRows(state, 'active')[0]!.next).toContain('검토 대기');
     expect(renderToStaticMarkup(createElement(StableScreen, { state }))).toContain('말 이름 검색');
     const html = renderToStaticMarkup(createElement(BreedingScreen, { game: { state } as GameApi }));
     expect(html).toContain('구름 broodmare');
@@ -107,6 +108,8 @@ describe('UX2 마구간·셸', () => {
     state.date.week = 51;
     const p = { ...plan(h, state), date: { year: state.date.year + 1, week: 2 } };
     state.seasonState.racePlans = { [h.id]: [p] };
+    expect(nextPlayerRaceInWeeks(state)).toBe(3);
+    state.settings.autoApproveRacePlans = false;
     expect(nextPlayerRaceInWeeks(state)).toBe(null);
     p.status = 'approved';
     expect(nextPlayerRaceInWeeks(state)).toBe(3);
@@ -126,6 +129,7 @@ describe('UX2 홈', () => {
     const sale = getSalesData().events.find((e) => e.books.some((b) => b.weekOffset > 0))!;
     const book = sale.books.find((b) => b.weekOffset > 0)!;
     state.date.week = 1;
+    state.settings.autoApproveRacePlans = false;
     const tasks = homeTasks(state);
     expect(tasks.find((t) => t.id === `plan:${h.id}`)).toMatchObject({
       screen: 'horse',
@@ -168,7 +172,7 @@ describe('UX2 홈', () => {
     state.eventLog = Array.from({ length: 7 }, (_, i) => ({
       type: 'horse_named' as const,
       date: state.date,
-      horseId: `h${i}`,
+      horseId: addHorse(state, 'in_training', `h${i}`).id,
       name: `${i}`,
       auto: false,
     }));

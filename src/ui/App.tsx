@@ -40,10 +40,11 @@ const SCREENS: { id: Screen; label: string }[] = [
 function messageOf(error: unknown) {
   return error instanceof Error ? error.message : '작업을 완료하지 못했습니다.';
 }
-/** 승인된 계획과 실제 접수를 함께 본다. 제안만 있는 상태에서 임의로 시간을 넘기지 않는다. */
+/** 진행 방식에 따라 출주 예정 계획과 실제 접수를 함께 본다. */
 export function nextPlayerRaceInWeeks(state: GameState): number | null {
   const dates = Object.values(state.seasonState.racePlans ?? {}).flatMap((plans) =>
-    plans.filter((p) => p.status === 'approved' || p.status === 'declared').map((p) => p.date),
+    plans.filter((p) => p.status === 'approved' || p.status === 'declared' ||
+      (p.status === 'proposed' && state.settings.autoApproveRacePlans !== false)).map((p) => p.date),
   );
   dates.push(
     ...state.seasonState.meetings
@@ -153,7 +154,7 @@ function AppContent() {
               onClick={() => {
                 const weeks = nextPlayerRaceInWeeks(state);
                 if (weeks === null) {
-                  setNotice('승인된 출주 계획이 없습니다. 말 상세에서 제안을 승인하세요.');
+                  setNotice(state.settings.autoApproveRacePlans === false ? '승인된 출주 계획이 없습니다. 말 상세에서 제안을 승인하세요.' : '출주 예정 계획이 없습니다. 말 상세에서 계획을 확인하세요.');
                   return;
                 }
                 if (weeks === 0) {

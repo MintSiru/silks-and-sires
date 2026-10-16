@@ -17,6 +17,7 @@ import {
   distanceHintKo,
   feeKo,
   growthKo,
+  gradeTextColor,
   sexKo,
   statusKo,
   type ConformationKey,
@@ -137,7 +138,7 @@ export default function HorseDetail({
                   ['overall', 'frame', 'hindquarters', 'legs', 'action', 'temperament'] as ConformationKey[]
                 ).map((k) => (
                   <li key={k}>
-                    {conformationLabelKo(k)} <span className="grade-badge">{assessment.conformation[k]}</span>
+                    {conformationLabelKo(k)} <span className="grade-badge" style={{ color: gradeTextColor(assessment.conformation[k]) }}>{assessment.conformation[k]}</span>
                   </li>
                 ))}
               </ul>

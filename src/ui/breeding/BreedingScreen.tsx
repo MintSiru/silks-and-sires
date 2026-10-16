@@ -270,7 +270,8 @@ function BreedingView({ state, game, locked }: BreedingViewProps): JSX.Element {
       <div data-slot="breeding-proposals">
         <MatingPlanPanel state={state} game={game} locked={locked} />
       </div>
-      <h2>배합</h2>
+      <details className="panel manual-breeding">
+      <summary>수동 배합 · 암말과 종마 고르기</summary>
       {notice !== null && (
         <p className={`notice notice--${notice.tone}`} role="status">
           {notice.text}
@@ -453,8 +454,9 @@ function BreedingView({ state, game, locked }: BreedingViewProps): JSX.Element {
         )}
       </section>
 
-      <section className="panel">
-        <h2>내 종마 사업 ({studView.stallions.length}두)</h2>
+      </details>
+      <details className="panel stud-business">
+        <summary>내 종마 사업 ({studView.stallions.length}두)</summary>
         <p className="hint">{studView.slotsKo}</p>
         <p className="hint">{studView.dealWindowKo}</p>
         {studView.stallions.length === 0 ? (
@@ -695,7 +697,7 @@ function BreedingView({ state, game, locked }: BreedingViewProps): JSX.Element {
             </table>
           </div>
         )}
-      </section>
+      </details>
     </>
   );
 }

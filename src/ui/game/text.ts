@@ -148,6 +148,11 @@ export function gradeColor(g: Grade): string {
   return GRADE_COLORS[g];
 }
 
+/** 어두운 상세 패널 위 글자용 등급 토큰. 모든 등급은 WCAG AA(4.5:1) 이상. */
+export function gradeTextColor(g: Grade): string {
+  return { S: '#f0d477', A: '#94d9b2', B: '#8cdcd6', C: '#c2c9d1', D: '#edc77d', E: '#f19c9c' }[g];
+}
+
 export function nickLabelKo(l: NickLabel): string {
   return NICK_LABELS_KO[l];
 }

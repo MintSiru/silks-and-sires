@@ -35,10 +35,11 @@ function FarmView({ game, state, locked }: { game: GameApi; state: GameState; lo
   const listings = listingRows(state);
   const lockReason = locked ? '파산 상태에서는 진행할 수 없습니다.' : null;
 
-  return <section aria-label="목장">
+  return <section className="farm-screen" aria-label="목장">
     {notice !== null && <p className={`notice notice--${notice.ok ? 'ok' : 'error'}`}
       role={notice.ok ? 'status' : 'alert'}>{notice.text}</p>}
     {lockReason !== null && <p className="notice notice--error" role="alert">{lockReason}</p>}
+    <div className="farm-layout">
     {summary.owned ? <>
       <section className="panel">
         <h2>{summary.name}</h2>
@@ -91,8 +92,9 @@ function FarmView({ game, state, locked }: { game: GameApi; state: GameState; lo
       </section>
     </> : <section className="panel"><h2>목장 없음</h2>
       <p>목장을 사면 오너브리더가 됩니다.</p></section>}
-    <section className="panel">
-      <h2>목장 매물</h2>
+    </div>
+    <details className="panel farm-listings" open={summary.owned ? undefined : true}>
+      <summary>목장 매물 ({listings.length}곳)</summary>
       {pending !== null && <form className="panel" aria-label="목장 구매·이전 확인" onSubmit={event => {
         event.preventDefault();
         if (locked) return;
@@ -125,6 +127,6 @@ function FarmView({ game, state, locked }: { game: GameApi; state: GameState; lo
             </tr>;
           })}</tbody>
         </table></div>}
-    </section>
+    </details>
   </section>;
 }

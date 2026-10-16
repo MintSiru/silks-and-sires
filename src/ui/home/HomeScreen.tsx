@@ -46,14 +46,15 @@ export default function HomeScreen({
           )}
         </section>
         <section className="panel">
-          <h3>이번 주 내 출주</h3>
+          <h3>이번 주·다음 주 내 출주 예정</h3>
           {view.entries.length === 0 ? (
-            <p className="empty-state">이번 주 접수된 출주가 없습니다.</p>
+            <p className="empty-state">이번 주·다음 주 출주 계획이나 신청이 없습니다.</p>
           ) : (
             <ul className="task-list">
               {view.entries.map((e) => (
                 <li key={e.key}>
                   <HorseLink horseId={e.horseId} name={nameOf(e.horseId)} /> · {e.raceName}
+                  <div className="hint">{e.weekLabel} · {e.statusLabel}</div>
                 </li>
               ))}
             </ul>
@@ -61,7 +62,7 @@ export default function HomeScreen({
         </section>
         <section className="panel">
           <h3>최근 결과 3건</h3>
-          {view.results.length === 0 && <p className="empty-state">아직 결과가 없습니다.</p>}
+          {view.results.length === 0 && <p className="empty-state">내 말 결과 없음</p>}
           <ul className="task-list">
             {view.results.map((r) => (
               <li key={r.key}>
@@ -81,6 +82,9 @@ export default function HomeScreen({
               </li>
             ))}
           </ul>
+          {view.majorResult && (
+            <p className="hint">주요 G1 · {view.majorResult.dateLabel} · {view.majorResult.raceName} · 우승 {view.majorResult.winnerName}</p>
+          )}
         </section>
         <section className="panel">
           <h3>최근 이벤트 5건</h3>

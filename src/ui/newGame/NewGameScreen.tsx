@@ -110,120 +110,133 @@ export default function NewGameScreen({
     <section className="panel new-game">
       <h2>새 게임 시작</h2>
       <form className="new-game__form" onSubmit={handleSubmit}>
-        <label className="field">
-          <span>마주 이름</span>
-          <input
-            type="text"
-            value={playerName}
-            onChange={(e) => setPlayerName(e.target.value)}
-            placeholder="예: 애시콤 스터드 마주"
-          />
-        </label>
-        <label className="field">
-          <span>시드(같은 시드는 같은 세계)</span>
-          <input
-            type="text"
-            inputMode="numeric"
-            value={seedText}
-            onChange={(e) => setSeedText(e.target.value)}
-          />
-        </label>
-        <fieldset className="field">
-          <legend>경제 모드(새 게임 때만 고를 수 있습니다)</legend>
-          {ECONOMY_MODE_OPTIONS.map((option) => (
-            <label key={option.mode} className="field">
-              <input
-                type="radio"
-                name="economy-mode"
-                value={option.mode}
-                checked={economyMode === option.mode}
-                onChange={() => setEconomyMode(option.mode)}
-              />
-              <span>{option.label}</span>
-              <span className="hint">{option.description}</span>
-            </label>
-          ))}
-        </fieldset>
-        <fieldset className="field">
-          <legend>시작 유형</legend>
-          {START_TYPE_OPTIONS.map((option) => (
-            <label key={option.value} className="field">
-              <input
-                type="radio"
-                name="start-type"
-                value={option.value}
-                checked={startType === option.value}
-                onChange={() => setStartType(option.value)}
-              />
-              <span>{option.label}</span>
-              <span className="hint">{option.description}</span>
-            </label>
-          ))}
-        </fieldset>
-        {startType === 'owner_breeder' && (
+        <div className="new-game__settings">
           <label className="field">
-            <span>목장 이름</span>
-            <input type="text" value={farmName} onChange={(e) => setFarmName(e.target.value)} />
-            <span className="hint">
-              빈칸이면 자동으로 정합니다. 2~30자, 글자·공백·하이픈·아포스트로피·마침표를 쓸 수 있습니다.
-            </span>
+            <span>마주 이름</span>
+            <input
+              type="text"
+              value={playerName}
+              onChange={(e) => setPlayerName(e.target.value)}
+              placeholder="예: 애시콤 스터드 마주"
+            />
           </label>
-        )}
-        <fieldset className="field">
-          <legend>난이도</legend>
-          {DIFFICULTY_OPTIONS.map((option) => (
-            <label key={option.value} className="field">
-              <input
-                type="radio"
-                name="difficulty"
-                value={option.value}
-                checked={difficulty === option.value}
-                onChange={() => setDifficulty(option.value)}
-              />
-              <span>{option.label}</span>
-              <span className="hint">{option.description}</span>
-            </label>
-          ))}
-        </fieldset>
-        <label className="field">
-          <span>소재국</span>
-          <select value={homeCountry} onChange={(e) => setHomeCountry(e.target.value as HomeCountry)}>
-            {HOME_COUNTRIES.map((country) => (
-              <option key={country} value={country}>
-                {countryKo(country)}
-              </option>
-            ))}
-          </select>
-          <span className="hint">{HOME_COUNTRY_HINT_KO}</span>
-        </label>
-        {startType === 'owner_breeder' && (
           <label className="field">
+            <span>시드(같은 시드는 같은 세계)</span>
+            <input
+              type="text"
+              inputMode="numeric"
+              value={seedText}
+              onChange={(e) => setSeedText(e.target.value)}
+            />
+          </label>
+          <fieldset className="field">
+            <legend>경제 모드</legend>
+            {ECONOMY_MODE_OPTIONS.map((option) => (
+              <label key={option.mode} className="choice-field" title={option.description}>
+                <input
+                  type="radio"
+                  name="economy-mode"
+                  value={option.mode}
+                  checked={economyMode === option.mode}
+                  onChange={() => setEconomyMode(option.mode)}
+                />
+                <span>{option.label}</span>
+              </label>
+            ))}
+          </fieldset>
+          <fieldset className="field">
+            <legend>시작 유형</legend>
+            {START_TYPE_OPTIONS.map((option) => (
+              <label key={option.value} className="choice-field" title={option.description}>
+                <input
+                  type="radio"
+                  name="start-type"
+                  value={option.value}
+                  checked={startType === option.value}
+                  onChange={() => setStartType(option.value)}
+                />
+                <span>{option.label}</span>
+              </label>
+            ))}
+          </fieldset>
+          {startType === 'owner_breeder' && (
+            <label className="field">
+              <span>목장 이름</span>
+              <input type="text" value={farmName} onChange={(e) => setFarmName(e.target.value)} />
+              <span className="hint">
+                빈칸이면 자동으로 정합니다. 2~30자, 글자·공백·하이픈·아포스트로피·마침표를 쓸 수
+                있습니다.
+              </span>
+            </label>
+          )}
+          <fieldset className="field">
+            <legend>난이도</legend>
+            {DIFFICULTY_OPTIONS.map((option) => (
+              <label key={option.value} className="choice-field" title={option.description}>
+                <input
+                  type="radio"
+                  name="difficulty"
+                  value={option.value}
+                  checked={difficulty === option.value}
+                  onChange={() => setDifficulty(option.value)}
+                />
+                <span>{option.label}</span>
+              </label>
+            ))}
+          </fieldset>
+          <label className="field">
+            <span>소재국</span>
+            <select
+              value={homeCountry}
+              onChange={(e) => setHomeCountry(e.target.value as HomeCountry)}
+            >
+              {HOME_COUNTRIES.map((country) => (
+                <option key={country} value={country}>
+                  {countryKo(country)}
+                </option>
+              ))}
+            </select>
+          </label>
+          {startType === 'owner_breeder' && (
+            <label className="choice-field">
+              <input
+                type="checkbox"
+                checked={grantRacehorses}
+                onChange={(e) => setGrantRacehorses(e.target.checked)}
+              />
+              <span>현역마 지급</span>
+            </label>
+          )}
+          <label className="choice-field">
             <input
               type="checkbox"
-              checked={grantRacehorses}
-              onChange={(e) => setGrantRacehorses(e.target.checked)}
+              checked={catastrophicInjuries}
+              onChange={(e) => setCatastrophicInjuries(e.target.checked)}
             />
-            <span>현역마 지급</span>
-            <span className="hint">{GRANT_RACEHORSES_HINT_KO}</span>
+            <span>예후불량(경주 중 치명적 부상)</span>
           </label>
-        )}
-        <label className="field">
-          <input
-            type="checkbox"
-            checked={catastrophicInjuries}
-            onChange={(e) => setCatastrophicInjuries(e.target.checked)}
-          />
-          <span>예후불량(경주 중 치명적 부상)</span>
-          <span className="hint">{CATASTROPHIC_INJURY_HINT_KO}</span>
-        </label>
-        <section className="field" aria-label="고른 시작 조건">
-          <span>고른 시작 조건</span>
-          <ul className="hint">
-            {summary.map((line) => (
-              <li key={line}>{line}</li>
-            ))}
-          </ul>
-        </section>
+          <section className="field" aria-label="고른 시작 조건">
+            <span>고른 시작 조건</span>
+            <ul className="hint">
+              {summary.map((line) => (
+                <li key={line}>{line}</li>
+              ))}
+            </ul>
+          </section>
+          <details className="new-game__help">
+            <summary>시작 설정 도움말</summary>
+            {[...ECONOMY_MODE_OPTIONS, ...START_TYPE_OPTIONS, ...DIFFICULTY_OPTIONS].map(
+              (option) => (
+                <p className="hint" key={option.label}>
+                  {option.label}: {option.description}
+                </p>
+              ),
+            )}
+            <p className="hint">{HOME_COUNTRY_HINT_KO}</p>
+            <p className="hint">현역마 지급: {GRANT_RACEHORSES_HINT_KO}</p>
+            <p className="hint">예후불량: {CATASTROPHIC_INJURY_HINT_KO}</p>
+          </details>
+        </div>
         <SilksEditor design={silks} onChange={setSilks} />
         {error !== null && (
           <p className="notice notice--error" role="alert">

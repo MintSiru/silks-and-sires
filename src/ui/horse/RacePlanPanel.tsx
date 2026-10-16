@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import type { Horse } from '../../engine/types';
 import { formatDateKo } from '../../engine/time/calendar';
 import type { GameApi } from '../game/useGame';
-import { racePlanErrorKo, racePlanRows } from '../season/racePlanView';
+import { emptyRacePlanHint, racePlanErrorKo, racePlanRows, racePlanSections } from '../season/racePlanView';
 import { planChoices } from './horseDetailView';
 
 export default function RacePlanPanel({
@@ -15,7 +15,11 @@ export default function RacePlanPanel({
   locked: boolean;
 }) {
   const plans = game.racePlan(horse.id);
-  const rows = racePlanRows(plans);
+  const requireApproval = game.state?.settings.autoApproveRacePlans === false;
+  const context = { requireApproval, country: (horse.trainerId === null ? undefined : game.state?.trainers[horse.trainerId]?.country) ?? horse.countryOfBirth };
+  const sections = racePlanSections(plans);
+  const rows = racePlanRows(sections.active, context);
+  const history = racePlanRows(sections.history, context);
   const weeks = useMemo(() => game.upcomingRaces(12), [game]);
   const choices = useMemo(() => planChoices(horse.id, weeks), [horse.id, weeks]);
   const [weekPick, setWeekPick] = useState('');
@@ -28,9 +32,9 @@ export default function RacePlanPanel({
     setNotice(result.ok ? { ok: true, text } : { ok: false, text: racePlanErrorKo(result.error) });
   return (
     <section aria-label="출주 계획 검토">
-      <h3>출주 계획 제안 검토</h3>
+      <h3>출주 계획</h3>
       <p className="hint">
-        조교사가 현역마의 계획을 자동 제안합니다. 승인한 계획은 해당 주에 자동으로 출주 신청합니다.
+        {requireApproval ? '승인한 계획만 해당 주에 자동으로 출주 신청합니다.' : '조교사 제안은 빼지 않으면 해당 주에 자동으로 출주 신청합니다.'}
       </p>
       {horse.trainerId === null && <p className="notice">개요에서 조교사를 배정하세요.</p>}
       {horse.status === 'resting' && <p className="notice">휴양 중에는 계획을 변경할 수 없습니다.</p>}
@@ -41,7 +45,7 @@ export default function RacePlanPanel({
       )}
       {rows.length === 0 ? (
         <p className="empty-state">
-          현재 제안된 계획이 없습니다. 조교사에게 다시 짜기를 요청하거나 아래에서 추가하세요.
+          {game.state ? emptyRacePlanHint(game.state, horse) : '현재 제안된 계획이 없습니다.'}
         </p>
       ) : (
         <div className="table-scroll">
@@ -59,7 +63,7 @@ export default function RacePlanPanel({
               {rows.map((r) => (
                 <tr key={r.id}>
                   <td>{r.dateLabel}</td>
-                  <td>{r.name}</td>
+                  <td>{r.name}{r.away}</td>
                   <td>{r.note}</td>
                   <td>
                     <span
@@ -96,6 +100,14 @@ export default function RacePlanPanel({
           </table>
         </div>
       )}
+      {history.length > 0 && (
+        <details className="plan-history">
+          <summary>지난 계획 · 최근 {history.length}건 (전체 {sections.historyCount}건)</summary>
+          <ul className="task-list">
+            {history.map((r) => <li key={r.id}>{r.dateLabel} · {r.name}{r.away} · {r.statusLabel}<div className="hint">{r.note}</div></li>)}
+          </ul>
+        </details>
+      )}
       <button
         type="button"
         className="btn"
@@ -107,7 +119,7 @@ export default function RacePlanPanel({
       <details className="plan-add">
         <summary>앞으로 12주에서 골라 추가</summary>
         <p className="hint">
-          고정 일정 또는 일반 경주 조건을 추가한 뒤 승인하세요. 같은 주에는 한 계획만 둘 수 있습니다.
+          고정 일정 또는 일반 경주 조건을 추가하세요. {requireApproval ? '추가한 뒤 승인해야 진행됩니다. ' : '빼지 않으면 예정대로 진행됩니다. '}같은 주에는 한 계획만 둘 수 있습니다.
         </p>
         <label className="field">
           주 선택
@@ -153,7 +165,7 @@ export default function RacePlanPanel({
             }
             show(
               game.setRacePlan(horse.id, [...plans, choice.plan]),
-              '계획에 추가했습니다. 목록에서 승인하세요.',
+              requireApproval ? '계획에 추가했습니다. 목록에서 승인하세요.' : '계획에 추가했습니다. 예정된 주에 진행합니다.',
             );
             setPick('');
           }}

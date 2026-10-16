@@ -10,6 +10,7 @@ import type { GameEvent, GameState, Horse, PlannedRace } from '../../engine/type
 import type { UpcomingRaceWeek } from '../../engine/season/lookahead';
 import { countryKo, feeKo, nickLabelKo, raceConditionsKo, raceGradeKo } from '../game/text';
 import type { HorseTab } from './HorseLink';
+import { targetLabel } from '../season/racePlanView';
 export const HORSE_TAB_LABELS: Record<HorseTab, string> = {
   overview: '개요',
   plan: '출주 계획',
@@ -119,7 +120,7 @@ export function planChoices(horseId: string, weeks: readonly UpcomingRaceWeek[])
           maxDistance: Math.max(...distances),
           country,
         };
-        const label = `${countryKo(country)} · ${kind.kind === 'maiden' ? '미승리' : kind.kind === 'novice' ? '노비스' : kind.kind === 'handicap' ? '핸디캡' : '조건'} · ${target.minDistance}~${target.maxDistance}m (조건 목표)`;
+        const label = `${countryKo(country)} · ${targetLabel(target)} (조건 목표)`;
         return {
           key: `${prefix}:${country}:${kind.kind}`,
           label,

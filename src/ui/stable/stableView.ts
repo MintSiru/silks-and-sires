@@ -3,7 +3,7 @@ import { displayName } from '../../engine/naming/register';
 import { ageInYear } from '../../engine/time/calendar';
 import { sexKo, statusKo } from '../game/text';
 import { mareBookingKo } from '../breeding/bookView';
-import { racePlanRows } from '../season/racePlanView';
+import { emptyRacePlanHint, racePlanRows } from '../season/racePlanView';
 
 export const STABLE_TABS = [
   { id: 'active', label: '현역마' },
@@ -43,14 +43,15 @@ export function stableRows(state: GameState, tab: StableTab, query = '') {
       const plans = (state.seasonState.racePlans?.[h.id] ?? [])
         .filter((p) => ['proposed', 'approved', 'declared'].includes(p.status))
         .sort((a, b) => a.date.year - b.date.year || a.date.week - b.date.week);
-      const next = racePlanRows(plans)[0];
+      const next = racePlanRows(plans, { requireApproval: state.settings.autoApproveRacePlans === false,
+        country: (h.trainerId === null ? undefined : state.trainers[h.trainerId]?.country) ?? h.countryOfBirth })[0];
       const mare = state.mares[h.id];
       const stud = state.stallions[h.id];
       const warnings = [
         h.condition.injury ? '부상 확인' : '',
         h.nameRegistered === false ? '이름 필요' : '',
         tab === 'active' && h.trainerId === null ? '조교사 미배정' : '',
-        plans.some((p) => p.status === 'proposed') ? '제안 검토' : '',
+        state.settings.autoApproveRacePlans === false && plans.some((p) => p.status === 'proposed') ? '제안 검토' : '',
       ].filter(Boolean);
       return {
         id: h.id,
@@ -65,8 +66,8 @@ export function stableRows(state: GameState, tab: StableTab, query = '') {
           : stud
             ? `북 ${stud.bookedThisSeason}/${stud.bookLimit}`
             : next
-              ? `${next.dateLabel} · ${next.name} · ${next.statusLabel}`
-              : '계획 없음',
+              ? `${next.dateLabel} · ${next.name}${next.away} · ${next.statusLabel}`
+              : tab === 'active' ? emptyRacePlanHint(state, h) : '계획 없음',
         warnings,
       };
     });

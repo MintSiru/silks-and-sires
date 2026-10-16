@@ -752,3 +752,88 @@ summary { cursor: pointer; padding: 12px 0; }
 @media (max-width: 800px) { .app-shell { grid-template-rows: auto auto 1fr; } }
 .panel { min-width: 0; overflow-x: auto; }
 .stallion-row { box-sizing: border-box; }
+
+/* UX3: 한 화면에서 판단하고, 긴 자료는 표·패널 안에서 펼쳐 본다. */
+:root {
+  color-scheme: dark;
+  --form-bg: #0f1217;
+  --form-text: #e8e8e8;
+}
+input:not([type='checkbox']):not([type='radio']):not([type='color']), select, textarea {
+  background: var(--form-bg);
+  color: var(--form-text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 8px;
+  min-width: 0;
+}
+input[type='checkbox'], input[type='radio'] { margin: 0; flex: 0 0 auto; accent-color: #7cafff; }
+fieldset { min-width: 0; border: 1px solid var(--border); border-radius: 6px; }
+.choice-field { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+.choice-field > span { min-width: 0; }
+.start-screen { max-width: 1320px; }
+.new-game { max-width: none; margin: 16px auto; }
+.new-game__form { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 16px 24px; align-items: start; }
+.new-game__settings { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.new-game__settings .field { margin: 0; }
+.new-game__settings .hint { margin-bottom: 0; }
+.new-game__help { grid-column: 1 / -1; }
+.new-game__actions, .new-game__form > .notice { grid-column: 1 / -1; }
+.new-game__form .silks-editor { margin: 0; }
+.new-game__form .silks-editor__layout { gap: 12px; }
+.ability-chips .grade-badge { background: #181e26; }
+.table-scroll { max-height: 420px; overflow: auto; overscroll-behavior: contain; }
+.table-scroll thead { position: sticky; top: 0; z-index: 1; background: #1d222a; }
+.plan-table td { white-space: normal; min-width: 100px; }
+.plan-table td:nth-child(2) { min-width: 220px; }
+.calendar-week { display: grid; grid-template-columns: 140px minmax(0, 1.1fr) minmax(0, 1.35fr) minmax(0, .8fr) minmax(0, 1fr); gap: 10px; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: .87rem; }
+.calendar-week > span { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.calendar-week__date::before { content: '▸ '; color: #a9b9d1; }
+details[open] > .calendar-week .calendar-week__date::before { content: '▾ '; }
+.calendar-week__horses { display: flex; gap: 4px; }
+.calendar-week__horses .status-chip { overflow: hidden; text-overflow: ellipsis; font-size: inherit; padding: 0 4px; }
+.calendar-weeks { max-height: 450px; overflow: auto; }
+.meeting-details > summary, details.panel > summary { padding: 0; font-weight: 600; }
+.meeting-details[open] { max-height: 420px; overflow: auto; }
+.sales-workspace { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 12px; align-items: start; }
+.sales-workspace .sales-layout { display: block; min-width: 0; }
+.sales-support { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; align-items: start; }
+.sales-detail { position: fixed; inset: 0 0 0 auto; width: min(720px, 96vw); top: 0; max-height: 100dvh; }
+.sales-consign[open], .farm-listings[open], .stud-business[open], .manual-breeding[open] { max-height: 620px; overflow: auto; }
+.farm-layout { display: grid; grid-template-columns: minmax(0, .65fr) minmax(0, 1.35fr); gap: 12px; align-items: start; }
+.economy-layout { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start; }
+.economy-history { grid-column: 1 / -1; }
+.economy-layout > .panel { margin: 0; }
+@media (min-width: 801px) {
+  .shell-topbar { padding: 12px 20px; }
+  .shell-main { padding: 16px 20px; }
+  .shell-main > h2 { margin-bottom: 8px; }
+  .shell-main .panel { padding: 14px; }
+  .shell-main th, .shell-main td { padding: 8px 10px; }
+  .shell-main .task-list li { padding: 8px 0; }
+  .home-grid { gap: 12px; }
+  .home-grid > .panel { box-sizing: border-box; max-height: 260px; overflow: auto; margin: 0; }
+  .home-grid .event-list { columns: 1; }
+  .home-grid .empty-state { padding: 12px 0; }
+  .calendar-weeks { max-height: min(420px, calc(100dvh - 440px)); }
+  .sales-workspace > .panel, .sales-workspace .sales-layout > .panel { box-sizing: border-box; max-height: calc(100dvh - 400px); overflow: auto; }
+  .sales-workspace .table-scroll { max-height: calc(100dvh - 540px); }
+  .economy-layout .table-scroll { max-height: calc(100dvh - 520px); }
+  .farm-layout .table-scroll { max-height: calc(100dvh - 410px); }
+  .farm-listings[open] { box-sizing: border-box; max-height: calc(100dvh - 400px); }
+  .new-game__settings, .new-game__form > .silks-editor { max-height: calc(100dvh - 250px); overflow: auto; }
+  [data-slot='breeding-proposals'] > .panel { box-sizing: border-box; max-height: calc(100dvh - 340px); overflow: auto; }
+  [data-slot='breeding-proposals'] .table-scroll { max-height: calc(100dvh - 620px); }
+}
+@media (max-width: 800px) {
+  .new-game__form, .new-game__settings, .sales-workspace, .sales-support, .farm-layout, .economy-layout { grid-template-columns: minmax(0, 1fr); }
+  .tabs { flex-wrap: wrap; }
+  .new-game__actions { flex-wrap: wrap; }
+  .calendar-week { display: flex; flex-wrap: wrap; gap: 4px 10px; }
+  .calendar-week > span { white-space: normal; }
+  .calendar-week__date { width: 100%; }
+  .calendar-week__horses { flex-wrap: wrap; }
+  .panel { overflow-wrap: anywhere; }
+  .preview__facts, .sales-facts { grid-template-columns: minmax(0, auto) minmax(0, 1fr); }
+  .preview__facts dd { min-width: 0; }
+}

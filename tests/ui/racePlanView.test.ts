@@ -71,7 +71,7 @@ it('캘린더는 경주 화면, 제안 검토는 말 상세 출주 계획 탭에
   const saved = game.setRacePlan(horseId, proposed);
   if (!saved.ok) throw new Error(saved.error);
   const rows = racePlanRows(proposed);
-  expect(rows[0]).toMatchObject({ statusLabel: '새 제안', canApprove: true, canRemove: true });
+  expect(rows[0]).toMatchObject({ statusLabel: '조교사 제안(진행 예정)', canApprove: true, canRemove: true });
   expect(rows[0]!.name).toMatch(/m/);
   expect(racePlanRows(proposed.map((p) => ({ ...p, status: 'run' })))[0]).toMatchObject({
     statusLabel: '출주 완료',
@@ -93,7 +93,7 @@ it('캘린더는 경주 화면, 제안 검토는 말 상세 출주 계획 탭에
       locked: false,
     }),
   );
-  expect(detail).toContain('새 제안');
+  expect(detail).toContain('조교사 제안(진행 예정)');
   expect(detail).toContain('승인</button>');
   expect(detail).toContain('빼기</button>');
   expect(detail).toContain('앞으로 12주에서 골라 추가');

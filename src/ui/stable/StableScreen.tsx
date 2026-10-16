@@ -39,7 +39,7 @@ export default function StableScreen({ state }: { state: GameState }) {
           <table className="data-table stable-table">
             <thead>
               <tr>
-                {['이름', '나이·성별', '상태', '조교사', 'OR', '다음 계획 / 번식 상태', '확인'].map((s) => (
+                {['이름', '나이·성별', '상태', '조교사', 'OR', tab === 'active' ? '다음 출주' : '번식 상태 / 계획', '확인'].map((s) => (
                   <th key={s}>{s}</th>
                 ))}
               </tr>
