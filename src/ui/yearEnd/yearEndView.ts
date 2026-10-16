@@ -1,3 +1,4 @@
+import { displayName } from '../../engine/naming/register';
 import { retainerRenewalsDue, yearEndCandidates, type YearEndCandidate, type YearEndError } from '../../engine/stud/yearEnd';
 import { salePriceQuote, stallionSalePrice } from '../../engine/stud/trade';
 import { freeStudSlots } from '../../engine/stud/stand';
@@ -49,7 +50,7 @@ export function yearEndView(state: GameState) {
       const record = horse.record;
       const quote = candidate.allowed.includes('sell_domestic') ? salePriceQuote(state, horse.id) : null;
       return {
-        horseId: horse.id, name: horse.name,
+        horseId: horse.id, name: displayName(state, horse),
         sexKo: horse.gelded ? '거세마' : horse.sex === 'male' ? '수말' : '암말',
         newAge: candidate.newAge,
         careerKo: `${record.starts}전 ${record.wins}승 · 그룹 ${record.groupWins}승 · 상금 ${feeKo(record.earnings)}`,

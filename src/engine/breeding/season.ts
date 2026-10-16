@@ -400,6 +400,7 @@ function deliverFoals(
       damOwnComplement: ownComplement(lookup, dam),
     });
 
+    if (foal.ownerId === state.playerOwnerId) foal.nameRegistered = false;
     state.horses[foal.id] = foal;
     if (dam.ownerId !== null) {
       const owner = state.owners[dam.ownerId];

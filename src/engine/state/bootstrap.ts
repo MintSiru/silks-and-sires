@@ -1,3 +1,4 @@
+import { FarmNameValidationError, validateFarmName } from '../farm/naming';
 import { START_YEAR } from '../config/game';
 import type { PeopleStaticData } from '../people/generate';
 import { createRng } from '../rng';
@@ -52,5 +53,9 @@ export function bootstrapGame(opts: BootstrapOptions, data: BootstrapData): Game
   // 시작 주의 종마 북(M4-D3): AI 예약은 전년 11월부터 쌓였으므로 첫 주 진행 전에도 보이게 한 번 채운다.
   // stud_books 는 독립 rng 만 쓰므로(ctx.rng 미사용) 다른 단계 난수에 영향이 없다.
   createStudBooksSystem().run(population, { date: { ...population.date }, rng: createRng(seed).fork('stud-books-boot') });
+  if (population.farm.owned && opts.farmName?.trim()) {
+    const error = validateFarmName(population, opts.farmName);
+    if (error !== null) throw new FarmNameValidationError(error);
+  }
   return population;
 }

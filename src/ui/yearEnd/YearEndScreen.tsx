@@ -1,3 +1,4 @@
+import { displayName } from '../../engine/naming/register';
 import { useState } from 'react';
 import type { GameApi } from '../game/useGame';
 import { NOMINATION_MAX_PER_SEASON } from '../../engine/config/stud';
@@ -24,7 +25,7 @@ export default function YearEndScreen({ game }: { game: GameApi }) {
   function submit() {
     const result = game.submitYearEnd(submission);
     if (!result.ok) {
-      const name = result.horseId === undefined ? undefined : state.horses[result.horseId]?.name;
+      const name = result.horseId === undefined ? undefined : (state.horses[result.horseId] === undefined ? undefined : displayName(state, state.horses[result.horseId]!));
       setError(`${name === undefined ? '' : `${name}: `}${yearEndErrorKo(result.error)}`);
       setConfirming(false);
     }

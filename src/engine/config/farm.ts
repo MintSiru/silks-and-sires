@@ -91,3 +91,7 @@ export const YEARLING_COMPLEX_START_FITNESS_PER_LEVEL = 10;
 export const FOALING_UNIT_LOSS_REDUCTION_PER_LEVEL = 0.2;
 /** 목장 매물 가격 반올림 단위(€, M4-E0b) */
 export const FARM_LISTING_PRICE_ROUND = 10_000;
+
+/** 목장 이름 등록 길이(앞뒤 공백 제거 후) */
+export const FARM_NAME_MIN_LENGTH = 2;
+export const FARM_NAME_MAX_LENGTH = 30;

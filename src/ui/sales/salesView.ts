@@ -1,3 +1,4 @@
+import { displayName } from '../../engine/naming/register';
 /**
  * 세일 화면 뷰 모델 (M4-C10a). React 없이 테스트할 수 있도록 순수 함수만 둔다.
  * 숨김 값(로트의 시장 평가값·AI 입찰 상한)은 결과 어디에도 담지 않는다. 화면에는 추정 범위(estimateRange)만 보인다.
@@ -39,7 +40,7 @@ const DAM_NAME_KO = EMPTY_KO;
 /** 로트 말의 어미 이름(어미 기록이 있으면 — 플레이어 위탁 말 등). 세일 생성 말은 어미가 가상 미기록이라 '—' */
 function damNameOf(state: GameState, horseId: string): string {
   const damId = state.horses[horseId]?.damId ?? null;
-  return damId === null ? DAM_NAME_KO : (state.horses[damId]?.name ?? DAM_NAME_KO);
+  return damId === null ? DAM_NAME_KO : ((state.horses[damId] === undefined ? DAM_NAME_KO : displayName(state, state.horses[damId]!)));
 }
 /** 이 로트의 정보가 없을 때(철회됐거나 없는 로트) */
 const NO_AUCTION_KO = '진행 정보가 없습니다(철회되었거나 없는 로트).';
@@ -167,7 +168,7 @@ function surfaceNoteOf(state: GameState, sireId: HorseId | null): string | null 
 
 function sireNameOf(state: GameState, sireId: HorseId | null): string {
   if (sireId === null) return EMPTY_KO;
-  return state.horses[sireId]?.name ?? EMPTY_KO;
+  return (state.horses[sireId] === undefined ? EMPTY_KO : displayName(state, state.horses[sireId]!));
 }
 
 /** 성별·나이 표기. 예: 수말 1세 → '수 1세' */
@@ -255,7 +256,8 @@ export function catalogueRows(
       lotNo: lot.lotNo,
       book: lot.book,
       horseId: lot.horseId,
-      horseName: lot.horseName,
+      horseName: state.horses[lot.horseId] === undefined
+        ? lot.horseName : displayName(state, state.horses[lot.horseId]!),
       sexAgeKo: sexAgeKo(state.horses[lot.horseId], year),
       sireName,
       surfaceNoteKo: surfaceNoteOf(state, lot.sireId),
@@ -292,6 +294,8 @@ export function lotDetailView(
     : null;
   return {
     ...view,
+    lot: { ...view.lot, horseName: state.horses[lot.horseId] === undefined
+      ? view.lot.horseName : displayName(state, state.horses[lot.horseId]!) },
     sireName: sireNameOf(state, view.lot.sireId),
     surfaceNoteKo: surfaceNoteOf(state, view.lot.sireId),
     damName: damNameOf(state, lot.horseId),
@@ -369,7 +373,7 @@ export function consignableRows(state: GameState, data: SalesStaticData): Consig
       .sort(compareOptions);
     return {
       horseId: horse.id,
-      horseName: horse.name,
+      horseName: displayName(state, horse),
       consignedSaleName: consignedSaleNameOf(state, data, horse.id),
       options,
     };
@@ -381,7 +385,8 @@ export function privateOfferRows(state: GameState) {
   return privateOfferView(state).map((offer) => ({
     offerId: offer.offerId,
     horseId: offer.horseId,
-    horseName: offer.horseName,
+    horseName: state.horses[offer.horseId] === undefined
+      ? offer.horseName : displayName(state, state.horses[offer.horseId]!),
     sexAgeKo: sexAgeKo(state.horses[offer.horseId], state.date.year),
     sireName: sireNameOf(state, offer.sireId),
     ownerName: offer.ownerName,

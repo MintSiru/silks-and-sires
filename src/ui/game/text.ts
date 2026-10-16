@@ -1,3 +1,5 @@
+import type { RegisterHorseNameError } from '../../engine/naming/register';
+import type { FarmNameError } from '../../engine/farm/naming';
 import { BET_MIN_STAKE } from '../../engine/config/betting';
 import type { BetError } from '../../engine/betting/betting';
 import type { InjuryError } from '../../engine/horse/injury';
@@ -662,6 +664,7 @@ export function raceConditionsKo(race: Race): string {
 
 /** 출주 접수 실패 사유 → 한국어 */
 const DECLARE_ERROR_KO: Record<DeclareError, string> = {
+  unnamed: '이름을 등록해야 출주할 수 있습니다.',
   not_found: '개최 또는 레이스를 찾을 수 없습니다.',
   not_player_horse: '내 말이 아니라서 출주를 접수할 수 없습니다.',
   no_trainer: '조교사를 먼저 정해야 출주할 수 있습니다.',
@@ -950,3 +953,24 @@ export function betErrorKo(error: BetError): string {
 export function betKindKo(kind: BetKind): string {
   return kind === 'win' ? '단승' : '연승';
 }
+
+export const FARM_NAME_ERROR_KO: Record<FarmNameError, string> = {
+  too_short: '목장 이름은 2자 이상 입력하세요.',
+  too_long: '목장 이름은 30자 이내로 입력하세요.',
+  invalid_chars: "글자·공백·하이픈·아포스트로피·마침표만 사용할 수 있습니다.",
+  taken: '다른 마주나 생산자가 쓰는 목장 이름입니다.',
+  protected: '보호 이름이나 금지된 경마장 지명이 포함되어 있습니다.',
+};
+
+export const HORSE_NAME_ERROR_KO: Record<RegisterHorseNameError, string> = {
+  not_found: '말을 찾을 수 없습니다.',
+  not_player: '내 말만 이름을 등록할 수 있습니다.',
+  already_registered: '이미 이름을 등록한 말입니다.',
+  tooLong: '이름은 공백 포함 18자 이내로 입력하세요.',
+  tooManySyllables: '이름은 7음절 이내로 입력하세요.',
+  invalidChars: '영문자·단어 사이 공백·아포스트로피만 사용할 수 있습니다.',
+  initialsOnly: '이니셜만으로는 등록할 수 없습니다.',
+  endsWithNumber: '이름 끝에 숫자를 쓸 수 없습니다.',
+  protected: '보호 이름이나 금지된 경마장 지명이 포함되어 있습니다.',
+  taken: '다른 말이 쓰거나 후보로 예약한 이름입니다.',
+};

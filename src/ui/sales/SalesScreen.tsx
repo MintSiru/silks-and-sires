@@ -1,3 +1,4 @@
+import { displayName } from '../../engine/naming/register';
 import { inspectOfferHorse } from '../../engine/sales/privateTrade';
 import { useEffect, useMemo, useState } from 'react';
 import type { JSX } from 'react';
@@ -80,7 +81,7 @@ function lineLabelOf(sireLineId: string | null): string {
 
 function nameOrDash(state: GameState, id: HorseId | null): string {
   if (id === null) return NO_VALUE;
-  return state.horses[id]?.name ?? NO_VALUE;
+  return (state.horses[id] === undefined ? NO_VALUE : displayName(state, state.horses[id]!));
 }
 
 function NoticeLine({ notice }: { notice: Notice | null }): JSX.Element | null {
@@ -559,6 +560,7 @@ function InspectBox(props: InspectBoxProps | { state: GameState; horseId: HorseI
         <>
           <p className="hint">{view.trainerName} 의 소견</p>
           <HorseCard
+            state={state}
             horse={horse}
             assessment={view.assessment}
             ageYears={ageInYear(horse.birthYear, state.date.year)}

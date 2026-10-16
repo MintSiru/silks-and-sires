@@ -1,3 +1,4 @@
+import { displayName } from '../../engine/naming/register';
 /**
  * 경제 화면 뷰 모델 (M4-A4). React 없이 테스트할 수 있도록 순수 함수만 둔다.
  * 금액은 장부 값 그대로(수입 +, 지출 −)이며, € 표기와 부호 표기는 화면 쪽에서 한다.
@@ -158,7 +159,7 @@ export function recentLedger(state: GameState, limit: number = RECENT_LEDGER_COU
       category: entry.category,
       amount: entry.amount,
       horseName:
-        entry.horseId === null ? null : (state.horses[entry.horseId]?.name ?? entry.horseId),
+        entry.horseId === null ? null : ((state.horses[entry.horseId] === undefined ? entry.horseId : displayName(state, state.horses[entry.horseId]!))),
     });
   }
   return rows;

@@ -1,3 +1,4 @@
+import { displayName } from '../../engine/naming/register';
 import { bookingSeasonOf, nominationsLeft } from '../../engine/breeding/season';
 import {
   FERTILITY_MIN_SAMPLE,
@@ -257,7 +258,7 @@ export function privateLabelKo(state: GameState, stallion: Stallion): string | n
 /** 내 종마 화면: 플레이어 소유·status 'stud' 종마와 최근 정산 기록(최신순, 최대 10건) */
 export function myStudView(state: GameState): MyStudView {
   const used = state.stud.slots - freeStudSlots(state);
-  const nameOf = (id: HorseId): string => state.horses[id]?.name ?? id;
+  const nameOf = (id: HorseId): string => (state.horses[id] === undefined ? id : displayName(state, state.horses[id]!));
 
   const stallions: MyStudStallionRow[] = Object.values(state.horses)
     .filter((horse) => horse.ownerId === state.playerOwnerId && horse.status === 'stud')
@@ -269,7 +270,7 @@ export function myStudView(state: GameState): MyStudView {
       const canDeal = dealWindowOpen(state) && lease === undefined;
       return [{
         horseId: horse.id,
-        name: horse.name,
+        name: displayName(state, horse),
         feeKo: feeKo(stallion.fee),
         bookKo: bookStatusOf(state, stallion).labelKo,
         firstSeasonYear: stallion.firstSeasonYear,

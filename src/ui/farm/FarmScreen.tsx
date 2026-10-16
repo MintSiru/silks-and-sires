@@ -2,11 +2,12 @@ import { useState } from 'react';
 import type { JSX } from 'react';
 import { FACILITY_BUILD_WEEKS } from '../../engine/config/farm';
 import type { GameState } from '../../engine/types';
-import { feeKo } from '../game/text';
+import { FARM_NAME_ERROR_KO, feeKo } from '../game/text';
 import type { GameApi } from '../game/useGame';
 import { facilityRows, farmSummary, listingRows } from './farmView';
 
 const ERROR_KO = {
+  ...FARM_NAME_ERROR_KO,
   no_farm: '목장을 먼저 구매하세요.',
   max_level: '이미 최대 단계입니다.',
   under_construction: '다른 시설 공사가 진행 중입니다. 완공 후 다시 시도하세요.',
@@ -25,20 +26,14 @@ export default function FarmScreen({ game, locked = false }: { game: GameApi; lo
 
 function FarmView({ game, state, locked }: { game: GameApi; state: GameState; locked: boolean }): JSX.Element {
   const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
+  const [renameOpen, setRenameOpen] = useState(false);
+  const [farmName, setFarmName] = useState(state.farm.name ?? '');
+  const [pending, setPending] = useState<ReturnType<typeof listingRows>[number] | null>(null);
+  const [purchaseName, setPurchaseName] = useState('');
   const summary = farmSummary(state);
   const facilities = facilityRows(state);
   const listings = listingRows(state);
   const lockReason = locked ? '파산 상태에서는 진행할 수 없습니다.' : null;
-
-  const purchase = (row: ReturnType<typeof listingRows>[number]): void => {
-    const action = summary.owned ? '이전' : '구매';
-    const facilitiesKo = summary.owned
-      ? '현재 시설 단계와 진행 중인 공사는 그대로 유지됩니다.' : '모든 시설은 1단계로 시작합니다.';
-    if (!window.confirm(`${row.name} 목장으로 ${action}하시겠습니까?\n매물 값 ${feeKo(row.price)} − 기존 목장 매각가 ${feeKo(row.resale)}\n${row.netCost < 0 ? `차액 ${feeKo(-row.netCost)}을 돌려받습니다` : `순지출 ${feeKo(row.netCost)}`}\n${facilitiesKo}`)) return;
-    const result = game.purchaseFarm(row.id);
-    setNotice(result.ok ? { ok: true, text: `목장 ${action}을 마쳤습니다.` }
-      : { ok: false, text: ERROR_KO[result.error] });
-  };
 
   return <section aria-label="목장">
     {notice !== null && <p className={`notice notice--${notice.ok ? 'ok' : 'error'}`}
@@ -47,6 +42,21 @@ function FarmView({ game, state, locked }: { game: GameApi; state: GameState; lo
     {summary.owned ? <>
       <section className="panel">
         <h2>{summary.name}</h2>
+        <button type="button" className="btn" disabled={locked} onClick={() => {
+          setFarmName(state.farm.name ?? ''); setRenameOpen(true);
+        }}>이름 바꾸기</button>
+        {renameOpen && <form onSubmit={event => {
+          event.preventDefault();
+          if (locked) return;
+          const result = game.renameFarm(farmName);
+          if (result.ok) { setRenameOpen(false); setNotice({ ok: true, text: '목장 이름을 바꿨습니다.' }); }
+          else setNotice({ ok: false, text: ERROR_KO[result.error] });
+        }}>
+          <label className="field"><span>목장 이름</span><input type="text" disabled={locked}
+            value={farmName} onChange={event => setFarmName(event.target.value)} /></label>
+          <button type="submit" className="btn" disabled={locked}>변경</button>
+          <button type="button" className="btn" onClick={() => setRenameOpen(false)}>취소</button>
+        </form>}
         <dl className="preview__facts">
           <dt>소재국·규모</dt><dd>{summary.countryKo} · {summary.sizeKo}</dd>
           <dt>취득 연도</dt><dd>{summary.acquiredYear ?? '—'}년</dd>
@@ -83,6 +93,21 @@ function FarmView({ game, state, locked }: { game: GameApi; state: GameState; lo
       <p>목장을 사면 오너브리더가 됩니다.</p></section>}
     <section className="panel">
       <h2>목장 매물</h2>
+      {pending !== null && <form className="panel" aria-label="목장 구매·이전 확인" onSubmit={event => {
+        event.preventDefault();
+        if (locked) return;
+        const result = game.purchaseFarm(pending.id, purchaseName);
+        if (result.ok) { setPending(null); setNotice({ ok: true, text: '목장 구매·이전을 마쳤습니다.' }); }
+        else setNotice({ ok: false, text: ERROR_KO[result.error] });
+      }}>
+        <p>{pending.name} · 매물 값 {feeKo(pending.price)} − 기존 목장 매각가 {feeKo(pending.resale)}</p>
+        <p>{pending.netCost < 0 ? `환급 ${feeKo(-pending.netCost)}` : `순지출 ${feeKo(pending.netCost)}`}</p>
+        <p className="hint">{summary.owned ? '현재 시설 단계와 진행 중인 공사를 유지합니다.' : '모든 시설은 1단계로 시작합니다.'}</p>
+        <label className="field"><span>구매·이전 후 목장 이름</span><input type="text" disabled={locked}
+          value={purchaseName} onChange={event => setPurchaseName(event.target.value)} /></label>
+        <button type="submit" className="btn" disabled={locked}>확인</button>
+        <button type="button" className="btn" onClick={() => setPending(null)}>취소</button>
+      </form>}
       <p className="hint">수용 한도에는 {summary.owned ? '현재' : '구매 시 기본 1단계'} 마방 증축 보너스가 포함됩니다.</p>
       {listings.length === 0 ? <p>현재 매물이 없습니다. 다음 주에 다시 확인하세요.</p>
         : <div className="table-scroll"><table className="data-table">
@@ -95,7 +120,7 @@ function FarmView({ game, state, locked }: { game: GameApi; state: GameState; lo
               <td>{row.capacity}두</td><td>{feeKo(row.price)}</td>
               {summary.owned && <td>{row.netCost < 0 ? `환급 ${feeKo(-row.netCost)}` : feeKo(row.netCost)}</td>}
               <td><button type="button" className="btn" disabled={reason !== null}
-                onClick={() => purchase(row)}>{summary.owned ? '이전' : '구매'}</button>
+                onClick={() => { setPending(row); setPurchaseName(row.name); }}>{summary.owned ? '이전' : '구매'}</button>
                 {reason !== null && <p className="hint">{reason}</p>}</td>
             </tr>;
           })}</tbody>

@@ -1,3 +1,7 @@
+import { FARM_NAME_ERROR_KO } from './text';
+import { nameSuggestions, registerHorseName } from '../../engine/naming/register';
+import { FarmNameValidationError, renameFarm } from '../../engine/farm/naming';
+import { NAME_SUGGESTION_COUNT } from '../../engine/config/naming';
 import { purchaseFarm } from '../../engine/farm/purchase';
 import { startFacilityUpgrade } from '../../engine/farm/facilities';
 import { setPlayerSilks, validateSilksDesign } from '../../engine/people/silks';
@@ -82,6 +86,7 @@ export interface NewGameInput {
   homeCountry: HomeCountry;
   catastrophicInjuries: boolean;
   grantRacehorses: boolean;
+  farmName?: string;
 }
 
 export interface GameApi {
@@ -126,7 +131,10 @@ export interface GameApi {
   terminateRetainer(kind: RetainerKind, personId: string): PlayerResult<'not_contracted'>;
   acceptPrivateOffer(offerId: string): PlayerResult<AcceptPrivateOfferError>;
   declinePrivateOffer(offerId: string): PlayerResult<DeclinePrivateOfferError>;
-  purchaseFarm(listingId: string): ReturnType<typeof purchaseFarm>;
+  registerHorseName(horseId: HorseId, name: string): ReturnType<typeof registerHorseName>;
+  nameSuggestions(horseId: HorseId, round?: number): string[];
+  renameFarm(name: string): ReturnType<typeof renameFarm>;
+  purchaseFarm(listingId: string, name?: string): ReturnType<typeof purchaseFarm>;
   startFacilityUpgrade(kind: FacilityKind): ReturnType<typeof startFacilityUpgrade>;
   setSilks(design: SilksDesign): Promise<ReturnType<typeof setPlayerSilks>>;
   save(): Promise<void>;            // createIndexedDbSaveStore, 슬롯 id 'autosave'
@@ -213,7 +221,12 @@ export function useGame(): GameApi {
       const error = validateSilksDesign(options.silks.design);
       if (error !== null) throw new Error(SILKS_ERROR_KO[error]);
     }
-    const world = bootstrapGame(options, bootstrapData());
+    let world: GameState;
+    try { world = bootstrapGame(options, bootstrapData()); }
+    catch (error) {
+      if (error instanceof FarmNameValidationError) throw new Error(FARM_NAME_ERROR_KO[error.reason], { cause: error });
+      throw error;
+    }
     stateRef.current = world;
     setState(world);
     setLastEvents([]);
@@ -496,9 +509,25 @@ export function useGame(): GameApi {
     return { ...result, state: next };
   }, [save]);
 
+  const registerName = useCallback((horseId: HorseId, name: string): ReturnType<typeof registerHorseName> => {
+    const result = registerHorseName(requireState(), horseId, name);
+    if (!result.ok) return result;
+    const next = appendEvents(result.state, result.events);
+    stateRef.current = next;
+    setState(next);
+    setLastEvents(result.events);
+    return { ...result, state: next };
+  }, [requireState]);
+
+  const suggestHorseNames = useCallback((horseId: HorseId, round = 0): string[] =>
+    nameSuggestions(requireState(), horseId, NAME_SUGGESTION_COUNT, round), [requireState]);
+
+  const renameFarmTo = useCallback((name: string): ReturnType<typeof renameFarm> =>
+    applyFarmResult(renameFarm(requireState(), name)), [requireState, applyFarmResult]);
+
   const purchaseFarmWith = useCallback(
-    (listingId: string): ReturnType<typeof purchaseFarm> =>
-      applyFarmResult(purchaseFarm(requireState(), listingId)),
+    (listingId: string, name?: string): ReturnType<typeof purchaseFarm> =>
+      applyFarmResult(purchaseFarm(requireState(), listingId, name)),
     [requireState, applyFarmResult],
   );
 
@@ -536,6 +565,9 @@ export function useGame(): GameApi {
     newGame,
     setSilks,
     purchaseFarm: purchaseFarmWith,
+    renameFarm: renameFarmTo,
+    registerHorseName: registerName,
+    nameSuggestions: suggestHorseNames,
     startFacilityUpgrade: startFacilityUpgradeWith,
     advance,
     advanceToPhase,

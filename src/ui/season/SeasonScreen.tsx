@@ -1,3 +1,4 @@
+import { displayName } from '../../engine/naming/register';
 import BettingPanel from '../betting/BettingPanel';
 import { useMemo, useState } from 'react';
 import type { JSX } from 'react';
@@ -99,7 +100,7 @@ function SeasonView({ state, game, locked }: SeasonViewProps): JSX.Element {
   /** 말별로 고른 조교사(키: horseId) */
   const [trainerPicks, setTrainerPicks] = useState<Record<HorseId, TrainerId>>({});
 
-  const nameOf = (id: HorseId): string => state.horses[id]?.name ?? id;
+  const nameOf = (id: HorseId): string => (state.horses[id] === undefined ? id : displayName(state, state.horses[id]!));
   const owner = state.owners[state.playerOwnerId];
 
   const horses = useMemo(() => playerHorses(state), [state]);

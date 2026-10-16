@@ -1,3 +1,4 @@
+import { displayName } from '../../engine/naming/register';
 /**
  * 시즌 화면 뷰 모델 (M3-D3a). React 없이 테스트할 수 있도록 순수 함수만 둔다.
  * 플레이어에게 OR 숫자를 보이지 않는다: 결과 객체에는 officialRating 필드가 없고, 레이팅은 ratingHintKo 문구로만 보인다.
@@ -50,7 +51,7 @@ function byId<T extends { id: string }>(a: T, b: T): number {
 }
 
 function nameOfHorse(state: GameState, id: HorseId): string {
-  return state.horses[id]?.name ?? id;
+  return (state.horses[id] === undefined ? id : displayName(state, state.horses[id]!));
 }
 
 function isPlayerHorse(state: GameState, horse: Horse): boolean {
@@ -199,7 +200,7 @@ export function playerHorses(state: GameState): PlayerHorseView[] {
       const trainer = h.trainerId === null ? undefined : state.trainers[h.trainerId];
       return {
         id: h.id,
-        name: h.name,
+        name: displayName(state, h),
         status: h.status,
         ageYears: ageInYear(h.birthYear, year),
         sexLabel: sexKo(h.sex, h.gelded),
@@ -328,11 +329,11 @@ export function eligiblePlayerHorses(state: GameState, meetingId: string, raceId
   const out: PlayerHorseOption[] = [];
   for (const horse of Object.values(state.horses).sort(byId)) {
     if (!isPlayerHorse(state, horse)) continue;
-    if (horse.trainerId === null) continue;
+    if (horse.nameRegistered === false || horse.trainerId === null) continue;
     if (sr.declarations.some((d) => d.horseId === horse.id)) continue;
     if (declaredInWeek(state, meeting.date, horse.id)) continue;
     if (!isEligible(horse, sr.race, meeting.date, state.seasonState)) continue;
-    out.push({ id: horse.id, name: horse.name });
+    out.push({ id: horse.id, name: displayName(state, horse) });
   }
   return out;
 }

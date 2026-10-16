@@ -1,3 +1,4 @@
+import { displayName } from '../../engine/naming/register';
 import { bettingView, eachWayTerms, forecastOdds } from '../../engine/betting/betting';
 import { BET_MAX_OUTLAY_PER_RACE } from '../../engine/config/betting';
 import { getBookmakers } from '../../engine/data/staticData';
@@ -20,7 +21,7 @@ export function raceBettingView(state: GameState, meetingId: string, raceId: str
     canBet: race.status === 'open' || race.status === 'closed',
     runners: forecastOdds(state, meetingId, raceId).map((r, i) => ({
       horseId: r.horseId,
-      name: state.horses[r.horseId]?.name ?? r.horseId,
+      name: (state.horses[r.horseId] === undefined ? r.horseId : displayName(state, state.horses[r.horseId]!)),
       saddle: i + 1,
       forecastKo: formatOdds(r.odds),
       isMine: state.horses[r.horseId]?.ownerId === state.playerOwnerId,

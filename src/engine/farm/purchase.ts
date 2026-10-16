@@ -4,6 +4,7 @@
  * - 구매·이전은 자금을 recordMoney(장부 farm_purchase)로 바꾸고, 원본 state 는 바꾸지 않는다(structuredClone).
  * - 번식 암말 수는 목장 수용 한도(규모 기본 + 마방 증축 보너스)를 넘지 못한다.
  */
+import { validateFarmName, type FarmNameError } from './naming';
 import { BREEDER_NAME_MAX_ATTEMPTS } from '../config/breeders';
 import {
   FARM_BASE_PRICE,
@@ -46,7 +47,7 @@ const FARM_SIZES: readonly FarmSize[] = ['small', 'medium', 'large'];
 const LISTING_PRICE_ROUND = FARM_LISTING_PRICE_ROUND;
 
 /** 구매 결과 오류: 매물 없음 / 순지출 자금 부족 / 새 수용 한도가 현재 번식 암말 수보다 작음 */
-export type PurchaseFarmError = 'not_found' | 'insufficient_funds' | 'too_small';
+export type PurchaseFarmError = 'not_found' | 'insufficient_funds' | 'too_small' | FarmNameError;
 
 export type PurchaseFarmResult =
   | { ok: true; state: GameState; events: GameEvent[] }
@@ -164,14 +165,19 @@ export function createFarmListingsSystem(): WeeklySystem {
  * - 목장이 없으면(마주 시작): 매물 값을 낸다. 시설은 모두 1단계, acquiredYear = 올해.
  * - 목장이 있으면(이전): 기존 목장을 기준가 × 나라 배수 × FARM_RESALE_SHARE 에 팔고(장부 +), 매물 값을 낸다(장부 −).
  *   시설 단계는 그대로 옮긴다.
- * 검사 순서: 매물 없음 → 새 수용 한도 < 현재 번식 암말 수(too_small) → 순지출(새 값 − 매각가)이 양수면 자금(canSpendDiscretionary).
- * 성공하면 farm 을 바꾸고, 플레이어 owner.studName 을 매물 이름으로 맞추고, 매물을 목록에서 뺀다.
+ * 검사 순서: 매물 없음 → 지정 이름 검증 → 새 수용 한도 < 현재 번식 암말 수(too_small) → 순지출(새 값 − 매각가)이 양수면 자금(canSpendDiscretionary).
+ * 성공하면 farm 을 바꾸고, 플레이어 owner.studName 을 지정 이름(생략 시 매물 이름)으로 맞추고, 매물을 목록에서 뺀다.
  * settings.startType 은 바꾸지 않는다. eventLog 추가는 호출자가 맡는다.
  */
-export function purchaseFarm(state: GameState, listingId: string): PurchaseFarmResult {
+export function purchaseFarm(state: GameState, listingId: string, name?: string): PurchaseFarmResult {
   const listing = state.farmListings.find((entry) => entry.id === listingId);
   if (listing === undefined) return { ok: false, error: 'not_found' };
 
+  if (name !== undefined) {
+    const error = validateFarmName(state, name);
+    if (error !== null) return { ok: false, error };
+  }
+  const farmName = name === undefined ? listing.name : name.trim();
   const current = state.farm;
   const resale = farmResaleValue(current);
   const facilities = current.owned ? { ...current.facilities } : uniformFacilities(1);
@@ -197,11 +203,11 @@ export function purchaseFarm(state: GameState, listingId: string): PurchaseFarmR
     owned: true,
     country: listing.country,
     size: listing.size,
-    name: listing.name,
+    name: farmName,
     facilities,
     acquiredYear: draft.date.year,
   };
-  player.studName = listing.name;
+  player.studName = farmName;
   draft.farmListings = draft.farmListings.filter((entry) => entry.id !== listingId);
 
   const events: GameEvent[] = [{

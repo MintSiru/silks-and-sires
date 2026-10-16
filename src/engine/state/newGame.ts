@@ -1,3 +1,4 @@
+import { FarmNameValidationError, validateFarmName } from '../farm/naming';
 import {
   PLAYER_OWNER_ID,
   SAVE_SCHEMA_VERSION,
@@ -24,6 +25,7 @@ export interface NewGameOptions {
   silks: Silks;
   country?: CountryCode;
   studName?: string | null;
+  farmName?: string;
   /** 경제 모드(M4-A). 생략하면 DEFAULT_ECONOMY_MODE */
   economyMode?: EconomyMode;
   startType?: StartType;
@@ -49,7 +51,7 @@ export function createNewGame(opts: NewGameOptions): GameState {
     catastrophicInjuries: opts.catastrophicInjuries ?? DEFAULT_GAME_SETTINGS.catastrophicInjuries,
   };
   const homeCountry = opts.homeCountry ?? 'GB';
-  const studName = settings.startType === 'owner' ? null : (opts.studName ?? null);
+  const studName = settings.startType === 'owner' ? null : (opts.farmName?.trim() || (opts.studName ?? null));
   const owner: Owner = {
     id: PLAYER_OWNER_ID,
     name: playerName,
@@ -72,7 +74,7 @@ export function createNewGame(opts: NewGameOptions): GameState {
     namePrefix: null,
   };
 
-  return {
+  const state: GameState = {
     schemaVersion: SAVE_SCHEMA_VERSION,
     initialSeed: opts.seed,
     rng: createRng(opts.seed).getState(),
@@ -108,4 +110,9 @@ export function createNewGame(opts: NewGameOptions): GameState {
     },
     farmListings: [],
   };
+  if (settings.startType === 'owner_breeder' && opts.farmName?.trim()) {
+    const error = validateFarmName(state, opts.farmName);
+    if (error !== null) throw new FarmNameValidationError(error);
+  }
+  return state;
 }

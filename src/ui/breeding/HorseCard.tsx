@@ -1,3 +1,5 @@
+import { displayName } from '../../engine/naming/register';
+import type { GameState } from '../../engine/types';
 import type { JSX } from 'react';
 import type { Assessment, Grade, Horse } from '../../engine/types';
 import {
@@ -38,6 +40,7 @@ export interface HorseCardParentage {
 
 export interface HorseCardProps {
   horse: Horse;
+  state: GameState;
   assessment: Assessment;
   /** 현재 나이(세). 호출자가 계산해 넘긴다 */
   ageYears: number;
@@ -59,6 +62,7 @@ function gradeBadge(grade: Grade): JSX.Element {
 
 export default function HorseCard({
   horse,
+  state,
   assessment,
   ageYears,
   parentage,
@@ -72,7 +76,7 @@ export default function HorseCard({
   return (
     <article className={classes}>
       <header className="horse-card__head">
-        <h3 className="horse-card__name">{horse.name}</h3>
+        <h3 className="horse-card__name">{displayName(state, horse)}</h3>
         {gradeBadge(report.overall)}
       </header>
       <p className="horse-card__meta">

@@ -114,3 +114,8 @@ export const LANDMARK_SHARE = 0.2;
 export const WORK_TITLE_SHARE = 0.15;
 /** 명승고적·작품 제목을 고른 후보를 붙여 쓰기로 만들 확률 (붙여 쓴 길이가 NAME_MAX_LENGTH 이하일 때만) */
 export const TITLE_JOINED_CHANCE = 0.3;
+
+/** 등록 화면의 기본 이름 후보 수(현재 후보 포함) */
+export const NAME_SUGGESTION_COUNT = 8;
+/** 미등록 이름 자동 확정 안전장치 나이 */
+export const NAME_AUTO_REGISTER_AGE = 3;

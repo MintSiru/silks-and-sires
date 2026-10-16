@@ -2,6 +2,7 @@
  * 플레이어 출주·조교사 API (M3-A6c). 모두 순수 함수: 입력 state 를 바꾸지 않고 복제본을 돌려준다.
  * 실패는 예외가 아니라 { ok: false, error } 로 돌려준다.
  */
+import { autoRegisterHorseName } from '../naming/register';
 import { RETAINER_EXTRA_BOXES } from '../config/economy';
 import { CONDITION_MAX, PLAYER_TRAINING_START_AGE } from '../config/season';
 import { YEARLING_COMPLEX_START_FITNESS_PER_LEVEL } from '../config/farm';
@@ -25,6 +26,7 @@ import { isEligible } from './eligibility';
 export type DeclareError =
   | 'not_found'
   | 'not_player_horse'
+  | 'unnamed'
   | 'no_trainer'
   | 'not_eligible'
   | 'race_closed'
@@ -81,7 +83,7 @@ function trainerLoad(state: GameState, trainerId: TrainerId, exceptHorseId: Hors
 
 /**
  * 플레이어 말을 개최 레이스에 선언한다(Declaration.isPlayer = true).
- * 검사 순서: 개최·레이스·말 존재 → 플레이어 말 → 레이스 open → 조교사 → 출주 조건 → 같은 주 중복 → 두수 여유.
+ * 검사 순서: 개최·레이스·말 존재 → 플레이어 말 → 이름 등록 → 레이스 open → 조교사 → 출주 조건 → 같은 주 중복 → 두수 여유.
  */
 export function declarePlayerHorse(
   state: GameState,
@@ -94,6 +96,7 @@ export function declarePlayerHorse(
   const horse = next.horses[horseId];
   if (found === undefined || horse === undefined) return fail('not_found');
   if (horse.ownerId !== next.playerOwnerId) return fail('not_player_horse');
+  if (horse.nameRegistered === false) return fail('unnamed');
   if (found.sr.status !== 'open') return fail('race_closed');
 
   const trainerId = horse.trainerId;
@@ -169,6 +172,7 @@ export function assignTrainer(
   const from = horse.status;
   horse.trainerId = trainerId;
   if (from === 'yearling' && ageInYear(horse.birthYear, next.date.year) >= PLAYER_TRAINING_START_AGE) {
+    events.push(...autoRegisterHorseName(horse, next.date));
     horse.status = 'in_training';
     horse.condition.fitness = Math.min(CONDITION_MAX, horse.condition.fitness
       + YEARLING_COMPLEX_START_FITNESS_PER_LEVEL * facilityLevel(next, 'yearling_complex'));

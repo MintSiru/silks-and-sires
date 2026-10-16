@@ -1,3 +1,5 @@
+import HorseNamingPanel from './HorseNamingPanel';
+import { displayName } from '../../engine/naming/register';
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import type { FormEvent, JSX } from 'react';
 import { DEFAULT_ECONOMY_MODE, LEGACY_BANKRUPT_WEEKS } from '../../engine/config/economy';
@@ -207,6 +209,7 @@ interface NewGamePanelProps {
 function NewGamePanel({ game, onDone, onCancel }: NewGamePanelProps): JSX.Element {
   const [silks, setSilks] = useState(() => silksDesignOf(PLAYER_SILKS, 'owner-player'));
   const [playerName, setPlayerName] = useState('');
+  const [farmName, setFarmName] = useState('');
   const [seedText, setSeedText] = useState(DEFAULT_SEED_TEXT);
   const [economyMode, setEconomyMode] = useState<EconomyMode>(DEFAULT_ECONOMY_MODE);
   const [startType, setStartType] = useState<StartType>(DEFAULT_GAME_SETTINGS.startType);
@@ -234,6 +237,7 @@ function NewGamePanel({ game, onDone, onCancel }: NewGamePanelProps): JSX.Elemen
       game.newGame({
         seed,
         playerName: name,
+        farmName: startType === 'owner_breeder' ? farmName : undefined,
         silks: silksFromDesign(silks),
         economyMode,
         startType,
@@ -314,6 +318,11 @@ function NewGamePanel({ game, onDone, onCancel }: NewGamePanelProps): JSX.Elemen
             </label>
           ))}
         </fieldset>
+        {startType === 'owner_breeder' && <label className="field">
+          <span>목장 이름</span>
+          <input type="text" value={farmName} onChange={e => setFarmName(e.target.value)} />
+          <span className="hint">빈칸이면 자동으로 정합니다. 2~30자, 글자·공백·하이픈·아포스트로피·마침표를 쓸 수 있습니다.</span>
+        </label>}
         <fieldset className="field">
           <legend>난이도</legend>
           {DIFFICULTY_OPTIONS.map((option) => (
@@ -417,9 +426,9 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
 
   /** 이름 없는 모마 칸(~dam)은 미상 이름('—')으로 보인다 */
   const nameOf = (id: HorseId): string =>
-    isAnonDamId(id) ? NO_VALUE : (state.horses[id]?.name ?? id);
+    isAnonDamId(id) ? NO_VALUE : ((state.horses[id] === undefined ? id : displayName(state, state.horses[id]!)));
   const nameOrDash = (id: HorseId | null): string =>
-    id === null ? NO_VALUE : (state.horses[id]?.name ?? NO_VALUE);
+    id === null ? NO_VALUE : ((state.horses[id] === undefined ? NO_VALUE : displayName(state, state.horses[id]!)));
 
   const owner = state.owners[state.playerOwnerId];
   const horses = useMemo(() => playerHorses(state), [state]);
@@ -744,6 +753,7 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
               return (
                 <Fragment key={horse.id}>
                   <HorseCard
+                    state={state}
                     horse={horse}
                     assessment={assessment}
                     ageYears={ageInYear(horse.birthYear, state.date.year)}
@@ -758,6 +768,8 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
                       selectable ? () => setMareId(horse.id === mareId ? null : horse.id) : undefined
                     }
                   />
+                  {horse.nameRegistered === false && <HorseNamingPanel
+                    key={`${state.initialSeed}:${horse.id}`} game={game} horse={horse} locked={locked} />}
                   {bookingKo !== null && <p className="hint">{bookingKo}</p>}
                 </Fragment>
               );
@@ -800,7 +812,7 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
                     onClick={() => setStallionId(selected ? null : row.horse.id)}
                   >
                     <span>
-                      {row.horse.name}
+                      {displayName(state, row.horse)}
                       {privateKo !== null && <span className="badge">{privateKo}</span>}
                     </span>
                     <span>{countryKo(row.stallion.standsIn)}</span>
@@ -823,7 +835,7 @@ function BreedingView({ state, game, locked, onNewGame }: BreedingViewProps): JS
         ) : (
           <>
             <p className="preview__pair">
-              {mare.name} × {sire.name}
+              {displayName(state, mare)} × {displayName(state, sire)}
             </p>
             <dl className="preview__facts">
               <dt>닉스</dt>

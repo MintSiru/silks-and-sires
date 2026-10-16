@@ -1,3 +1,5 @@
+import { NAME_AUTO_REGISTER_AGE } from '../config/naming';
+import { autoRegisterHorseName } from '../naming/register';
 import { WEEKS_PER_YEAR } from '../config/game';
 import { GROWING_STATUSES, WEANING_WEEK } from '../config/growth';
 import { HILL_GALLOP_STAMINA_PER_LEVEL, PADDOCK_GROWTH_PER_LEVEL, YEARLING_COMPLEX_GROWTH_PER_LEVEL } from '../config/farm';
@@ -56,7 +58,12 @@ export const growthSystem: WeeklySystem = {
 
     for (const id of ids) {
       const horse = draft.horses[id];
-      if (!horse || !GROWING_STATUSES.includes(horse.status)) continue;
+      if (!horse) continue;
+      if (ctx.date.week === 1 && horse.ownerId === draft.playerOwnerId
+        && ctx.date.year - horse.birthYear >= NAME_AUTO_REGISTER_AGE) {
+        events.push(...autoRegisterHorseName(horse, ctx.date));
+      }
+      if (!GROWING_STATUSES.includes(horse.status)) continue;
 
       horse.ability = abilityAtAge(
         horse.potential,

@@ -1,3 +1,4 @@
+import { displayName } from '../../engine/naming/register';
 /**
  * 순위·시상 화면 뷰 모델 (M3-D3c). React 없이 테스트할 수 있도록 순수 함수만 둔다.
  * 공식 OR 숫자는 담지 않는다(officialRating 필드를 읽지 않는다). Ledger·Global 레이팅은 '평가지·랭킹 발표 값'이라 보인다.
@@ -68,7 +69,7 @@ function assertLimit(name: string, limit: number): void {
 }
 
 function nameOfHorse(state: GameState, id: HorseId): string {
-  return state.horses[id]?.name ?? id;
+  return (state.horses[id] === undefined ? id : displayName(state, state.horses[id]!));
 }
 
 /** 레이스 이름: 고정 일정 목록에서 찾고, 없으면 id 를 그대로 쓴다 */
