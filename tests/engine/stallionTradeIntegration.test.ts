@@ -311,9 +311,9 @@ it('판매·임대·교배권 없는 시드 20261011의 52주 결과는 변경 �
   expect(first.raceResults.length).toBeGreaterThan(0);
   // M4-H12: 14종 부상·회복 기간 변화로 출주·레이스 결과와 자마 성적 기반 종부료가 바뀌어 재고정, fees 는 M4-H3(종마 제엽염 은퇴·사망) 반영해 다시 재고정. 장부 해시는 유지. 2026-10-16 15회차·17회차 어휘 정리(이름 변화)로 재고정. 2026-10-16 15회차 어휘 정리(이름 변화)로 세 값 모두 재고정. 18·19회차 계통 정리로 fees 재고정. M4-E1 시설 유지비 시스템 등록으로 ledger 재고정. 20~22회차(추가분 포함) 혈통(계통·이름 변화)으로 raceResults·fees 재고정. UX1 출주 계획 '그대로 진행' 기본(플레이어 말이 조교사 계획으로 출주)으로 세 값 재고정. UX4 교배 기본 진행(1월 2주 자동 예약)으로 세 값 재고정.
   expect(hashes(first)).toEqual({
-    raceResults: '40d02a230b5841b0d9e03a5d6c1c5f6843285782e3fd10b97415e67b27fe3087',
-    fees: 'd6f457bc85d6fa910e74e7b6d168e220b47a1388ee35f3b3b86f6cae4997dc6d',
-    ledger: '96c40f4f8df28d984b2db4e8b6d76df66b224ae411ef046af728aab61b7a002c',
+    raceResults: '2b12724129ad005e366b7466ad5f6c8519cb25e438c1e67e99c2b4e0dc3815a9',
+    fees: '5ec8949be1f2bc134c7c3a9d47a2a080e8a0689266528051877c9e645041245c',
+    ledger: 'acfd63474c0c366b579a092a2b1812daf88ca69a561f5c8abab44ef750217027',
   });
   expect(simulate()).toEqual(first);
 }, 600_000);

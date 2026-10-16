@@ -1,5 +1,6 @@
 import HorseLink from '../horse/HorseLink';
 import { nearSaleCalendar } from './salesLayoutView';
+import { parentageOf } from '../breeding/pedigreeNames';
 import type { JSX } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { getSalesData, getSireLines } from '../../engine/data/staticData';
@@ -78,11 +79,6 @@ function eventOf(saleId: string): SaleEventDef | undefined {
 function lineLabelOf(sireLineId: string | null): string {
   if (sireLineId === null) return NO_VALUE;
   return SIRE_LINE_LABEL.get(sireLineId) ?? sireLineId;
-}
-
-function nameOrDash(state: GameState, id: HorseId | null): string {
-  if (id === null) return NO_VALUE;
-  return state.horses[id] === undefined ? NO_VALUE : displayName(state, state.horses[id]!);
 }
 
 function NoticeLine({ notice }: { notice: Notice | null }): JSX.Element | null {
@@ -342,7 +338,7 @@ function SalesView({ game, state, locked }: SalesViewProps): JSX.Element {
                         <th>북</th>
                         <th>말</th>
                         <th>성별·나이</th>
-                        <th>부</th>
+                        <th>부 × 모부(외조부)</th>
                         <th>판매자</th>
                         <th>추정가</th>
                         <th>내 입찰</th>
@@ -368,6 +364,7 @@ function SalesView({ game, state, locked }: SalesViewProps): JSX.Element {
                           <td>{row.sexAgeKo}</td>
                           <td>
                             <HorseLink name={row.sireName} />
+                            {' × '}<HorseLink name={row.damsireName} />
                             {row.surfaceNoteKo !== null && (
                               <span className="sale-surface-note"> ⚠ {row.surfaceNoteKo}</span>
                             )}
@@ -483,7 +480,7 @@ interface LotDetailProps {
   locked: boolean;
 }
 
-function LotDetail({
+export function LotDetail({
   game,
   state,
   saleId,
@@ -512,6 +509,8 @@ function LotDetail({
         <dd>
           <HorseLink name={detail.damName} />
         </dd>
+        <dt>모부(외조부)</dt>
+        <dd><HorseLink name={detail.damsireName} /></dd>
         <dt>판매자</dt>
         <dd>{detail.vendorKo}</dd>
         <dt>판매일</dt>
@@ -622,14 +621,7 @@ function InspectBox(
             horse={horse}
             assessment={view.assessment}
             ageYears={ageInYear(horse.birthYear, state.date.year)}
-            parentage={{
-              sire: nameOrDash(state, horse.sireId),
-              dam: nameOrDash(state, horse.damId),
-              damsire: nameOrDash(
-                state,
-                horse.damId === null ? null : (state.horses[horse.damId]?.sireId ?? null),
-              ),
-            }}
+            parentage={parentageOf(state, horse)}
             lineLabel={lineLabelOf(horse.sireLineId)}
           />
         </>

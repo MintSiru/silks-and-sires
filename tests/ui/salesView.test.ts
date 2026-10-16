@@ -194,7 +194,7 @@ describe('숨김 값 미노출', () => {
 });
 
 describe('로트 상세', () => {
-  it('가상 모 이름 자리는 — 이고, 판매 날짜와 추정 범위가 있다', () => {
+  it('가상 모마 이름(ST3)이 보이고, 판매 날짜와 추정 범위가 있다', () => {
     const event = earliestOf('yearling');
     const state = announced(event);
     const first = catalogueRows(state, event.id, YEAR, DATA)[0];
@@ -202,7 +202,8 @@ describe('로트 상세', () => {
     if (first === undefined) return;
     const detail = lotDetailView(state, event.id, YEAR, first.lotNo, DATA);
     expect(detail).not.toBeNull();
-    expect(detail?.damName).toBe('—');
+    const lotHorse = state.horses[first.horseId];
+    expect(detail?.damName).toBe(lotHorse?.virtualDam?.name);
     expect(detail?.saleDateKo).toMatch(/^\d{4}년 \d+월 \d+주$/);
     expect(detail?.estimateKo).toMatch(/^€[\d,]+ ~ €[\d,]+$/);
     expect(detail?.reserveKo).toBeNull();

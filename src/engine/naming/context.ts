@@ -96,11 +96,14 @@ export function namingContextFor(state: GameState, args: NamingArgs, data: Namin
 }
 
 /**
- * 현재 state 의 모든 말 이름(normalizeName 결과)으로 만든 레지스트리.
+ * 현재 state 의 모든 말·가상 모마 이름(normalizeName 결과)으로 만든 레지스트리.
  * isTaken 은 원본 이름을 받아도 normalizeName 을 거쳐 조회한다. add 로 새 이름을 등록한다.
  */
 export function makeNameRegistry(state: GameState): MutableNameRegistry {
   const taken = new Set<string>(Object.values(state.horses).map((h) => normalizeName(h.name)));
+  for (const horse of Object.values(state.horses)) {
+    if (horse.virtualDam !== undefined) taken.add(normalizeName(horse.virtualDam.name));
+  }
   return {
     isTaken: (name: string): boolean => taken.has(normalizeName(name)),
     add: (name: string): void => {

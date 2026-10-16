@@ -1,5 +1,5 @@
 import type { Horse, HorseId, InbreedingCross, PedigreeNode } from '../types';
-import { buildMatingPedigree, DEFAULT_PEDIGREE_DEPTH, type PedigreeLookup } from './pedigree';
+import { buildMatingPedigree, DEFAULT_PEDIGREE_DEPTH, pedigreeDamId, type PedigreeLookup } from './pedigree';
 
 /** 조상 한 명이 한 측(부측 또는 모측)에서 등장한 대 목록을 모은다. 시작 노드는 1대 */
 function collectSide(
@@ -131,9 +131,10 @@ export function totalBloodPercent(crosses: readonly InbreedingCross[]): number {
   return sum;
 }
 
-/** 말 자신의 근친 혈량(%). 부·모 중 하나라도 null 이면 0. dominantCrosses 기준 totalBloodPercent */
+/** 말 자신의 근친 혈량(%). 가상 모마도 조회하며 부모 미상은 0. dominantCrosses 기준 합계. */
 export function ownBloodPercent(lookup: PedigreeLookup, horse: Horse): number {
-  if (horse.sireId === null || horse.damId === null) return 0;
-  const root = buildMatingPedigree(lookup, horse.sireId, horse.damId);
+  const damId = pedigreeDamId(lookup(horse.id) ?? horse);
+  if (horse.sireId === null || damId === null) return 0;
+  const root = buildMatingPedigree(lookup, horse.sireId, damId);
   return totalBloodPercent(dominantCrosses(root, findInbreeding(root)));
 }

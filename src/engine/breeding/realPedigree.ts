@@ -1,5 +1,6 @@
 import type { Horse, HorseId, RealStallionRecord } from '../types';
 import type { PedigreeLookup, PedigreeSource } from './pedigree';
+import { pedigreeDamId, virtualDamSource } from './pedigree';
 
 /**
  * 실명 종마의 모계 연결: 이름 없는 모마 칸을 조회 시점에 만든다.
@@ -106,6 +107,8 @@ export function createPedigreeLookup(
 ): PedigreeLookup {
   const table = recordTable(records);
   return (id: HorseId): PedigreeSource | undefined => {
+    const virtual = virtualDamSource(key => horses[key], id);
+    if (virtual !== undefined) return virtual;
     const anon = parseAnonDamId(id);
     if (anon !== null) {
       const rec = table.get(anon.key);
@@ -116,7 +119,9 @@ export function createPedigreeLookup(
     const horse = horses[id];
     if (horse === undefined) return undefined;
     const rec = table.get(id);
-    if (rec === undefined) return horse;
+    if (rec === undefined) return horse.damId === null && horse.virtualDam !== undefined
+      ? { id, sireId: horse.sireId, damId: pedigreeDamId(horse), name: horse.name, birthYear: horse.birthYear }
+      : horse;
     return {
       id,
       sireId: horse.sireId,

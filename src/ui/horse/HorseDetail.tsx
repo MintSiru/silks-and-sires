@@ -7,6 +7,7 @@ import { silksDesignOf } from '../../engine/people/silks';
 import { ageInYear } from '../../engine/time/calendar';
 import HorseNamingPanel from '../breeding/HorseNamingPanel';
 import PedigreeView from '../breeding/PedigreeView';
+import { pedigreeNameOf } from '../breeding/pedigreeNames';
 import { bookStatusOf, fertilityKo, mareBookingKo } from '../breeding/bookView';
 import { useWeightUnit } from '../game/WeightUnitContext';
 import {
@@ -73,7 +74,7 @@ export default function HorseDetail({
   const assessment = assessForPlayer(state, horseId);
   const pedigree = horsePedigree(state, horse);
   const owner = horse.ownerId ? state.owners[horse.ownerId] : undefined;
-  const nameOf = (id: string) => (state.horses[id] ? displayName(state, state.horses[id]!) : '—');
+  const nameOf = (id: string) => pedigreeNameOf(state, id);
   const mare = state.mares[horseId];
   const stallion = state.stallions[horseId];
   const runs = horseRunRows(state, horseId);

@@ -63,6 +63,7 @@ import { drawSexAndGelding, racingHorseIds } from '../world/population';
 import { meanAbility, ratingFromAbility } from '../world/rating';
 import { coverYearForFoal, filterSiresForCover } from '../world/sireWindow';
 import { sirePoolFor, tierFromFee } from '../world/sirePool';
+import { makeVirtualDam } from '../world/virtualDam';
 import { valueLot } from './valuation';
 
 /** 카탈로그 생성에 필요한 정적 데이터 */
@@ -111,6 +112,7 @@ interface Context {
   registry: MutableNameRegistry;
   /** 실명 종마 중 active 레코드(key 오름차순) */
   activeRecords: RealStallionRecord[];
+  damRecords: RealStallionRecord[];
   /** 교배 연도 → 교배 가능 부 후보 캐시 */
   sireByCover: Map<number, SireCandidate[]>;
   /** 이 세일 나라의 상업 생산자(id 오름차순) */
@@ -303,6 +305,9 @@ function createHorse(
     distanceBias,
   });
   horse.breederId = args.breederId;
+  const virtualDam = makeVirtualDam(ctx.state, ctx.data, ctx.damRecords, ctx.registry, horse, 'sale-dam',
+    POPULATION_COUNTRY_ORDER.find(country => country === ctx.country));
+  if (virtualDam !== null) horse.virtualDam = virtualDam;
   ctx.state.horses[id] = horse;
   return horse;
 }
@@ -477,6 +482,7 @@ export function buildCatalogue(
     country: company.country,
     registry: makeNameRegistry(draft),
     activeRecords: sortStallionRecords(data.stallionRecords).filter((r) => r.status === 'active'),
+    damRecords: sortStallionRecords(data.stallionRecords),
     sireByCover: new Map(),
     breeders: Object.values(draft.breeders)
       .filter((b) => b.country === company.country)

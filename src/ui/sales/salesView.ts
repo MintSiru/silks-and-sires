@@ -1,4 +1,5 @@
 import { displayName } from '../../engine/naming/register';
+import { parentageOf } from '../breeding/pedigreeNames';
 /**
  * 세일 화면 뷰 모델 (M4-C10a). React 없이 테스트할 수 있도록 순수 함수만 둔다.
  * 숨김 값(로트의 시장 평가값·AI 입찰 상한)은 결과 어디에도 담지 않는다. 화면에는 추정 범위(estimateRange)만 보인다.
@@ -34,14 +35,6 @@ import { feeKo, patronTierKo, saleKindKo, saleStatusKo } from '../game/text';
 const EMPTY_KO = '—';
 /** 유보가 없는 내 위탁 표기 */
 const NO_RESERVE_KO = '유보 없음';
-/** 부모(dam) 이름: 세일 화면은 모계 이름을 보이지 않는다 */
-const DAM_NAME_KO = EMPTY_KO;
-
-/** 로트 말의 어미 이름(어미 기록이 있으면 — 플레이어 위탁 말 등). 세일 생성 말은 어미가 가상 미기록이라 '—' */
-function damNameOf(state: GameState, horseId: string): string {
-  const damId = state.horses[horseId]?.damId ?? null;
-  return damId === null ? DAM_NAME_KO : ((state.horses[damId] === undefined ? DAM_NAME_KO : displayName(state, state.horses[damId]!)));
-}
 /** 이 로트의 정보가 없을 때(철회됐거나 없는 로트) */
 const NO_AUCTION_KO = '진행 정보가 없습니다(철회되었거나 없는 로트).';
 /** 경매 단계 선두 표기 */
@@ -83,6 +76,7 @@ export interface CatalogueRow {
   /** 예: '수 1세', '암 2세', '거세 3세'. 말을 찾을 수 없으면 '—' */
   sexAgeKo: string;
   sireName: string;
+  damsireName: string;
   /** 부의 주로 성향 경고(M4-C9). 더트·겸용 혈통이면 문구, 잔디면 null */
   surfaceNoteKo: string | null;
   /** 예: '상업 생산자 <이름>' · '마주 <이름>' · '내 위탁' */
@@ -99,6 +93,7 @@ export interface LotDetailView extends LotView {
   /** 부의 주로 성향 경고(M4-C9). 더트·겸용 혈통이면 문구, 잔디면 null */
   surfaceNoteKo: string | null;
   damName: string;
+  damsireName: string;
   saleDateKo: string;
   vendorKo: string;
   estimateKo: string;
@@ -252,6 +247,7 @@ export function catalogueRows(
     if (query !== EMPTY_QUERY && !sireName.toLowerCase().includes(query)) continue;
     const myBid = myBidOf(state, saleId, year, lot.lotNo);
     if (filter.onlyMyBids === true && myBid === null) continue;
+    const horse = state.horses[lot.horseId];
     rows.push({
       lotNo: lot.lotNo,
       book: lot.book,
@@ -260,6 +256,7 @@ export function catalogueRows(
         ? lot.horseName : displayName(state, state.horses[lot.horseId]!),
       sexAgeKo: sexAgeKo(state.horses[lot.horseId], year),
       sireName,
+      damsireName: horse === undefined ? EMPTY_KO : parentageOf(state, horse).damsire,
       surfaceNoteKo: surfaceNoteOf(state, lot.sireId),
       vendorKo: vendorKoOf(state, lot.vendor),
       estimateKo: estimateKoOf(lot.valuation),
@@ -287,6 +284,8 @@ export function lotDetailView(
   const lot = catalogue?.lots.find((l) => l.lotNo === lotNo);
   if (lot === undefined) return null;
   const ownConsignment = lot.vendor.kind === 'owner' && lot.vendor.id === state.playerOwnerId;
+  const horse = state.horses[lot.horseId];
+  const parentage = horse === undefined ? null : parentageOf(state, horse);
   const reserveKo = ownConsignment
     ? view.lot.reserveKnown === null
       ? NO_RESERVE_KO
@@ -298,7 +297,8 @@ export function lotDetailView(
       ? view.lot.horseName : displayName(state, state.horses[lot.horseId]!) },
     sireName: sireNameOf(state, view.lot.sireId),
     surfaceNoteKo: surfaceNoteOf(state, view.lot.sireId),
-    damName: damNameOf(state, lot.horseId),
+    damName: parentage?.dam ?? EMPTY_KO,
+    damsireName: parentage?.damsire ?? EMPTY_KO,
     saleDateKo: formatDateKo(view.saleWeek),
     vendorKo: vendorKoOf(state, lot.vendor),
     estimateKo: estimateKoOf(lot.valuation),

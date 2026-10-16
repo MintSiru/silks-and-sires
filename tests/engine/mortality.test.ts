@@ -234,7 +234,7 @@ describe('종마 사망 정리와 환불', () => {
 
   it('강제 사망 후 교배 연도가 사망 연도 뒤인 신규 말은 그 종마를 부로 받지 않는다', () => {
     const base = bootState(BASE_SEED);
-    // 대조군이 80두 표본에서 확실히 뽑히도록 가중치가 큰 1티어·영국 계류 종마를 고른다(2026-10-16: 정렬 첫 종마는 데이터 변화에 따라 안 뽑힐 수 있음)
+    // 대조군이 200두 표본에서 확실히(ST3 가상 모마 이름 예약으로 공용 rng 흐름이 바뀌어 80두에서는 빠짐) 뽑히도록 가중치가 큰 1티어·영국 계류 종마를 고른다(2026-10-16: 정렬 첫 종마는 데이터 변화에 따라 안 뽑힐 수 있음)
     const tierOf = (id: string) => BOOT_DATA.stallionRecords.find((r) => r.key === id)?.marketTier;
     const stallionId = liveRealStallionIds(base).find((id) => tierOf(id) === 1 && base.stallions[id]?.standsIn === 'GB')
       ?? liveRealStallionIds(base)[0];
@@ -247,7 +247,7 @@ describe('종마 사망 정리와 환불', () => {
       const registry = makeNameRegistry(state);
       const rng = createRng(label);
       const sires: string[] = [];
-      for (let i = 0; i < 80; i++) {
+      for (let i = 0; i < 200; i++) {
         const horse = spawnRacingHorse(state, spawnData, rng, market, registry, {
           country: 'GB',
           birthYear,

@@ -3,7 +3,8 @@ import { useMemo, useState } from 'react';
 import { totalBloodPercent } from '../../engine/breeding/inbreeding';
 import { buildMatingPedigree, type PedigreeLookup } from '../../engine/breeding/pedigree';
 import { buildMatingPreview } from '../../engine/breeding/preview';
-import { createPedigreeLookup, isAnonDamId } from '../../engine/breeding/realPedigree';
+import { createPedigreeLookup } from '../../engine/breeding/realPedigree';
+import { pedigreeNameOf } from './pedigreeNames';
 import { bookingSeasonOf, damsireLineOf } from '../../engine/breeding/season';
 import { INBREED_EXCESS_FROM } from '../../engine/config/genetics';
 import { LONG_LEASE_MAX_SEASONS, NOMINATION_MAX_PER_SEASON } from '../../engine/config/stud';
@@ -141,8 +142,7 @@ function BreedingView({ state, game, locked }: BreedingViewProps): JSX.Element {
   const [privateError, setPrivateError] = useState<string | null>(null);
 
   /** 이름 없는 모마 칸(~dam)은 미상 이름('—')으로 보인다 */
-  const nameOf = (id: HorseId): string =>
-    isAnonDamId(id) ? NO_VALUE : state.horses[id] === undefined ? id : displayName(state, state.horses[id]!);
+  const nameOf = (id: HorseId): string => pedigreeNameOf(state, id);
   const horses = useMemo(() => playerHorses(state).filter((h) => h.status === 'broodmare'), [state]);
   const stallionRows = useMemo(() => availableStallions(state), [state]);
   const windowOpen = bookingSeasonOf(state.date) !== null;

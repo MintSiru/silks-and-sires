@@ -1,12 +1,35 @@
 import type { Horse, HorseId, PedigreeNode } from '../types';
 
 /** 혈통 조회에 필요한 최소 정보 */
-export type PedigreeSource = Pick<Horse, 'id' | 'sireId' | 'damId'>;
+export type PedigreeSource = Pick<Horse, 'id' | 'sireId' | 'damId'> & Partial<Pick<Horse, 'virtualDam' | 'name' | 'birthYear'>>;
 /** 말 ID → 부·모 정보. 모르는 말이면 undefined */
 export type PedigreeLookup = (id: HorseId) => PedigreeSource | undefined;
 
 /** 기본 혈통표 깊이(대). 5대 혈통표 */
 export const DEFAULT_PEDIGREE_DEPTH = 5;
+
+const VIRTUAL_DAM_PREFIX = '~virtual-dam:';
+export function virtualDamId(horseId: HorseId): HorseId {
+  return `${VIRTUAL_DAM_PREFIX}${horseId}`;
+}
+
+/** 조회 시점에만 만드는 모마. 실제 damId가 있으면 가상 정보는 쓰지 않는다. */
+export function virtualDamSource(lookup: PedigreeLookup, id: HorseId): PedigreeSource | undefined {
+  if (!id.startsWith(VIRTUAL_DAM_PREFIX)) return undefined;
+  const horse = lookup(id.slice(VIRTUAL_DAM_PREFIX.length));
+  if (horse?.damId !== null || horse.virtualDam === undefined) return undefined;
+  return { id, name: horse.virtualDam.name, birthYear: horse.virtualDam.birthYear,
+    sireId: horse.virtualDam.sireId, damId: null };
+}
+
+export function pedigreeDamId(horse: PedigreeSource): HorseId | null {
+  return horse.damId ?? (horse.virtualDam === undefined ? null : virtualDamId(horse.id));
+}
+
+/** 실제 모마 우선. 자마의 외조부는 어미의 부이며, 가상 모마의 부는 그 말 자신의 외조부다. */
+export function damsireIdOf(horses: Readonly<Record<HorseId, Horse>>, horse: Horse): HorseId | null {
+  return horse.damId === null ? (horse.virtualDam?.sireId ?? null) : (horses[horse.damId]?.sireId ?? null);
+}
 
 /**
  * 노드 하나를 만든다. src 가 있을 때만 generation < depth 인 동안 부·모를 펼친다.
@@ -24,7 +47,7 @@ function expandNode(
     horseId: id,
     generation,
     sire: canExpand ? parentNode(lookup, src.sireId, generation + 1, depth) : null,
-    dam: canExpand ? parentNode(lookup, src.damId, generation + 1, depth) : null,
+    dam: canExpand ? parentNode(lookup, pedigreeDamId(src), generation + 1, depth) : null,
   };
 }
 
@@ -36,7 +59,7 @@ function parentNode(
   depth: number,
 ): PedigreeNode | null {
   if (parentId === null) return null;
-  const src = lookup(parentId);
+  const src = lookup(parentId) ?? virtualDamSource(lookup, parentId);
   if (src === undefined) return null;
   return expandNode(lookup, parentId, generation, depth, src);
 }

@@ -44,6 +44,9 @@ export function registerHorseName(state: GameState, horseId: HorseId, name: stri
   if (horse.ownerId !== state.playerOwnerId) return { ok: false, error: 'not_player' };
   if (horse.nameRegistered !== false) return { ok: false, error: 'already_registered' };
   const taken = new Set(Object.values(state.horses).filter(h => h.id !== horseId).map(h => normalizeName(h.name)));
+  for (const h of Object.values(state.horses)) {
+    if (h.virtualDam !== undefined) taken.add(normalizeName(h.virtualDam.name));
+  }
   const registry: NameRegistry = { isTaken: value => taken.has(normalizeName(value)) };
   const naming = getNamingData();
   const validation = validateHorseName(name, registry, naming.protectedNames, naming.blockedPlaceTokens);

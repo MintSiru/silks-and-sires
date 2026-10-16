@@ -563,10 +563,13 @@ describe('3시즌 무행동 진행 측정', () => {
       const r = advanceWeek(s, systems);
       s = r.state;
       const first = warningsOf(r.events).find((w) => w.kind === 'negative_funds');
-      if (first !== undefined && firstNegative === null && s.economy.negativeWeeks === 1) {
+      // 자금이 잠깐 회복되면 연속 주가 다시 시작하므로 마지막 연속 구간의 시작을 잡는다(UX1 이후 지급마가 상금을 번다).
+      if (first !== undefined && s.economy.negativeWeeks === 1) {
         firstNegative = { ...first.date };
       }
-      if (r.events.some((e) => e.type === 'bankrupt')) bankrupt = { ...s.date };
+      // 경고와 같은 기준(이벤트 날짜)으로 잰다. s.date 는 진행 뒤 다음 주라 연말 경계에서 한 주가 어긋날 수 있다.
+      const bankruptEvent = r.events.find((e) => e.type === 'bankrupt');
+      if (bankruptEvent !== undefined) bankrupt = { ...bankruptEvent.date };
       if (bankrupt !== null) break;
     }
 

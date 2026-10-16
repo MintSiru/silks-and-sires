@@ -60,6 +60,7 @@ import type {
   TrainerId,
 } from '../types';
 import { initialOfficialRating } from './rating';
+import { makeVirtualDam } from './virtualDam';
 import { sirePoolFor, tierFromFee } from './sirePool';
 import { coverYearForFoal, europeanSireWeightMult, filterSiresForCover } from './sireWindow';
 
@@ -353,6 +354,9 @@ export function spawnRacingHorse(
   horse.trainerId = trainer.id;
   // 생산자(M4-C0): 오너브리더 또는 같은 나라 상업 생산자. 플레이어 마주의 말은 오너브리더 단계를 건너뛴다.
   horse.breederId = pickBreederFor(state, horse, owner.isPlayer ? null : owner);
+  // 지급마는 ST2의 실제 모마를 따로 받는다.
+  const virtualDam = owner.isPlayer ? null : makeVirtualDam(state, data, records, registry, horse, 'racing-dam', spec.country);
+  if (virtualDam !== null) horse.virtualDam = virtualDam;
 
   owner.horseIds.push(id);
   state.horses[id] = horse;

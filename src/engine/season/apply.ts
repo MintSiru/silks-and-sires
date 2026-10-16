@@ -11,7 +11,8 @@ import {
   REPLAYABLE_MAX,
 } from '../config/season';
 import { NICK_REVEAL_GRADES, NICK_REVEAL_MIN_VALUE } from '../config/offspring';
-import { damsireLineOf, revealNick } from '../breeding/season';
+import { revealNick } from '../breeding/season';
+import { damsireIdOf } from '../breeding/pedigree';
 import { emptyOffspringStats, recordOffspringRun } from '../breeding/offspring';
 import { nickValue } from '../breeding/nicks';
 import type { SampleField } from '../race/sampleField';
@@ -299,8 +300,7 @@ export function applyRaceResultInPlace(state: GameState, args: ApplyRaceResultAr
     if (sireId !== null) {
       addBoth('sire', sireId);
     }
-    const dam = horse.damId === null ? undefined : next.horses[horse.damId];
-    const damsireId = dam?.sireId ?? null;
+    const damsireId = damsireIdOf(next.horses, horse);
     if (damsireId !== null) {
       addBoth('damsire', damsireId);
     }
@@ -335,9 +335,9 @@ export function applyRaceResultInPlace(state: GameState, args: ApplyRaceResultAr
     for (const runner of result.runners) {
       if (runner.position !== 1) continue;
       const winnerHorse = requireHorse(next, runner.horseId);
-      const winnerDam = winnerHorse.damId === null ? undefined : next.horses[winnerHorse.damId];
       const sireLineId = winnerHorse.sireLineId;
-      const damsireLineId = winnerDam === undefined ? null : damsireLineOf(next, winnerDam);
+      const damsireId = damsireIdOf(next.horses, winnerHorse);
+      const damsireLineId = damsireId === null ? null : (next.horses[damsireId]?.sireLineId ?? null);
       if (sireLineId === null || damsireLineId === null) continue;
       if (nickValue(args.nicks, sireLineId, damsireLineId) < NICK_REVEAL_MIN_VALUE) continue;
       if (!revealNick(next, sireLineId, damsireLineId)) continue;
