@@ -1,3 +1,4 @@
+import HorseLink from '../horse/HorseLink';
 import { useState, type JSX } from 'react';
 import { silksDesignOf } from '../../engine/people/silks';
 import SilksSvg from '../silks/SilksSvg';
@@ -53,7 +54,7 @@ export default function BettingPanel({ state, game, meetingId, raceId, locked }:
             return <tr key={r.horseId}>
               <td>{r.saddle}</td>
               <td>{owner !== undefined && <SilksSvg design={silksDesignOf(owner.silks, owner.id)} size={40} />}</td>
-              <td>{r.name}{r.isMine ? ' (내 말)' : ''}</td>
+              <td><HorseLink horseId={r.horseId} name={r.name} />{r.isMine ? ' (내 말)' : ''}</td>
               <td>{r.forecastKo}</td>
             </tr>;
           })}</tbody>
@@ -80,13 +81,13 @@ export default function BettingPanel({ state, game, meetingId, raceId, locked }:
       <h4>미정산</h4>
       {bets.open.length === 0 && <p className="hint">미정산 베팅이 없습니다.</p>}
       <ul>{bets.open.map((b) => <li key={b.id}>
-        {b.horseName} · {b.raceName} · {b.kindKo} · 지출 {b.outlayKo} · {b.bookmakerName}{' '}
+        <HorseLink name={b.horseName} /> · {b.raceName} · {b.kindKo} · 지출 {b.outlayKo} · {b.bookmakerName}{' '}
         <button className="btn" type="button" disabled={!b.canCancel} onClick={() => cancel(b.id)}>취소</button>
       </li>)}</ul>
       <h4>최근 정산 (최대 20건)</h4>
       {bets.history.length === 0 && <p className="hint">정산 기록이 없습니다.</p>}
       <ul>{bets.history.map((b) => <li key={b.id}>
-        {b.horseName} · {b.raceName} · {b.kindKo} · SP {b.startingPriceKo} · {b.positionKo} · 지출 {b.outlayKo} · 회수 {b.returnedKo} · 손익 {b.netKo}
+        <HorseLink name={b.horseName} /> · {b.raceName} · {b.kindKo} · SP {b.startingPriceKo} · {b.positionKo} · 지출 {b.outlayKo} · 회수 {b.returnedKo} · 손익 {b.netKo}
       </li>)}</ul>
     </section>
   );

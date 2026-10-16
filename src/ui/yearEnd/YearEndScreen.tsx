@@ -1,3 +1,4 @@
+import HorseLink from '../horse/HorseLink';
 import { DUAL_FEE_RATIO, NH_FEE_RATIO } from '../../engine/config/nh';
 import { horseProfile } from '../../engine/stud/nh';
 import { estimateStudFee } from '../../engine/stud/value';
@@ -48,7 +49,7 @@ export default function YearEndScreen({ game }: { game: GameApi }) {
         const decision = submission.horses.find((h) => h.horseId === horse.horseId)!;
         const nominations = decision.nominations ?? 0;
         return <tr key={horse.horseId}>
-          <td>{horse.name}</td><td>{horse.sexKo}</td><td>{horse.newAge}세</td><td>{horse.careerKo}</td>
+          <td><HorseLink horseId={horse.horseId} name={horse.name} /></td><td>{horse.sexKo}</td><td>{horse.newAge}세</td><td>{horse.careerKo}</td>
           <td>
             <select aria-label={`${horse.name} 진로`} disabled={confirming}
               value={decision.choice}

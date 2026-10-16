@@ -1,3 +1,4 @@
+import HorseLink from '../horse/HorseLink';
 import { displayName } from '../../engine/naming/register';
 import type { GameState } from '../../engine/types';
 import type { JSX } from 'react';
@@ -76,14 +77,14 @@ export default function HorseCard({
   return (
     <article className={classes}>
       <header className="horse-card__head">
-        <h3 className="horse-card__name">{displayName(state, horse)}</h3>
+        <h3 className="horse-card__name"><HorseLink horseId={horse.id} name={displayName(state, horse)} /></h3>
         {gradeBadge(report.overall)}
       </header>
       <p className="horse-card__meta">
         {sexKo(horse.sex, horse.gelded)} · {ageYears}세 · {statusKo(horse.status)}
       </p>
       <p className="horse-card__parents">
-        {parentage.sire} × {parentage.dam} ({parentage.damsire})
+        <HorseLink name={parentage.sire} /> × <HorseLink name={parentage.dam} /> (<HorseLink name={parentage.damsire} />)
       </p>
       <p className="horse-card__line">계통: {lineLabel}</p>
 

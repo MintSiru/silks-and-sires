@@ -8,12 +8,13 @@ import type { ReplayBundle } from './replayView';
 
 interface ReplayPanelProps {
   state: GameState;
+  initialKey?: string | null;
 }
 
 /** 다시볼 레이스를 고르면 저장된 입력으로 다시 돌려 레이스 띠·자막·한 줄 평·결과판을 보인다. */
-export default function ReplayPanel({ state }: ReplayPanelProps): JSX.Element {
+export default function ReplayPanel({ state, initialKey = null }: ReplayPanelProps): JSX.Element {
   const list = useMemo(() => replayList(state), [state]);
-  const [picked, setPicked] = useState<string | null>(null);
+  const [picked, setPicked] = useState<string | null>(initialKey);
   // 고른 항목이 목록에서 사라졌으면(예: 오래된 항목 정리) 선택이 없는 것으로 본다
   const activeKey = picked !== null && list.some((item) => item.key === picked) ? picked : null;
 

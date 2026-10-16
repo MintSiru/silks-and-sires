@@ -29,7 +29,7 @@ export function racePlanRows(plans: readonly PlannedRace[]) {
   return plans.map((plan) => {
     const race = getRaceTemplates().find((t) => t.id === plan.templateId);
     const course = race === undefined ? undefined : getRacecourses().find((c) => c.id === race.racecourseId);
-    return { id: plan.id, dateLabel: formatDateKo(plan.date), statusLabel: STATUS_KO[plan.status],
+    return { id: plan.id, status: plan.status, dateLabel: formatDateKo(plan.date), statusLabel: STATUS_KO[plan.status],
       name: race === undefined ? plan.target === null ? '레이스 정보 없음' : targetLabel(plan.target)
         : `${race.name} · ${course?.name ?? ''} · ${raceGradeKo(race)} · ${race.distance}m`,
       note: plan.note, canApprove: plan.status === 'proposed', canRemove: plan.status === 'proposed' || plan.status === 'approved' || plan.status === 'skipped' };

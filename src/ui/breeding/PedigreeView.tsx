@@ -1,3 +1,4 @@
+import HorseLink from '../horse/HorseLink';
 import { useMemo } from 'react';
 import type { JSX } from 'react';
 import { dominantCrosses, findInbreeding } from '../../engine/breeding/inbreeding';
@@ -98,7 +99,7 @@ export default function PedigreeView({ root, nameOf }: PedigreeViewProps): JSX.E
                 gridRow: `${slot.start + 2} / span ${slot.span}`,
               }}
             >
-              {blank || id === null ? '—' : nameOf(id)}
+              {blank || id === null ? '—' : <HorseLink horseId={id} name={nameOf(id)} />}
             </div>
           );
         })}

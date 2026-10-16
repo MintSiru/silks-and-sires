@@ -1,16 +1,10 @@
-import { useMemo, useState } from 'react';
+import HorseLink from '../horse/HorseLink';
 import type { JSX } from 'react';
+import { useMemo, useState } from 'react';
 import type { GameState, Money } from '../../engine/types';
-import { economyModeKo, feeKo, fundsWarningKo, ledgerCategoryKo } from '../game/text';
+import { feeKo, ledgerCategoryKo } from '../game/text';
 import type { GameApi } from '../game/useGame';
-import {
-  fundsBanner,
-  pnlHistory,
-  recentLedger,
-  yearPnl,
-  type PnlLine,
-  type YearPnlView,
-} from './economyView';
+import { pnlHistory, recentLedger, yearPnl, type PnlLine, type YearPnlView } from './economyView';
 
 /** 값이 없을 때 표시하는 기호 */
 const NO_VALUE = '—';
@@ -44,7 +38,6 @@ export default function EconomyScreen({ game }: EconomyScreenProps): JSX.Element
 }
 
 function EconomyView({ state }: { state: GameState }): JSX.Element {
-  const banner = useMemo(() => fundsBanner(state), [state]);
   const history = useMemo(() => pnlHistory(state), [state]);
   const ledger = useMemo(() => recentLedger(state), [state]);
   /** 지난 해 선택(null 이면 올해) */
@@ -61,30 +54,15 @@ function EconomyView({ state }: { state: GameState }): JSX.Element {
   return (
     <section aria-label="경제">
       <section className="panel">
-        <h2>자금</h2>
-        <p className="topbar__info">
-          <span>자금 {feeKo(banner.funds)}</span>
-          {banner.debt > 0 && <span>빚 {feeKo(banner.debt)}</span>}
-          <span>모드 {economyModeKo(banner.mode)}</span>
-        </p>
-        {banner.warning !== null && (
-          <p
-            className={banner.warning.kind === 'debt' ? 'hint' : 'notice notice--error'}
-            role={banner.warning.kind === 'debt' ? undefined : 'alert'}
-          >
-            {fundsWarningKo(banner.warning)}
-          </p>
-        )}
-      </section>
-
-      <section className="panel">
         <h2>손익 ({pnl === null ? NO_VALUE : `${pnl.year}년${pnl.current ? ' · 올해' : ''}`})</h2>
         <div className="field">
           <label>
             연도{' '}
             <select
               value={selectedYear === null ? CURRENT_YEAR_VALUE : String(selectedYear)}
-              onChange={(e) => setYearPick(e.target.value === CURRENT_YEAR_VALUE ? null : Number(e.target.value))}
+              onChange={(e) =>
+                setYearPick(e.target.value === CURRENT_YEAR_VALUE ? null : Number(e.target.value))
+              }
             >
               <option value={CURRENT_YEAR_VALUE}>올해 ({state.date.year}년)</option>
               {pastYears.map((y) => (
@@ -119,7 +97,9 @@ function EconomyView({ state }: { state: GameState }): JSX.Element {
                   <td>{row.dateLabel}</td>
                   <td>{ledgerCategoryKo(row.category)}</td>
                   <td>{signedFeeKo(row.amount)}</td>
-                  <td>{row.horseName ?? NO_VALUE}</td>
+                  <td>
+                    <HorseLink name={row.horseName ?? NO_VALUE} />
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -149,7 +129,14 @@ function EconomyView({ state }: { state: GameState }): JSX.Element {
                   <td>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <span>{signedFeeKo(row.net)}</span>
-                      <span style={{ display: 'inline-block', width: 160, background: '#161b22', borderRadius: 3 }}>
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          width: 160,
+                          background: '#161b22',
+                          borderRadius: 3,
+                        }}
+                      >
                         <span
                           style={{
                             display: 'block',

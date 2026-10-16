@@ -234,7 +234,16 @@ export function useGame(): GameApi {
       if (error !== null) throw new Error(SILKS_ERROR_KO[error]);
     }
     let world: GameState;
-    try { world = bootstrapGame(options, bootstrapData()); }
+    try {
+      const data = bootstrapData();
+      world = bootstrapGame(options, data);
+      // 첫 주를 넘기기 전에도 홈·말 상세에서 자동 제안을 검토할 수 있다.
+      for (const horse of Object.values(world.horses)) {
+        if (horse.ownerId !== world.playerOwnerId || horse.status !== 'in_training' || horse.trainerId === null) continue;
+        const result = replanHorse(world, data, horse.id);
+        if (result.ok) world = result.state;
+      }
+    }
     catch (error) {
       if (error instanceof FarmNameValidationError) throw new Error(FARM_NAME_ERROR_KO[error.reason], { cause: error });
       throw error;

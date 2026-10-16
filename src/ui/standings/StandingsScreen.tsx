@@ -1,3 +1,4 @@
+import HorseLink from '../horse/HorseLink';
 import { useMemo, useState } from 'react';
 import type { JSX } from 'react';
 import { getSeriesDefinitions } from '../../engine/data/staticData';
@@ -94,7 +95,7 @@ function SeriesSection({ state }: { state: GameState }): JSX.Element {
               ? card.kind === 'crown'
                 ? '아직 달성마가 없습니다.'
                 : '시즌이 끝나면 1위가 정해집니다.'
-              : `${card.kind === 'crown' ? '달성마' : '1위'}: ${card.championName}`}
+              : <>{card.kind === 'crown' ? '달성마' : '1위'}: <HorseLink name={card.championName} /></>}
             {' · '}보너스 {feeKo(card.bonus)}
           </p>
           {card.kind === 'crown' ? (
@@ -109,7 +110,7 @@ function SeriesSection({ state }: { state: GameState }): JSX.Element {
                 {card.legs.map((leg) => (
                   <tr key={leg.raceId}>
                     <td>{leg.raceName}</td>
-                    <td>{leg.winnerName ?? '—'}</td>
+                    <td><HorseLink name={leg.winnerName ?? '—'} /></td>
                   </tr>
                 ))}
               </tbody>
@@ -129,7 +130,7 @@ function SeriesSection({ state }: { state: GameState }): JSX.Element {
                 {card.topPoints.map((row) => (
                   <tr key={row.horseId}>
                     <td>{row.rank}</td>
-                    <td>{row.name}</td>
+                    <td><HorseLink name={row.name} /></td>
                     <td>{row.points}</td>
                   </tr>
                 ))}
@@ -196,7 +197,7 @@ function LeadingSection({ state }: { state: GameState }): JSX.Element {
             {rows.map((row) => (
               <tr key={row.id}>
                 <td>{row.rank}</td>
-                <td>{row.name}</td>
+                <td><HorseLink name={row.name} /></td>
                 <td>{row.runners}</td>
                 <td>{row.wins}</td>
                 <td>{row.places}</td>
@@ -257,7 +258,7 @@ function AwardsSection({ state }: { state: GameState }): JSX.Element {
           {view.laurel.map((row) => (
             <tr key={row.category}>
               <td>{laurelCategoryKo(row.category)}</td>
-              <td>{row.horseName}</td>
+              <td><HorseLink name={row.horseName} /></td>
             </tr>
           ))}
         </tbody>
@@ -293,8 +294,8 @@ function AwardsSection({ state }: { state: GameState }): JSX.Element {
           <tbody>
             {view.seriesChampions.map((row) => (
               <tr key={row.seriesId}>
-                <td>{row.name}</td>
-                <td>{row.horseName}</td>
+                <td><HorseLink name={row.name} /></td>
+                <td><HorseLink name={row.horseName} /></td>
               </tr>
             ))}
           </tbody>
@@ -325,7 +326,7 @@ function RatedTable({
         {rows.map((row) => (
           <tr key={row.horseId}>
             <td>{row.rank}</td>
-            <td>{row.name}</td>
+            <td><HorseLink name={row.name} /></td>
             <td>{row.rating}</td>
           </tr>
         ))}
@@ -365,7 +366,7 @@ function SireSection({ state }: { state: GameState }): JSX.Element {
             {table.rows.map((row) => (
               <tr key={row.sireId}>
                 <td>{row.rank}</td>
-                <td>{row.name}</td>
+                <td><HorseLink name={row.name} /></td>
                 <td>{row.starters}</td>
                 <td>{row.winners}</td>
                 <td>{row.wins}</td>

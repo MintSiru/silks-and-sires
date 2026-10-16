@@ -1,19 +1,19 @@
-import { canSellToNhStore, nhStoreOpen } from '../../engine/sales/nhStore';
-import { nhStoreQuote } from '../../engine/stud/nh';
-import { displayName } from '../../engine/naming/register';
-import { inspectOfferHorse } from '../../engine/sales/privateTrade';
-import { useEffect, useMemo, useState } from 'react';
+import HorseLink from '../horse/HorseLink';
 import type { JSX } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { getSalesData, getSireLines } from '../../engine/data/staticData';
+import { displayName } from '../../engine/naming/register';
 import { bidIncrement } from '../../engine/sales/auction';
 import { liveAuctionSteps } from '../../engine/sales/bidding';
 import { eligibleInspectors, inspectLot } from '../../engine/sales/inspection';
+import { canSellToNhStore, nhStoreOpen } from '../../engine/sales/nhStore';
+import { inspectOfferHorse } from '../../engine/sales/privateTrade';
 import type { SalesStaticData } from '../../engine/sales/system';
+import { nhStoreQuote } from '../../engine/stud/nh';
 import { ageInYear, compareDates, formatDateKo } from '../../engine/time/calendar';
 import type { Assessment, GameState, HorseId, Money, SaleEventDef } from '../../engine/types';
 import HorseCard from '../breeding/HorseCard';
 import {
-  nhStoreErrorKo,
   bidErrorKo,
   bidMinimumKo,
   clearBidErrorKo,
@@ -22,21 +22,22 @@ import {
   countryKo,
   feeKo,
   inspectErrorKo,
-  privateOfferErrorKo,
   inspectNoneKo,
   liveClosedKo,
   liveFinalNoticeKo,
+  nhStoreErrorKo,
+  privateOfferErrorKo,
   saleAnnounceKo,
   saleStatusKo,
 } from '../game/text';
 import type { GameApi } from '../game/useGame';
 import {
-  patronBadge,
-  privateOfferRows,
   catalogueRows,
   consignableRows,
-  lotDetailView,
   liveAuctionView,
+  lotDetailView,
+  patronBadge,
+  privateOfferRows,
   saleCalendarRows,
   type CatalogueFilter,
   type ConsignableRow,
@@ -69,10 +70,6 @@ interface SaleKey {
   year: number;
 }
 
-function messageOf(error: unknown): string {
-  return error instanceof Error ? error.message : '알 수 없는 오류가 났습니다.';
-}
-
 function eventOf(saleId: string): SaleEventDef | undefined {
   return SALES_DATA.sales?.events.find((e) => e.id === saleId);
 }
@@ -84,7 +81,7 @@ function lineLabelOf(sireLineId: string | null): string {
 
 function nameOrDash(state: GameState, id: HorseId | null): string {
   if (id === null) return NO_VALUE;
-  return (state.horses[id] === undefined ? NO_VALUE : displayName(state, state.horses[id]!));
+  return state.horses[id] === undefined ? NO_VALUE : displayName(state, state.horses[id]!);
 }
 
 function NoticeLine({ notice }: { notice: Notice | null }): JSX.Element | null {
@@ -129,9 +126,7 @@ function SalesView({ game, state, locked }: SalesViewProps): JSX.Element {
   const [book, setBook] = useState(ALL_BOOKS);
   const [query, setQuery] = useState('');
   const [onlyMine, setOnlyMine] = useState(false);
-  const [advanceNotice, setAdvanceNotice] = useState<Notice | null>(null);
 
-  const owner = state.owners[state.playerOwnerId];
   const badge = patronBadge(state);
   const calendar = useMemo(() => saleCalendarRows(state, SALES_DATA), [state]);
   const consignRows = useMemo(() => consignableRows(state, SALES_DATA), [state]);
@@ -165,7 +160,9 @@ function SalesView({ game, state, locked }: SalesViewProps): JSX.Element {
       : catalogueRows(state, active.saleId, active.year, SALES_DATA, filter);
 
   const detail: LotDetailView | null =
-    active === null || lotNo === null ? null : lotDetailView(state, active.saleId, active.year, lotNo, SALES_DATA);
+    active === null || lotNo === null
+      ? null
+      : lotDetailView(state, active.saleId, active.year, lotNo, SALES_DATA);
   const open = catalogue?.status === 'catalogued' && detail !== null && detail.result === null;
   const liveActive = open && detail !== null && compareDates(detail.saleWeek, state.date) === 0;
 
@@ -175,37 +172,16 @@ function SalesView({ game, state, locked }: SalesViewProps): JSX.Element {
     setBook(ALL_BOOKS);
   };
 
-  const advanceBy = (weeks: number): void => {
-    try {
-      game.advance(weeks);
-      setAdvanceNotice({ tone: 'ok', text: `${weeks}주 진행했습니다.` });
-    } catch (error) {
-      setAdvanceNotice({ tone: 'error', text: messageOf(error) });
-    }
-  };
-
   return (
     <section aria-label="세일">
-      <header className="topbar panel">
-        <div className="topbar__info">
-          <span className="topbar__date">{formatDateKo(state.date)}</span>
-          <span>마주 {owner?.name ?? NO_VALUE}</span>
-          <span>자금 {feeKo(owner?.funds ?? 0)}</span>
-        </div>
+      <header className="panel">
         <p className="hint">
-          위에서 아래로: 개인 거래 제안 → 세일 일정 → 카탈로그 → 로트 상세(검사·입찰·실시간 보기). 맨 아래에서 내 말을 출품합니다.
-          {' '}<span className="badge">후원 {badge.tierKo}</span>
+          위에서 아래로: 개인 거래 제안 → 세일 일정 → 카탈로그 → 로트 상세(검사·입찰·실시간 보기). 맨 아래에서
+          내 말을 출품합니다. <span className="badge">후원 {badge.tierKo}</span>
         </p>
-        <p className="hint">최근 2년 구매액 {badge.spendKo} · {badge.nextKo} · {badge.benefitsKo.join(' · ')}</p>
-        <div className="topbar__buttons">
-          <button type="button" className="btn" disabled={locked} onClick={() => advanceBy(1)}>
-            1주 진행
-          </button>
-          <button type="button" className="btn" disabled={locked} onClick={() => advanceBy(4)}>
-            4주 진행
-          </button>
-        </div>
-        <NoticeLine notice={advanceNotice} />
+        <p className="hint">
+          최근 2년 구매액 {badge.spendKo} · {badge.nextKo} · {badge.benefitsKo.join(' · ')}
+        </p>
       </header>
 
       {nhStoreOpen(state) && <NhStore game={game} state={state} locked={locked} />}
@@ -216,7 +192,9 @@ function SalesView({ game, state, locked }: SalesViewProps): JSX.Element {
 
       <section className="panel">
         <h2>세일 일정</h2>
-        <p className="hint">세일을 누르면 카탈로그가 열립니다. 발표 전 세일은 발표 주에 카탈로그가 나옵니다.</p>
+        <p className="hint">
+          세일을 누르면 카탈로그가 열립니다. 발표 전 세일은 발표 주에 카탈로그가 나옵니다.
+        </p>
         {calendar.length === 0 ? (
           <p className="hint">세일 일정이 없습니다.</p>
         ) : (
@@ -235,7 +213,8 @@ function SalesView({ game, state, locked }: SalesViewProps): JSX.Element {
               </thead>
               <tbody>
                 {calendar.map((row) => {
-                  const selected = active !== null && row.saleId === active.saleId && row.year === active.year;
+                  const selected =
+                    active !== null && row.saleId === active.saleId && row.year === active.year;
                   return (
                     <tr
                       key={`${row.saleId}-${row.year}`}
@@ -289,7 +268,9 @@ function SalesView({ game, state, locked }: SalesViewProps): JSX.Element {
             <p className="hint">세일 일정에서 세일을 고르세요.</p>
           ) : catalogue === undefined ? (
             activeRow !== undefined && activeRow.statusKo === saleStatusKo('upcoming') ? (
-              <p className="hint">{saleAnnounceKo(activeRow.year, state.date.year, activeRow.announceWeek)}</p>
+              <p className="hint">
+                {saleAnnounceKo(activeRow.year, state.date.year, activeRow.announceWeek)}
+              </p>
             ) : (
               <p className="hint">이 세일의 카탈로그가 없습니다.</p>
             )
@@ -350,17 +331,21 @@ function SalesView({ game, state, locked }: SalesViewProps): JSX.Element {
                           className={row.lotNo === lotNo ? 'is-selected' : 'is-clickable'}
                           onClick={() => setLotNo(row.lotNo)}
                         >
-                          <td>{row.lotNo}</td>
-                          <td>{row.book}</td>
                           <td>
                             <button type="button" className="link-btn" onClick={() => setLotNo(row.lotNo)}>
-                              {row.horseName}
+                              {row.lotNo}번 상세
                             </button>
+                          </td>
+                          <td>{row.book}</td>
+                          <td>
+                            <HorseLink horseId={row.horseId} name={row.horseName} />
                           </td>
                           <td>{row.sexAgeKo}</td>
                           <td>
-                            {row.sireName}
-                            {row.surfaceNoteKo !== null && <span className="sale-surface-note"> ⚠ {row.surfaceNoteKo}</span>}
+                            <HorseLink name={row.sireName} />
+                            {row.surfaceNoteKo !== null && (
+                              <span className="sale-surface-note"> ⚠ {row.surfaceNoteKo}</span>
+                            )}
                           </td>
                           <td>{row.vendorKo}</td>
                           <td>{row.estimateKo}</td>
@@ -400,7 +385,8 @@ function SalesView({ game, state, locked }: SalesViewProps): JSX.Element {
       <section className="panel">
         <h2>내 말 출품 ({consignRows.length}두)</h2>
         <p className="hint">
-          발표 주 전에 세일을 골라 말을 올립니다. 유보가를 비우면 유보 없음입니다. 발표 뒤에는 취소할 수 없습니다.
+          발표 주 전에 세일을 골라 말을 올립니다. 유보가를 비우면 유보 없음입니다. 발표 뒤에는 취소할 수
+          없습니다.
         </p>
         {consignRows.length === 0 ? (
           <p className="hint">출품할 내 말이 없습니다.</p>
@@ -445,21 +431,35 @@ interface LotDetailProps {
   locked: boolean;
 }
 
-function LotDetail({ game, state, saleId, year, detail, event, open, liveActive, locked }: LotDetailProps): JSX.Element {
+function LotDetail({
+  game,
+  state,
+  saleId,
+  year,
+  detail,
+  event,
+  open,
+  liveActive,
+  locked,
+}: LotDetailProps): JSX.Element {
   const lotNo = detail.lot.lotNo;
   return (
     <>
       <h3>
-        {lotNo}번 {detail.lot.horseName}
+        {lotNo}번 <HorseLink horseId={detail.lot.horseId} name={detail.lot.horseName} />
       </h3>
       <dl className="sales-facts">
         <dt>부</dt>
         <dd>
-          {detail.sireName}
-          {detail.surfaceNoteKo !== null && <span className="sale-surface-note"> ⚠ {detail.surfaceNoteKo}</span>}
+          <HorseLink name={detail.sireName} />
+          {detail.surfaceNoteKo !== null && (
+            <span className="sale-surface-note"> ⚠ {detail.surfaceNoteKo}</span>
+          )}
         </dd>
         <dt>모</dt>
-        <dd>{detail.damName}</dd>
+        <dd>
+          <HorseLink name={detail.damName} />
+        </dd>
         <dt>판매자</dt>
         <dd>{detail.vendorKo}</dd>
         <dt>판매일</dt>
@@ -510,7 +510,9 @@ interface InspectBoxProps {
 }
 
 /** 조교사 검사: 동행 가능한 조교사를 고르고 소견을 HorseCard 로 보인다 */
-function InspectBox(props: InspectBoxProps | { state: GameState; horseId: HorseId; offerId: string }): JSX.Element {
+function InspectBox(
+  props: InspectBoxProps | { state: GameState; horseId: HorseId; offerId: string },
+): JSX.Element {
   const { state, horseId } = props;
   const eligible = useMemo(() => eligibleInspectors(state), [state]);
   const [pickId, setPickId] = useState<string | null>(null);
@@ -571,7 +573,10 @@ function InspectBox(props: InspectBoxProps | { state: GameState; horseId: HorseI
             parentage={{
               sire: nameOrDash(state, horse.sireId),
               dam: nameOrDash(state, horse.damId),
-              damsire: nameOrDash(state, horse.damId === null ? null : (state.horses[horse.damId]?.sireId ?? null)),
+              damsire: nameOrDash(
+                state,
+                horse.damId === null ? null : (state.horses[horse.damId]?.sireId ?? null),
+              ),
             }}
             lineLabel={lineLabelOf(horse.sireLineId)}
           />
@@ -635,7 +640,12 @@ function BidBox({ game, saleId, year, lotNo, myBid, event, open, locked }: BidBo
         <button type="button" className="btn" disabled={locked || !open} onClick={handleBid}>
           상한 설정
         </button>
-        <button type="button" className="btn" disabled={locked || !open || myBid === null} onClick={handleClear}>
+        <button
+          type="button"
+          className="btn"
+          disabled={locked || !open || myBid === null}
+          onClick={handleClear}
+        >
           입찰 취소
         </button>
       </div>
@@ -662,7 +672,17 @@ interface LiveBoxProps {
  * '+ 한 호가 올리기' 는 상한을 (현재 가격 + 호가 단위)로 올리고, 단계를 다시 계산해 이어 보여 준다.
  * 타이머는 effect 에서 만들고 cleanup 에서 지운다(화면 해제·판매 주 종료·단계 변경 때).
  */
-function LiveBox({ game, state, saleId, year, lotNo, myBid, active, dateKo, locked }: LiveBoxProps): JSX.Element {
+function LiveBox({
+  game,
+  state,
+  saleId,
+  year,
+  lotNo,
+  myBid,
+  active,
+  dateKo,
+  locked,
+}: LiveBoxProps): JSX.Element {
   const [shown, setShown] = useState<number | null>(null);
   const [notice, setNotice] = useState<Notice | null>(null);
   // 화면 문구용 단계(liveAuctionView)와 호가 계산용 원시 단계(liveAuctionSteps)는 같은 입력에서 나온다
@@ -697,7 +717,8 @@ function LiveBox({ game, state, saleId, year, lotNo, myBid, active, dateKo, lock
       return;
     }
     const result = game.setMaxBid(saleId, year, lotNo, target);
-    if (result.ok) setNotice({ tone: 'ok', text: `상한을 ${feeKo(target)} 로 올렸습니다. 이어서 보여 줍니다.` });
+    if (result.ok)
+      setNotice({ tone: 'ok', text: `상한을 ${feeKo(target)} 로 올렸습니다. 이어서 보여 줍니다.` });
     else setNotice({ tone: 'error', text: bidErrorKo(result.error) });
   };
 
@@ -709,7 +730,7 @@ function LiveBox({ game, state, saleId, year, lotNo, myBid, active, dateKo, lock
       <div className="sales-inline">
         <button
           type="button"
-          className="btn btn--primary"
+          className="btn"
           disabled={!active || running}
           onClick={() => setShown(FIRST_STEP)}
         >
@@ -786,14 +807,16 @@ function ConsignItem({ row, game, locked }: ConsignItemProps): JSX.Element {
 
   return (
     <tr>
-      <td>{row.horseName}</td>
+      <td>
+        <HorseLink name={row.horseName} />
+      </td>
       <td>{row.consignedSaleName ?? NO_VALUE}</td>
       <td>
         {row.options.length === 0 ? (
           <span className="hint">출품 가능한 세일이 없습니다</span>
         ) : (
           <select
-            aria-label={`${row.horseName} 출품 세일`}
+            aria-label={`$<HorseLink name={row.horseName} /> 출품 세일`}
             value={chosen?.saleId ?? ''}
             disabled={consigned}
             onChange={(e) => setSaleId(e.target.value)}
@@ -811,7 +834,7 @@ function ConsignItem({ row, game, locked }: ConsignItemProps): JSX.Element {
           type="number"
           min={0}
           step={1}
-          aria-label={`${row.horseName} 유보가`}
+          aria-label={`$<HorseLink name={row.horseName} /> 유보가`}
           placeholder="없음"
           value={reserveText}
           disabled={consigned}
@@ -843,47 +866,132 @@ function PrivateOffers({ game, state, locked }: SalesViewProps): JSX.Element {
   const inspected = rows.find((row) => row.offerId === inspectId);
   const act = (offerId: string, buy: boolean): void => {
     const row = rows.find((entry) => entry.offerId === offerId);
-    if (buy && (locked || !window.confirm(`${row?.horseName ?? ''}을 ${row?.priceKo ?? ''}에 구매합니다. 계속할까요?`))) return;
+    if (
+      buy &&
+      (locked || !window.confirm(`${row?.horseName ?? ''}을 ${row?.priceKo ?? ''}에 구매합니다. 계속할까요?`))
+    )
+      return;
     const result = buy ? game.acceptPrivateOffer(offerId) : game.declinePrivateOffer(offerId);
-    setNotice(result.ok
-      ? { tone: 'ok', text: buy ? '구매했습니다.' : '제안을 거절했습니다.' }
-      : { tone: 'error', text: privateOfferErrorKo(result.error) });
+    setNotice(
+      result.ok
+        ? { tone: 'ok', text: buy ? '구매했습니다.' : '제안을 거절했습니다.' }
+        : { tone: 'error', text: privateOfferErrorKo(result.error) },
+    );
   };
-  return <>
-    <NoticeLine notice={notice} />
-    {rows.length === 0 ? <p className="hint">관계가 좋은 오너브리더가 1~3월에 유망주를 개인적으로 제안합니다(관계 20 이상 또는 명성 35 이상)</p> :
-      <div className="table-scroll"><table>
-        <thead><tr>{['말', '성별 나이', '부', '제안 마주', '가격', '추정가', '기한', '행동'].map((label) => <th key={label}>{label}</th>)}</tr></thead>
-        <tbody>{rows.map((row) => <tr key={row.offerId}>
-          <td>{row.horseName}</td><td>{row.sexAgeKo}</td><td>{row.sireName}</td><td>{row.ownerName}</td>
-          <td>{row.priceKo}</td><td>{row.estimateKo}</td><td>{row.expiresKo}</td>
-          <td><button type="button" className="btn" onClick={() => setInspectId(row.offerId)}>조교사 검사</button>
-            <button type="button" className="btn" disabled={locked} onClick={() => act(row.offerId, true)}>구매</button>
-            <button type="button" className="btn" onClick={() => act(row.offerId, false)}>거절</button></td>
-        </tr>)}</tbody>
-      </table></div>}
-    {inspected !== undefined && <InspectBox key={inspected.offerId} state={state} horseId={inspected.horseId} offerId={inspected.offerId} />}
-  </>;
+  return (
+    <>
+      <NoticeLine notice={notice} />
+      {rows.length === 0 ? (
+        <p className="hint">
+          관계가 좋은 오너브리더가 1~3월에 유망주를 개인적으로 제안합니다(관계 20 이상 또는 명성 35 이상)
+        </p>
+      ) : (
+        <div className="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                {['말', '성별 나이', '부', '제안 마주', '가격', '추정가', '기한', '행동'].map((label) => (
+                  <th key={label}>{label}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row) => (
+                <tr key={row.offerId}>
+                  <td>
+                    <HorseLink name={row.horseName} />
+                  </td>
+                  <td>{row.sexAgeKo}</td>
+                  <td>
+                    <HorseLink name={row.sireName} />
+                  </td>
+                  <td>{row.ownerName}</td>
+                  <td>{row.priceKo}</td>
+                  <td>{row.estimateKo}</td>
+                  <td>{row.expiresKo}</td>
+                  <td>
+                    <button type="button" className="btn" onClick={() => setInspectId(row.offerId)}>
+                      조교사 검사
+                    </button>
+                    <button
+                      type="button"
+                      className="btn"
+                      disabled={locked}
+                      onClick={() => act(row.offerId, true)}
+                    >
+                      구매
+                    </button>
+                    <button type="button" className="btn" onClick={() => act(row.offerId, false)}>
+                      거절
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {inspected !== undefined && (
+        <InspectBox
+          key={inspected.offerId}
+          state={state}
+          horseId={inspected.horseId}
+          offerId={inspected.offerId}
+        />
+      )}
+    </>
+  );
 }
 
 function NhStore({ game, state, locked }: SalesViewProps): JSX.Element {
   const [notice, setNotice] = useState<Notice | null>(null);
-  const horses = Object.values(state.horses).filter(horse => canSellToNhStore(state, horse.id) === null)
-    .sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
-  return <section className="panel" aria-label="NH 스토어 세일">
-    <h2>NH 스토어 세일</h2>
-    <p>3~4세 수말·거세마를 NH 시장에 판매합니다. 판매한 말은 평지 경주에서 은퇴합니다.</p>
-    {horses.length === 0 ? <p>판매 가능한 말이 없습니다.</p> : <table>
-      <thead><tr><th>말</th><th>견적</th><th>판매</th></tr></thead>
-      <tbody>{horses.map(horse => <tr key={horse.id}>
-        <td>{displayName(state, horse)}</td><td>{feeKo(nhStoreQuote(state, horse.id)!)}</td>
-        <td><button type="button" disabled={locked} onClick={() => {
-          const result = game.sellToNhStore(horse.id);
-          setNotice(result.ok ? { tone: 'ok', text: 'NH 시장에 판매했습니다.' }
-            : { tone: 'error', text: nhStoreErrorKo(result.error) });
-        }}>판매</button></td>
-      </tr>)}</tbody>
-    </table>}
-    <NoticeLine notice={notice} />
-  </section>;
+  const horses = Object.values(state.horses)
+    .filter((horse) => canSellToNhStore(state, horse.id) === null)
+    .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  return (
+    <section className="panel" aria-label="NH 스토어 세일">
+      <h2>NH 스토어 세일</h2>
+      <p>3~4세 수말·거세마를 NH 시장에 판매합니다. 판매한 말은 평지 경주에서 은퇴합니다.</p>
+      {horses.length === 0 ? (
+        <p>판매 가능한 말이 없습니다.</p>
+      ) : (
+        <table>
+          <thead>
+            <tr>
+              <th>말</th>
+              <th>견적</th>
+              <th>판매</th>
+            </tr>
+          </thead>
+          <tbody>
+            {horses.map((horse) => (
+              <tr key={horse.id}>
+                <td>
+                  <HorseLink horseId={horse.id} name={displayName(state, horse)} />
+                </td>
+                <td>{feeKo(nhStoreQuote(state, horse.id)!)}</td>
+                <td>
+                  <button
+                    type="button"
+                    disabled={locked}
+                    onClick={() => {
+                      const result = game.sellToNhStore(horse.id);
+                      setNotice(
+                        result.ok
+                          ? { tone: 'ok', text: 'NH 시장에 판매했습니다.' }
+                          : { tone: 'error', text: nhStoreErrorKo(result.error) },
+                      );
+                    }}
+                  >
+                    판매
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      <NoticeLine notice={notice} />
+    </section>
+  );
 }

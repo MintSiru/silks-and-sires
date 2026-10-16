@@ -1,337 +1,89 @@
-import { displayName } from '../../engine/naming/register';
-import BettingPanel from '../betting/BettingPanel';
-import { useMemo, useState } from 'react';
-import type { JSX } from 'react';
-import { formatDateKo } from '../../engine/time/calendar';
-import type { InjuryError } from '../../engine/horse/injury';
-import type { GameEvent, GameState, HorseId, InjuryTreatment, TrainerId } from '../../engine/types';
-import {
-  assignTrainerErrorKo,
-  declareErrorKo,
-  eventKo,
-  feeKo,
-  injuryErrorKo,
-  INJURY_TREATMENT_KO,
-  personalityClueKo,
-  statusKo,
-  trainerReportKo,
-  withdrawErrorKo,
-} from '../game/text';
+import { useMemo, useState, type JSX } from 'react';
+import type { HorseId } from '../../engine/types';
+import { declareErrorKo, feeKo, withdrawErrorKo } from '../game/text';
 import type { GameApi } from '../game/useGame';
+import BettingPanel from '../betting/BettingPanel';
 import ReplayPanel from './ReplayPanel';
-import { racePlanErrorKo, racePlanRows, upcomingRaceRows } from './racePlanView';
-import { RACE_PLAN_WEEKS } from '../../engine/config/racePlan';
+import { upcomingRaceRows } from './racePlanView';
 import {
   eligiblePlayerHorses,
-  hasPendingPlayerRace,
   meetingsView,
-  playerHorses,
   recentResults,
-  trainerChoices,
-  type InjuryView,
   type MeetingRaceView,
   type PlayerHorseOption,
-  type PlayerHorseView,
   type RaceStatusView,
-  type TrainerChoice,
 } from './seasonView';
-
-/** 최근 결과 표시 개수 */
-const RECENT_RESULT_COUNT = 8;
-/** 마지막 진행 이벤트 표시 줄 수 */
-const RECENT_EVENT_LINES = 10;
-/** '출주한 레이스 결과까지' 로 기다리는 최대 주 수(개최는 이번 주·다음 주만 있으므로 짧게 잡는다) */
-const RESULT_WAIT_MAX_WEEKS = 8;
-/** 값이 없을 때 표시하는 기호 */
-const NO_VALUE = '—';
-
+import HorseLink from '../horse/HorseLink';
 const RACE_STATUS_KO: Record<RaceStatusView, string> = {
   open: '출주 접수 중',
   closed: '출주 마감',
   run: '결과 확정',
 };
-
-interface Notice {
-  tone: 'ok' | 'error';
-  text: string;
-}
-
-function messageOf(error: unknown): string {
-  return error instanceof Error ? error.message : '알 수 없는 오류가 났습니다.';
-}
-
-/** 레이스 선택 상자 키(개최 id + 레이스 id) */
-function raceKey(meetingId: string, raceId: string): string {
+function raceKey(meetingId: string, raceId: string) {
   return `${meetingId}|${raceId}`;
 }
-
-// ── 화면 진입점 ─────────────────────────────────────────────────
-
-interface SeasonScreenProps {
+export default function SeasonScreen({
+  game,
+  locked = false,
+  section = 'calendar',
+}: {
   game: GameApi;
-  /** true 면 진행 버튼을 막는다(레거시 파산). 새 게임·불러오기와는 무관하다. */
   locked?: boolean;
-}
-
-/** 게임이 없으면 안내만, 있으면 시즌 화면을 보인다. 새 게임은 '번식·배합' 탭에서 시작한다. */
-export default function SeasonScreen({ game, locked = false }: SeasonScreenProps): JSX.Element {
-  if (game.state === null) {
-    return (
-      <section className="panel">
-        <h2>시즌</h2>
-        <p className="hint">먼저 '번식·배합' 탭에서 새 게임을 시작하세요.</p>
-      </section>
-    );
-  }
-  return <SeasonView state={game.state} game={game} locked={locked} />;
-}
-
-// ── 시즌 진행 화면 ──────────────────────────────────────────────
-
-interface SeasonViewProps {
-  state: GameState;
-  game: GameApi;
-  locked: boolean;
-}
-
-function SeasonView({ state, game, locked }: SeasonViewProps): JSX.Element {
+  section?: 'calendar' | 'results';
+}): JSX.Element | null {
   const [betRace, setBetRace] = useState<{ meetingId: string; raceId: string } | null>(null);
-  const [notice, setNotice] = useState<Notice | null>(null);
-  /** 레이스별로 고른 출주 말(키: raceKey) */
-  const [racePicks, setRacePicks] = useState<Record<string, HorseId>>({});
-  /** 말별로 고른 조교사(키: horseId) */
-  const [trainerPicks, setTrainerPicks] = useState<Record<HorseId, TrainerId>>({});
-
-  const nameOf = (id: HorseId): string => (state.horses[id] === undefined ? id : displayName(state, state.horses[id]!));
-  const owner = state.owners[state.playerOwnerId];
-
-  const horses = useMemo(() => playerHorses(state), [state]);
-  const meetings = useMemo(() => meetingsView(state), [state]);
-  const results = useMemo(() => recentResults(state, RECENT_RESULT_COUNT), [state]);
-  const calendar = useMemo(() => upcomingRaceRows(game.upcomingRaces(RACE_PLAN_WEEKS)), [game, state]);
-  const eligibleByRace = useMemo(() => {
-    const map = new Map<string, PlayerHorseOption[]>();
-    for (const m of meetings) {
-      for (const r of m.races) {
-        map.set(raceKey(r.meetingId, r.raceId), eligiblePlayerHorses(state, r.meetingId, r.raceId));
-      }
-    }
-    return map;
-  }, [state, meetings]);
-
-  // 주 시작 이벤트는 빼고, 마지막 진행의 이벤트 중 최근 N줄을 최신순으로 보인다.
-  const recentEvents: GameEvent[] = game.lastEvents
-    .filter((e) => e.type !== 'week_started')
-    .slice(-RECENT_EVENT_LINES)
-    .reverse();
-
-  /** 상태 변경 한 번을 실행하고 결과를 알림으로 보인다. 예외는 한국어 메시지로 바꾼다. */
-  const runAction = (action: () => void, okText: string): void => {
-    try {
-      action();
-      setNotice({ tone: 'ok', text: okText });
-    } catch (error) {
-      setNotice({ tone: 'error', text: messageOf(error) });
-    }
-  };
-
-  const handleAdvanceToResults = (): void => {
-    if (!hasPendingPlayerRace(state)) {
-      setNotice({ tone: 'error', text: '출주 접수한 레이스가 없습니다. 먼저 레이스에 출주를 등록하세요.' });
-      return;
-    }
-    // advanceUntil 은 stop 을 매 주 호출하므로, 멈춘 뒤의 상태를 여기서 잡아 둔다.
-    const probe: { last: GameState | null } = { last: null };
-    try {
-      game.advanceUntil((s) => {
-        probe.last = s;
-        return !hasPendingPlayerRace(s);
-      }, RESULT_WAIT_MAX_WEEKS);
-    } catch (error) {
-      setNotice({ tone: 'error', text: messageOf(error) });
-      return;
-    }
-    const last = probe.last;
-    if (last !== null && !hasPendingPlayerRace(last)) {
-      setNotice({ tone: 'ok', text: '출주한 레이스가 끝났습니다. 아래 최근 결과에서 확인하세요.' });
-    } else {
-      setNotice({ tone: 'error', text: `${RESULT_WAIT_MAX_WEEKS}주 안에 출주한 레이스가 끝나지 않았습니다.` });
-    }
-  };
-
-  const setRacePick = (key: string, horseId: string): void => {
-    setRacePicks((prev) => {
-      const next = { ...prev };
-      if (horseId === '') {
-        delete next[key];
-      } else {
-        next[key] = horseId;
-      }
-      return next;
-    });
-  };
-
-  const setTrainerPick = (horseId: HorseId, trainerId: string): void => {
-    setTrainerPicks((prev) => {
-      const next = { ...prev };
-      if (trainerId === '') {
-        delete next[horseId];
-      } else {
-        next[horseId] = trainerId;
-      }
-      return next;
-    });
-  };
-
-  const handleDeclare = (meetingId: string, raceId: string): void => {
-    const key = raceKey(meetingId, raceId);
-    const horseId = racePicks[key];
-    if (horseId === undefined) {
-      setNotice({ tone: 'error', text: '출주시킬 말을 고르세요.' });
-      return;
-    }
-    const result = game.declarePlayerHorse(meetingId, raceId, horseId);
-    if (!result.ok) {
-      setNotice({ tone: 'error', text: declareErrorKo(result.error) });
-      return;
-    }
-    setRacePick(key, '');
-    setNotice({ tone: 'ok', text: `${nameOf(horseId)} 출주를 접수했습니다.` });
-  };
-
-  const handleWithdraw = (meetingId: string, raceId: string, horseId: HorseId): void => {
-    const result = game.withdrawPlayerHorse(meetingId, raceId, horseId);
-    if (!result.ok) {
-      setNotice({ tone: 'error', text: withdrawErrorKo(result.error) });
-      return;
-    }
-    setNotice({ tone: 'ok', text: `${nameOf(horseId)} 출주를 취소했습니다.` });
-  };
-
-  /** 검사 주문. 실패 사유는 카드에 보이도록 돌려준다 */
-  const handleVetExam = (horseId: HorseId): InjuryError | null => {
-    const result = game.orderVetExam(horseId);
-    if (!result.ok) return result.error;
-    setNotice({ tone: 'ok', text: `${nameOf(horseId)} 검사를 받아 확진했습니다.` });
-    return null;
-  };
-
-  /** 치료 선택(확인 단계 없이 바로 실행). 실패 사유는 카드에 보이도록 돌려준다 */
-  const handleTreatment = (horseId: HorseId, treatment: InjuryTreatment): InjuryError | null => {
-    const result = game.chooseTreatment(horseId, treatment);
-    if (!result.ok) return result.error;
-    setNotice({ tone: 'ok', text: `${nameOf(horseId)} 치료를 골랐습니다: ${INJURY_TREATMENT_KO[treatment]}.` });
-    return null;
-  };
-
-  const handleAssign = (horse: PlayerHorseView): void => {
-    const trainerId = trainerPicks[horse.id];
-    if (trainerId === undefined) {
-      setNotice({ tone: 'error', text: '조교사를 고르세요.' });
-      return;
-    }
-    const result = game.assignTrainer(horse.id, trainerId);
-    if (!result.ok) {
-      setNotice({ tone: 'error', text: assignTrainerErrorKo(result.error) });
-      return;
-    }
-    setTrainerPick(horse.id, '');
-    setNotice({ tone: 'ok', text: `${horse.name} 조교사를 정했습니다.` });
-  };
-
+  const [notice, setNotice] = useState<string | null>(null);
+  const [racePicks, setRacePicks] = useState<Record<string, string>>({});
+  const calendar = useMemo(() => upcomingRaceRows(game.state === null ? [] : game.upcomingRaces(12)), [game]);
+  const state = game.state;
+  if (state === null) return null;
+  const meetings = meetingsView(state);
+  const results = recentResults(state, 20);
   return (
     <>
-      <header className="topbar panel">
-        <div className="topbar__info">
-          <span className="topbar__date">{formatDateKo(state.date)}</span>
-          <span>마주 {owner?.name ?? NO_VALUE}</span>
-          <span>자금 {feeKo(owner?.funds ?? 0)}</span>
-        </div>
-        <div className="topbar__buttons">
-          <button
-            type="button"
-            className="btn"
-            disabled={locked}
-            onClick={() => runAction(() => game.advance(1), '1주 진행했습니다.')}
-          >
-            1주 진행
-          </button>
-          <button
-            type="button"
-            className="btn"
-            disabled={locked}
-            onClick={() => runAction(() => game.advance(4), '4주 진행했습니다.')}
-          >
-            4주 진행
-          </button>
-          <button type="button" className="btn btn--primary" disabled={locked} onClick={handleAdvanceToResults}>
-            출주한 레이스 결과까지
-          </button>
-        </div>
-        {notice !== null && (
-          <p className={`notice notice--${notice.tone}`} role="status">
-            {notice.text}
-          </p>
-        )}
-      </header>
-
-      <section className="panel">
-        <h2>최근 진행 이벤트</h2>
-        {recentEvents.length === 0 ? (
-          <p className="hint">아직 진행한 주가 없습니다.</p>
-        ) : (
-          <ol className="event-list">
-            {recentEvents.map((e, index) => (
-              <li key={index}>{eventKo(e, nameOf)}</li>
-            ))}
-          </ol>
-        )}
-      </section>
-
-      <div className="breeding-layout">
-        <section className="panel">
-          <h2>내 말 ({horses.length}두)</h2>
-          <p className="hint">조교사가 없는 말은 조교사를 정해야 출주할 수 있습니다.</p>
-          <label>
-            <input type="checkbox" checked={state.settings.autoApproveRacePlans ?? false}
-              onChange={(event) => game.setAutoApproveRacePlans(event.target.checked)} />{' '}
-            새 출주 제안 자동 승인
-          </label>
-          {horses.length === 0 ? (
+      {notice !== null && (
+        <p role="status" className="notice">
+          {notice}
+        </p>
+      )}
+      {section === 'calendar' ? (
+        <>
+          <section className="panel">
+            <h2>앞으로 12주 레이스</h2>
             <p className="hint">
-              아직 출주시킬 말이 없습니다. 망아지가 자라 2세가 되면 여기서 조교사를 정하고 출주를 등록할 수 있습니다.
+              고정 일정은 확정입니다. 일반 개최 후보와 예상 종류는 실제 편성을 보장하지 않습니다. 출주 계획은
+              말 상세에서 검토하세요.
             </p>
-          ) : (
-            <div className="horse-list">
-              {horses.map((horse) => (
-                <div key={horse.id}>
-                  <PlayerHorseCard
-                    horse={horse}
-                    choices={horse.trainerId === null ? trainerChoices(state, horse.id) : []}
-                    pick={trainerPicks[horse.id]}
-                    onPick={(trainerId) => setTrainerPick(horse.id, trainerId)}
-                    onAssign={() => handleAssign(horse)}
-                    onVetExam={() => handleVetExam(horse.id)}
-                    onTreatment={(treatment) => handleTreatment(horse.id, treatment)}
-                  />
-                  <RacePlanPanel horse={horse} game={game} locked={locked} onNotice={setNotice} />
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-
-        <section className="panel">
-          <h2>이번 주·다음 주 개최</h2>
-          {meetings.length === 0 ? (
-            <p className="hint">예정된 개최가 없습니다.</p>
-          ) : (
-            meetings.map((m) => (
-              <div key={m.meetingId} className="season-meeting">
-                <h3>
-                  {m.courseName} · {m.dateLabel}
-                </h3>
-                <p className="hint">마장 {m.goingLabel}</p>
+            {calendar.map((week) => (
+              <details key={week.key}>
+                <summary>
+                  {week.dateLabel} · 고정 일정 {week.fixed.length}개
+                </summary>
+                <ul>
+                  {week.fixed.map((race) => (
+                    <li key={race.id}>{race.label}</li>
+                  ))}
+                </ul>
+                <p className="hint">일반 개최: {week.countLabel || '없음'}</p>
+                <ul>
+                  {week.meetings.map((meeting) => (
+                    <li key={meeting.id}>
+                      {meeting.label}
+                      <p className="hint">예상: {meeting.expected}</p>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            ))}
+          </section>
+          <section className="panel">
+            <h2>이번 주·다음 주 개최</h2>
+            {meetings.length === 0 && <p className="hint">예정된 개최가 없습니다.</p>}
+            {meetings.map((m) => (
+              <details key={m.meetingId}>
+                <summary>
+                  {m.courseName} · {m.dateLabel} · 마장 {m.goingLabel}
+                </summary>
                 <ul className="season-race-list">
                   {m.races.map((race) => {
                     const key = raceKey(race.meetingId, race.raceId);
@@ -340,252 +92,87 @@ function SeasonView({ state, game, locked }: SeasonViewProps): JSX.Element {
                         key={key}
                         race={race}
                         locked={locked}
-                        onBet={() => setBetRace({ meetingId: race.meetingId, raceId: race.raceId })}
-                        eligible={eligibleByRace.get(key) ?? []}
+                        eligible={eligiblePlayerHorses(state, race.meetingId, race.raceId)}
                         pick={racePicks[key]}
-                        onPick={(horseId) => setRacePick(key, horseId)}
-                        onDeclare={() => handleDeclare(race.meetingId, race.raceId)}
-                        onWithdraw={(horseId) => handleWithdraw(race.meetingId, race.raceId, horseId)}
+                        onPick={(id) => setRacePicks((prev) => ({ ...prev, [key]: id }))}
+                        onBet={() => setBetRace({ meetingId: race.meetingId, raceId: race.raceId })}
+                        onDeclare={() => {
+                          const id = racePicks[key];
+                          if (!id) {
+                            setNotice('출주시킬 말을 고르세요.');
+                            return;
+                          }
+                          const result = game.declarePlayerHorse(race.meetingId, race.raceId, id);
+                          setNotice(result.ok ? '출주를 접수했습니다.' : declareErrorKo(result.error));
+                        }}
+                        onWithdraw={(id) => {
+                          const result = game.withdrawPlayerHorse(race.meetingId, race.raceId, id);
+                          setNotice(result.ok ? '출주를 취소했습니다.' : withdrawErrorKo(result.error));
+                        }}
                       />
                     );
                   })}
                 </ul>
-              </div>
-            ))
+              </details>
+            ))}
+          </section>
+          {betRace !== null && (
+            <BettingPanel
+              key={raceKey(betRace.meetingId, betRace.raceId)}
+              state={state}
+              game={game}
+              meetingId={betRace.meetingId}
+              raceId={betRace.raceId}
+              locked={locked}
+            />
           )}
-        </section>
-      </div>
-
-      <section className="panel">
-        <details>
-          <summary>앞으로 12주 레이스</summary>
-          <p className="hint">고정 일정은 확정입니다. 일반 개최 후보 중 일부가 매주 선정되며, 예상 종류의 비중은 실제 편성을 보장하지 않습니다.</p>
-          {calendar.map((week) => <details key={week.key}>
-            <summary>{week.dateLabel} · 고정 일정 {week.fixed.length}개</summary>
-            {week.fixed.length === 0 && <p className="hint">고정 일정 레이스 없음</p>}
-            <ul>{week.fixed.map((race) => <li key={race.id}>{race.label}</li>)}</ul>
-            <p className="hint">일반 개최: {week.countLabel || '없음'}</p>
-            <ul>{week.meetings.map((meeting) => <li key={meeting.id}>
-              {meeting.label}<p className="hint">예상: {meeting.expected}</p>
-            </li>)}</ul>
-          </details>)}
-        </details>
-      </section>
-
-      {betRace !== null && <BettingPanel
-        key={raceKey(betRace.meetingId, betRace.raceId)}
-        state={state} game={game} meetingId={betRace.meetingId} raceId={betRace.raceId} locked={locked}
-      />}
-
-      <section className="panel">
-        <h2>최근 결과</h2>
-        <p className="hint">내 말이 나온 레이스와 그룹 1 결과를 최근순으로 보입니다.</p>
-        {results.length === 0 ? (
-          <p className="hint">아직 결과가 없습니다.</p>
-        ) : (
-          <table className="season-results">
-            <thead>
-              <tr>
-                <th>날짜</th>
-                <th>레이스</th>
-                <th>우승마</th>
-                <th>내 말 착순</th>
-              </tr>
-            </thead>
-            <tbody>
-              {results.map((r) => (
-                <tr key={r.key}>
-                  <td>{r.dateLabel}</td>
-                  <td>{r.raceName}</td>
-                  <td>{r.winnerName}</td>
-                  <td>
-                    {r.playerRuns.length === 0
-                      ? NO_VALUE
-                      : r.playerRuns.map((p) => `${p.name} ${p.position}착`).join(', ')}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </section>
-
-      <section className="panel">
-        <h2>다시보기</h2>
-        <ReplayPanel state={state} />
-      </section>
-    </>
-  );
-}
-
-// ── 하위 컴포넌트 ───────────────────────────────────────────────
-
-function RacePlanPanel({ horse, game, locked, onNotice }: {
-  horse: PlayerHorseView;
-  game: GameApi;
-  locked: boolean;
-  onNotice: (notice: Notice) => void;
-}): JSX.Element {
-  const plans = racePlanRows(game.racePlan(horse.id));
-  const showResult = (result: ReturnType<GameApi['approvePlan']>, text: string): void => {
-    onNotice(result.ok ? { tone: 'ok', text } : { tone: 'error', text: racePlanErrorKo(result.error) });
-  };
-  return (
-    <div className="horse-card">
-      <h4>출주 계획</h4>
-      <button type="button" className="btn"
-        disabled={locked || horse.status !== 'in_training' || horse.trainerId === null}
-        onClick={() => showResult(game.proposeRacePlan(horse.id), '조교사가 출주 계획을 제안했습니다.')}>
-        {plans.length === 0 ? '조교사에게 계획 받기' : '조교사에게 다시 짜기'}
-      </button>
-      {plans.length === 0 && <p className="hint">조교사에게 출주 계획을 요청하세요.</p>}
-      <ul className="season-race-list">
-        {plans.map((plan) => (
-          <li key={plan.id}>
-            <p>{plan.dateLabel} · {plan.name} · <strong>{plan.statusLabel}</strong></p>
-            <p className="hint">{plan.note}</p>
-            {plan.canApprove && <button type="button" className="btn" disabled={locked}
-              onClick={() => showResult(game.approvePlan(horse.id, plan.id), '출주 계획을 승인했습니다.')}>
-              승인</button>}
-            {plan.canRemove && <button type="button" className="btn" disabled={locked}
-              onClick={() => showResult(game.removePlan(horse.id, plan.id), '출주 계획에서 뺐습니다.')}>
-              빼기</button>}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-interface PlayerHorseCardProps {
-  horse: PlayerHorseView;
-  /** 조교사 미배정일 때만 든다 */
-  choices: TrainerChoice[];
-  pick: TrainerId | undefined;
-  onPick: (trainerId: string) => void;
-  onAssign: () => void;
-  /** 검사 주문. 실패하면 사유를 돌려준다 */
-  onVetExam: () => InjuryError | null;
-  /** 치료 선택. 실패하면 사유를 돌려준다 */
-  onTreatment: (treatment: InjuryTreatment) => InjuryError | null;
-}
-
-function PlayerHorseCard({
-  horse, choices, pick, onPick, onAssign, onVetExam, onTreatment,
-}: PlayerHorseCardProps): JSX.Element {
-  /** 이 말 카드의 부상 처치 실패 사유(성공하면 지운다) */
-  const [injuryError, setInjuryError] = useState<InjuryError | null>(null);
-  return (
-    <article className="horse-card">
-      <div className="horse-card__head">
-        <h3 className="horse-card__name">{horse.name}</h3>
-        <span>
-          {horse.ageYears}세 · {horse.sexLabel}
-        </span>
-      </div>
-      <p className="horse-card__meta">
-        {horse.coatLabel} · {statusKo(horse.status)}
-      </p>
-      <p className="horse-card__line">조교사 {horse.trainerName ?? '미배정'}</p>
-      {horse.statusKey !== null && <p className="horse-card__hint">{trainerReportKo(horse.statusKey)}</p>}
-      {horse.personalityKeys.length > 0 && (
-        <ul className="comments">
-          {horse.personalityKeys.map((key) => (
-            <li key={key} className="comment comment--neutral">
-              {personalityClueKo(key)}
-            </li>
-          ))}
-        </ul>
-      )}
-      {horse.injury !== null && (
-        <InjuryBlock
-          injury={horse.injury}
-          error={injuryError}
-          onExam={() => setInjuryError(onVetExam())}
-          onTreat={(treatment) => setInjuryError(onTreatment(treatment))}
-        />
-      )}
-      {horse.historyKo.length > 0 && (
-        <details className="horse-card__history">
-          <summary>병력 (최근 {horse.historyKo.length}건)</summary>
-          <ul className="comments">
-            {horse.historyKo.map((line, index) => (
-              <li key={index} className="comment comment--neutral">
-                {line}
-              </li>
-            ))}
-          </ul>
-        </details>
-      )}
-      {horse.trainerName === null && (
-        <div className="season-entry">
-          <select className="horse-card__select" value={pick ?? ''} onChange={(e) => onPick(e.target.value)}>
-            <option value="">조교사 선택</option>
-            {choices.map((c) => (
-              <option key={c.id} value={c.id} disabled={c.full}>
-                {`${c.name} (${c.load}/${c.capacity}두)${c.full ? ' · 만원' : ''}`}
-              </option>
-            ))}
-          </select>
-          <button type="button" className="btn" onClick={onAssign}>
-            조교사 맡기기
-          </button>
-        </div>
-      )}
-    </article>
-  );
-}
-
-interface InjuryBlockProps {
-  injury: InjuryView;
-  /** 이 카드의 마지막 처치 실패 사유 */
-  error: InjuryError | null;
-  onExam: () => void;
-  onTreat: (treatment: InjuryTreatment) => void;
-}
-
-/** 부상 영역: 확진 전이면 단서와 검사 버튼, 확진되면 종류·기간과 치료 선택 버튼 */
-function InjuryBlock({ injury, error, onExam, onTreat }: InjuryBlockProps): JSX.Element {
-  return (
-    <div className="horse-card__injury">
-      {injury.kind === 'suspected' ? (
-        <>
-          <p className="horse-card__line">이상 증세: {injury.hintKo}</p>
-          <button type="button" className="btn" onClick={onExam}>
-            검사 받기 ({injury.examCostKo})
-          </button>
         </>
       ) : (
         <>
-          <p className="horse-card__line">
-            확진: {injury.nameKo} · 약 {injury.weeksOut}주
-          </p>
-          {injury.treatmentKo !== null && <p className="horse-card__hint">치료: {injury.treatmentKo}</p>}
-          {injury.options.length > 0 ? (
-            <>
-              <ul className="comments">
-                {injury.options.map((option) => (
-                  <li key={option.treatment}>
-                    <button type="button" className="btn" onClick={() => onTreat(option.treatment)}>
-                      {option.labelKo} ({option.costKo})
-                    </button>{' '}
-                    <span className="hint">{option.noteKo}</span>
-                  </li>
-                ))}
-              </ul>
-              {injury.treatmentKo === null && <p className="hint">고르지 않으면 휴양합니다.</p>}
-            </>
-          ) : (
-            injury.treatmentKo === null && <p className="hint">고를 수 있는 치료가 없어 휴양합니다.</p>
-          )}
+          <section className="panel">
+            <h2>최근 결과</h2>
+            {results.length === 0 ? (
+              <p className="hint">아직 결과가 없습니다.</p>
+            ) : (
+              <div className="table-scroll">
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>날짜</th>
+                      <th>레이스</th>
+                      <th>우승마</th>
+                      <th>내 말 착순</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {results.map((r) => (
+                      <tr key={r.key}>
+                        <td>{r.dateLabel}</td>
+                        <td>{r.raceName}</td>
+                        <td>
+                          <HorseLink name={r.winnerName} />
+                        </td>
+                        <td>
+                          {r.playerRuns.map((p) => (
+                            <span key={p.horseId}>
+                              <HorseLink horseId={p.horseId} name={p.name} /> {p.position}착{' '}
+                            </span>
+                          ))}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+          <section className="panel">
+            <h2>다시보기</h2>
+            <ReplayPanel state={state} />
+          </section>
         </>
       )}
-      {error !== null && (
-        <p className="notice notice--error" role="alert">
-          {injuryErrorKo(error)}
-        </p>
-      )}
-    </div>
+    </>
   );
 }
 
@@ -601,7 +188,16 @@ interface RaceRowProps {
   onWithdraw: (horseId: HorseId) => void;
 }
 
-function RaceRow({ race, eligible, pick, onPick, onDeclare, onWithdraw, locked, onBet }: RaceRowProps): JSX.Element {
+function RaceRow({
+  race,
+  eligible,
+  pick,
+  onPick,
+  onDeclare,
+  onWithdraw,
+  locked,
+  onBet,
+}: RaceRowProps): JSX.Element {
   const open = race.status === 'open';
   const declared = race.playerDeclared;
   return (
@@ -611,18 +207,22 @@ function RaceRow({ race, eligible, pick, onPick, onDeclare, onWithdraw, locked, 
         <span>{race.gradeLabel}</span>
         <span>{race.distanceLabel}</span>
         <span>{RACE_STATUS_KO[race.status]}</span>
-        {open && <button type="button" className="btn" disabled={locked} onClick={onBet}>베팅</button>}
+        {open && (
+          <button type="button" className="btn" disabled={locked} onClick={onBet}>
+            베팅
+          </button>
+        )}
       </div>
       <p className="hint">
         {race.conditionsLabel} · 총상금 {feeKo(race.totalPrize)} · 출주 {race.runners}/{race.maxRunners}두
       </p>
       {declared.map((d) => (
         <p key={d.horseId} className="notice notice--ok">
-          출주 접수: {d.name}
+          출주 접수: <HorseLink horseId={d.horseId} name={d.name} />
           {open && (
             <>
               {' '}
-              <button type="button" className="btn" onClick={() => onWithdraw(d.horseId)}>
+              <button type="button" className="btn" disabled={locked} onClick={() => onWithdraw(d.horseId)}>
                 취소
               </button>
             </>
@@ -639,7 +239,7 @@ function RaceRow({ race, eligible, pick, onPick, onDeclare, onWithdraw, locked, 
               </option>
             ))}
           </select>
-          <button type="button" className="btn" onClick={onDeclare}>
+          <button type="button" className="btn" disabled={locked} onClick={onDeclare}>
             출주
           </button>
         </div>

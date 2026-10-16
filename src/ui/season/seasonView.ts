@@ -140,7 +140,7 @@ function treatmentOptionsOf(injury: Injury): InjuryTreatmentOptionView[] {
 }
 
 /** 부상 상태 뷰. 확진 전이면 단서만, 확진되면 종류·기간·치료 선택을 준다 */
-function injuryViewOf(injury: Injury): InjuryView {
+export function injuryViewOf(injury: Injury): InjuryView {
   if (injury.diagnosed === false) {
     return {
       kind: 'suspected',
