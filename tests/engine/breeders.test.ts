@@ -60,10 +60,11 @@ const BOOT_DATA: BootstrapData = {
  * 2026-10-15 재고정: 5대 혈통 15회차(조상 13두·Cadeaux Genereux 계통 정정·어휘 Cormorant 제거)로 바뀜.
  * 2026-10-16 재고정: M4-ST2 지급마 가상 모마 3두 추가(지급마 damId·familyId 연결)로 바뀜. 지급마 모마를 빼고 연결을 지우면 이전 값과 같다(확인 완료).
  * 2026-10-16 재고정: 5대 혈통 16회차(조상 16두·Surumu 계열 계통·Balidar 출생국 정정)로 바뀜.
+ * 2026-10-16 재고정: 5대 혈통 17회차(조상 31두·Sea-Bird 계열 계통 정정·어휘 Realm 제거)로 바뀜.
  */
 const PRE_CHANGE_PROJECTION_SHA: Record<number, string> = {
-  20261011: '81babce6adb1d7dabeefea7942f2f027693b08aa22d07b912f2ef35ba79f1966',
-  7: '8195ccad92b3516b6452c67f89cbd245f2b2b0b026b5c3517cb60d6d23ad40f7',
+  20261011: 'e4a130a3524a148cbe62e53d9e886fd5cb69fc34c60cc2e489c2a1fb75822e02',
+  7: 'df4bbcf31ced58114a1e421b834ad8ed509ecc2c42fee2f104fa072045090978',
 };
 
 function boot(seed: number): GameState {

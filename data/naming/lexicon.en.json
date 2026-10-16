@@ -820,7 +820,6 @@
     "Pinnacle",
     "Apex",
     "Rank",
-    "Realm",
     "Kingdom",
     "Empire",
     "Dynasty",
@@ -3014,12 +3013,11 @@
       "Heritage"
     ],
     "Empire": [
-      "Realm",
       "Kingdom",
-      "Throne"
+      "Throne",
+      "Province"
     ],
     "Kingdom": [
-      "Realm",
       "Domain",
       "Crown",
       "Sovereign"
