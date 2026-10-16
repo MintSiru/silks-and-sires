@@ -349,3 +349,4 @@
 - 2026-10-16 5대 혈통 21회차 반영(95칸, 새 종마 32두 — Kronzeuge·Tropique FR bay, Anfield IE bay 등). My Babu FR·Bold Ruler brown 은 데이터 값 유지(표와 다름, 사용자 확인 대기). Hoist the Flag 표기 정리. 고정 해시 재고정.
 - 2026-10-16 사용자 결정: 경주마 이름은 '무명 → 2세 조교 전 등록'(안 지으면 자동 등록), 목장 이름은 새 게임 + 목장 화면·구매/이전 때 지정. 여러 나라 목장 동시 소유(최대 3, 나라 달리)는 호주·미국 등 나라 추가 때로 보류. 타입: Horse.nameRegistered?: false, GameEvent 'horse_named'. 명세 M4-E3.
 - 2026-10-16 사용자 결정: 무명 표기는 '어미명 + 출생 연도 뒤 두 자리'(예: Silver Tide 27).
+- 2026-10-16 5대 혈통 22회차 반영(확인된 43칸, 새 종마 11두 — Rock of Gibraltar·Rheingold 포함). 미확인 칸은 추정하지 않음(사용자 지침). Never Bend brown 유지(표 bay). Mariache 는 생년 없어 보류.

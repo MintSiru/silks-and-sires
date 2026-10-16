@@ -25,7 +25,7 @@ const BOOT_DATA: BootstrapData = {
 // 2026-10-15 재고정: 5대 혈통 15회차 데이터·어휘 정리(종마 데이터가 바뀌면 AI 말도 바뀐다 — ST1 적용 전후 동일은 ST1 커밋에서 확인)
 // 2026-10-16 재고정: M4-ST2 지급마 가상 모마 3두가 소유 없는 말(ownerId null)로 추가돼 이 필터에 들어간다. 기존 AI 말 개별 해시는 전부 불변 확인.
 // 2026-10-16 재고정: 5대 혈통 16·17회차 데이터·어휘 정리
-const AI_WORLD_HASH_AT_M4_ST1 = 'b0d14eb9f72bc9537fe142aeb8fc9fb36d886fd10f9aa338e7b207144a3c84f1';
+const AI_WORLD_HASH_AT_M4_ST1 = '50e3cdeb7dced3de569d52564a47c1abacc23e85ba004146b661701edd3243a3';
 
 function boot(seed: number): GameState {
   return bootstrapGame({ seed, playerName: 'Test Owner', silks: { ...SILKS } }, BOOT_DATA);
