@@ -1,3 +1,4 @@
+import type { StudRole } from './bloodline';
 import type { BreederId, CountryCode, HorseId, Money, OwnerId, SireLineId, TrainerId } from './common';
 import type { GameDate } from './time';
 
@@ -155,6 +156,8 @@ export interface Horse {
    * 없거나 undefined = 등록된 이름(기존 말·AI 말 전부 — 저장 마이그레이션 불필요).
    */
   nameRegistered?: false;
+  /** NH 스토어 세일로 팔려 평지에서 빠진 해(M4-F1). 있으면 status 'retired' */
+  nhSoldYear?: number;
   sex: Sex;
   gelded: boolean;
   /** 나이 = 현재 연도 - birthYear (1월 1일 일괄 가령) */
@@ -307,6 +310,10 @@ export interface Stallion {
    * 없거나 null 이면 임대 중 아님
    */
   leasedAwayUntil?: number | null;
+  /** 종마 역할(M4-F1): 평지 / 평지·NH 겸용 / NH. 없으면 'flat'. 실명 종마는 데이터 studRole 에서 */
+  studRole?: StudRole;
+  /** NH 평판 0~100(M4-F1): NH 스토어 세일로 팔린 자마 값으로 해마다 갱신. NH·겸용 종마만 의미 */
+  nhReputation?: number;
   /**
    * 시즌별 관측 수태 기록(M4-D5, 최근 기록이 끝, 최대 config 개수). 공개 수태율·저수태 은퇴 판정에 쓴다.
    * 없으면 기록 없음(옛 저장본·첫 시즌 전)

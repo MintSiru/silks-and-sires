@@ -45,9 +45,9 @@ it('고정 시드 2년 진행은 기존 공용 난수·AI 말·레이스 결과�
   }
   // M4-E3 적용 전 HEAD(22회차 혈통 반영 후)의 코드로 같은 입력을 104주 진행해 측정한 기준값. 이후 혈통 데이터 보완(22회차 추가분)으로 AI 말 해시만 재고정.
   const hash = (value: unknown) => createHash('sha256').update(JSON.stringify(value)).digest('hex');
-  expect(hash(state.rng)).toBe('98af3cb7924091fd8811c4bb8ef0a3c317ee15b5ba400b58b7894653c5953e6b');
-  expect(hash(Object.values(state.horses).filter(h => h.ownerId !== state.playerOwnerId))).toBe('fae35b90968794bec53beee0e3be19136e76ea02600652ac3653fab527173f52');
-  expect(hash(state.raceResults)).toBe('07bd8fc924abbc90b92346685065dce863fea26025d0cd3a0043a6c001d821ea');
+  expect(hash(state.rng)).toBe('efcad88da42a2a7951a76f201b22ac9ac19ebb7cc91f2c58af2a8a3a8d1be6a6');
+  expect(hash(Object.values(state.horses).filter(h => h.ownerId !== state.playerOwnerId))).toBe('e7cc13264e00cc2b6bf68abbe8e0f9f62af6876668fc1d1f6056e97bd5632676');
+  expect(hash(state.raceResults)).toBe('ed07138abcff41ddb9da5bf139c6017ace2a6c7f7ad08e319de838fb583598c8');
   expect(births.length).toBeGreaterThan(0);
 }, 300_000);
 

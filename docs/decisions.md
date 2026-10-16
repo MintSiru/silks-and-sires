@@ -355,3 +355,5 @@
 - 2026-10-16 M4-E3 승인(Codex): 플레이어 생산마 무명(nameRegistered false, 표기 '어미명 + 연도 두 자리') → 이름 짓기 패널(후보 8·다른 후보·직접 입력, 등록 규칙 검증), 2세 조교 입사·3세 연초 자동 등록, 미등록 출주 거절('unnamed'). 목장 이름: 새 게임 farmName, renameFarm, purchaseFarm(name). Opus 수정: 무명 표기를 사용자 결정 형식으로, 기준 해시를 22회차 반영 HEAD 로 다시 측정(AI 말·공용 rng·레이스 결과 불변 확인).
 - 2026-10-16 5대 혈통 22회차 추가분(32칸, 새 종마 14두 — Mariache 1970·AR·chestnut 등). 출생국 미확인 9칸(Sammy Davis·Los Santos·Athenagoras·Speak John·Ashkalani·Belfort·Cutlass·Sodium·Long Row) 대기. 고정 해시 재고정(horseNaming AI 말 해시 포함).
 - 2026-10-16 5대 혈통 23회차 앞부분(24칸, 새 종마 6두 — Vilmorin·Chaparral·Clantime·Beldale Flutter·Raffingola·Belfort 1977 FR grey). 출생국 미확인 11칸 대기. 고정 해시 재고정.
+- 2026-10-16 5대 혈통 23회차 반영(누락 출생국 11두 + 23회차 표 중 확인된 칸, 새 종마 22두). Botticelli 는 역사 인물 목록에서 제거(같은 이름 실존 종마). Crooner 의 부(Sammy Davis / Whistler 상충)·Atlas·Rubaiyat 3~4대 등 미확인 칸은 보류. Amerigo(GB·chestnut)·Wauthi(IE) 데이터 값 유지(표와 다름). 고정 해시·이름 지문 재고정.
+- 2026-10-16 M4 마무리 착수(사용자 요청): F1 NH 시장 타입 — Stallion.studRole·nhReputation, YearEndHorseDecision.studRole, Horse.nhSoldYear, GameEvent 'nh_store_sold', LedgerCategory 'nh_store_sale'. 명세 M4-F1(Codex). G1 30년 검증은 F1 뒤.

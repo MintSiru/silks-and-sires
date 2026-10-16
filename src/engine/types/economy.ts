@@ -48,6 +48,8 @@ export type LedgerCategory =
   | 'farm_purchase'
   /** 목장 시설 공사·유지(M4-E) */
   | 'facility'
+  /** NH 스토어 세일 판매 대금(M4-F1) */
+  | 'nh_store_sale'
   /** 빚 이자(캐주얼 모드) */
   | 'interest'
   | 'other';

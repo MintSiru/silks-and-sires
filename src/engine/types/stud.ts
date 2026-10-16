@@ -6,6 +6,7 @@
  * 설계: docs/m4-stud-design.md
  */
 
+import type { StudRole } from './bloodline';
 import type { BreederId, HorseId, Money } from './common';
 
 /**
@@ -22,6 +23,8 @@ export type YearEndChoice = 'continue' | 'geld' | 'stud' | 'broodmare' | 'retire
 export interface YearEndHorseDecision {
   horseId: HorseId;
   choice: YearEndChoice;
+  /** stud 일 때만: 종마 역할(M4-F1, 없으면 'flat') */
+  studRole?: StudRole;
   /** sell_domestic 일 때만: 매 시즌 남겨 둘 무료 교배권 수(0~2, 없으면 0) */
   nominations?: number;
 }

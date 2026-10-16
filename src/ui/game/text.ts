@@ -304,6 +304,7 @@ const LEDGER_CATEGORY_KO: Record<LedgerCategory, string> = {
   vet_fee: '수의 비용',
   farm_purchase: '목장 구매',
   facility: '목장 시설',
+  nh_store_sale: 'NH 스토어 세일',
   interest: '빚 이자',
   other: '기타',
 };
@@ -415,6 +416,8 @@ export function eventKo(e: GameEvent, nameOf: (id: HorseId) => string): string {
       return `${formatDateKo(e.date)} · 이상 증세: ${nameOf(e.horseId)} — ${INJURY_REGION_HINT_KO[e.region]}`;
     case 'injury_diagnosed':
       return `${formatDateKo(e.date)} · 확진: ${nameOf(e.horseId)} (${injuryKo(e.kind)}, 약 ${e.weeksOut}주)`;
+    case 'nh_store_sold':
+      return `${formatDateKo(e.date)} · NH 스토어 세일: ${nameOf(e.horseId)} (${feeKo(e.price)})`;
     case 'horse_named':
       return `${formatDateKo(e.date)} · 이름 등록: ${e.name}${e.auto ? ' (자동 등록)' : ''}`;
     case 'farm_purchased':
