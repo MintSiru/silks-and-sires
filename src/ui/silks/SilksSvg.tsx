@@ -4,24 +4,38 @@ import type { SilksDesign } from '../../engine/types';
 
 // 도안 좌표(98 × 71, 사용자 참고 SVG 의 구성 2026-10-16 — 경로는 새로 그림): 홈 파인 목깃의 몸통, 곡선 진동 둘레로 이어진 소매,
 // 오른쪽에 위에서 본 모자(둥근 크라운 + 아래 챙). 무늬는 각 부분의 box(x, y, w, h)에 100 × 100 좌표를 늘려 그린다.
-const CAP_CROWN = { cx: 84, cy: 19, r: 9.5 } as const;
-const CAP_PEAK_PATH = 'M74.71 21 A9.5 9.5 0 0 0 93.29 21 A9.6 16 0 0 1 74.71 21 Z';
+const CAP_CROWN = { cx: 84, cy: 17.5, r: 10.5 } as const;
+/** 챙: 크라운 뒤에 오른쪽 아래로 비켜 놓은 같은 크기의 원(보이는 부분이 초승달 챙) */
+const CAP_PEAK = { dx: 2.6, dy: 4.6 } as const;
+const CAP_PEAK_PATH = circlePath(CAP_CROWN.cx + CAP_PEAK.dx, CAP_CROWN.cy + CAP_PEAK.dy, CAP_CROWN.r);
+function circlePath(cx: number, cy: number, r: number): string {
+  return `M${cx - r} ${cy} A${r} ${r} 0 1 0 ${cx + r} ${cy} A${r} ${r} 0 1 0 ${cx - r} ${cy} Z`;
+}
 const GEOMETRY = {
   viewBox: '0 0 98 71', width: 98, height: 71,
   // poly: 점·별 무늬 배치용 근사 다각형(곡선을 직선으로 줄인 것)
-  body: { name: 'body', axis: null, poly: [[13, 11], [19.5, 30], [19.5, 70], [60, 70], [60, 30], [66.5, 11], [49.5, 4.5], [30, 4.5]], path: 'M13 11 C17.5 14 19.5 24 19.5 30 L19.5 70 L60 70 L60 30 C60 24 62 14 66.5 11 L49.5 4.5 L49.5 0.5 '
+  body: { name: 'body', frame: null, axis: null, poly: [[13, 11], [19.5, 30], [19.5, 70], [60, 70], [60, 30], [66.5, 11], [49.5, 4.5], [30, 4.5]], path: 'M13 11 C17.5 14 19.5 24 19.5 30 L19.5 70 L60 70 L60 30 C60 24 62 14 66.5 11 L49.5 4.5 L49.5 0.5 '
     + 'C44.5 0.5 40.5 2.5 39.75 6.5 C39 2.5 35 0.5 30 0.5 L30 4.5 Z', box: [13, 0.5, 53.5, 69.5] },
-  // axis: 소매 가운데 선(어깨 → 소맷부리). 소매의 점·별은 이 선을 따라 고르게 놓는다.
-  left: { name: 'left', axis: [[14.1, 21], [7.5, 64]], poly: [[13, 11], [17.5, 22], [19.4, 35.8], [12.6, 69.6], [0.6, 67.6]], path: 'M13 11 C16.5 12.5 20 24 19.4 35.8 C18.5 42 14 66 12.6 69.6 L0.6 67.6 Z', box: [0.6, 11, 19.4, 58.6] },
-  right: { name: 'right', axis: [[65.4, 21], [72, 64]], poly: [[66.5, 11], [62, 22], [60.1, 35.8], [66.9, 69.6], [78.9, 67.6]], path: 'M66.5 11 C63 12.5 59.5 24 60.1 35.8 C61 42 65.5 66 66.9 69.6 L78.9 67.6 Z', box: [59.5, 11, 19.4, 58.6] },
-  cap: { name: 'cap', axis: null, poly: null, path: `M${CAP_CROWN.cx - CAP_CROWN.r} ${CAP_CROWN.cy} A${CAP_CROWN.r} ${CAP_CROWN.r} 0 1 0 ${CAP_CROWN.cx + CAP_CROWN.r} ${CAP_CROWN.cy} `
+  // axis: 소매 가운데 선(어깨 → 소맷부리). 소매의 점은 이 선을 따라 놓는다.
+  // frame: 소매 무늬 좌표(100 × 100)를 소매 방향으로 기울여 붙이는 틀 — 위 가운데(x, y)·기울기(도)·폭·길이.
+  //   띠·팔띠·커프스가 소매에 수직으로 둘러진다(사용자 참고 SVG).
+  left: { name: 'left', frame: { x: 16.8, y: 10, angle: 9.9, w: 26, l: 61 }, axis: [[14.2, 24], [7, 66]], poly: [[13, 11], [17.5, 22], [19.4, 35.8], [12.6, 69.6], [0.6, 67.6]], path: 'M13 11 C16.5 12.5 20 24 19.4 35.8 C18.5 42 14 66 12.6 69.6 L0.6 67.6 Z', box: [0.6, 11, 19.4, 58.6] },
+  right: { name: 'right', frame: { x: 62.7, y: 10, angle: -9.9, w: 26, l: 61 }, axis: [[65.3, 24], [72.5, 66]], poly: [[66.5, 11], [62, 22], [60.1, 35.8], [66.9, 69.6], [78.9, 67.6]], path: 'M66.5 11 C63 12.5 59.5 24 60.1 35.8 C61 42 65.5 66 66.9 69.6 L78.9 67.6 Z', box: [59.5, 11, 19.4, 58.6] },
+  cap: { name: 'cap', frame: null, axis: null, poly: null, path: `M${CAP_CROWN.cx - CAP_CROWN.r} ${CAP_CROWN.cy} A${CAP_CROWN.r} ${CAP_CROWN.r} 0 1 0 ${CAP_CROWN.cx + CAP_CROWN.r} ${CAP_CROWN.cy} `
     + `A${CAP_CROWN.r} ${CAP_CROWN.r} 0 1 0 ${CAP_CROWN.cx - CAP_CROWN.r} ${CAP_CROWN.cy} Z`,
     box: [CAP_CROWN.cx - CAP_CROWN.r, CAP_CROWN.cy - CAP_CROWN.r, 2 * CAP_CROWN.r, 2 * CAP_CROWN.r] },
   outline: '#231f20', stroke: 1, borderStroke: 4, band: 14, cell: 20,
   star: '0,-18 5,-6 18,-6 8,3 12,16 0,8 -12,16 -8,3 -18,-6 -5,-6',
 } as const;
 /** 모자 크라운의 별 여러 개: 가운데 1 + 대각 4(잘리지 않게) */
-const CAP_STARS = { size: 2.3, points: [[84, 19], [79.6, 14.6], [88.4, 14.6], [79.6, 23.4], [88.4, 23.4]] } as const;
+const CAP_STARS = { size: 2.2, points: [[CAP_CROWN.cx, CAP_CROWN.cy], ...[0, 60, 120, 180, 240, 300].map((deg) =>
+  [CAP_CROWN.cx + 6 * Math.cos((deg * Math.PI) / 180), CAP_CROWN.cy + 6 * Math.sin((deg * Math.PI) / 180)] as const)] } as const;
+/** 모자 점: 큰 점 4개(참고 SVG), 크라운 중심에서 대각으로 */
+const CAP_SPOTS = { size: 2.6, points: [20, 110, 200, 290].map((deg) =>
+  [CAP_CROWN.cx + 5.2 * Math.cos((deg * Math.PI) / 180), CAP_CROWN.cy + 5.2 * Math.sin((deg * Math.PI) / 180)] as const) } as const;
+/** 소매 별: 소매 가운데 선 위 3개(참고 SVG 처럼 크게), 오른쪽은 좌우 대칭 */
+const SLEEVE_STARS = { size: 3.8, left: [[13.6, 32], [10.9, 46], [8.3, 60]] } as const;
+const MIRROR_X = 79.5;
 /**
  * 점·별처럼 모양이 있는 무늬는 box 로 늘리면 찌그러지고 가장자리에서 반쯤 잘리므로, 도안 좌표에서
  * 부분 가운데를 기준으로 엇갈린 격자를 깔고 모양 전체가 부분 안에 드는 자리만 쓴다(spacing·크기는 도안 단위).
@@ -38,13 +52,13 @@ const SLEEVE_MOTIFS = {
   stars: { spacing: 10, size: 3, side: 0 },
 } as const;
 /** 몸통 별 하나: 도안 좌표 중심과 반지름 */
-const BODY_STAR = { x: 39.75, y: 36, size: 12 } as const;
+const BODY_STAR = { x: 39.75, y: 30, size: 16 } as const;
 /**
  * 몸통에 손으로 정한 배치(사용자 피드백 2026-10-16): 큰 점 = 2열 × 3행 6개(실제 승부복 도안식),
  * 별 여러 개 = 3·2·3·2 엇갈림 10개. 좌표는 도안 단위, size 는 반지름.
  */
 const BODY_LAYOUTS = {
-  large_spots: { size: 6.2, points: [[30.5, 22], [49, 22], [30.5, 40], [49, 40], [30.5, 58], [49, 58]] },
+  large_spots: { size: 7.6, points: [[30.2, 21.5], [49.3, 21.5], [30.2, 40], [49.3, 40], [30.2, 58.5], [49.3, 58.5]] },
   stars: { size: 4.6, points: [[28.5, 19], [39.75, 19], [51, 19], [34, 32], [45.5, 32],
     [28.5, 45], [39.75, 45], [51, 45], [34, 58], [45.5, 58]] },
 } as const;
@@ -155,9 +169,11 @@ function patternShape(pattern: string): JSX.Element {
     case 'diamonds': return tiles('diamonds', 25);
     case 'triple_diamond': return <>{[22, 50, 78].map((y) => diamond(50, y, 15, String(y)))}</>;
     case 'chevron': return chevrons([30]);
-    case 'chevrons': return chevrons([0, 35, 70]);
+    case 'chevrons': return chevrons([12, 38, 64]);
     case 'epaulets': return <><polygon points="5,13 24,7 35,22 31,31 18,29" /><polygon points="95,13 76,7 65,22 69,31 82,29" /></>;
-    case 'halves_vertical': case 'halves': return <rect x="50" width="50" height="100" />;
+    case 'halves_vertical': return <rect x="50" width="50" height="100" />;
+    // 소매 반반: 소매 틀에서 어깨 쪽 위 절반(참고 SVG — 팔꿈치 위·아래로 나뉜다)
+    case 'halves': return <rect width="100" height="46" />;
     case 'halves_horizontal': return <rect y="50" width="100" height="50" />;
     case 'inverted_triangle': return <polygon points="0,0 100,0 50,95" />;
     case 'triangle': return <polygon points="50,5 100,100 0,100" />;
@@ -176,7 +192,7 @@ function patternShape(pattern: string): JSX.Element {
     case 'border': return <></>;
     case 'armlets': return <><rect y="32" width="100" height="12" /><rect y="59" width="100" height="12" /></>;
     case 'cuffs': return <rect y="78" width="100" height="22" />;
-    // 챙은 크라운 밖(아래 초승달)이라 SilksSvg 가 CAP_PEAK_PATH 로 직접 칠한다.
+    // 챙은 크라운 뒤 원(보이는 초승달)이라 SilksSvg 가 CAP_PEAK_PATH 로 직접 칠한다.
     case 'peak': return <></>;
     case 'pompon': return <circle cx="50" cy="50" r="14" />;
     default: throw new Error(`알 수 없는 승부복 무늬: ${pattern}`);
@@ -198,7 +214,10 @@ export default function SilksSvg({ design, size }: SilksSvgProps): JSX.Element {
     {parts.map(({ name, geometry, part }) => {
       const clip = `${id}-${name}`;
       const [bx, by, bw, bh] = geometry.box;
-      const boxTransform = `translate(${bx} ${by}) scale(${bw / 100} ${bh / 100})`;
+      const boxTransform = geometry.frame !== null
+        ? `translate(${geometry.frame.x} ${geometry.frame.y}) rotate(${geometry.frame.angle}) `
+          + `translate(${-geometry.frame.w / 2} 0) scale(${geometry.frame.w / 100} ${geometry.frame.l / 100})`
+        : `translate(${bx} ${by}) scale(${bw / 100} ${bh / 100})`;
       const isCap = name === 'cap';
       // 모자 챙: 바탕색 위에 'peak' 층 색(마지막 것)을 칠한다.
       const peakColour = isCap ? part.layers.filter((l) => l.pattern === 'peak').at(-1)?.colour ?? part.base : null;
@@ -212,13 +231,18 @@ export default function SilksSvg({ design, size }: SilksSvgProps): JSX.Element {
             data-pattern={layer.pattern} fill={layer.colour} color={layer.colour}>
             {layer.pattern === 'border'
               ? <path d={geometry.path} fill="none" stroke={layer.colour} strokeWidth={GEOMETRY.borderStroke} />
-              : geometry.axis !== null && (layer.pattern === 'spots' || layer.pattern === 'stars')
+              : geometry.axis !== null && layer.pattern === 'stars'
+                ? <>{SLEEVE_STARS.left.map(([x, y], i) => star(geometry.name === 'left' ? x : MIRROR_X - x, y,
+                    SLEEVE_STARS.size / STAR_RADIUS, String(i)))}</>
+              : geometry.axis !== null && layer.pattern === 'spots'
                 ? sleeveMotifs(layer.pattern, geometry.axis, geometry.poly!)
               : geometry.name === 'body' && layer.pattern in BODY_LAYOUTS
                 ? <>{BODY_LAYOUTS[layer.pattern as keyof typeof BODY_LAYOUTS].points.map(([x, y], i) =>
                     layer.pattern === 'stars'
                       ? star(x, y, BODY_LAYOUTS.stars.size / STAR_RADIUS, String(i))
                       : <circle key={i} cx={x} cy={y} r={BODY_LAYOUTS.large_spots.size} />)}</>
+              : geometry.name === 'cap' && layer.pattern === 'spots'
+                ? <>{CAP_SPOTS.points.map(([x, y], i) => <circle key={i} cx={x} cy={y} r={CAP_SPOTS.size} />)}</>
               : geometry.name === 'cap' && layer.pattern === 'stars'
                 ? <>{CAP_STARS.points.map(([x, y], i) => star(x, y, CAP_STARS.size / STAR_RADIUS, String(i)))}</>
               : geometry.poly !== null && layer.pattern in MOTIFS
