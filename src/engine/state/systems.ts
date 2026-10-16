@@ -1,3 +1,4 @@
+import { createMatingPlansSystem } from '../breeding/matingPlan';
 import { createBreedingSystem, type BreedingStaticData } from '../breeding/season';
 import { createContractsSystem } from '../economy/contracts';
 import { createCostsSystem } from '../economy/costs';
@@ -27,7 +28,7 @@ import { createPopulationSystem } from '../world/populationSystem';
 export type GameStaticData = BreedingStaticData & SeasonStaticData & RacingPopulationStaticData & SalesStaticData;
 
 /**
- * 게임 주 시스템 목록. 실행 순서: 달력 → 목장 매물(farm_listings) → 성장 → 교배 → 종마 예약·정산 → 종마 임대료(stud_leases) → 관측 수태율·저수태 은퇴(stud_fertility) → 고령 은퇴(stud_rotation) → 종마·번식 암말 사망(mortality) → 유산·제엽염·산통(breeding_health) → 종부료 연간 재산정(fee_review) → 연간 교체(population) → NH 스토어 세일(nh_store, 32주 — 그 주 레이스 전에 팔려 출주 신청이 빠진다) → 조교사 출주 계획 제안·자동 신청(race_plans — 이번 주 개최는 전주에 생성됨) → 시즌(season) → 세일 발표·정리(sales) → 내부거래 제안(private_trade) → 전속 계약 연초 갱신(contracts) → 목장 시설 완공·유지비(facilities, 시즌의 연말 정산 뒤라 새해 1주 유지비는 새해 장부) → 정기 비용(costs) → 자금 판정(solvency) → 관계·명성(relations).
+ * 게임 주 시스템 목록. 실행 순서: 달력 → 목장 매물(farm_listings) → 성장 → 교배 → 종마 예약·정산 → 교배 담당 제안·자동 예약(mating_plans, UX4) → 종마 임대료(stud_leases) → 관측 수태율·저수태 은퇴(stud_fertility) → 고령 은퇴(stud_rotation) → 종마·번식 암말 사망(mortality) → 유산·제엽염·산통(breeding_health) → 종부료 연간 재산정(fee_review) → 연간 교체(population) → NH 스토어 세일(nh_store, 32주 — 그 주 레이스 전에 팔려 출주 신청이 빠진다) → 조교사 출주 계획 제안·자동 신청(race_plans — 이번 주 개최는 전주에 생성됨) → 시즌(season) → 세일 발표·정리(sales) → 내부거래 제안(private_trade) → 전속 계약 연초 갱신(contracts) → 목장 시설 완공·유지비(facilities, 시즌의 연말 정산 뒤라 새해 1주 유지비는 새해 장부) → 정기 비용(costs) → 자금 판정(solvency) → 관계·명성(relations).
  * 시스템 객체는 내부 상태가 없으므로 매번 새 배열을 만들어도 결과는 같다.
  */
 export function createGameSystems(data: GameStaticData): WeeklySystem[] {
@@ -37,6 +38,7 @@ export function createGameSystems(data: GameStaticData): WeeklySystem[] {
     growthSystem,
     createBreedingSystem(data),
     createStudBooksSystem(),
+    createMatingPlansSystem(data),
     createStudLeaseSystem(),
     createStudFertilitySystem(),
     createStudRotationSystem(),

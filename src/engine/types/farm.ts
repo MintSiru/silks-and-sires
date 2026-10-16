@@ -26,7 +26,10 @@ export interface GameSettings {
    * 검토하지 않은 제안은 지나간다.
    */
   autoApproveRacePlans?: boolean;
-  /** 교배 제안 자동 승인(UX4). true 면 제안을 만들자마자 예약(종부료 선지급). 없으면 false */
+  /**
+   * 교배 제안 진행 방식(UX4). true: 제안을 만들자마자 예약(종부료 선지급) / 없음(기본, 사용자 결정 2026-10-16 '그대로 진행'):
+   * 시즌 해 MATING_AUTO_BOOK_WEEK 에 빼지 않은 제안을 예약 / false: 승인한 제안만 예약
+   */
   autoApproveMatings?: boolean;
   /** 자동 교배 한 두당 종부료 상한(€). null·없으면 교배 담당이 암말 수준으로 예산을 정한다 */
   matingFeeCap?: Money | null;

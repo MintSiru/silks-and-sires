@@ -1,3 +1,4 @@
+import { approveMating, approveAllMatings, changeMating, removeMating, replanMatings, setMatingFeeCap } from '../../engine/breeding/matingPlan';
 import { sellToNhStore } from '../../engine/sales/nhStore';
 import { FARM_NAME_ERROR_KO } from './text';
 import { upcomingRaces, type UpcomingRaceWeek } from '../../engine/season/lookahead';
@@ -64,6 +65,7 @@ import type {
   HomeCountry,
   HorseId,
   PlannedRace,
+  MatingProposal,
   InjuryTreatment,
   Money,
   RaceId,
@@ -94,6 +96,15 @@ export interface NewGameInput {
 }
 
 export interface GameApi {
+  matingProposals(): MatingProposal[];
+  proposeMatings(): ReturnType<typeof replanMatings>;
+  approveMating(mareId: HorseId): ReturnType<typeof approveMating>;
+  approveAllMatings(): ReturnType<typeof approveAllMatings>;
+  changeMating(mareId: HorseId, stallionId: HorseId): ReturnType<typeof changeMating>;
+  removeMating(mareId: HorseId): ReturnType<typeof removeMating>;
+  /** true: 제안 즉시 예약 / undefined: 기본(1월 2주에 빼지 않은 제안 예약) / false: 승인한 것만 */
+  setAutoApproveMatings(mode: boolean | undefined): void;
+  setMatingFeeCap(cap: Money | null): ReturnType<typeof setMatingFeeCap>;
   racePlan(horseId: HorseId): PlannedRace[];
   proposeRacePlan(horseId: HorseId): ReturnType<typeof replanHorse>;
   approvePlan(horseId: HorseId, planId: string): ReturnType<typeof approvePlan>;
@@ -443,6 +454,34 @@ export function useGame(): GameApi {
     return result;
   }, []);
 
+  const applyMatingResult = useCallback(<E extends string>(result: PlayerResult<E>): PlayerResult<E> => {
+    if (!result.ok) return result;
+    const next = appendEvents(result.state, result.events);
+    stateRef.current = next;
+    setState(next);
+    setLastEvents(result.events);
+    return { ...result, state: next };
+  }, []);
+  const matingProposals = useCallback((): MatingProposal[] => {
+    const current = requireState();
+    return structuredClone((current.stud.matingProposals ?? []).filter((p) => current.horses[p.mareId]?.ownerId === current.playerOwnerId));
+  }, [requireState]);
+  const proposeMatings = useCallback(() => applyMatingResult(replanMatings(requireState(), gameStaticData())), [requireState, applyMatingResult]);
+  const approveMatingWith = useCallback((mareId: HorseId) => applyMatingResult(approveMating(requireState(), mareId)), [requireState, applyMatingResult]);
+  const approveAllMatingsWith = useCallback(() => applyMatingResult(approveAllMatings(requireState())), [requireState, applyMatingResult]);
+  const changeMatingWith = useCallback((mareId: HorseId, stallionId: HorseId) => applyMatingResult(changeMating(requireState(), mareId, stallionId)), [requireState, applyMatingResult]);
+  const removeMatingWith = useCallback((mareId: HorseId) => applyMatingResult(removeMating(requireState(), mareId)), [requireState, applyMatingResult]);
+  const setMatingFeeCapWith = useCallback((cap: Money | null) => applyMatingResult(setMatingFeeCap(requireState(), cap)), [requireState, applyMatingResult]);
+  const setAutoApproveMatings = useCallback((mode: boolean | undefined): void => {
+    const current = requireState();
+    const settings = { ...current.settings };
+    if (mode === undefined) delete settings.autoApproveMatings;
+    else settings.autoApproveMatings = mode;
+    const next = { ...current, settings };
+    stateRef.current = next;
+    setState(next);
+  }, [requireState]);
+
   const racePlan = useCallback((horseId: HorseId): PlannedRace[] => {
     const current = requireState();
     if (current.horses[horseId]?.ownerId !== current.playerOwnerId) return [];
@@ -616,6 +655,14 @@ export function useGame(): GameApi {
   }, []);
 
   return {
+    matingProposals,
+    proposeMatings,
+    approveMating: approveMatingWith,
+    approveAllMatings: approveAllMatingsWith,
+    changeMating: changeMatingWith,
+    removeMating: removeMatingWith,
+    setMatingFeeCap: setMatingFeeCapWith,
+    setAutoApproveMatings,
     racePlan,
     proposeRacePlan: proposePlans,
     approvePlan: approveRacePlan,

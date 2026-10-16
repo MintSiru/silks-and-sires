@@ -1,0 +1,51 @@
+{
+  "seed": 20261011,
+  "difficulty": "normal",
+  "economyMode": "casual",
+  "weeks": 104,
+  "startDate": {
+    "year": 2026,
+    "week": 1
+  },
+  "endDate": {
+    "year": 2028,
+    "week": 1
+  },
+  "playerMares": 2,
+  "startFunds": 600000,
+  "endFunds": 538293,
+  "fundsChange": -61707,
+  "seasons": [
+    {
+      "season": 2026,
+      "proposals": 2,
+      "booked": 2,
+      "skipped": [],
+      "covers": 2,
+      "foals": 0,
+      "totalFee": 12000,
+      "averageFee": 6000
+    },
+    {
+      "season": 2027,
+      "proposals": 2,
+      "booked": 2,
+      "skipped": [],
+      "covers": 2,
+      "foals": 2,
+      "totalFee": 11500,
+      "averageFee": 5750
+    },
+    {
+      "season": 2028,
+      "proposals": 2,
+      "booked": 2,
+      "skipped": [],
+      "covers": 0,
+      "foals": 0,
+      "totalFee": 10500,
+      "averageFee": 5250
+    }
+  ],
+  "note": "2028은 2027년 44주 이후 선지급 예약만 포함. 자금 변화는 전체 게임 수입·비용 포함. 실제 교배는 conception 판정 건수."
+}

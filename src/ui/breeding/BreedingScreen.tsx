@@ -41,6 +41,7 @@ import {
   tradeErrorKo,
 } from './bookView';
 import PedigreeView from './PedigreeView';
+import MatingPlanPanel from './MatingPlanPanel';
 
 const NO_VALUE = '—';
 
@@ -266,7 +267,9 @@ function BreedingView({ state, game, locked }: BreedingViewProps): JSX.Element {
   return (
     <>
       {/* UX4 자동 교배 제안 표: 번식 화면의 첫 영역으로 삽입한다. */}
-      <div data-slot="breeding-proposals" />
+      <div data-slot="breeding-proposals">
+        <MatingPlanPanel state={state} game={game} locked={locked} />
+      </div>
       <h2>배합</h2>
       {notice !== null && (
         <p className={`notice notice--${notice.tone}`} role="status">

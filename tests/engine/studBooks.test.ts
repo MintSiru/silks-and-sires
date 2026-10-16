@@ -39,6 +39,8 @@ it('예약 창 경계·시즌 수요 결정성과 순수성을 지킨다', () =>
 it('티어별 마감률·마감 주와 이른 예약·늦은 예약을 검증한다', () => {
   let state = boot();
   state.date = { year: 2026, week: 44 };
+  // 플레이어 암말로 직접 예약을 검사하므로 교배 담당 자동 예약(UX4 기본)은 끈다.
+  state.settings.autoApproveMatings = false;
   const systems = createGameSystems(data);
   const closed = new Map<string, number>();
   const mare = Object.values(state.horses).find(h => h.ownerId === state.playerOwnerId && h.status === 'broodmare')!;
