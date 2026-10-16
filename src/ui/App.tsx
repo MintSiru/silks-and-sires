@@ -280,13 +280,13 @@ function AppContent() {
                 <label>
                   <input
                     type="checkbox"
-                    checked={state.settings.autoApproveRacePlans ?? false}
-                    onChange={(e) => game.setAutoApproveRacePlans(e.target.checked)}
+                    checked={state.settings.autoApproveRacePlans === false}
+                    onChange={(e) => game.setAutoApproveRacePlans(!e.target.checked)}
                   />{' '}
-                  새 출주 계획 자동 승인
+                  출주 계획은 승인해야 출주
                 </label>
                 <p className="hint">
-                  앞으로 생성되는 제안부터 적용됩니다. 현재 제안은 말 상세에서 검토하세요. ·{' '}
+                  끄면(기본) 조교사 제안을 빼지 않는 한 그대로 출주합니다. 켜면 승인한 계획만 출주합니다. ·{' '}
                   {economyModeKo(banner.mode)}
                 </p>
                 <button

@@ -237,7 +237,8 @@ describe('주간 자동 신청', () => {
     const state = structuredClone(base);
     const plan = proposeRacePlan(state, staticData, horseId)[0]!;
     state.date = addWeeks(plan.date, 1);
-    state.seasonState.racePlans = { [horseId]: [plan] };
+    state.seasonState.racePlans = { [horseId]: [{ ...plan, status: 'proposed' }] };
+    state.settings.autoApproveRacePlans = false;
     const skipped = systemRun(state);
     expect(skipped.state.seasonState.racePlans![horseId]![0]).toMatchObject({ status: 'skipped', note: '검토하지 않아 지나감' });
     for (const auto of [false, true]) {
@@ -254,6 +255,7 @@ describe('주간 자동 신청', () => {
   it('개최한 턴의 미승인 계획과 취소된 신청은 즉시 skipped 로 확정한다', () => {
     const { state, plan } = dueFixture();
     plan.status = 'proposed';
+    state.settings.autoApproveRacePlans = false;
     const systems = createGameSystems(staticData);
     systems.splice(systems.findIndex((s) => s.id === 'season'), 0, createRacePlansSystem(staticData));
     const expired = advanceWeek(state, systems);
@@ -293,11 +295,12 @@ describe('주간 자동 신청', () => {
     expect(restored.state.seasonState.racePlans).toEqual(state.seasonState.racePlans);
   }, 180_000);
 
-  it('승인 전 제안만 있으면 레이스 결과와 공용 RNG 가 시스템 없을 때와 같다', () => {
+  it('승인제에서 승인 전 제안만 있으면 레이스 결과와 공용 RNG 가 시스템 없을 때와 같다', () => {
     const withPlans = createGameSystems(staticData);
     const without = withPlans.filter((s) => s.id !== 'race_plans');
-    let a = base;
-    let b = base;
+    const manual: GameState = { ...base, settings: { ...base.settings, autoApproveRacePlans: false } };
+    let a = manual;
+    let b = manual;
     for (let i = 0; i < 4; i++) {
       a = advanceWeek(a, without).state;
       b = advanceWeek(b, withPlans).state;
@@ -309,4 +312,15 @@ describe('주간 자동 신청', () => {
     expect(plans.every((p) => p.status === 'proposed' || p.status === 'skipped')).toBe(true);
     expect(a.seasonState).not.toHaveProperty('racePlans');
   }, 120_000);
+});
+
+describe('기본 진행 방식(사용자 결정 2026-10-16: 그대로 진행)', () => {
+  it('설정이 없으면 검토하지 않은 제안도 그 주에 신청한다', () => {
+    const { state, plan } = dueFixture();
+    plan.status = 'proposed';
+    delete state.settings.autoApproveRacePlans;
+    const result = systemRun(state);
+    expect(result.state.seasonState.racePlans![horseId]!.find((p) => p.id === plan.id)!.status).toBe('declared');
+    expect(result.events.some((e) => e.type === 'race_plan_declared')).toBe(true);
+  });
 });

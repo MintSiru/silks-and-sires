@@ -625,7 +625,8 @@ describe('한 해 진행과 재현성', () => {
   it('12. 53주 진행: yearSummaries 1건, 플레이어 합계 = 장부 항목 합, prize 합계 = 플레이어 말 상금 합', () => {
     const ready = racerReadyState();
     const systems = createGameSystems(STATIC_GAME);
-    let state = ready.state;
+    // 상금 등식은 이 말 한 두 기준이다. 다른 플레이어 말이 조교사 계획으로 출주하지 않게 승인제로 둔다(UX1 기본 '그대로 진행').
+    let state: GameState = { ...ready.state, settings: { ...ready.state.settings, autoApproveRacePlans: false } };
     for (let i = 0; i < YEAR_WEEKS; i++) {
       state = declareNext(state, ready.horseId);
       state = advanceWeek(state, systems).state;

@@ -240,6 +240,11 @@ function skip(plan: PlannedRace, horseId: HorseId, reason: string, date: GameDat
   events.push({ type: 'race_plan_skipped', horseId, planId: plan.id, reason, date: { ...date } });
 }
 
+/** settings.autoApproveRacePlans 가 명시적으로 false 일 때만 승인한 계획만 신청한다. */
+function needsApproval(state: GameState): boolean {
+  return state.settings.autoApproveRacePlans === false;
+}
+
 /** 검토하지 않은 제안이 지나감 — 알림 없이 기록만 남긴다(무시한 제안마다 이벤트가 쌓이지 않게). */
 function expire(plan: PlannedRace): void {
   plan.status = 'skipped';
@@ -252,7 +257,7 @@ export function settleRacePlans(draft: GameState, date: GameDate): GameEvent[] {
   for (const [horseId, plans] of Object.entries(draft.seasonState.racePlans ?? {})) {
     if (draft.horses[horseId]?.ownerId !== draft.playerOwnerId) continue;
     for (const plan of plans) {
-      if (plan.status === 'proposed' && compareDates(plan.date, date) <= 0
+      if (plan.status === 'proposed' && needsApproval(draft) && compareDates(plan.date, date) <= 0
         && !draft.seasonState.meetings.some((m) => compareDates(m.date, plan.date) === 0)) {
         expire(plan);
         continue;
@@ -279,6 +284,7 @@ export function createRacePlansSystem(data: RaceCalendarData): WeeklySystem {
       const horse = draft.horses[horseId];
       if (horse === undefined || horse.ownerId !== draft.playerOwnerId || horse.status !== 'in_training') delete allPlans[horseId];
     }
+    const manual = needsApproval(draft);
     const planned = Object.values(draft.horses)
       .filter((h) => h.ownerId === draft.playerOwnerId && h.status === 'in_training')
       .map((h) => h.id).sort(compareId);
@@ -293,17 +299,19 @@ export function createRacePlansSystem(data: RaceCalendarData): WeeklySystem {
       }
       for (const plan of plans) {
         const late = weeksBetween(plan.date, ctx.date);
-        if (late > 0 && plan.status === 'proposed') {
+        if (late > 0 && plan.status === 'proposed' && manual) {
           expire(plan);
           continue;
         }
+        // 기본(사용자 결정 2026-10-16): 조교사 제안은 플레이어가 빼지 않는 한 그대로 진행한다.
+        const executable = plan.status === 'approved' || (plan.status === 'proposed' && !manual);
         // 조건 목표(자동 생성 레이스)는 그 주에 맞는 레이스가 없을 수 있어 몇 주 늦게까지 찾는다.
         const slack = plan.target !== null ? RACE_PLAN_TARGET_SLACK_WEEKS : 0;
-        if (late > slack && plan.status === 'approved') {
+        if (late > slack && executable) {
           skip(plan, horseId, slack > 0 ? `계획 주부터 ${slack}주 안에 맞는 레이스 없음` : '계획한 출주일이 지나감', ctx.date, events);
           continue;
         }
-        if (late < 0 || plan.status !== 'approved') continue;
+        if (late < 0 || !executable) continue;
         let reason: string | null = horse.condition.injury !== null ? '부상으로 출주할 수 없음'
           : horse.condition.fitness < MIN_FITNESS_TO_RUN ? '체력 부족으로 출주할 수 없음'
             : horse.condition.fatigue > MAX_FATIGUE_TO_RUN ? '피로가 높아 출주할 수 없음' : null;

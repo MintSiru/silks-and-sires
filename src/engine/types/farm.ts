@@ -20,7 +20,11 @@ export interface GameSettings {
   difficulty: Difficulty;
   /** 예후불량(경주 중 치명적 부상) 켜기. 기본 true. D9 이른 사망은 이 설정과 무관하게 항상 켬 */
   catastrophicInjuries: boolean;
-  /** 조교사 출주 계획 자동 승인(UX1). true 면 제안이 바로 approved — 세세한 관리를 덜 하고 싶을 때. 없으면 false */
+  /**
+   * 조교사 출주 계획 진행 방식(UX1, 사용자 결정 2026-10-16 '그대로 진행'). 없거나 true 면 제안(proposed)도
+   * 플레이어가 빼지 않는 한 그 주에 신청한다(true 는 새 제안을 approved 로 만든다). false 면 승인한 계획만 신청하고
+   * 검토하지 않은 제안은 지나간다.
+   */
   autoApproveRacePlans?: boolean;
   /** 교배 제안 자동 승인(UX4). true 면 제안을 만들자마자 예약(종부료 선지급). 없으면 false */
   autoApproveMatings?: boolean;
