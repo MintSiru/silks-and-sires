@@ -22,7 +22,7 @@ const BOOT_DATA: BootstrapData = {
   stallionNames: data.getStallionNames(), stallionRecords: data.getStallionRecords(),
 };
 // 구현 전 HEAD 를 /tmp 에 별도로 풀어 같은 옵션·정적 데이터로 측정한 전체 JSON 해시. 2026-10-16 18~22회차 혈통·털색 정리로 재고정.
-const LEGACY_HASH = '64e401cda10161a7382178d6d70162c8e6976aca910cd925cc424cebc2bc2732';
+const LEGACY_HASH = 'f12554eda6b847b09e61d09c6a39965533884a61eb3a82714a2e128aab5576be';
 const PACKAGES = [
   { difficulty: 'easy', funds: 1_500_000, mares: 3, breeder: 2, owner: 3, level: 2, size: 'medium' },
   { difficulty: 'normal', funds: 600_000, mares: 2, breeder: 1, owner: 2, level: 1, size: 'medium' },
