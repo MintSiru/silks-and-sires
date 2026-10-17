@@ -142,6 +142,7 @@ function SalesView({ game, state, locked }: SalesViewProps): JSX.Element {
           >
             <span style={{ width: `${progress.percent}%` }} />
           </span>
+          <span className="sales-tier__pct">{progress.percent}%</span>
           <span className="sales-tier__spend">최근 2년 구매 {progress.spendKo}</span>
         </div>
       </div>
@@ -724,24 +725,23 @@ function ConsignItem({ row, game, locked }: ConsignItemProps): JSX.Element {
         />
       </td>
       <td>
-        <button
-          type="button"
-          className="btn"
-          disabled={locked || consigned || chosen === undefined}
-          onClick={handleConsign}
-        >
-          출품
-        </button>{' '}
-        <button
-          type="button"
-          className="btn"
-          disabled={cancelReason !== null}
-          title={cancelReason ?? undefined}
-          onClick={handleWithdraw}
-        >
-          출품 취소
-        </button>
-        {cancelReason !== null && <span className="sales-sub">{cancelReason}</span>}
+        {/* 미출품 행은 [출품] 만, 출품된 행은 [출품 취소] 만 보인다. 카탈로그 등록 뒤에는 사유 문구만 보인다. */}
+        {!consigned && (
+          <button
+            type="button"
+            className="btn"
+            disabled={locked || chosen === undefined}
+            onClick={handleConsign}
+          >
+            출품
+          </button>
+        )}
+        {consigned && cancelReason === null && (
+          <button type="button" className="btn" onClick={handleWithdraw}>
+            출품 취소
+          </button>
+        )}
+        {consigned && cancelReason !== null && <span className="sales-sub">{cancelReason}</span>}
       </td>
     </tr>
   );

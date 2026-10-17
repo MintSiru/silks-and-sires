@@ -426,3 +426,4 @@
 - 2026-10-17 M6-S4 승인(Haiku): fileTransfer 내보내기 .ssg(gzip JSON, 기본)·.json, 가져오기는 앞 바이트로 gzip/JSON 판별 → deserializeGame, 오류 한국어 4종(형식·버전·마이그레이션·검증 첫 3개), 대체 전 확인. useGame importSaveFile·applyImportedGame. 가져온 뒤 자동 저장 칸에도 바로 저장(Opus — 새로고침 시 예전 자동 저장으로 돌아가지 않게).
 - 2026-10-17 M6-S2 승인(Haiku): tests/verify/saveSize.test.ts(SAVE_SIZE_OUT 있을 때만), docs/reports/M6-S-size.md — 30년차 원본 29.0MB → gzip 5.85MB(20.2%, 목표 25% 이하 — 저장본 전체 기준) 5·10·20년차도 20~21%, 왕복 복원 동일. 관찰: horses 가 56%(16.3MB)·awardsHistory 연 65KB 무상한 — 압축 뒤 5.85MB 라 IndexedDB 에 충분, 보존 정책(옛 말 정리·시상 기록 상한) 변경은 게임 규칙이라 보류(필요 시 M6-B 에서 사용자에게 묻기).
 - 2026-10-17 M6-X 착수(아르곤 5차 검토): X1 홈 첫 시즌 안내 넘침(풀이 팝오버) / X2 설정 모달 높이 / X3 5대 혈통 단일 격자·Term / X4 연대기 행 배수·세일 미출품 버튼·후원 막대 / X5 OR 괄호·종부료 Term·전적 배지·기록 배지 정렬.
+- 2026-10-17 M6-X4 승인(Haiku): 연대기 행 높이 --legacy-row-h 44px 고정·목록 max-height 9행(연도 머리줄은 행 배수 아님 — 촬영본에서 잘린 글자 없어 그대로), 세일 미출품 행은 [출품]만·출품됨만 [출품 취소]·카탈로그 등록 뒤 사유만, 후원 막대 트랙 --surface-raised 채움 + 진행률 %.

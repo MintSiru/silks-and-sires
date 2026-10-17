@@ -350,11 +350,19 @@
   word-break: keep-all;
 }
 
-/* 후원 진행 막대: 트랙을 바탕(--bg)보다 밝은 테두리(--input-border)로 또렷하게. 높이 8px. */
+/* 후원 진행 막대: 트랙을 --surface-raised 로 채우고 테두리는 --input-border. 높이 8px, 양 끝 둥글게. */
 .sales-screen .sales-tier .sales-tier__bar {
   height: 8px;
-  background: var(--bg);
+  background: var(--surface-raised);
   border-color: var(--input-border);
+}
+
+/* 막대 오른쪽의 진행률 보조 숫자 */
+.sales-screen .sales-tier__pct {
+  color: var(--text-muted);
+  font-size: 12px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 /* 로트 상세 대화상자는 app.css 의 .sales-detail 위치를 그대로 쓴다. 이 칸 안에서는 스크롤하지 않는다. */

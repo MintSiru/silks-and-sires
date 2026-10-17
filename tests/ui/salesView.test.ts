@@ -362,10 +362,10 @@ describe('내 말 출품 칸: 상태 문구·취소 사유 (M6-W4)', () => {
     ...over,
   });
 
-  it('위탁하지 않은 말은 미출품이고, 취소 사유는 아직 출품하지 않음이다', () => {
+  it('위탁하지 않은 말은 미출품이고, 취소 대상이 아니라 사유도 없다(화면은 출품 버튼만)', () => {
     const r = row();
     expect(consignStatusKo(r)).toBe('미출품');
-    expect(consignCancelReasonKo(r)).toBe('아직 출품하지 않음');
+    expect(consignCancelReasonKo(r)).toBeNull();
   });
 
   it('위탁 중인 말은 출품됨(세일명)이고, 취소할 수 있으면 사유가 없다', () => {

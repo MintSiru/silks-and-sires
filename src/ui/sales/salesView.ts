@@ -423,9 +423,12 @@ export function consignStatusKo(row: ConsignableRow): string {
   return `출품됨(${row.consignedSaleName})`;
 }
 
-/** 출품 취소가 막힌 사유. 취소할 수 있으면 null. */
+/**
+ * 출품 취소가 막힌 사유. 출품된 말 중 취소할 수 있으면 null.
+ * 미출품 말은 취소 대상이 아니므로 사유도 없다(null). 화면은 [출품] 버튼만 보여 준다.
+ */
 export function consignCancelReasonKo(row: ConsignableRow): string | null {
-  if (row.consignedSaleName === null) return '아직 출품하지 않음';
+  if (row.consignedSaleName === null) return null;
   if (row.consignedDeadlineKo === null) return '카탈로그 등록 뒤 취소 불가';
   return null;
 }
