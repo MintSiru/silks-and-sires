@@ -17,12 +17,18 @@
 .shell-modal::backdrop {
   background: rgba(5, 8, 14, 0.6);
 }
+/* 스크롤 끝 여백 16px(X2). 블록 컨테이너의 padding-bottom 은 스크롤 영역에 안 잡히는 브라우저가 있어 끝 칸으로 만든다. */
+.shell-modal::after {
+  content: '';
+  display: block;
+  height: 16px;
+}
 .shell-modal__head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 12px 20px 10px;
+  padding: 10px 20px 8px;
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
@@ -32,15 +38,19 @@
 .shell-modal__head h2 {
   margin: 0;
 }
+/* 섹션 사이 간격 12px(위·아래 각 6px + 구분선 1px). 첫 섹션은 머리글 바로 아래 여백을 따로 둔다. */
 .shell-section {
-  padding: 12px 20px;
+  padding: 6px 20px;
   border-bottom: 1px solid var(--border);
+}
+.shell-modal__head + .shell-section {
+  padding-top: 12px;
 }
 .shell-section:last-child {
   border-bottom: 0;
 }
 .shell-section > h3 {
-  margin: 0 0 8px;
+  margin: 0 0 6px;
   font-size: 15px;
   line-height: 22px;
   font-weight: 600;
@@ -50,11 +60,11 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
-  margin: 6px 0;
+  margin: 4px 0;
 }
 .shell-fieldset {
   margin: 0 0 8px;
-  padding: 6px 12px 8px;
+  padding: 8px 12px;
 }
 .shell-fieldset > legend {
   padding: 0 4px;
@@ -67,7 +77,7 @@
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  margin: 4px 0;
+  margin: 2px 0;
   cursor: pointer;
 }
 .shell-choice__text {
@@ -121,7 +131,7 @@
   align-items: center;
   justify-content: flex-start;
   gap: 16px;
-  margin: 6px 0 10px;
+  margin: 4px 0 6px;
   max-width: 340px;
 }
 .shell-field > span {
@@ -138,6 +148,10 @@
 .shell-danger > h3 {
   color: var(--danger-fg);
 }
+/* 새 게임 확인 영역을 scrollIntoView 로 보일 때 아래 여백 16px 을 남긴다(X2). */
+.shell-danger__confirm {
+  scroll-margin-bottom: 16px;
+}
 /* 새 게임으로 이동: 위험 버튼(위험 토큰 배경·테두리, 밝은 글자). 취소는 기본 .btn 그대로 둔다(M6-W 항목 22). */
 .btn.shell-danger__button {
   /* .btn(app.css)과 명시도가 같아 덮이던 것을 .btn 을 붙여 높임. 배경은 위험 영역 바탕(--danger-bg)과 구분되게 위험 글자색을 옅게 깐다(아르곤 4차). */
@@ -149,8 +163,10 @@
 .btn.shell-danger__button:hover:not(:disabled) {
   background: rgba(255, 145, 145, 0.32);
 }
+/* 모달 안 설명 문구: 12px / 18px(app.css .hint 와 같은 크기를 명시). 여백은 각 자리 규칙(.shell-item > .hint 등)에 맡긴다. */
 .shell-modal .hint {
-  margin: 4px 0 8px;
+  font-size: 12px;
+  line-height: 18px;
 }
 
 /* 토스트(M6-U2 A2): 화면 오른쪽 아래 고정. 문서 높이를 바꾸지 않는다. */
@@ -215,7 +231,7 @@
 /* app.css 의 전역 th(sticky·높이 40px)를 모달 안에서는 끈다. */
 .save-slots th,
 .save-slots td {
-  padding: 6px 8px;
+  padding: 4px 8px;
   border-bottom: 1px solid var(--border);
   text-align: left;
   vertical-align: middle;

@@ -104,6 +104,8 @@ export default function SettingsModal({
   /** 가져오기 검사를 통과한 저장본. 확인을 누르기 전에는 게임을 바꾸지 않는다(M6-S S4). */
   const [imported, setImported] = useState<{ fileName: string; state: GameState } | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
+  /** 새 게임 확인 영역. 열리면 모달 안에서 보이도록 스크롤한다(M6-X X2). */
+  const newGameConfirm = useRef<HTMLDivElement>(null);
   const owner = state.owners[state.playerOwnerId];
   const mode = racePlanMode(state.settings);
 
@@ -132,6 +134,10 @@ export default function SettingsModal({
       alive = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (confirmNewGame) newGameConfirm.current?.scrollIntoView({ block: 'nearest' });
+  }, [confirmNewGame]);
 
   const reloadSlots = (): Promise<void> => game.listSaves().then(setSlots);
 
@@ -472,7 +478,7 @@ export default function SettingsModal({
             새 게임
           </button>
         ) : (
-          <div role="group" aria-label="새 게임 확인">
+          <div role="group" aria-label="새 게임 확인" className="shell-danger__confirm" ref={newGameConfirm}>
             <p className="hint">{NEW_GAME_WARNING_KO}</p>
             <div className="shell-row">
               <button type="button" className="btn" onClick={() => setConfirmNewGame(false)}>
