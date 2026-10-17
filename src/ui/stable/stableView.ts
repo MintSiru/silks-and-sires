@@ -5,11 +5,16 @@ import { assessForPlayer } from '../../engine/horse/playerView';
 import { ageInYear } from '../../engine/time/calendar';
 import { sexKo, statusKo } from '../game/text';
 import { mareBookingKo } from '../breeding/bookView';
+import { mareQuality } from '../../engine/breeding/matingPlan';
+import { matingQualityGrade } from '../breeding/matingPlanView';
 import {
   conditionOf,
+  mareBreedingView,
+  pendingMatingProposal,
   recentRuns,
   RECENT_RUN_COUNT,
   type ConditionView,
+  type MareBreedingView,
   type RunForm,
 } from '../horse/horseDetailView';
 import { emptyRacePlanHint, racePlanRows, targetLabel } from '../season/racePlanView';
@@ -37,6 +42,16 @@ export function stableGroup(status: Horse['status']): StableTab | null {
     default:
       return null;
   }
+}
+
+/** 번식 암말 표의 '최근 산자' 줄 수(최신순). 화면 표시 상수(밸런스 아님). */
+export const RECENT_FOAL_COUNT = 2;
+
+/** 번식 암말 표의 산자 한 줄: 이름 · 나이 · 성적 */
+export interface FoalRowView {
+  name: string;
+  ageKo: string;
+  recordKo: string;
 }
 
 /** '다음 출주' 두 줄: 1줄 날짜·등급·거리, 2줄 레이스명. 조건 목표면 등급·거리 없이 조건 문구. */
@@ -67,6 +82,12 @@ export interface StableRow {
   next: string;
   nextRace: NextRaceView | null;
   warnings: string[];
+  /** 번식 암말 탭 전용: 번식 상태·출산 예정·교배 계획. 다른 탭은 null */
+  breeding: MareBreedingView | null;
+  /** 번식 암말 탭 전용: 최근 산자(최신순, 최대 RECENT_FOAL_COUNT). 다른 탭은 빈 배열 */
+  foals: FoalRowView[];
+  /** 번식 암말 탭 전용: 산자 블랙타입 입상 누계. 다른 탭은 null */
+  blackType: number | null;
 }
 
 /** 플레이어 소유, 탭에 속하고 검색어에 맞는 말(id 순) */
@@ -105,6 +126,24 @@ function nextRaceView(plan: PlannedRace, row: { dateLabel: string; away: string;
   };
 }
 
+/** 번식 암말의 최근 산자(최신순). 기록이 없는 산자 id 는 건너뛴다. */
+function foalRowsOf(state: GameState, foalIds: readonly string[]): FoalRowView[] {
+  return foalIds
+    .slice(-RECENT_FOAL_COUNT)
+    .reverse()
+    .flatMap((id): FoalRowView[] => {
+      const foal = state.horses[id];
+      if (foal === undefined) return [];
+      return [
+        {
+          name: displayName(state, foal),
+          ageKo: `${ageInYear(foal.birthYear, state.date.year)}세`,
+          recordKo: foal.record.starts === 0 ? '출주 전' : `${foal.record.starts}전 ${foal.record.wins}승`,
+        },
+      ];
+    });
+}
+
 export function stableRows(state: GameState, tab: StableTab, query = ''): StableRow[] {
   const nameOf = (id: string) => (state.horses[id] ? displayName(state, state.horses[id]!) : '—');
   return stableHorses(state, tab, query).map((h) => {
@@ -133,7 +172,11 @@ export function stableRows(state: GameState, tab: StableTab, query = ''): Stable
       tone: h.condition.injury ? 'danger' : h.status === 'resting' ? 'caution' : 'good',
       trainer: h.trainerId === null ? '미배정' : (state.trainers[h.trainerId]?.name ?? '—'),
       rating: h.officialRating ?? '미부여',
-      overall: assessForPlayer(state, h.id).conformation.overall,
+      /* 번식 암말은 번식 화면(배합 계획 표)과 같은 수준 등급(mareQuality)을 쓴다. 나머지는 평가 종합 등급. */
+      overall:
+        tab === 'mares' && mare !== undefined
+          ? matingQualityGrade(mareQuality(state, h.id))
+          : assessForPlayer(state, h.id).conformation.overall,
       condition: conditionOf(h),
       form: recentRuns(state, h.id, RECENT_RUN_COUNT),
       next: mare
@@ -145,6 +188,9 @@ export function stableRows(state: GameState, tab: StableTab, query = ''): Stable
             : tab === 'active' ? emptyRacePlanHint(state, h) : '계획 없음',
       nextRace: nextRow && nextPlan && !mare && !stud ? nextRaceView(nextPlan, nextRow) : null,
       warnings,
+      breeding: tab === 'mares' && mare !== undefined ? mareBreedingView(mare, nameOf, pendingMatingProposal(state.stud.matingProposals, h.id)) : null,
+      foals: tab === 'mares' && mare !== undefined ? foalRowsOf(state, mare.foals) : [],
+      blackType: tab === 'mares' && mare !== undefined ? mare.blackTypeProduce : null,
     };
   });
 }

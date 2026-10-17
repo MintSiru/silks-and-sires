@@ -25,6 +25,7 @@ import InjuryBlock from './InjuryBlock';
 import RacePlanPanel from './RacePlanPanel';
 import {
   HORSE_TAB_LABELS,
+  MARE_HISTORY_SEASONS,
   RECENT_RUN_COUNT,
   conditionOf,
   formSummaryKo,
@@ -32,6 +33,9 @@ import {
   horseRunRows,
   horseTabs,
   horseTimeline,
+  mareBreedingView,
+  pendingMatingProposal,
+  mareCoveringHistory,
   overviewOf,
   recentRuns,
   type HorseRunRow,
@@ -224,6 +228,8 @@ export default function HorseDetail({
   const owner = horse.ownerId ? state.owners[horse.ownerId] : undefined;
   const nameOf = (id: string) => pedigreeNameOf(state, id);
   const mare = state.mares[horseId];
+  const breeding = mare === undefined ? null : mareBreedingView(mare, nameOf, pendingMatingProposal(state.stud.matingProposals, mare.horseId));
+  const coverHistory = mare === undefined ? [] : mareCoveringHistory(state, horseId, nameOf);
   const stallion = state.stallions[horseId];
   const runs = horseRunRows(state, horseId);
   const recent = recentRuns(state, horseId, RECENT_RUN_COUNT);
@@ -501,7 +507,40 @@ export default function HorseDetail({
         {activeTab === 'breeding' && (
           <section>
             <h3>임신/교배</h3>
-            <p>{mare ? mareBookingKo(mare, nameOf) : '교배 기록 없음'}</p>
+            {breeding === null ? (
+              <p>교배 기록 없음</p>
+            ) : (
+              <>
+                <dl className="record-facts">
+                  <div>
+                    <dt>번식 상태</dt>
+                    <dd>
+                      <StatusBadge tone={breeding.tone} label={breeding.statusKo} />
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>출산 예정</dt>
+                    <dd>{breeding.dueKo ?? '—'}</dd>
+                  </div>
+                </dl>
+                <ul className="task-list">
+                  <li>{breeding.coveredKo ?? '이번 시즌 교배 없음'}</li>
+                  <li>{breeding.bookedKo ?? '다음 시즌 예약 없음'}</li>
+                </ul>
+                {coverHistory.length > 0 && (
+                  <>
+                    <h4>지난 {MARE_HISTORY_SEASONS}시즌 교배 이력</h4>
+                    <ul className="task-list">
+                      {coverHistory.map((row, i) => (
+                        <li key={`${row.season}-${i}`}>
+                          {row.season} 시즌 · {row.stallionName} · {row.resultKo}
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </>
+            )}
             {owned && (
               <button type="button" className="btn" onClick={onBreeding}>
                 번식 화면에서 배합하기

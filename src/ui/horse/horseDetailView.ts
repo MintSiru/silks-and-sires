@@ -6,6 +6,7 @@ import { nickKey, nickLabel, nickValue } from '../../engine/breeding/nicks';
 import { displayName } from '../../engine/naming/register';
 import { goingLabel } from '../../engine/going/going';
 import { formatDateKo } from '../../engine/time/calendar';
+import { DUE_WEEK_KEY_YEAR_SCALE } from '../../engine/config/breedingSeason';
 import {
   FITNESS_PEAK_ZONE,
   HIGH_FATIGUE,
@@ -14,6 +15,7 @@ import {
 } from '../../engine/config/conditioning';
 import { MIN_FITNESS_TO_RUN } from '../../engine/config/entries';
 import type {
+  MatingProposal,
   Assessment,
   GameDate,
   GameEvent,
@@ -21,6 +23,7 @@ import type {
   Going,
   Grade,
   Horse,
+  Mare,
   PlannedRace,
   Race,
 } from '../../engine/types';
@@ -367,6 +370,106 @@ export function planChoices(horseId: string, weeks: readonly UpcomingRaceWeek[])
     });
     return [...fixed, ...targets];
   });
+}
+
+/* ── 번식 상태 (M7-D) ──────────────────────────── */
+
+/** 말 상세 '임신/교배' 탭에 보이는 지난 교배 시즌 수(이번 시즌 제외) */
+export const MARE_HISTORY_SEASONS = 3;
+
+/** 번식 암말 한 두의 번식 상태 문구. 마구간 표와 말 상세 '임신/교배' 탭이 같이 쓴다. */
+export interface MareBreedingView {
+  /** '임신 중' · '교배 완료 · 수태 확인 대기' · '예약: <종마>' · '공태' */
+  statusKo: string;
+  tone: StatusTone;
+  /** 출산 예정 'YYYY년 M월 N주'. 임신 중이 아니거나 예정 주가 없으면 null */
+  dueKo: string | null;
+  /** '이번 시즌 교배: <종마>'. 교배 배정이 없으면 null */
+  coveredKo: string | null;
+  /** '<연도> 시즌 예약: <종마>'(다음 시즌 사전 예약). 없으면 null */
+  bookedKo: string | null;
+  /** 교배·예약 문구를 이어 붙인 한 줄. 둘 다 없으면 '계획 없음' */
+  planKo: string;
+}
+
+/** 출산 예정 주 키(연도 × 100 + 주)를 'YYYY년 M월 N주'로 바꾼다. */
+export function dueWeekKo(key: number): string {
+  return formatDateKo({
+    year: Math.floor(key / DUE_WEEK_KEY_YEAR_SCALE),
+    week: key % DUE_WEEK_KEY_YEAR_SCALE,
+  });
+}
+
+/** 교배 담당 제안 중 아직 예약 전(검토 대기·승인)인 것 — 계획 칸에 같이 보인다 */
+export function pendingMatingProposal(proposals: readonly MatingProposal[] | undefined, mareId: string): MatingProposal | undefined {
+  return (proposals ?? []).find((p) => p.mareId === mareId && (p.status === 'proposed' || p.status === 'approved'));
+}
+
+export function mareBreedingView(mare: Mare, nameOf: (id: string) => string, proposal?: MatingProposal): MareBreedingView {
+  const coveredKo = mare.coveredBy === null ? null : `이번 시즌 교배: ${nameOf(mare.coveredBy)}`;
+  const booking = mare.bookedFor ?? null;
+  const bookedKo = booking === null ? null : `${booking.season} 시즌 예약: ${nameOf(booking.stallionId)}`;
+  const proposalKo = proposal === undefined || mare.coveredBy !== null ? null
+    : `교배 제안: ${nameOf(proposal.stallionId)} (${proposal.status === 'approved' ? '승인' : '검토 대기'})`;
+  const planKo = [coveredKo, bookedKo, proposalKo].filter((s): s is string => s !== null).join(' · ') || '계획 없음';
+  const base = { coveredKo, bookedKo, planKo };
+  if (mare.pregnant) {
+    return {
+      ...base,
+      statusKo: '임신 중',
+      tone: 'good',
+      dueKo: mare.dueWeek === null ? null : dueWeekKo(mare.dueWeek),
+    };
+  }
+  if (mare.coveredBy !== null) {
+    return { ...base, statusKo: '교배 완료 · 수태 확인 대기', tone: 'warn', dueKo: null };
+  }
+  if (booking !== null) {
+    return { ...base, statusKo: `예약: ${nameOf(booking.stallionId)}`, tone: 'muted', dueKo: null };
+  }
+  return { ...base, statusKo: '공태', tone: 'muted', dueKo: null };
+}
+
+/** 지난 교배 한 줄: 시즌·종마·수태 결과. 판정 기록이 없으면 '판정 기록 없음'. */
+export interface MareCoverRow {
+  season: number;
+  stallionName: string;
+  resultKo: string;
+}
+
+/**
+ * 지난 MARE_HISTORY_SEASONS 시즌의 교배 이력(최신 시즌 위). 이벤트 기록(covering_booked·conception)이
+ * 남아 있는 만큼만 나온다. 이번 시즌 교배는 번식 상태 문구에서 따로 보인다.
+ */
+export function mareCoveringHistory(
+  state: GameState,
+  mareId: string,
+  nameOf: (id: string) => string,
+): MareCoverRow[] {
+  const covers = state.eventLog.filter(
+    (e): e is Extract<GameEvent, { type: 'covering_booked' }> =>
+      e.type === 'covering_booked' && e.mareId === mareId && e.date.year < state.date.year,
+  );
+  const seasons = [...new Set(covers.map((e) => e.date.year))]
+    .sort((a, b) => b - a)
+    .slice(0, MARE_HISTORY_SEASONS);
+  return covers
+    .filter((e) => seasons.includes(e.date.year))
+    .sort((a, b) => b.date.year - a.date.year || b.date.week - a.date.week)
+    .map((e) => {
+      const verdict = state.eventLog.find(
+        (x): x is Extract<GameEvent, { type: 'conception' }> =>
+          x.type === 'conception' &&
+          x.mareId === mareId &&
+          x.stallionId === e.stallionId &&
+          x.date.year === e.date.year,
+      );
+      return {
+        season: e.date.year,
+        stallionName: nameOf(e.stallionId),
+        resultKo: verdict === undefined ? '판정 기록 없음' : verdict.success ? '수태 성공' : '수태 실패',
+      };
+    });
 }
 
 /* ── 기록 타임라인 ──────────────────────────────── */

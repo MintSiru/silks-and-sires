@@ -150,3 +150,43 @@
   font-size: 12px;
   line-height: 18px;
 }
+
+/* M7-D 번식 암말 탭: 현역마용 열(컨디션·최근 5전·OR·조교사)을 빼고 번식 상태·출산 예정·교배 계획·최근 산자를 둔다.
+   열 폭 합계(확인 열 96px 포함)가 패널 폭(약 1220px)을 넘지 않게 맞춘다. */
+.stable-table--mares .stable-col--name { width: 140px; }
+.stable-table--mares .stable-col--age { width: 64px; }
+.stable-table--mares .stable-col--breed { width: 168px; }
+.stable-table--mares .stable-col--due { width: 124px; }
+.stable-table--mares .stable-col--plan { width: 196px; }
+.stable-table--mares .stable-col--foals { width: 280px; }
+.stable-table--mares .stable-col--produce { width: 76px; }
+.stable-table tbody td.stable-col--breed { white-space: normal; }
+.stable-table tbody td.stable-col--due,
+.stable-table tbody td.stable-col--plan,
+.stable-table tbody td.stable-col--foals { min-width: 0; overflow: hidden; white-space: nowrap; }
+
+/* 최근 산자 한 줄: 이름 · 나이 · 성적 */
+.foal-line {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 18px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* M7-D 육성마 탭: 컨디션 주의·위험 이유를 칩 아래 한 줄로 보인다. 칩 열은 이유가 들어갈 만큼 넓힌다. */
+.stable-table--young .stable-col--condition { width: 104px; }
+
+.stable-cond-reason {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 18px;
+}
