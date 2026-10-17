@@ -151,10 +151,13 @@ export function proposeAllMatings(state: GameState, data: MatingPlanData, season
   if (season === null) return [];
   const proposals = [...(state.stud.matingProposals ?? [])];
   const working = { ...state, stud: { ...state.stud, matingProposals: proposals } };
-  const lookup = createPedigreeLookup(state.horses, data.stallionRecords ?? []);
+  // 혈통 조회 표는 만들기 비싸므로 실제로 제안할 암말이 있을 때만 만든다(M6-P)
+  let lookup: PedigreeLookup | undefined;
   const added: MatingProposal[] = [];
   for (const id of Object.keys(state.mares).sort(compareId)) {
     if (proposals.some((p) => p.season === season && p.mareId === id)) continue;
+    if (!eligibleMare(working, id, season)) continue;
+    lookup ??= createPedigreeLookup(state.horses, data.stallionRecords ?? []);
     const p = proposal(working, data, id, season, lookup);
     if (p !== null) { proposals.push(p); added.push(p); }
   }

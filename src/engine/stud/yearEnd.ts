@@ -3,7 +3,7 @@
  * 새해 1주를 처리하기 전에 플레이어가 연말 정산을 제출해야 한다. advanceWeek 자체는 막지 않고
  * (해를 넘기는 테스트·자동 시뮬레이션용), 화면은 advanceWeekGated 로만 진행한다.
  */
-import { advanceWeek } from '../time/advance';
+import { advanceWeek, advanceWeekInPlace } from '../time/advance';
 import type { AdvanceResult, GameState, WeeklySystem } from '../types';
 
 import { POPULATION_RETIRE_AGE } from '../config/population';
@@ -28,6 +28,29 @@ export function advanceWeekGated(
 ): AdvanceResult & { blocked: 'year_end' | null } {
   if (yearEndPending(state)) return { state, events: [], blocked: 'year_end' };
   return { ...advanceWeek(state, systems), blocked: null };
+}
+
+/**
+ * 여러 주를 한 번의 상태 복제로 진행한다(M6-P). 연말 정산 대기·파산이면 멈추고, stop(draft) 가 참이면 그 주 뒤에 멈춘다.
+ * 결과는 advanceWeekGated 를 반복한 것과 같다(입력 state 는 바꾸지 않는다).
+ */
+export function advanceWeeksGated(
+  state: GameState,
+  systems: readonly WeeklySystem[],
+  maxWeeks: number,
+  stop?: (s: GameState) => boolean,
+): AdvanceResult & { blocked: 'year_end' | null } {
+  if (maxWeeks <= 0 || state.economy.bankrupt) return { state, events: [], blocked: null };
+  if (yearEndPending(state)) return { state, events: [], blocked: 'year_end' };
+  const draft = structuredClone(state);
+  const events: GameEvent[] = [];
+  for (let i = 0; i < maxWeeks; i++) {
+    if (yearEndPending(draft)) return { state: draft, events, blocked: 'year_end' };
+    if (draft.economy.bankrupt) break;
+    events.push(...advanceWeekInPlace(draft, systems));
+    if (stop?.(draft)) break;
+  }
+  return { state: draft, events, blocked: null };
 }
 
 export interface YearEndCandidate {

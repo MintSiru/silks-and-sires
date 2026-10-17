@@ -18,7 +18,7 @@ import { useCallback, useRef, useState } from 'react';
 import { WEEKS_PER_YEAR, EVENT_LOG_LIMIT } from '../../engine/config/game';
 import { createGameSystems, type GameStaticData } from '../../engine/state/systems';
 import { bootstrapGame, type BootstrapData } from '../../engine/state/bootstrap';
-import { advanceWeekGated, submitYearEnd } from '../../engine/stud/yearEnd';
+import { advanceWeeksGated, submitYearEnd } from '../../engine/stud/yearEnd';
 import type { StallionSaleMode, YearEndSubmission } from '../../engine/types/stud';
 import { isInPhase } from '../../engine/time/calendar';
 import { bookCovering, type BookingResult } from '../../engine/breeding/season';
@@ -278,15 +278,8 @@ export function useGame(): GameApi {
       if (!Number.isInteger(weeks) || weeks < 0) {
         throw new RangeError(`advance: weeks 는 0 이상의 정수여야 한다: ${weeks}`);
       }
-      let current = requireState();
-      const systems = gameSystems();
-      const events: GameEvent[] = [];
-      for (let i = 0; i < weeks; i++) {
-        const result = advanceWeekGated(current, systems);
-        current = result.state;
-        events.push(...result.events);
-        if (result.blocked !== null) break;
-      }
+      // 여러 주를 한 번의 상태 복제로 진행한다(M6-P)
+      const { state: current, events } = advanceWeeksGated(requireState(), gameSystems(), weeks);
       stateRef.current = current;
       setState(current);
       setLastEvents(events);
@@ -296,19 +289,10 @@ export function useGame(): GameApi {
 
   const advanceToPhase = useCallback(
     (phase: CalendarPhaseId): void => {
-      let current = requireState();
-      const systems = gameSystems();
-      const events: GameEvent[] = [];
-      for (
-        let i = 0;
-        i < WEEKS_PER_YEAR && !isPhaseStartWeek(current.date.week, phase);
-        i++
-      ) {
-        const result = advanceWeekGated(current, systems);
-        current = result.state;
-        events.push(...result.events);
-        if (result.blocked !== null) break;
-      }
+      const start = requireState();
+      const { state: current, events } = isPhaseStartWeek(start.date.week, phase)
+        ? { state: start, events: [] as GameEvent[] }
+        : advanceWeeksGated(start, gameSystems(), WEEKS_PER_YEAR, (s) => isPhaseStartWeek(s.date.week, phase));
       stateRef.current = current;
       setState(current);
       setLastEvents(events);
@@ -321,16 +305,7 @@ export function useGame(): GameApi {
       if (!Number.isInteger(maxWeeks) || maxWeeks < 0) {
         throw new RangeError(`advanceUntil: maxWeeks 는 0 이상의 정수여야 한다: ${maxWeeks}`);
       }
-      let current = requireState();
-      const systems = gameSystems();
-      const events: GameEvent[] = [];
-      for (let i = 0; i < maxWeeks; i++) {
-        const result = advanceWeekGated(current, systems);
-        current = result.state;
-        events.push(...result.events);
-        if (result.blocked !== null) break;
-        if (stop(current)) break;
-      }
+      const { state: current, events } = advanceWeeksGated(requireState(), gameSystems(), maxWeeks, stop);
       stateRef.current = current;
       setState(current);
       setLastEvents(events);

@@ -47,8 +47,19 @@ export function advanceWeek(
 ): AdvanceResult {
   // 레거시 모드 파산 뒤에는 날짜·상태를 그대로 두고 아무 일도 일어나지 않는다(M4-A3)
   if (state.economy.bankrupt) return { state, events: [] };
-
   const draft: GameState = structuredClone(state);
+  return { state: draft, events: advanceWeekInPlace(draft, systems) };
+}
+
+/**
+ * advanceWeek 의 본체: 이미 복제한 draft 를 직접 1주 진행하고 이벤트를 돌려준다(M6-P).
+ * 상태 전체 복제가 30년차에 주당 수백 ms 라, 여러 주를 진행할 때는 한 번만 복제하고 이 함수를 반복한다.
+ */
+export function advanceWeekInPlace(
+  draft: GameState,
+  systems: readonly WeeklySystem[] = DEFAULT_SYSTEMS,
+): GameEvent[] {
+  if (draft.economy.bankrupt) return [];
   const currentDate: GameDate = { year: draft.date.year, week: draft.date.week };
   const rng = rngFromState(draft.rng);
   const ctx: WeekContext = {
@@ -74,5 +85,5 @@ export function advanceWeek(
   draft.eventLog =
     merged.length > EVENT_LOG_LIMIT ? merged.slice(merged.length - EVENT_LOG_LIMIT) : merged;
 
-  return { state: draft, events };
+  return events;
 }

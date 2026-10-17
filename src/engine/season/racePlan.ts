@@ -130,8 +130,12 @@ function targetFor(state: GameState, horse: Horse, week: UpcomingRaceWeek): Race
 }
 
 /** 원본·공용 RNG 불변. 자격과 회복 예상이 허용하는 주에 최대 4회, 기본 약 4주 간격으로 제안한다. */
-export function proposeRacePlan(state: GameState, data: RaceCalendarData, horseId: HorseId, weeks = RACE_PLAN_WEEKS): PlannedRace[] {
-  const calendar = upcomingRaces(state, data, state.date, weeks);
+export function proposeRacePlan(
+  state: GameState, data: RaceCalendarData, horseId: HorseId, weeks = RACE_PLAN_WEEKS,
+  /** 같은 주에 여러 말을 계획할 때 한 번 계산한 미리보기(M6-P). 읽기만 한다 */
+  sharedCalendar?: readonly UpcomingRaceWeek[],
+): PlannedRace[] {
+  const calendar = sharedCalendar ?? upcomingRaces(state, data, state.date, weeks);
   if (playerError(state, horseId) !== null) return [];
   const horse = state.horses[horseId]!;
   if (horse.status !== 'in_training' || horse.trainerId === null || state.trainers[horse.trainerId] === undefined) return [];
@@ -284,6 +288,7 @@ export function createRacePlansSystem(data: RaceCalendarData): WeeklySystem {
       const horse = draft.horses[horseId];
       if (horse === undefined || horse.ownerId !== draft.playerOwnerId || horse.status !== 'in_training') delete allPlans[horseId];
     }
+    let calendar: UpcomingRaceWeek[] | undefined;
     const manual = needsApproval(draft);
     const planned = Object.values(draft.horses)
       .filter((h) => h.ownerId === draft.playerOwnerId && h.status === 'in_training')
@@ -340,7 +345,9 @@ export function createRacePlansSystem(data: RaceCalendarData): WeeklySystem {
         const state = last === undefined ? draft : { ...draft, seasonState: { ...draft.seasonState,
           lastRun: { ...draft.seasonState.lastRun, [horseId]: last.date } } };
         const ids = new Set(plans.map((p) => p.id));
-        plans.push(...proposeRacePlan(state, data, horseId).filter((p) => !ids.has(p.id)));
+        // 미리보기는 개최·날짜에만 달려 있어 이 주 안에서 한 번만 계산한다(M6-P)
+        calendar ??= upcomingRaces(draft, data, ctx.date, RACE_PLAN_WEEKS);
+        plans.push(...proposeRacePlan(state, data, horseId, RACE_PLAN_WEEKS, calendar).filter((p) => !ids.has(p.id)));
         plans.sort((a, b) => compareDates(a.date, b.date));
       }
     }
