@@ -79,22 +79,48 @@
 .shell-choice__text > .hint {
   margin: 0;
 }
+/* 진행·자동화 항목들 사이는 16px(V1 항목 25). 체크박스 두 줄만 8px 로 붙인다. */
+.shell-items {
+  display: grid;
+  gap: 16px;
+}
+.shell-items > .shell-fieldset {
+  margin: 0;
+}
+.shell-checks {
+  display: grid;
+  gap: 8px;
+}
 .shell-check {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 4px 0;
+  margin: 0;
   cursor: pointer;
   white-space: normal;
 }
 .shell-check > span {
   min-width: 0;
 }
+/* 교배 예약: 제목 + 설명 한 항목. 설명은 제목 바로 아래. */
+.shell-item__title {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+.shell-item > .hint {
+  margin: 4px 0 0;
+}
+.shell-items > .shell-economy {
+  margin: 0;
+}
+/* 부담중량: 라벨 바로 옆에 드롭다운(간격 16px) */
 .shell-field {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  justify-content: flex-start;
+  gap: 16px;
   margin: 6px 0 10px;
   max-width: 340px;
 }

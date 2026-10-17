@@ -168,42 +168,51 @@ export default function SettingsModal({
 
       <section className="shell-section" aria-labelledby="shell-group-progress">
         <h3 id="shell-group-progress">진행·자동화</h3>
-        <fieldset className="shell-fieldset">
-          <legend>출주 계획</legend>
-          {RACE_PLAN_MODE_OPTIONS.map((option) => (
-            <label key={option.mode} className="shell-choice">
+        <div className="shell-items">
+          <fieldset className="shell-fieldset">
+            <legend>출주 계획</legend>
+            {RACE_PLAN_MODE_OPTIONS.map((option) => (
+              <label key={option.mode} className="shell-choice">
+                <input
+                  type="radio"
+                  name="race-plan-mode"
+                  value={option.mode}
+                  checked={mode === option.mode}
+                  onChange={() => game.setAutoApproveRacePlans(autoApproveFromMode(option.mode))}
+                />
+                <span className="shell-choice__text">
+                  <span>{option.label}</span>
+                  <span className="hint">{option.hint}</span>
+                </span>
+              </label>
+            ))}
+          </fieldset>
+          <div className="shell-checks">
+            <label className="shell-check">
               <input
-                type="radio"
-                name="race-plan-mode"
-                value={option.mode}
-                checked={mode === option.mode}
-                onChange={() => game.setAutoApproveRacePlans(autoApproveFromMode(option.mode))}
+                type="checkbox"
+                checked={autoSendToTrainingOn(state.settings)}
+                onChange={(e) => game.setAutoSendToTraining(e.target.checked)}
               />
-              <span className="shell-choice__text">
-                <span>{option.label}</span>
-                <span className="hint">{option.hint}</span>
-              </span>
+              <span>2세 자동 조교 보내기</span>
             </label>
-          ))}
-        </fieldset>
-        <label className="shell-check">
-          <input
-            type="checkbox"
-            checked={autoSendToTrainingOn(state.settings)}
-            onChange={(e) => game.setAutoSendToTraining(e.target.checked)}
-          />
-          <span>2세 자동 조교 보내기</span>
-        </label>
-        <label className="shell-check">
-          <input
-            type="checkbox"
-            checked={autoSellOn(state.settings)}
-            onChange={(e) => game.setAutoSell(e.target.checked)}
-          />
-          <span>판매 제안 자동 위탁</span>
-        </label>
-        <p className="hint">{matingProgressGuide(state.settings)}</p>
-        <p className="hint">경제 방식: {economyText}</p>
+            <label className="shell-check">
+              <input
+                type="checkbox"
+                checked={autoSellOn(state.settings)}
+                onChange={(e) => game.setAutoSell(e.target.checked)}
+              />
+              <span>판매 제안 자동 위탁</span>
+            </label>
+          </div>
+          <div className="shell-item">
+            <h4 className="shell-item__title">
+              교배 예약
+            </h4>
+            <p className="hint">{matingProgressGuide(state.settings)}</p>
+          </div>
+          <p className="hint shell-economy">경제 방식: {economyText}</p>
+        </div>
       </section>
 
       <section className="shell-section" aria-labelledby="shell-group-display">

@@ -212,3 +212,56 @@ describe('M6-U3 홈 화면 문구', () => {
     expect(html).not.toContain('이번 주 할 일');
   });
 });
+
+describe('V1 홈 출주 예정 카드(등급·거리)', () => {
+  it('레이스가 정해진 계획은 등급 글자와 천 단위 거리를 준다', () => {
+    const state = quietState();
+    const horse = addHorse(state, 'entry-horse');
+    const race = getRaceTemplates().find((r) => r.grade === 'G2') ?? getRaceTemplates()[0]!;
+    state.seasonState.racePlans = {
+      [horse.id]: [
+        { id: 'entry-plan', date: addWeeks(state.date, 1), templateId: race.id, target: null, status: 'approved', note: '' },
+      ],
+    };
+    const entry = homeView(state).entries.find((e) => e.horseId === horse.id)!;
+    // 원정 레이스면 레이스명 뒤에 '· 원정: …' 이 붙는다(racePlanRows 의 away)
+    expect(entry.raceName).toContain(race.name);
+    expect(entry).toMatchObject({
+      gradeText: race.grade ?? `클래스 ${race.raceClass}`,
+      distanceText: `${race.distance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}m`,
+    });
+    const html = renderHome(state);
+    expect(html).toContain('badge badge--grade-');
+    expect(html).toContain('다음 주');
+  });
+
+  it('조건 목표만 있는 계획은 등급과 거리를 주지 않는다', () => {
+    const state = quietState();
+    const horse = addHorse(state, 'target-horse');
+    state.seasonState.racePlans = {
+      [horse.id]: [
+        {
+          id: 'target-plan',
+          date: addWeeks(state.date, 1),
+          templateId: null,
+          target: { kinds: ['maiden'], minDistance: 1200, maxDistance: 1800 },
+          status: 'approved',
+          note: '',
+        },
+      ],
+    };
+    const entry = homeView(state).entries.find((e) => e.horseId === horse.id)!;
+    expect(entry.gradeText).toBeNull();
+    expect(entry.distanceText).toBeNull();
+  });
+});
+
+describe('V1 홈 제목·보조 문구', () => {
+  it('브리핑 제목에는 숫자가 없고 최근 이벤트 칸은 주요 사건 제목과 최근 5건 문구를 쓴다', () => {
+    const html = renderHome(quietState());
+    expect(html).toContain('이번 주 브리핑</h3>');
+    expect(html).toContain('주요 사건');
+    expect(html).toContain('최근 5건까지');
+    expect(html).not.toContain('최근 이벤트');
+  });
+});

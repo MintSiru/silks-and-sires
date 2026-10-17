@@ -1,3 +1,4 @@
+import { metersKo } from '../stable/stableView';
 import { getRaceTemplates, getSalesData } from '../../engine/data/staticData';
 import { bookingSeasonOf } from '../../engine/breeding/season';
 import { displayName } from '../../engine/naming/register';
@@ -5,11 +6,16 @@ import { saleWeekOf } from '../../engine/sales/bidding';
 import { yearEndPending } from '../../engine/stud/yearEnd';
 import { autoTrainingCandidates } from '../../engine/season/autoTraining';
 import { formatDateKo, weeksBetween } from '../../engine/time/calendar';
-import type { GameEvent, GameState, HorseId } from '../../engine/types';
+import type { GameEvent, GameState, HorseId, Race } from '../../engine/types';
 import { recentResults, type RecentResultView } from '../season/seasonView';
 import type { HorseTab } from '../horse/HorseLink';
 import { eventInvolvesHorse } from '../horse/horseDetailView';
 import { racePlanRows } from '../season/racePlanView';
+
+/** 등급 배지 글자: G1·G2·G3·L 은 그대로, 등급 없는 레이스는 '클래스 N'(회색 배지) */
+function gradeTextOf(race: Pick<Race, 'grade' | 'raceClass'>): string {
+  return race.grade ?? `클래스 ${race.raceClass}`;
+}
 
 export interface HomeTask {
   id: string;
@@ -212,13 +218,26 @@ function isHomeEvent(state: GameState, event: GameEvent, owned: readonly HorseId
   }
 }
 
+/** '출주 예정' 카드 한 줄. 등급·거리는 조건 목표(레이스 미정)면 null */
+export interface HomeEntry {
+  key: string;
+  horseId: HorseId;
+  weekLabel: string;
+  raceName: string;
+  /** 등급 배지 글자(G1·L·클래스 N). 레이스가 정해지지 않았으면 null */
+  gradeText: string | null;
+  /** 거리 문구(예: 2,012m). 레이스가 정해지지 않았으면 null */
+  distanceText: string | null;
+  statusLabel: string;
+}
+
 export function homeView(state: GameState) {
   const ownedIds = Object.values(state.horses)
     .filter((h) => h.ownerId === state.playerOwnerId)
     .map((h) => h.id);
   const owned = new Set(ownedIds);
   const results = recentResults(state, state.raceResults.length);
-  const entries = state.seasonState.meetings
+  const entries: HomeEntry[] = state.seasonState.meetings
     .filter((m) => weeksBetween(state.date, m.date) >= 0 && weeksBetween(state.date, m.date) <= 1)
     .flatMap((m) =>
       m.races
@@ -226,11 +245,13 @@ export function homeView(state: GameState) {
         .flatMap((r) =>
           r.declarations
             .filter((d) => d.isPlayer && owned.has(d.horseId))
-            .map((d) => ({
+            .map((d): HomeEntry => ({
               key: `${m.date.year}:${m.date.week}:${d.horseId}`,
               horseId: d.horseId,
               weekLabel: weeksBetween(state.date, m.date) === 0 ? '이번 주' : '다음 주',
               raceName: r.race.name,
+              gradeText: gradeTextOf(r.race),
+              distanceText: metersKo(r.race.distance),
               statusLabel: '출주 신청됨',
             })),
         ),
@@ -252,11 +273,16 @@ export function homeView(state: GameState) {
           (horse.trainerId === null ? undefined : state.trainers[horse.trainerId]?.country) ??
           horse.countryOfBirth,
       })[0]!;
+      // 레이스가 정해진 계획만 등급·거리를 단다(조건 목표는 조건 문구만 — 마구간 다음 출주와 같다)
+      const template =
+        plan.templateId === null ? undefined : getRaceTemplates().find((t) => t.id === plan.templateId);
       entries.push({
         key,
         horseId,
         weekLabel: weeksBetween(state.date, plan.date) === 0 ? '이번 주' : '다음 주',
-        raceName: `${row.name}${row.away}`,
+        raceName: `${template === undefined ? row.name : template.name}${row.away}`,
+        gradeText: template === undefined ? null : gradeTextOf(template),
+        distanceText: template === undefined ? null : metersKo(template.distance),
         statusLabel: row.statusLabel,
       });
     }

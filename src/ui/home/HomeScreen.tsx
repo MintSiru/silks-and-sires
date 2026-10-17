@@ -23,9 +23,8 @@ export default function HomeScreen({
       <h2>홈</h2>
       <div className="home-grid">
         <section className="panel home-briefing">
-          <h3>
-            이번 주 브리핑 <span className="badge">{view.tasks.length}</span>
-          </h3>
+          {/* 결정 대기 수는 상단 '이번 주 할 일' 배지에만 보인다(V1 항목 1) */}
+          <h3>이번 주 브리핑</h3>
           {view.tasks.length === 0 ? (
             <>
               <p className="hint">다음 진행 때 자동으로 일어날 일</p>
@@ -69,13 +68,22 @@ export default function HomeScreen({
               {view.entries.map((e) => (
                 <li key={e.key}>
                   <HorseLink horseId={e.horseId} name={nameOf(e.horseId)} /> · {e.raceName}
-                  <div className="hint">{e.weekLabel} · {e.statusLabel}</div>
+                  <div className="hint home-entry__meta">
+                    {e.weekLabel}
+                    {e.gradeText !== null && (
+                      <>
+                        {' '}
+                        <GradeBadge grade={e.gradeText} />
+                      </>
+                    )}
+                    {e.distanceText !== null && <> · {e.distanceText}</>} · {e.statusLabel}
+                  </div>
                 </li>
               ))}
             </ul>
           )}
         </section>
-        <section className="panel">
+        <section className="panel home-results-card">
           <h3>최근 결과 3건</h3>
           {view.resultRows.length === 0 && <p className="empty-state">내 말 결과 없음</p>}
           <ul className="task-list home-results">
@@ -105,7 +113,8 @@ export default function HomeScreen({
           )}
         </section>
         <section className="panel">
-          <h3>최근 이벤트 5건</h3>
+          <h3>주요 사건</h3>
+          <p className="hint">최근 5건까지</p>
           {view.events.length === 0 && (
             <p className="empty-state">부상·출산·세일 같은 주요 사건이 여기에 남습니다.</p>
           )}

@@ -88,7 +88,8 @@ export function stableCount(state: GameState, tab: StableTab): number {
 }
 
 /** 열 폭에 맞추려고 거리는 미터만(예: 2012m → 2,012m). 펄롱은 말 상세 전적에서 본다. */
-function metersKo(meters: number): string {
+/** 거리 표기(천 단위 쉼표). 예: 2012 → '2,012m' — 홈 출주 예정도 같이 쓴다 */
+export function metersKo(meters: number): string {
   return `${String(Math.round(meters)).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}m`;
 }
 
