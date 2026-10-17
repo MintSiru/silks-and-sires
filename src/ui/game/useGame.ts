@@ -82,6 +82,7 @@ import type {
   WeeklySystem,
 } from '../../engine/types';
 import {
+  AUTOSAVE_SLOT_ID,
   createIndexedDbSaveStore,
   type SaveSlotMeta,
   type SaveStore,
@@ -192,7 +193,6 @@ function appendEvents(state: GameState, events: GameEvent[]): GameState {
 
 /** 새 게임 승부복 기본값. 띠 뷰어 원판 색은 primary. */
 export const PLAYER_SILKS: Silks = { primary: '#1f4e9c', secondary: '#f5c518', pattern: 'hoops' };
-const AUTOSAVE_SLOT_ID = 'autosave';
 const AUTOSAVE_NAME = '자동 저장';
 
 /** 주 시스템이 쓰는 정적 데이터(데이터 파일은 모듈 안에서 한 번만 검증된다) */

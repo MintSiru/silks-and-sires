@@ -6,7 +6,14 @@ export interface SaveSlotMeta {
   savedAt: string;
   date: GameDate;
   playerName: string;
+  /** 저장된 데이터 바이트 수(압축했으면 압축 크기, M6-S). 옛 저장본은 없음 */
+  bytes?: number;
 }
+
+/** 저장 칸 id(M6-S): 자동 저장 1칸 + 수동 3칸 */
+export const AUTOSAVE_SLOT_ID = 'autosave';
+export const MANUAL_SLOT_IDS = ['slot-1', 'slot-2', 'slot-3'] as const;
+export type ManualSlotId = (typeof MANUAL_SLOT_IDS)[number];
 
 export interface SaveStore {
   /** savedAt 내림차순 */
@@ -45,6 +52,7 @@ function copyMeta(meta: SaveSlotMeta): SaveSlotMeta {
     savedAt: meta.savedAt,
     date: { year: meta.date.year, week: meta.date.week },
     playerName: meta.playerName,
+    ...(meta.bytes === undefined ? {} : { bytes: meta.bytes }),
   };
 }
 
