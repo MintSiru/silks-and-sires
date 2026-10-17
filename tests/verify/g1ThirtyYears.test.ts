@@ -72,7 +72,8 @@ import type {
 const G1_OUT = process.env.G1_OUT;
 /** 대조 실험 전용(M5-G 원인 확인): 쉼표로 적은 주 시스템 id 를 뺀다. 비워 두면 전체 시스템(기본 측정) */
 const G1_SKIP_SYSTEMS = (process.env.G1_SKIP_SYSTEMS ?? '').split(',').map((s) => s.trim()).filter((s) => s !== '');
-const SEED = 20261011;
+/** M6-B: 여러 시드 측정을 위해 G1_SEED 로 바꿀 수 있다(기본 20261011) */
+const SEED = Number(process.env.G1_SEED ?? 20261011);
 const SILKS = { primary: '#1d4e89', secondary: '#ffd23f', pattern: 'hoops' } as const;
 const PLAYER_NAME = '가상 마주';
 const SAVED_AT = '2026-01-01T00:00:00Z';
