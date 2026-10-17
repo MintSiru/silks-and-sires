@@ -15,10 +15,10 @@ import type {
 } from '../../engine/types';
 import { countryKo, raceConditionsKo, raceGradeKo } from '../game/text';
 
-/** 접힌 행에 보이는 고정 레이스 개수(G1·G2 우선). 나머지는 '외 N'. */
-export const CALENDAR_FIXED_PREVIEW_COUNT = 2;
-/** 접힌 행에 보이는 내 말 칩 개수. 나머지는 '외 N'. */
-export const CALENDAR_HORSE_PREVIEW_COUNT = 2;
+/** 접힌 행(한 줄)에 보이는 대표 고정 레이스 개수(G1·G2 우선). 나머지는 '외 N'. */
+export const CALENDAR_FIXED_PREVIEW_COUNT = 1;
+/** 접힌 행(한 줄)에 보이는 내 말 칩 개수. 나머지는 '외 N'. */
+export const CALENDAR_HORSE_PREVIEW_COUNT = 1;
 
 const KIND_KO: Record<RaceKind, string> = {
   maiden: '미승리',

@@ -90,8 +90,8 @@ describe('M6-U7 경주 캘린더 뷰', () => {
     const rows = calendarWeekRows([weekWithGrades(base, [null, 'G3', 'G2', 'G1'])], state);
     const row = rows[0]!;
     expect(row.fixed.map((r) => r.grade)).toEqual(['G1', 'G2', 'G3', null]);
-    expect(row.fixedPreview.map((r) => r.grade)).toEqual(['G1', 'G2']);
-    expect(row.fixedMoreCount).toBe(2);
+    expect(row.fixedPreview.map((r) => r.grade)).toEqual(['G1']);
+    expect(row.fixedMoreCount).toBe(3);
     expect(row.fixed[0]!.gradeLabel).toBe('G1');
   });
 
@@ -100,7 +100,8 @@ describe('M6-U7 경주 캘린더 뷰', () => {
     const base = weeksOf(state)[0]!;
     const rows = calendarWeekRows([weekWithGrades(base, ['G3', 'G3', 'G3'])], state);
     expect(rows[0]!.fixed.map((r) => r.name)).toEqual(['가상 레이스 1', '가상 레이스 2', '가상 레이스 3']);
-    expect(rows[0]!.fixedMoreCount).toBe(1);
+    expect(rows[0]!.fixedPreview.map((r) => r.name)).toEqual(['가상 레이스 1']);
+    expect(rows[0]!.fixedMoreCount).toBe(2);
   });
 
   it('일반 개최 요약은 접힌 행에 곳 수만, 펼친 행에 나라별 수를 준다', () => {
@@ -178,6 +179,8 @@ describe('M6-U7 경주 캘린더 화면', () => {
     expect(html.match(/class="cal-week__detail" hidden=""/g)).toHaveLength(12);
     expect(html).toContain('말 상세에서 계획 관리');
     expect(html).toContain('계획 · ');
+    expect(html).toContain('이번 주·다음 주 개최 (');
+    expect(html).not.toContain('출주 신청 (');
     expect(html).toContain(horse.name);
     expect(html).not.toContain('calendar-week');
     expect(html).not.toContain('조교사에게 다시 짜기');

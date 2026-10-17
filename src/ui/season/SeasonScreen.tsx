@@ -79,7 +79,7 @@ export default function SeasonScreen({
               ))}
             </ul>
             <details className="meeting-details">
-              <summary>이번 주·다음 주 개최 · 출주 신청 ({meetings.length}곳)</summary>
+              <summary>이번 주·다음 주 개최 ({meetings.length}곳)</summary>
               <p className="hint">
                 출주 계획은 말 상세에서 계획 관리합니다. 말 이름을 누르면 출주 계획 탭이 열립니다.
               </p>
@@ -231,7 +231,7 @@ function HorseChip({ entry }: { entry: CalendarPlayerEntry }): JSX.Element {
   );
 }
 
-/** 접힌 행의 고정 레이스 한 줄. 가려진 개수('외 N')는 마지막 줄 끝에 붙여 행 높이를 늘리지 않는다. */
+/** 접힌 행의 대표 고정 레이스(한 줄). 가려진 개수('외 N')는 같은 줄 끝에 붙인다. */
 function FixedRaceLine({ race, more = 0 }: { race: CalendarFixedRaceView; more?: number }): JSX.Element {
   return (
     <span className="cal-week__race">
@@ -391,7 +391,7 @@ function RaceRow({
               {' '}
               <button
                 type="button"
-                className="btn"
+                className="btn cal-btn-sub"
                 disabled={locked}
                 onClick={() => onWithdraw(d.horseId)}
               >
@@ -411,7 +411,7 @@ function RaceRow({
               </option>
             ))}
           </select>
-          <button type="button" className="btn" disabled={locked} onClick={onDeclare}>
+          <button type="button" className="btn cal-btn-sub" disabled={locked} onClick={onDeclare}>
             출주
           </button>
           {pick !== undefined && pickedName !== undefined && (

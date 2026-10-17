@@ -1,11 +1,13 @@
 /* M6-U7 경주 캘린더(종합 문서 E). 색·글자는 app.css 의 토큰을 쓰고, 클래스는 cal- 접두로 구분한다.
-   주 목록은 높이가 고정되고 안에서만 스크롤한다(1440×900 첫 화면 스크롤 없음). */
+   주 목록은 높이가 고정되고 안에서만 스크롤한다(1440×900 첫 화면 스크롤 없음).
+   접힌 주 행은 한 줄(42px)이라 12주 전체가 1440×900 첫 화면에 행 단위로 들어간다(M6-V V2). */
 
 .cal-weeks {
   list-style: none;
   margin: 0;
-  padding: 0;
-  height: min(440px, calc(100dvh - 430px));
+  padding: 0 0 12px;
+  box-sizing: border-box;
+  height: min(529px, calc(100dvh - 371px));
   min-height: 220px;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -21,16 +23,17 @@
   border-bottom: 0;
 }
 
-/* 행 전체가 펼침 버튼. 기본 버튼 글꼴·여백을 지우고 표 같은 열 배치를 쓴다. */
+/* 행 전체가 펼침 버튼. 기본 버튼 글꼴·여백을 지우고 한 줄 열 배치를 쓴다.
+   열: ▸ · 주차 · 대표 경주(등급 배지+이름+외 N) · 내 말 칩(외 N). */
 .cal-week__head {
   display: grid;
-  grid-template-columns: 26px 132px minmax(0, 1fr) minmax(0, 200px);
+  grid-template-columns: 14px 132px minmax(0, 1fr) minmax(0, 240px);
   gap: 10px;
   align-items: center;
   width: 100%;
-  min-height: 48px;
+  height: 42px;
   margin: 0;
-  padding: 6px 12px;
+  padding: 0 12px;
   box-sizing: border-box;
   background: transparent;
   color: var(--text);
@@ -52,14 +55,10 @@
 }
 
 .cal-week__chevron {
-  font-size: 22px;
+  font-size: 14px;
   line-height: 1;
   text-align: center;
   color: var(--text-muted);
-}
-
-.cal-week__head[aria-expanded='true'] .cal-week__chevron {
-  color: var(--text);
 }
 
 .cal-week__date {
@@ -68,13 +67,12 @@
   white-space: nowrap;
 }
 
-/* 고정 레이스는 한 줄에 하나씩. 등급 배지는 이름 앞 고정 칸. */
+/* 접힌 행의 대표 고정 레이스 한 줄(등급 배지 · 이름 · 외 N). 넘치면 이름만 줄임표. */
 .cal-week__fixed {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
+  align-items: center;
   min-width: 0;
+  white-space: nowrap;
 }
 
 .cal-week__race {
@@ -94,21 +92,34 @@
 
 .cal-week__none,
 .cal-week__more {
+  flex: none;
   color: var(--text-muted);
   font-size: 12px;
   white-space: nowrap;
 }
 
+.cal-week__race .cal-week__more {
+  margin-left: 2px;
+}
+
 .cal-week__horses {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 4px;
   min-width: 0;
+  overflow: hidden;
 }
 
 .cal-week .badge {
   margin-left: 0;
+}
+
+/* 출주·취소 버튼 보조 크기(.btn 기본 여백보다 작게). */
+.btn.cal-btn-sub {
+  padding: 2px 10px;
+  font-size: 13px;
+  line-height: 20px;
 }
 
 /* 펼친 내용: 고정 레이스 표(등급·레이스명·거리·경마장 고정 칸) */
@@ -222,14 +233,23 @@
     max-height: 60vh;
   }
 
+  /* 좁은 화면은 한 줄에 다 못 들어가므로 주차·경주·말 칩을 세로로 나눈다. */
   .cal-week__head {
-    grid-template-columns: 26px minmax(0, 1fr);
+    grid-template-columns: 14px minmax(0, 1fr);
+    row-gap: 4px;
+    height: auto;
+    min-height: 42px;
+    padding: 8px 12px;
   }
 
   .cal-week__date,
   .cal-week__fixed,
   .cal-week__horses {
     grid-column: 2;
+  }
+
+  .cal-week__horses {
+    flex-wrap: wrap;
   }
 
   .cal-week__detail {
