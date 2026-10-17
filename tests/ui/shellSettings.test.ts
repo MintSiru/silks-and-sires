@@ -189,3 +189,35 @@ describe('저장 관리 표 (M6-S S3)', () => {
     expect(html).not.toContain('aria-label="자동 저장 삭제"');
   });
 });
+
+describe('파일 내보내기·가져오기 줄 (M6-S S4)', () => {
+  it('저장 관리 아래에 ssg·json 내보내기와 가져오기 버튼, ssg·json 만 받는 입력을 둔다', () => {
+    const state = createNewGame({
+      seed: 20261017,
+      playerName: '구름 마주',
+      silks: { primary: '#123456', secondary: '#ffffff', pattern: 'hoops' },
+    });
+    const html = renderToStaticMarkup(
+      createElement(
+        WeightUnitProvider,
+        null,
+        createElement(SettingsModal, {
+          game: {} as GameApi,
+          state,
+          economyText: '테스트 경제',
+          onClose: () => undefined,
+          onNotify: () => undefined,
+          onLoaded: () => undefined,
+          onStartNewGame: () => undefined,
+        }),
+      ),
+    );
+    for (const text of ['파일로 내보내기 (.ssg)', '파일로 내보내기 (.json)', '파일에서 가져오기']) {
+      expect(html, text).toContain(text);
+    }
+    expect(html).toContain('type="file"');
+    expect(html).toContain('accept=".ssg,.json,application/json"');
+    // 저장 관리 그룹 안에 있어야 한다(진행·자동화 그룹보다 앞)
+    expect(html.indexOf('파일에서 가져오기')).toBeLessThan(html.indexOf('진행·자동화'));
+  });
+});

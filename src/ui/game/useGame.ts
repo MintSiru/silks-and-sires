@@ -90,6 +90,7 @@ import {
   type SaveStore,
 } from '../storage/saveStore';
 import { isAutoSaveDue, slotLabelOf } from '../shell/saveSlotsView';
+import { parseSaveFile, type SaveImportResult } from '../storage/fileTransfer';
 
 /** 새 게임 폼에서 고른 값(bootstrapGame 옵션과 같은 이름). 승부복을 포함한다. */
 export interface NewGameInput {
@@ -195,6 +196,10 @@ export interface GameApi {
   loadSlot(id: string): Promise<boolean>;
   /** 수동 칸의 저장본을 지운다(확인은 호출 측이 맡는다) */
   deleteSlot(id: ManualSlotId): Promise<void>;
+  /** 파일(.ssg·.json)을 읽어 검사한다(M6-S S4). 게임은 바꾸지 않으며, 실패하면 한국어 사유를 돌려준다 */
+  importSaveFile(file: Blob): Promise<SaveImportResult>;
+  /** 검사를 통과한 가져온 저장본으로 게임을 바꾼다(확인은 호출 측이 맡는다). loadSlot 과 같은 방식 */
+  applyImportedGame(state: GameState): void;
 }
 
 /** 거래 이벤트를 eventLog 끝에 붙이고 상한으로 자른다(book 과 같은 방식). */
@@ -720,6 +725,16 @@ export function useGame(): GameApi {
     await saveStore().remove(id);
   }, []);
 
+  const importSaveFile = useCallback((file: Blob): Promise<SaveImportResult> => parseSaveFile(file), []);
+
+  const applyImportedGame = useCallback((imported: GameState): void => {
+    stateRef.current = imported;
+    setState(imported);
+    setLastEvents([]);
+    // 가져온 게임을 곧바로 자동 저장 칸에 써서, 새로고침해도 예전 자동 저장으로 돌아가지 않게 한다(Opus).
+    void save().catch((error: unknown) => console.error('가져온 저장본 자동 저장 실패', error));
+  }, [save]);
+
   return {
     chronicle: () => structuredClone(requireState().chronicle ?? []),
     rivals: () => rivalViews(requireState()),
@@ -785,5 +800,7 @@ export function useGame(): GameApi {
     saveToSlot,
     loadSlot,
     deleteSlot,
+    importSaveFile,
+    applyImportedGame,
   };
 }

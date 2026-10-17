@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
+import type { ChangeEvent, KeyboardEvent as ReactKeyboardEvent } from 'react';
 import type { GameState, SilksDesign } from '../../engine/types';
 import { silksDesignOf } from '../../engine/people/silks';
 import type { GameApi } from '../game/useGame';
@@ -26,6 +26,7 @@ import {
   slotMetaOf,
 } from './saveSlotsView';
 import type { ManualSlotId, SaveSlotMeta } from '../storage/saveStore';
+import { exportSaveFile, importConfirmKo, type SaveFileFormat, type SaveImportResult } from '../storage/fileTransfer';
 
 /** 저장 칸에서 확인을 기다리는 동작(덮어쓰기는 채워진 칸에 저장할 때, 삭제는 수동 칸) */
 interface PendingSlotAction {
@@ -100,6 +101,9 @@ export default function SettingsModal({
   /** 저장 칸 메타. null 이면 아직 읽는 중이다. */
   const [slots, setSlots] = useState<SaveSlotMeta[] | null>(null);
   const [pending, setPending] = useState<PendingSlotAction | null>(null);
+  /** 가져오기 검사를 통과한 저장본. 확인을 누르기 전에는 게임을 바꾸지 않는다(M6-S S4). */
+  const [imported, setImported] = useState<{ fileName: string; state: GameState } | null>(null);
+  const fileInput = useRef<HTMLInputElement>(null);
   const owner = state.owners[state.playerOwnerId];
   const mode = racePlanMode(state.settings);
 
@@ -181,6 +185,38 @@ export default function SettingsModal({
       })
       .catch((e: unknown) => onNotify(messageOf(e), 'error'))
       .finally(() => setSaving(false));
+  };
+
+  /** 현재 게임을 파일로 내려받는다. 게임 상태는 바뀌지 않는다. */
+  const runExport = (format: SaveFileFormat) => {
+    setSaving(true);
+    exportSaveFile(state, format)
+      .then((fileName) => onNotify(`${fileName} 파일로 내보냈습니다.`))
+      .catch((e: unknown) => onNotify(messageOf(e), 'error'))
+      .finally(() => setSaving(false));
+  };
+
+  /** 고른 파일을 검사한다. 통과하면 확인을 띄우고, 게임은 확인 뒤에만 바뀐다. */
+  const onPickFile = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (file === undefined) return;
+    setSaving(true);
+    game
+      .importSaveFile(file)
+      .then((result: SaveImportResult) => {
+        if (result.ok) setImported({ fileName: file.name, state: result.state });
+        else onNotify(result.message, 'error');
+      })
+      .catch((e: unknown) => onNotify(messageOf(e), 'error'))
+      .finally(() => setSaving(false));
+  };
+
+  const confirmImport = () => {
+    if (imported === null) return;
+    game.applyImportedGame(imported.state);
+    setImported(null);
+    onLoaded();
   };
 
   const applySilks = (design: SilksDesign) => {
@@ -299,6 +335,38 @@ export default function SettingsModal({
                 onClick={confirmPending}
               >
                 {pending.action === 'overwrite' ? '덮어쓰기' : '삭제'}
+              </button>
+            </div>
+          </div>
+        )}
+        <div className="shell-row">
+          <button type="button" className="btn" disabled={saving} onClick={() => runExport('ssg')}>
+            파일로 내보내기 (.ssg)
+          </button>
+          <button type="button" className="btn" disabled={saving} onClick={() => runExport('json')}>
+            파일로 내보내기 (.json)
+          </button>
+          <button type="button" className="btn" disabled={saving} onClick={() => fileInput.current?.click()}>
+            파일에서 가져오기
+          </button>
+          <input
+            ref={fileInput}
+            type="file"
+            accept=".ssg,.json,application/json"
+            hidden
+            aria-label="가져올 저장 파일"
+            onChange={onPickFile}
+          />
+        </div>
+        {imported !== null && (
+          <div role="group" aria-label="가져오기 확인" className="save-slots__confirm">
+            <p className="hint">{importConfirmKo(imported.fileName)}</p>
+            <div className="shell-row">
+              <button type="button" className="btn" disabled={saving} onClick={() => setImported(null)}>
+                취소
+              </button>
+              <button type="button" className="btn btn--primary" disabled={saving} onClick={confirmImport}>
+                가져오기
               </button>
             </div>
           </div>
