@@ -95,6 +95,7 @@ describe('createGameSystems', () => {
       'auto_training',
       'race_plans',
       'season',
+      'auto_sell',
       'sales',
       'rivals',
       'chronicle',
