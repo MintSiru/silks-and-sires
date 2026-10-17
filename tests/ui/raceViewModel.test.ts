@@ -174,11 +174,30 @@ describe('게이트 단계 (gate.phase)', () => {
   const info = infoFor(5);
   const result = resultOf(5);
 
-  it('τ=−2.0 loading, −0.5 ready, 0.1 open, 1.0 null', () => {
+  it('τ=−2.0 loading, −0.5 ready, 0.1 open, 1.0 left(뒤에 남음)', () => {
     expect(build({ replay, t: -2.0, info, result }).gate?.phase).toBe('loading');
     expect(build({ replay, t: -0.5, info, result }).gate?.phase).toBe('ready');
     expect(build({ replay, t: 0.1, info, result }).gate?.phase).toBe('open');
-    expect(build({ replay, t: 1.0, info, result }).gate).toBeNull();
+    expect(build({ replay, t: 1.0, info, result }).gate?.phase).toBe('left');
+  });
+
+  it('M7-R2b: 출발 뒤 게이트는 카메라와 함께 왼쪽으로 흐르고, 앞문이 띠 밖으로 나가면 한 번만 사라진다', () => {
+    let prevX = Infinity;
+    let gone = false;
+    for (let t = 0.5; t <= 70; t += 0.5) {
+      const gate = build({ replay, t, info, result }).gate;
+      if (gate === null) {
+        gone = true;
+        continue;
+      }
+      expect(gone).toBe(false);
+      expect(gate.phase).toBe('left');
+      expect(gate.remaining).toBe(0);
+      expect(gate.x).toBeLessThanOrEqual(prevX + 1e-9);
+      prevX = gate.x;
+    }
+    expect(gone).toBe(true);
+    expect(build({ replay, t: 70, info, result }).gate).toBeNull();
   });
 
   it('출발까지 남은 초: loading·ready 는 −τ, open 은 0', () => {
@@ -334,5 +353,56 @@ describe('플레이어 이름표 · 내 순위 · 표지', () => {
 
   it('surface 는 info.surface 를 그대로 준다', () => {
     expect(build({ replay, t: 10, info: infoFor(5, 2), result }).surface).toBe('turf');
+  });
+});
+
+// ── M7-R2b: 출발 전 인기 순 · 게이트 옆 이름표 ─────────────────────────
+describe('M7-R2b: 출발 전 인기 순 · 게이트 옆 이름표', () => {
+  const replay = replay5();
+  const result = resultOf(5);
+  /** 오즈 9, 2, 없음, 5/2, 4 → 인기 순 1·3·4·0·2 (runner index) */
+  const withOdds = (player: number | null): ViewerInfo => {
+    const base = infoFor(5, player);
+    const odds = [{ num: 9, den: 1 }, { num: 2, den: 1 }, null, { num: 5, den: 2 }, { num: 4, den: 1 }];
+    return { ...base, entries: base.entries.map((e, i) => ({ ...e, odds: odds[i] ?? null })) };
+  };
+
+  it('출발 전 우측 패널은 인기 순 상위 3두(오즈만)를 보이고 제목은 인기 순', () => {
+    const model = build({ replay, t: -2, info: withOdds(3), result });
+    expect(model.right.heading).toBe('인기 순');
+    expect(model.right.rows.map((r) => r.runnerIndex)).toEqual([1, 3, 4]);
+    expect(model.right.rows.every((r) => r.marginText === '')).toBe(true);
+    expect(model.myStanding).toBeNull();
+  });
+
+  it('출발 전 내 말은 인기 순위와 오즈(myFavourite)를 준다', () => {
+    const model = build({ replay, t: -2, info: withOdds(3), result });
+    expect(model.myFavourite?.rank).toBe(2);
+    expect(model.myFavourite?.oddsText).not.toBe('-');
+    const none = build({ replay, t: -2, info: withOdds(null), result });
+    expect(none.myFavourite).toBeNull();
+  });
+
+  it('출발 뒤에는 제목·인기 순 줄이 없고 실시간 순위를 쓴다', () => {
+    const model = build({ replay, t: 10, info: withOdds(3), result });
+    expect(model.right.heading).toBeNull();
+    expect(model.myFavourite).toBeNull();
+    expect(model.right.rows.map((r) => r.runnerIndex)).toEqual([0, 1, 2]);
+  });
+
+  it('게이트 단계(loading·ready)에는 이름표가 게이트 오른쪽 앞문 바깥에 같은 높이로 온다', () => {
+    for (const t of [-2, -0.5]) {
+      const model = build({ replay, t, info: withOdds(2), result });
+      const disc = model.center.discs.find((d) => d.isPlayer);
+      const gateX = model.gate?.x ?? NaN;
+      expect(model.playerTags[0]?.placement).toBe('right');
+      expect(model.playerTags[0]?.y).toBeCloseTo(disc?.y ?? NaN, 9);
+      expect(model.playerTags[0]?.x).toBeGreaterThan(gateX);
+    }
+  });
+
+  it('게이트 밖(출발 뒤)에는 이름표가 원판 위쪽(above)에 온다', () => {
+    const model = build({ replay, t: 10, info: withOdds(2), result });
+    expect(model.playerTags[0]?.placement).toBe('above');
   });
 });

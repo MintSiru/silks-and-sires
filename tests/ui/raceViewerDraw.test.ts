@@ -245,13 +245,49 @@ describe('출발 게이트 (M7-R2)', () => {
     expect(texts(drawAt(f, 0.1))).not.toContain('출발 준비');
   });
 
-  it('open 에는 앞 테두리 대신 밝은 선(두께 2)을 긋고, 0.35s 뒤에는 게이트를 그리지 않는다', () => {
+  it('open 에는 앞 테두리 자리에 밝은 선(두께 2)을 긋는다', () => {
     const open = drawAt(f, 0.1);
     expect(open.some((c) => c.name === 'set:lineWidth' && c.args[0] === 2)).toBe(true);
     expect(textsWithFont(open, GATE_NO_FONT)).toHaveLength(5);
+  });
+
+  it('M7-R2b: 출발 뒤 게이트는 뒤에 남아 칸 번호를 계속 그리고(앞문 열린 채, 밝은 선 없음), 띠 밖으로 나가면 사라진다', () => {
     const after = drawAt(f, 1);
-    expect(textsWithFont(after, GATE_NO_FONT)).toHaveLength(0);
+    expect(textsWithFont(after, GATE_NO_FONT)).toHaveLength(5);
     expect(after.some((c) => c.name === 'set:lineWidth' && c.args[0] === 2)).toBe(false);
+    expect(textsWithFont(drawAt(f, 70), GATE_NO_FONT)).toHaveLength(0);
+  });
+
+  it('출발 전(τ<0) 우측 패널은 제목 인기 순과 인기 순 상위 3두의 오즈를 보이고, 내 말 줄은 N번 인기', () => {
+    const odds = [{ num: 9, den: 1 }, { num: 2, den: 1 }, null, { num: 5, den: 2 }, { num: 4, den: 1 }];
+    const withOdds: Fixture = {
+      ...f,
+      info: { ...f.info, entries: f.info.entries.map((e, i) => ({ ...e, odds: odds[i] ?? null })) },
+    };
+    const pre = texts(drawAt(withOdds, -2));
+    expect(pre).toContain('인기 순');
+    // 내 말(Charlie, 인덱스 2 = 오즈 없음 → 맨 뒤) 은 인기 5위
+    expect(pre.some((x) => x === '내 말 5번 인기 · -')).toBe(true);
+    expect(pre.some((x) => x.includes('선두와'))).toBe(false);
+    expect(texts(drawAt(withOdds, 10))).not.toContain('인기 순');
+  });
+
+  it('M7-R2b: 잔디 줄무늬는 카메라와 함께 흐른다(같은 색 사각형의 x 가 시간에 따라 바뀜), 올웨더는 줄무늬 색이 다르다', () => {
+    const stripeXs = (calls: Call[], fill: string): number[] => {
+      const out: number[] = [];
+      let current: unknown;
+      for (const c of calls) {
+        if (c.name === 'set:fillStyle') current = c.args[0];
+        else if (c.name === 'fillRect' && current === fill && typeof c.args[0] === 'number') out.push(c.args[0]);
+      }
+      return out;
+    };
+    const turfA = stripeXs(drawAt(f, 10), '#2f6639');
+    const turfB = stripeXs(drawAt(f, 11), '#2f6639');
+    expect(turfA.length).toBeGreaterThan(0);
+    expect(turfA).not.toEqual(turfB);
+    const aw = makeFixture({ n: 5, names: NAMES, playerIndex: -1, surface: 'aw', going: 'good' });
+    expect(stripeXs(drawAt(aw, 10), 'rgba(255, 255, 255, 0.05)').length).toBeGreaterThan(0);
   });
 
   it('원판마다 1px 아래 그림자 원을 먼저 그린다(겹침 구분)', () => {

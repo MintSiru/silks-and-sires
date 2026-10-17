@@ -2,11 +2,9 @@
  * 레이스 띠 뷰어 그리기. CanvasRenderingContext2D 에 그리기만 하며 상태를 계산하지 않는다.
  * 외부 이미지·폰트는 쓰지 않는다(system-ui).
  */
-import { GOING_LABELS } from '../../engine/config/going';
-import type { Going, PathPoint, Silks, Surface } from '../../engine/types';
-import { goingKo } from '../horse/horseDetailView';
+import type { PathPoint, Silks, Surface } from '../../engine/types';
 import { DISC_RADIUS, discBorderFor, PROFILE_H, profileRect, textColorFor } from './viewModel';
-import type { BoardRow, DiscPlacement, Rect, StandingRow, StripModel } from './viewModel';
+import type { BoardRow, DiscPlacement, PlayerTag, Rect, StandingRow, StripModel } from './viewModel';
 import { drawSilksDisc } from './silks';
 
 // ── 그리기 상수 (표시용) ──────────────────────────────────────────────
@@ -88,12 +86,16 @@ export const TRACK_BG: Record<Surface, string> = {
   aw: '#5a544c',
   dirt: '#6b4a2e',
 };
-/** 주로 종류 한국어 표기 */
-const SURFACE_KO: Record<Surface, string> = { turf: '잔디', aw: '올웨더', dirt: '더트' };
-/** 마장 영문(GOING_LABELS 값) → 한국어. 같은 영문('GOOD')은 같은 한국어로 준다. */
-const GOING_KO_BY_LABEL: ReadonlyMap<string, string> = new Map(
-  (Object.keys(GOING_LABELS) as Going[]).map((g) => [GOING_LABELS[g], goingKo(g)]),
-);
+/**
+ * 잔디 줄무늬: 카메라 창의 progress 기준으로 STRIPE_M 마다 번갈아 칠한다(카메라와 함께 흐른다).
+ * 잔디는 바탕보다 조금 밝은 같은 계열 2색 띠, 올웨더·더트는 흰색을 아주 옅게 겹친다.
+ */
+const STRIPE_M = 25;
+const STRIPE_FILL: Record<Surface, string> = {
+  turf: '#2f6639',
+  aw: 'rgba(255, 255, 255, 0.05)',
+  dirt: 'rgba(255, 255, 255, 0.05)',
+};
 const RAIL_INNER_STROKE = '#ffffff';
 const RAIL_OUTER_STROKE = 'rgba(255, 255, 255, 0.3)';
 const RAIL_W = 1.5;
@@ -145,6 +147,10 @@ const TAG_MAX_W = 140;
 const STANDING_GAP_Y = 2;
 const STANDING_TEXT_DY = 20;
 const STANDING_BAR_DY = 30;
+/** 우측 패널 제목(출발 전 '인기 순') 줄 높이와 글자 */
+const HEADING_H = 16;
+const HEADING_BASELINE_Y = 11;
+const FONT_HEADING = 'bold 11px system-ui';
 const SEPARATOR = 'rgba(159, 179, 201, 0.35)';
 const FONT_STANDING_HI = 'bold 12px system-ui';
 const PROGRESS_H = 6;
@@ -206,22 +212,6 @@ function strokePolyline(ctx: CanvasRenderingContext2D, pts: readonly PathPoint[]
   ctx.stroke();
 }
 
-/** 주로 종류 한국어 */
-function surfaceKo(surface: Surface): string {
-  return SURFACE_KO[surface];
-}
-
-/** 마장 영문 표기 → 한국어. 모르는 표기는 그대로 둔다. */
-function goingKoOfLabel(label: string): string {
-  return GOING_KO_BY_LABEL.get(label) ?? label;
-}
-
-/** 'TURF 1,200m (6f)' 에서 앞 주로 단어를 떼어 '1,200m (6f)' 를 준다(주로 단어는 한 단어라고 본다). */
-function distancePart(distanceLabel: string): string {
-  const i = distanceLabel.indexOf(' ');
-  return i < 0 ? distanceLabel : distanceLabel.slice(i + 1);
-}
-
 function drawLeftPanel(ctx: CanvasRenderingContext2D, model: StripModel): void {
   const { left } = model;
   const panelW = model.center.rect.x;
@@ -260,8 +250,8 @@ function drawLeftPanel(ctx: CanvasRenderingContext2D, model: StripModel): void {
 
   // 코스 정보 4줄: 주로·거리, 마장(한국어), 남은 거리, 선두 속도
   const lines = [
-    `${surfaceKo(model.surface)} ${distancePart(left.distanceLabel)}`,
-    `마장 ${goingKoOfLabel(left.goingLabel)}`,
+    `${left.surfaceLabel} ${left.distanceText}`,
+    `마장 ${left.goingLabel}`,
     `남은 거리 ${left.remainingLabel}`,
     `선두 ${left.speedLabel}`,
   ];
@@ -370,7 +360,8 @@ function drawFinishPost(ctx: CanvasRenderingContext2D, x: number, r: Rect): void
 
 /**
  * 출발 게이트. loading·ready 는 칸 틀과 칸 번호(1 = 내측 = 아래), ready 는 '출발 준비'.
- * open 은 앞 테두리를 지우고 밝은 선을 긋는다(출발 직후 0.35s). 그 뒤 게이트는 model.gate 가 null 이라 그리지 않는다.
+ * open 은 앞 테두리 자리에 밝은 선(출발 직후 0.35s). left 는 앞문이 열린 채 뒤에 남아 카메라와 함께 흐른다.
+ * 게이트가 띠 밖으로 나가면 model.gate 가 null 이라 그리지 않는다.
  */
 function drawGate(ctx: CanvasRenderingContext2D, model: StripModel): void {
   const gate = model.gate;
@@ -410,7 +401,7 @@ function drawGate(ctx: CanvasRenderingContext2D, model: StripModel): void {
     ctx.fillText(String(i + 1), back - GATE_NO_GAP_PX, y);
   });
 
-  // 틀: 뒤·위·아래 테두리. 앞 테두리(앞문)는 open 에서 지우고 밝은 선을 긋는다.
+  // 틀: 뒤·위·아래 테두리. 앞문(loading·ready)은 테두리를 그리고, open 은 밝은 선, left 는 열린 앞문(테두리 없음).
   ctx.strokeStyle = GATE_FRAME;
   ctx.lineWidth = 1.5;
   ctx.beginPath();
@@ -419,12 +410,12 @@ function drawGate(ctx: CanvasRenderingContext2D, model: StripModel): void {
   ctx.lineTo(back, bottom);
   ctx.lineTo(door, bottom);
   ctx.stroke();
-  if (gate.phase !== 'open') {
+  if (gate.phase === 'loading' || gate.phase === 'ready') {
     ctx.beginPath();
     ctx.moveTo(door, top);
     ctx.lineTo(door, bottom);
     ctx.stroke();
-  } else {
+  } else if (gate.phase === 'open') {
     ctx.strokeStyle = GATE_OPEN_LINE;
     ctx.lineWidth = GATE_OPEN_LINE_W;
     ctx.beginPath();
@@ -444,6 +435,22 @@ function drawGate(ctx: CanvasRenderingContext2D, model: StripModel): void {
   ctx.restore();
 }
 
+/** 잔디 줄무늬. 카메라 창(camera.from~to)을 progress 로 보고 홀수 칸(STRIPE_M 단위)을 칠한다. */
+function drawStripes(ctx: CanvasRenderingContext2D, model: StripModel): void {
+  const r = model.center.rect;
+  const { from, to } = model.center.camera;
+  const span = to - from;
+  if (!(span > 0)) return;
+  const xOf = (p: number): number => r.x + ((p - from) / span) * r.w;
+  ctx.fillStyle = STRIPE_FILL[model.surface];
+  for (let k = Math.floor(from / STRIPE_M); k * STRIPE_M < to; k++) {
+    if (((k % 2) + 2) % 2 !== 1) continue;
+    const x0 = xOf(k * STRIPE_M);
+    const x1 = xOf((k + 1) * STRIPE_M);
+    ctx.fillRect(x0, r.y, x1 - x0, r.h);
+  }
+}
+
 function drawCenter(ctx: CanvasRenderingContext2D, model: StripModel): void {
   const { center } = model;
   const r = center.rect;
@@ -451,6 +458,7 @@ function drawCenter(ctx: CanvasRenderingContext2D, model: StripModel): void {
   ctx.fillStyle = TRACK_BG[model.surface];
   ctx.fillRect(r.x, r.y, r.w, r.h);
   clipToRect(ctx, r);
+  drawStripes(ctx, model);
 
   // 레일: 내측(아래) 흰 선, 외측(위) 옅은 선
   ctx.lineWidth = RAIL_W;
@@ -556,14 +564,27 @@ function approxTextWidth(text: string): number {
   return w;
 }
 
-/** 내 말 이름표. 원판 위쪽 작은 둥근 상자에 말 이름만 쓴다(다른 말 이름은 그리지 않는다). */
+/** 이름표 상자의 좌상단과 폭. above: 원판 위쪽 가운데. right: 게이트 앞문 바깥(세로 가운데 정렬). */
+function tagBox(tag: PlayerTag, w: number, r: Rect): { x: number; y: number } {
+  if (tag.placement === 'right') {
+    return {
+      x: Math.min(tag.x, r.x + r.w - w - 2),
+      y: Math.min(Math.max(r.y + 1, tag.y - TAG_H / 2), r.y + r.h - TAG_H - 1),
+    };
+  }
+  return {
+    x: Math.min(Math.max(tag.x - w / 2, r.x + 2), r.x + r.w - w - 2),
+    y: Math.max(r.y + 1, tag.y - TAG_H),
+  };
+}
+
+/** 내 말 이름표. 작은 둥근 상자에 말 이름만 쓴다(다른 말 이름은 그리지 않는다). */
 function drawPlayerTags(ctx: CanvasRenderingContext2D, model: StripModel): void {
   const r = model.center.rect;
   ctx.save();
   for (const tag of model.playerTags) {
     const w = Math.min(TAG_MAX_W, approxTextWidth(tag.name) + 2 * TAG_PAD_X);
-    const x = Math.min(Math.max(tag.x - w / 2, r.x + 2), r.x + r.w - w - 2);
-    const y = Math.max(r.y + 1, tag.y - TAG_H);
+    const { x, y } = tagBox(tag, w, r);
     roundedRectPath(ctx, x, y, w, TAG_H, TAG_H / 2);
     ctx.fillStyle = TAG_FILL;
     ctx.fill();
@@ -645,14 +666,20 @@ function roundedRectPath(
   ctx.closePath();
 }
 
+/** 상위 행이 시작하는 y. 제목이 있으면(출발 전) 제목 줄만큼 내린다. */
+function rowsTopOf(model: StripModel): number {
+  return model.right.heading !== null ? ROW_TOP + HEADING_H : ROW_TOP;
+}
+
 function drawStandingRow(
   ctx: CanvasRenderingContext2D,
   row: StandingRow,
   index: number,
+  rowsTop: number,
   x0: number,
   xEnd: number,
 ): void {
-  const top = ROW_TOP + index * ROW_H;
+  const top = rowsTop + index * ROW_H;
   const cy = top + ROW_DISC_R + 2;
 
   ctx.save();
@@ -679,7 +706,7 @@ function drawStandingRow(
  * 결과판이 떠 있을 때는 그리지 않는다.
  */
 function drawStanding(ctx: CanvasRenderingContext2D, model: StripModel, x0: number, xEnd: number): void {
-  const ruleY = ROW_TOP + model.right.rows.length * ROW_H + STANDING_GAP_Y;
+  const ruleY = rowsTopOf(model) + model.right.rows.length * ROW_H + STANDING_GAP_Y;
   ctx.save();
   ctx.strokeStyle = SEPARATOR;
   ctx.lineWidth = 1;
@@ -700,6 +727,17 @@ function drawStanding(ctx: CanvasRenderingContext2D, model: StripModel, x0: numb
         ? `내 말 ${me.position}위 · 선두`
         : `내 말 ${me.position}위 · 선두와 ${me.behind}`;
     ctx.fillText(text, x0, ruleY + STANDING_TEXT_DY, xEnd - x0);
+  }
+
+  // 출발 전: 내 말의 인기 순위와 오즈(착순이 없으므로 '내 말 N위' 대신 '내 말 N번 인기')
+  const fav = model.myFavourite;
+  if (fav !== null) {
+    const top3 = fav.rank <= 3;
+    ctx.font = top3 ? FONT_STANDING_HI : FONT_SMALL;
+    ctx.fillStyle = top3 ? PLAYER_RING : TEXT_MAIN;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillText(`내 말 ${fav.rank}번 인기 · ${fav.oddsText}`, x0, ruleY + STANDING_TEXT_DY, xEnd - x0);
   }
 
   // 진행 막대: 선두의 결승까지 비율. 고저 단면의 선두 표식 x 를 단면 띠 폭으로 환산한다(s / distance).
@@ -785,8 +823,16 @@ function drawRightPanel(ctx: CanvasRenderingContext2D, model: StripModel): void 
   if (right.board !== null) {
     drawBoard(ctx, right.board, x0, xEnd);
   } else {
+    if (right.heading !== null) {
+      ctx.font = FONT_HEADING;
+      ctx.fillStyle = TEXT_MUTED;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillText(right.heading, x0, ROW_TOP + HEADING_BASELINE_Y, xEnd - x0);
+    }
+    const rowsTop = rowsTopOf(model);
     right.rows.forEach((row, i) => {
-      drawStandingRow(ctx, row, i, x0, xEnd);
+      drawStandingRow(ctx, row, i, rowsTop, x0, xEnd);
     });
     drawStanding(ctx, model, x0, xEnd);
   }

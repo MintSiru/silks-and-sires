@@ -57,7 +57,7 @@ export default function ReplayPanel({ state, initialKey = null }: ReplayPanelPro
           <li key={item.key}>
             <button
               type="button"
-              className="btn"
+              className={item.key === activeKey ? 'btn btn--primary' : 'btn'}
               aria-pressed={item.key === activeKey}
               onClick={() => setPicked(item.key)}
             >

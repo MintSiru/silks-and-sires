@@ -23,8 +23,3 @@
   padding: 6px 10px;
   overflow-wrap: anywhere;
 }
-
-.replay-list .btn[aria-pressed='true'] {
-  background: #1f4e9c;
-  border-color: #2d64be;
-}

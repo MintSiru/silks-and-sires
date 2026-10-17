@@ -297,11 +297,12 @@ describe('색 대비', () => {
 
 describe('표기', () => {
   it('formatDistanceLabel', () => {
-    expect(formatDistanceLabel('turf', 1600)).toBe('TURF 1,600m (8f)');
-    expect(formatDistanceLabel('aw', 1207)).toBe('AW 1,207m (6f)');
-    expect(formatDistanceLabel('turf', 1100)).toBe('TURF 1,100m (5½f)');
-    expect(formatDistanceLabel('turf', 1408)).toBe('TURF 1,408m (7f)');
-    expect(formatDistanceLabel('turf', 2012)).toBe('TURF 2,012m (10f)');
+    // M7-R2b: 주로·거리 표기는 한국어(잔디 · 올웨더 · 더트)
+    expect(formatDistanceLabel('turf', 1600)).toBe('잔디 1,600m (8f)');
+    expect(formatDistanceLabel('aw', 1207)).toBe('올웨더 1,207m (6f)');
+    expect(formatDistanceLabel('dirt', 1100)).toBe('더트 1,100m (5½f)');
+    expect(formatDistanceLabel('turf', 1408)).toBe('잔디 1,408m (7f)');
+    expect(formatDistanceLabel('turf', 2012)).toBe('잔디 2,012m (10f)');
   });
 
   it('formatRemaining', () => {
@@ -373,19 +374,20 @@ describe('buildStripModel', () => {
 
   it('좌측 패널 라벨: 거리·마장·남은 거리·선두 속도', () => {
     const model = build(0);
-    expect(model.left.distanceLabel).toBe('TURF 1,200m (6f)');
-    expect(model.left.goingLabel).toBe('GOOD');
+    expect(model.left.surfaceLabel).toBe('잔디');
+    expect(model.left.distanceText).toBe('1,200m (6f)');
+    expect(model.left.goingLabel).toBe('좋음');
     expect(model.left.remainingLabel).toBe('6f');
     expect(model.left.speedLabel).toBe('72 km/h');
     expect(model.left.leader).toEqual({ x: 0, y: 0 });
   });
 
-  it('출발 직후에는 결승선이 창 밖이라 finishX 가 null', () => {
-    expect(build(0).center.finishX).toBeNull();
+  it('출발 직후에는 결승선이 창 밖이라 F 표지가 없다', () => {
+    expect(build(0).poles.map((p) => p.label)).not.toContain('F');
   });
 
   it('t=50 에는 1펄롱 표지(1f)가 창 안에 있다', () => {
-    const labels = build(50).center.poles.map((p) => p.label);
+    const labels = build(50).poles.map((p) => p.label);
     expect(labels).toContain('1f');
   });
 
@@ -397,7 +399,7 @@ describe('buildStripModel', () => {
     const done = build(62);
     expect(done.right.finished).toBe(true);
     expect(done.right.rows[0]?.marginText).toBe('1착');
-    expect(done.center.finishX).not.toBeNull();
+    expect(done.poles.map((p) => p.label)).toContain('F');
   });
 
   it('2착이 코 차이면 승자 통과(60s)부터 2초 동안 사진 판정 컷', () => {

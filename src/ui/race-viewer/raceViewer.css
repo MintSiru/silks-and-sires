@@ -18,13 +18,6 @@
   padding: 4px 10px;
 }
 
-/* 현재 배속 강조(aria-pressed 와 함께 쓴다) */
-.race-viewer-controls .btn.is-active {
-  background: #1f4e9c;
-  border-color: #2d64be;
-  color: #ffffff;
-}
-
 .race-viewer-subtitle {
   color: var(--text);
   font-size: 14px;

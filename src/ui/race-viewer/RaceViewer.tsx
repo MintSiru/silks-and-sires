@@ -140,7 +140,7 @@ export default function RaceViewer(props: RaceViewerProps): JSX.Element {
           <button
             key={s}
             type="button"
-            className={speed === s ? 'btn is-active' : 'btn'}
+            className={speed === s ? 'btn btn--primary' : 'btn'}
             aria-pressed={speed === s}
             onClick={() => setSpeed(s)}
           >

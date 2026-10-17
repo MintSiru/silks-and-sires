@@ -3,6 +3,7 @@
  * 그리기는 stripRenderer.ts 가 담당한다.
  */
 import type {
+  FractionalOdds,
   Going,
   HexColor,
   Margin,
@@ -19,7 +20,7 @@ import type {
 } from '../../engine/types';
 import { formatMarginKo, marginFromLengths } from '../../engine/race/results';
 import { formatOdds } from '../../engine/race/odds';
-import { goingLabel } from '../../engine/going/going';
+import { goingKo } from '../horse/horseDetailView';
 import { SECTIONAL_STEP_M } from '../../engine/config/results';
 import { PHOTO_MARGIN_LABELS } from '../../engine/config/commentary';
 import { timeToReach } from '../../engine/commentary/events';
@@ -92,6 +93,10 @@ const LANE_SMOOTH_SAMPLES = 7;
 const COLLISION_RATIO = 1.4;
 /** 플레이어 이름표와 원판 윗변 사이 간격(px) */
 const PLAYER_TAG_GAP_PX = 4;
+/** 출발 전(τ<0) 우측 패널 제목. 근거: Opus 결정(2026-10-17) — 출발 전에는 실시간 순위 대신 인기 순. */
+const PRE_RACE_HEADING = '인기 순';
+/** 결승 기둥 라벨(펄롱 표지와 구분하는 문자) */
+const FINISH_LABEL = 'F';
 
 // ── 타입 ───────────────────────────────────────────────────────────────
 export interface ViewerInfo {
@@ -170,12 +175,15 @@ export interface Rect {
   h: number;
 }
 
-/** 출발 대기 화면. phase: loading(칸 안으로 들어가는 중) · ready(문 앞 정렬) · open(문 열림 표시). */
+/**
+ * 출발 게이트. phase: loading(칸 안으로 들어가는 중) · ready(문 앞 정렬) · open(문 열림 표시) ·
+ * left(출발 뒤 게이트가 뒤에 남아 카메라와 함께 왼쪽으로 흘러간다. 앞문이 띠 왼쪽 밖으로 나가면 게이트는 null).
+ */
 export interface GateView {
-  phase: 'loading' | 'ready' | 'open';
-  /** 출발까지 남은 초. open 이면 0. */
+  phase: 'loading' | 'ready' | 'open' | 'left';
+  /** 출발까지 남은 초. open·left 이면 0. */
   remaining: number;
-  /** 칸 열의 x(카메라 창 기준, 출발선 progress 0) */
+  /** 칸 열의 x(카메라 창 기준, 출발선 progress 0). 카메라를 따라 움직인다. */
   x: number;
   /** index = draw − 1 인 칸 y. draw 1 = 내측 = 아래. */
   stalls: number[];
@@ -187,6 +195,20 @@ export interface MyStanding {
   behind: string | null;
 }
 
+/** 출발 전 내 말의 인기 순위(1 = 가장 낮은 오즈)와 오즈 표기. */
+export interface MyFavourite {
+  rank: number;
+  oddsText: string;
+}
+
+/** 이름표 자리. above: (x 가운데, y 는 상자 아래쪽). right: (x 는 상자 왼쪽, y 는 상자 세로 가운데). */
+export interface PlayerTag {
+  x: number;
+  y: number;
+  name: string;
+  placement: 'above' | 'right';
+}
+
 export interface StripModel {
   width: number;
   height: number;
@@ -194,7 +216,11 @@ export interface StripModel {
     layout: PathPoint[];
     race: PathPoint[];
     leader: PathPoint;
-    distanceLabel: string;
+    /** 주로 한국어: 잔디 · 올웨더 · 더트 */
+    surfaceLabel: string;
+    /** 거리 한국어 표기: '1,200m (6f)' */
+    distanceText: string;
+    /** 마장 한국어: 좋음 · 표준 · 진흙 …(goingKo) */
     goingLabel: string;
     remainingLabel: string;
     speedLabel: string;
@@ -204,15 +230,17 @@ export interface StripModel {
   center: {
     rect: Rect;
     discs: DiscPlacement[];
-    poles: { x: number; label: string }[];
-    finishX: number | null;
+    /** 카메라 창(progress 단위, m). 잔디 줄무늬 등 주로 그림이 이 창에 맞춰 흐른다. */
+    camera: CameraWindow;
     /** 선두가 지난 마지막 펄롱 구간 시간("12.6s"). 첫 구간을 다 지나기 전이면 null */
     split: string | null;
     /** 사진 판정 컷. 사진 판정 레이스이고 t0 ≤ t < t0 + PHOTO_HOLD_S 일 때만 값이 있다. */
     photoCut: PhotoCut | null;
   };
   right: {
-    /** 실시간 순위(결승 전) 또는 확정 순위 상위 3두 */
+    /** 제목: 출발 전이면 '인기 순', 그 밖은 null */
+    heading: string | null;
+    /** 실시간 순위(결승 전) 또는 확정 순위 상위 3두. 출발 전에는 인기 순 상위 3두(착차 없음, 오즈만). */
     rows: StandingRow[];
     /** 결과판(상위 BOARD_COUNT두). 사진 컷이 끝나고 3착까지 통과한 뒤에만 값이 있다. */
     board: BoardRow[] | null;
@@ -221,14 +249,16 @@ export interface StripModel {
     courseName: string;
     finished: boolean;
   };
-  /** 출발 대기 중이면 게이트 뷰. 게이트 구간 밖(τ ≥ GATE_OPEN_FLASH_S)이면 null. */
+  /** 출발 게이트. 출발 전(loading·ready)·출발 직후(open)·뒤에 남은 게이트(left). 카메라 밖으로 나가면 null. */
   gate: GateView | null;
-  /** 카메라 창 안의 펄롱 표지('5f' 식) 와 결승선 'F'. x 오름차순. center.poles 와 같은 표지에 결승선을 더한 것. */
+  /** 카메라 창 안의 펄롱 표지('5f' 식) 와 결승선 'F'. x 오름차순. */
   poles: { x: number; label: string }[];
-  /** 플레이어 말 원판 위 이름표 자리(x·y 는 strip 좌표) */
-  playerTags: { x: number; y: number; name: string }[];
-  /** 첫 플레이어 말의 현재 순위(결승 후는 확정 순위). 플레이어 말이 없으면 null. */
+  /** 플레이어 말 이름표. 출발 대기 중에는 게이트 오른쪽(앞문 바깥)에 같은 높이로 둔다. */
+  playerTags: PlayerTag[];
+  /** 첫 플레이어 말의 현재 순위(결승 후는 확정 순위). 출발 전·플레이어 말 없음이면 null. */
   myStanding: MyStanding | null;
+  /** 출발 전 내 말의 인기 순위와 오즈. 출발 뒤·플레이어 말 없음이면 null. */
+  myFavourite: MyFavourite | null;
   surface: Surface;
 }
 
@@ -396,6 +426,51 @@ export function finalStandings(result: RaceResult, info: ViewerInfo, count = 3):
   });
 }
 
+// ── 출발 전 인기 순 (M7-R2b) ─────────────────────────────────────────
+/** 오즈 값(분수 num/den). 오즈가 없으면 무한대(맨 뒤). */
+function oddsValueOf(odds: FractionalOdds | null): number {
+  return odds === null ? Infinity : odds.num / odds.den;
+}
+
+/** 인기 순 runner index 배열: 오즈가 낮은 순, 같으면 마번 오름차순. */
+export function favouriteOrder(info: ViewerInfo): number[] {
+  const idx = info.entries.map((_, i) => i);
+  idx.sort((a, b) => {
+    const va = oddsValueOf(requireEntry(info, a).odds);
+    const vb = oddsValueOf(requireEntry(info, b).odds);
+    if (va !== vb) return va < vb ? -1 : 1;
+    return requireEntry(info, a).saddleCloth - requireEntry(info, b).saddleCloth;
+  });
+  return idx;
+}
+
+/** 출발 전 인기 순 상위 count 두. 착차 자리는 비우고(빈 문자열) 오즈만 보인다. */
+export function favouriteStandings(info: ViewerInfo, count = 3): StandingRow[] {
+  return favouriteOrder(info)
+    .slice(0, count)
+    .map((runnerIndex) => {
+      const entry = requireEntry(info, runnerIndex);
+      return {
+        runnerIndex,
+        saddleCloth: entry.saddleCloth,
+        silksPrimary: entry.silks.primary,
+        silks: entry.silks,
+        horseName: horseNameOf(info, runnerIndex),
+        marginText: '',
+        oddsText: entry.odds === null ? '-' : formatOdds(entry.odds),
+      };
+    });
+}
+
+/** 출발 전 내 말의 인기 순위와 오즈. 플레이어 말이 없으면 null. */
+function myFavouriteOf(info: ViewerInfo): MyFavourite | null {
+  const order = favouriteOrder(info);
+  const pos = order.findIndex((i) => requireEntry(info, i).isPlayer);
+  if (pos < 0) return null;
+  const entry = requireEntry(info, order[pos] ?? 0);
+  return { rank: pos + 1, oddsText: entry.odds === null ? '-' : formatOdds(entry.odds) };
+}
+
 /** OR 변동 표기. 첫 OR 은 "첫 OR 98", 변동은 "+3", "−2", 0 은 "±0". */
 export function formatRatingChange(change: { from: number | null; to: number }): string {
   if (change.from === null) return `첫 OR ${change.to}`;
@@ -499,9 +574,21 @@ function thousands(n: number): string {
   return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
-/** 'TURF 1,600m (8f)', 'AW 1,207m (6f)', 'TURF 1,100m (5½f)' */
+/** 주로 종류 한국어: 잔디 · 올웨더 · 더트 */
+const SURFACE_LABEL_KO: Record<Surface, string> = { turf: '잔디', aw: '올웨더', dirt: '더트' };
+
+export function surfaceLabelKo(surface: Surface): string {
+  return SURFACE_LABEL_KO[surface];
+}
+
+/** '1,600m (8f)', '1,207m (6f)', '1,100m (5½f)' */
+export function formatDistanceText(distance: number): string {
+  return `${thousands(distance)}m (${furlongCountText(distance / FURLONG_M)}f)`;
+}
+
+/** '잔디 1,600m (8f)', '올웨더 1,207m (6f)', '잔디 1,100m (5½f)' */
 export function formatDistanceLabel(surface: Surface, distance: number): string {
-  return `${surface.toUpperCase()} ${thousands(distance)}m (${furlongCountText(distance / FURLONG_M)}f)`;
+  return `${surfaceLabelKo(surface)} ${formatDistanceText(distance)}`;
 }
 
 /** 남은 거리 표기. 결승 통과 후는 '결승'. */
@@ -742,12 +829,23 @@ function smoothstep(v: number): number {
   return s * s * (3 - 2 * s);
 }
 
-/** τ 시점의 게이트 단계. 게이트 구간 밖이면 null. */
-function gatePhaseAt(t: number): GateView['phase'] | null {
+/**
+ * τ 시점의 게이트 단계. 출발 뒤에도 게이트는 뒤에 남아 카메라와 함께 흐른다(left).
+ * 앞문(게이트 x + 원판 반지름)이 띠 왼쪽 밖으로 나가면 null.
+ */
+function gatePhaseAt(t: number, gateX: number, rect: Rect): GateView['phase'] | null {
   if (t < -GATE_READY_LEAD_S) return 'loading';
   if (t < 0) return 'ready';
   if (t < GATE_OPEN_FLASH_S) return 'open';
-  return null;
+  return gateX >= rect.x - DISC_RADIUS ? 'left' : null;
+}
+
+/** 게이트 뷰. phase 가 null 이면 게이트 없음. */
+function gateViewAt(t: number, gateX: number, rect: Rect, stalls: number[]): GateView | null {
+  const phase = gatePhaseAt(t, gateX, rect);
+  if (phase === null) return null;
+  const waiting = phase === 'loading' || phase === 'ready';
+  return { phase, remaining: waiting ? Math.max(0, -t) : 0, x: gateX, stalls };
 }
 
 /** 칸 y → 레인 y 보간 계수(출발 전 0, START_BLEND_S 동안 0 → 1). */
@@ -872,16 +970,7 @@ export function buildStripModel(args: {
     fieldSpreadM(replay, t),
     { stallY: stalls, blend: startBlendAt(t), progressOffset: gateSlideOffsetAt(t) },
   );
-  const gatePhase = gatePhaseAt(t);
-  const gate: GateView | null =
-    gatePhase === null
-      ? null
-      : {
-          phase: gatePhase,
-          remaining: gatePhase === 'open' ? 0 : Math.max(0, -t),
-          x: xOf(0),
-          stalls,
-        };
+  const gate = gateViewAt(t, xOf(0), rect, stalls);
 
   const poles: { x: number; label: string }[] = [];
   for (let k = 1; ; k++) {
@@ -904,6 +993,7 @@ export function buildStripModel(args: {
   if (last === undefined) throw new RangeError('buildStripModel: 결과에 주자가 없다');
   const third = runners[2] ?? last;
   const finished = frame.t >= third.finishTime;
+  const preRace = t < 0;
   const photoRace = photoCutFor(replay, result);
   const photoOn =
     photoRace !== null && frame.t >= photoRace.t0 && frame.t < photoRace.t0 + PHOTO_HOLD_S;
@@ -912,14 +1002,19 @@ export function buildStripModel(args: {
     photoRace === null ? third.finishTime : Math.max(third.finishTime, photoRace.t0 + PHOTO_HOLD_S);
   const boardOn = frame.t >= boardAt;
 
-  const finishLabel = finishX === null ? [] : [{ x: finishX, label: 'F' }];
-  const playerTags = discs
+  const finishLabel = finishX === null ? [] : [{ x: finishX, label: FINISH_LABEL }];
+  // 출발 대기 중 이름표는 게이트 오른쪽(앞문 바깥)에 같은 높이로 둔다(뒤 칸 원판을 가리지 않게).
+  const gateTagX =
+    gate !== null && (gate.phase === 'loading' || gate.phase === 'ready')
+      ? gate.x + DISC_RADIUS + PLAYER_TAG_GAP_PX
+      : null;
+  const playerTags: PlayerTag[] = discs
     .filter((d) => d.isPlayer)
-    .map((d) => ({
-      x: d.x,
-      y: d.y - DISC_RADIUS - PLAYER_TAG_GAP_PX,
-      name: horseNameOf(info, d.runnerIndex),
-    }));
+    .map((d) => {
+      const name = horseNameOf(info, d.runnerIndex);
+      if (gateTagX !== null) return { x: gateTagX, y: d.y, name, placement: 'right' };
+      return { x: d.x, y: d.y - DISC_RADIUS - PLAYER_TAG_GAP_PX, name, placement: 'above' };
+    });
 
   return {
     width,
@@ -928,8 +1023,9 @@ export function buildStripModel(args: {
       layout: path.layoutPolyline,
       race: path.racePolyline,
       leader: path.sample(leaderProgress).point,
-      distanceLabel: formatDistanceLabel(info.surface, distance),
-      goingLabel: goingLabel(info.going),
+      surfaceLabel: surfaceLabelKo(info.surface),
+      distanceText: formatDistanceText(distance),
+      goingLabel: goingKo(info.going),
       remainingLabel: formatRemaining(distance - leaderProgress),
       speedLabel: `${speedKmh(leaderSpeed)} km/h`,
       profile,
@@ -937,13 +1033,17 @@ export function buildStripModel(args: {
     center: {
       rect,
       discs,
-      poles,
-      finishX,
+      camera: { from: win.from, to: win.to },
       split,
       photoCut: photoOn && photoRace !== null ? photoRace : null,
     },
     right: {
-      rows: finished ? finalStandings(result, info) : liveStandings(frame, info),
+      heading: preRace ? PRE_RACE_HEADING : null,
+      rows: preRace
+        ? favouriteStandings(info)
+        : finished
+          ? finalStandings(result, info)
+          : liveStandings(frame, info),
       board: boardOn ? resultBoard(result, info) : null,
       raceName: info.raceName,
       gradeBadge: gradeBadgeOf(info.grade),
@@ -953,7 +1053,8 @@ export function buildStripModel(args: {
     gate,
     poles: [...poles, ...finishLabel].sort((a, b) => a.x - b.x),
     playerTags,
-    myStanding: myStandingOf(frame, info, result, finished),
+    myStanding: preRace ? null : myStandingOf(frame, info, result, finished),
+    myFavourite: preRace ? myFavouriteOf(info) : null,
     surface: info.surface,
   };
 }
