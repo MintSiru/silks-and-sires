@@ -1,4 +1,4 @@
-/* global console, process, URL, document, indexedDB */
+/* global console, process, URL, document, indexedDB, Blob, Response, DecompressionStream, CompressionStream */
 // UI 검토용 스크린숏(1440×900, 새 게임 → 24주 진행 뒤). 먼저 npm run build. 실행: npm run screens
 // 결과: docs/feedback/screens/*.png — 아스트라·아르곤 재검토(docs/feedback/ui-review-request.md) 첨부용
 // 01~15: 기본 메뉴·말 상세·설정. 16~22: 다건 기록 저장본(연대기 접힘·전체), 판매 탭, 공사 중 목장,
@@ -105,7 +105,18 @@ await step('16-기록-연대기-예시', async () => {
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });
-    const envelope = JSON.parse(record.json);
+    // 압축 레코드(gz)는 풀어서 고치고 다시 gz 로 쓴다. 옛 json 레코드는 지금처럼 json 으로 쓴다(M6-S S1).
+    const readRecordText = (rec) => (rec.gz
+      ? new Response(new Blob([rec.gz]).stream().pipeThrough(new DecompressionStream('gzip'))).text()
+      : Promise.resolve(rec.json));
+    const writeRecordText = async (rec, text) => {
+      if (rec.gz) {
+        rec.gz = new Uint8Array(await new Response(new Blob([text]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer());
+      } else {
+        rec.json = text;
+      }
+    };
+    const envelope = JSON.parse(await readRecordText(record));
     const state = envelope.state;
     const horses = Object.values(state.horses).filter((horse) => horse.ownerId === state.playerOwnerId);
     const runner = horses.find((horse) => horse.status === 'in_training');
@@ -130,7 +141,7 @@ await step('16-기록-연대기-예시', async () => {
     state.date = { year: year + 1, week: 1 };
     state.season.year = year + 1;
     state.yearEnd.lastSubmittedYear = year + 1;
-    record.json = JSON.stringify(envelope);
+    await writeRecordText(record, JSON.stringify(envelope));
     await new Promise((resolve, reject) => {
       const tx = db.transaction('data', 'readwrite');
       tx.objectStore('data').put(record);

@@ -1,4 +1,4 @@
-/* global console, process, URL, document, window, requestAnimationFrame, indexedDB */
+/* global console, process, URL, document, window, requestAnimationFrame, indexedDB, Blob, Response, DecompressionStream, CompressionStream */
 // 먼저 npm run build -- --configLoader runner 를 실행한다.
 // npm run dev 없이 빌드 산출물을 Playwright 요청 가로채기로 제공한다.
 // 실행: node tests/ui/ux2-shell.smoke.mjs
@@ -186,7 +186,18 @@ function writeReport(extra = {}) {
         request.onsuccess = () => resolve(request.result);
         request.onerror = () => reject(request.error);
       });
-      const envelope = JSON.parse(record.json);
+      // 압축 레코드(gz)는 풀어서 고치고 다시 gz 로 쓴다. 옛 json 레코드는 지금처럼 json 으로 쓴다(M6-S S1).
+      const readRecordText = (rec) => (rec.gz
+        ? new Response(new Blob([rec.gz]).stream().pipeThrough(new DecompressionStream('gzip'))).text()
+        : Promise.resolve(rec.json));
+      const writeRecordText = async (rec, text) => {
+        if (rec.gz) {
+          rec.gz = new Uint8Array(await new Response(new Blob([text]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer());
+        } else {
+          rec.json = text;
+        }
+      };
+      const envelope = JSON.parse(await readRecordText(record));
       const state = envelope.state;
       const horses = Object.values(state.horses).filter((horse) => horse.ownerId === state.playerOwnerId);
       const runner = horses.find((horse) => horse.status === 'in_training');
@@ -211,7 +222,7 @@ function writeReport(extra = {}) {
       state.date = { year: year + 1, week: 1 };
       state.season.year = year + 1;
       state.yearEnd.lastSubmittedYear = year + 1;
-      record.json = JSON.stringify(envelope);
+      await writeRecordText(record, JSON.stringify(envelope));
       await new Promise((resolve, reject) => {
         const tx = db.transaction('data', 'readwrite');
         tx.objectStore('data').put(record);
