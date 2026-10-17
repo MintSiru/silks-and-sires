@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
@@ -66,6 +67,17 @@ describe('교배 진행 방식 안내 (A1)', () => {
 describe('새 게임 확인 문구 (A1)', () => {
   it('저장하지 않은 진행을 잃는다는 경고를 담는다', () => {
     expect(NEW_GAME_WARNING_KO).toContain('저장하지 않은');
+  });
+});
+
+describe('새 게임 위험 버튼 (M6-W 항목 22)', () => {
+  it('위험 버튼 규칙은 위험 토큰 배경·테두리와 밝은 글자를 쓰고 새 색 코드를 넣지 않는다', () => {
+    const css = readFileSync(new URL('../../src/ui/shell/shell.css', import.meta.url), 'utf8');
+    const rule = css.match(/\.shell-danger__button\s*\{([^}]*)\}/)?.[1] ?? '';
+    expect(rule).toContain('background: var(--danger-bg)');
+    expect(rule).toContain('border-color: var(--danger-fg)');
+    expect(rule).toContain('color: var(--text)');
+    expect(rule).not.toMatch(/#[0-9a-fA-F]{3,8}|rgba?\(/);
   });
 });
 

@@ -169,6 +169,15 @@ section.mating-plan .mating-plan__table .badge {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
+/* 주의·위험 배합 수가 1 이상이면 상태 색 토큰과 600 으로 강조한다(M6-W 항목 21) */
+.mating-plan__summary dd.mating-plan__count--caution {
+  color: var(--warn-fg);
+  font-weight: 600;
+}
+.mating-plan__summary dd.mating-plan__count--danger {
+  color: var(--danger-fg);
+  font-weight: 600;
+}
 .mating-plan__dialog-actions {
   display: flex;
   justify-content: flex-end;
@@ -181,4 +190,51 @@ section.mating-plan .mating-plan__table .badge {
 }
 .mating-plan__dialog .btn--primary {
   color: var(--text);
+}
+
+/* 확인 창: 주의·위험 배합 행 목록. 많으면 160px 안에서 스크롤하고 마지막 줄이 잘리지 않게 아래 여백을 둔다. */
+.mating-plan__flags-box {
+  margin: 0 0 8px;
+}
+.mating-plan__flags-title {
+  margin: 0 0 4px;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 600;
+}
+.mating-plan__flags {
+  box-sizing: border-box;
+  max-height: 160px;
+  margin: 0;
+  padding: 0 0 12px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+}
+.mating-plan__flag {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 36px;
+  padding: 2px 0;
+  border-bottom: 1px solid var(--border);
+}
+.mating-plan__flag-text {
+  min-width: 0;
+  font-size: 13px;
+  line-height: 18px;
+  word-break: keep-all;
+}
+.mating-plan__flag-text--warn {
+  color: var(--warn-fg);
+}
+.mating-plan__flag-text--danger {
+  color: var(--danger-fg);
+}
+.mating-plan__flag .btn {
+  flex: none;
+  height: 32px;
+  box-sizing: border-box;
 }

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { bookingSeasonOf } from '../../engine/breeding/season';
 import { getNicks, getStallionRecords } from '../../engine/data/staticData';
 import type { GameState } from '../../engine/types';
@@ -6,6 +6,7 @@ import { GradeBadge, StatusBadge } from '../common/Badge';
 import { feeKo } from '../game/text';
 import type { GameApi } from '../game/useGame';
 import HorseLink from '../horse/HorseLink';
+import { useNotify } from '../shell/notify';
 import {
   approvalSummary,
   bulkApproveState,
@@ -17,10 +18,32 @@ import {
 } from './matingPlanView';
 import './matingPlan.css';
 
+/** 표 행의 식별 키(data-row 와 맞춘다). */
+export function rowKeyOf(r: MatingPlanRow): string {
+  return `${r.season}:${r.mareId}`;
+}
+
+/** 승인 대상 중 주의·위험 배합 행. 위험을 먼저, 그다음 주의(approvalSummary 와 같은 기준). */
+export function flaggedRows(rows: readonly MatingPlanRow[]): MatingPlanRow[] {
+  const targets = rows.filter((r) => r.canApprove);
+  return [
+    ...targets.filter((r) => r.judgement.tone === 'danger'),
+    ...targets.filter((r) => r.judgement.tone === 'warn'),
+  ];
+}
+
 /** 모두 승인 확인 창. 대상 두수·총 종부료·주의/위험 배합 수를 보여 주고, 확인해야 실행된다. */
 export function MatingApproveDialog({
-  summary, onConfirm, onCancel,
-}: { summary: ApprovalSummary; onConfirm: () => void; onCancel: () => void }) {
+  summary, flagged = [], onReview, onConfirm, onCancel,
+}: {
+  summary: ApprovalSummary;
+  /** 주의·위험 배합 행 목록(한 줄씩, '검토' 버튼 포함) */
+  flagged?: readonly MatingPlanRow[];
+  /** '검토': 확인 창을 닫고 표의 그 행 근거를 펼쳐 포커스한다 */
+  onReview?: (row: MatingPlanRow) => void;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
   return (
     <div className="mating-plan__scrim">
       <div
@@ -37,10 +60,29 @@ export function MatingApproveDialog({
           <dt>예상 총 종부료</dt>
           <dd>{feeKo(summary.totalFee)}</dd>
           <dt>주의 배합</dt>
-          <dd>{`${summary.cautionCount}건`}</dd>
+          <dd className={summary.cautionCount > 0 ? 'mating-plan__count--caution' : undefined}>
+            {`${summary.cautionCount}건`}
+          </dd>
           <dt>위험 배합</dt>
-          <dd>{`${summary.riskCount}건`}</dd>
+          <dd className={summary.riskCount > 0 ? 'mating-plan__count--danger' : undefined}>
+            {`${summary.riskCount}건`}
+          </dd>
         </dl>
+        {flagged.length > 0 && (
+          <section className="mating-plan__flags-box" aria-label="주의·위험 배합 목록">
+            <h4 className="mating-plan__flags-title">주의·위험 배합</h4>
+            <ul className="mating-plan__flags">
+              {flagged.map((r) => (
+                <li key={rowKeyOf(r)} className="mating-plan__flag">
+                  <span className={`mating-plan__flag-text mating-plan__flag-text--${r.judgement.tone}`}>
+                    {`${r.mareName} × ${r.stallionName} — ${r.judgement.summary}`}
+                  </span>
+                  <button type="button" className="btn" onClick={() => onReview?.(r)}>검토</button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
         {summary.riskCount > 0 && (
           <p className="notice notice--error" role="note">
             위험 배합이 포함되어 있습니다. 건강·능력 저하 위험이 있습니다.
@@ -64,20 +106,37 @@ export default function MatingPlanPanel({
   const rows = useMemo(() => matingPlanRows(state, {
     nicks: getNicks(), stallionRecords: getStallionRecords(),
   }), [state]);
-  const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
+  const notify = useNotify();
   const [cap, setCap] = useState<string | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const windowOpen = bookingSeasonOf(state.date) !== null;
   const unavailable = locked || !windowOpen;
   const bulk = bulkApproveState(rows, { locked, windowOpen });
   const summary = useMemo(() => approvalSummary(rows), [rows]);
+  const flags = useMemo(() => flaggedRows(rows), [rows]);
+  const tableRef = useRef<HTMLDivElement>(null);
+  /** 확인 창의 '검토': 창을 닫고 표에서 그 행을 찾아 근거를 펼치고 행으로 스크롤해 포커스한다. */
+  const reviewRow = (r: MatingPlanRow) => {
+    setConfirmOpen(false);
+    const trs = tableRef.current
+      ? Array.from(tableRef.current.querySelectorAll<HTMLTableRowElement>('tr[data-row]'))
+      : [];
+    const tr = trs.find((el) => el.dataset.row === rowKeyOf(r));
+    if (!tr) return;
+    const why = tr.querySelector('details');
+    if (why) why.open = true;
+    tr.scrollIntoView({ block: 'center' });
+    tr.querySelector<HTMLElement>('summary')?.focus();
+  };
+  /** 결과 알림은 토스트로 보낸다(M6-W 알림 통일). 건너뛴 제안이 있으면 사유를 실패 톤으로 보인다. */
   const show = (result: ReturnType<GameApi['approveMating']>, text: string) => {
     if (!result.ok) {
-      setNotice({ ok: false, text: matingPlanErrorKo(result.error) });
+      notify(matingPlanErrorKo(result.error), 'error');
       return;
     }
     const skipped = result.events.filter((e) => e.type === 'mating_proposal_skipped');
-    setNotice({ ok: skipped.length === 0, text: skipped.length > 0 ? skipped.map((e) => e.reason).join(' · ') : text });
+    if (skipped.length > 0) notify(skipped.map((e) => e.reason).join(' · '), 'error');
+    else notify(text, 'ok');
   };
   const applyCap = () => {
     const input = cap ?? (state.settings.matingFeeCap == null ? '' : String(state.settings.matingFeeCap));
@@ -133,11 +192,10 @@ export default function MatingPlanPanel({
       {unavailable && (
         <p className="hint">{locked ? '현재 진행이 잠겨 있습니다.' : '예약 창이 열리면 제안을 검토할 수 있습니다.'}</p>
       )}
-      {notice && <p className={`notice notice--${notice.ok ? 'ok' : 'error'}`} role="status">{notice.text}</p>}
       {rows.length === 0 ? (
         <p className="empty-state">현재 교배 제안이 없습니다. 예약 창에서 교배 담당에게 다시 짜기를 요청하세요.</p>
       ) : (
-        <div className="table-scroll mating-plan__scroll">
+        <div className="table-scroll mating-plan__scroll" ref={tableRef}>
           <table className="data-table mating-plan__table">
             <thead>
               <tr>
@@ -162,6 +220,8 @@ export default function MatingPlanPanel({
       {confirmOpen && bulk.enabled && (
         <MatingApproveDialog
           summary={summary}
+          flagged={flags}
+          onReview={reviewRow}
           onConfirm={confirmApproveAll}
           onCancel={() => setConfirmOpen(false)}
         />
@@ -180,7 +240,7 @@ function MatingPlanTableRow({
   onRemove: () => void;
 }) {
   return (
-    <tr>
+    <tr data-row={rowKeyOf(r)}>
       <th scope="row" className="mating-plan__mare">
         <HorseLink horseId={r.mareId} name={r.mareName} />
         <GradeBadge grade={r.qualityGrade} />

@@ -28,6 +28,7 @@ import {
 } from '../game/text';
 import { type GameApi } from '../game/useGame';
 import HorseLink from '../horse/HorseLink';
+import { useNotify } from '../shell/notify';
 import { salePriceWithNominationsKo } from '../yearEnd/yearEndView';
 import {
   bookingWindowKo,
@@ -84,11 +85,6 @@ function returnSeasonChoices(year: number): number[] {
   return Array.from({ length: last - first + 1 }, (_, i) => first + i);
 }
 
-interface Notice {
-  tone: 'ok' | 'error';
-  text: string;
-}
-
 function lineLabelOf(sireLineId: string | null): string {
   if (sireLineId === null) return NO_VALUE;
   return SIRE_LINE_LABEL.get(sireLineId) ?? sireLineId;
@@ -132,14 +128,11 @@ function BreedingView({ state, game, locked }: BreedingViewProps): JSX.Element {
   const [mareId, setMareId] = useState<HorseId | null>(null);
   const [stallionId, setStallionId] = useState<HorseId | null>(null);
   const [query, setQuery] = useState('');
-  const [notice, setNotice] = useState<Notice | null>(null);
+  /** 성공·실패 알림은 토스트로 보낸다(M6-W 알림 통일) */
+  const notify = useNotify();
   const [pendingDeal, setPendingDeal] = useState<PendingDeal | null>(null);
-  const [dealError, setDealError] = useState<string | null>(null);
   /** 은퇴 확인 단계 중인 내 종마(한 번에 한 두만 확인한다) */
   const [retireTarget, setRetireTarget] = useState<HorseId | null>(null);
-  const [retireError, setRetireError] = useState<string | null>(null);
-  /** 비공개 전환 실패 사유(확인 단계 없이 바로 적용한다) */
-  const [privateError, setPrivateError] = useState<string | null>(null);
 
   /** 이름 없는 모마 칸(~dam)은 미상 이름('—')으로 보인다 */
   const nameOf = (id: HorseId): string => pedigreeNameOf(state, id);
@@ -180,19 +173,17 @@ function BreedingView({ state, game, locked }: BreedingViewProps): JSX.Element {
     const result = game.book(mareId, stallionId);
     if (result.ok) {
       // 예약 이벤트는 useGame 이 eventLog 에 이미 붙였다. 여기서는 알림만 띄운다.
-      setNotice({ tone: 'ok', text: `${nameOf(mareId)} 교배 예약 완료 (종마 ${nameOf(stallionId)})` });
+      notify(`${nameOf(mareId)} 교배 예약 완료 (종마 ${nameOf(stallionId)})`, 'ok');
     } else {
       // 캐주얼 모드에서 빚이 남아 있으면 자금 부족 대신 '빚을 갚기 전에는…' 문구를 보인다
       const casualDebt = state.economy.mode === 'casual' && state.economy.debt > 0;
-      setNotice({ tone: 'error', text: bookingErrorKo(result.error, casualDebt) });
+      notify(bookingErrorKo(result.error, casualDebt), 'error');
     }
   };
 
   /** 거래 확인 단계를 연다. 국내 판매는 교배권 0개, 장기 임대는 가장 이른 복귀 시즌이 기본이다. */
   const startDeal = (horseId: HorseId, kind: DealKind): void => {
-    setDealError(null);
     setRetireTarget(null);
-    setRetireError(null);
     setPendingDeal({
       horseId,
       kind,
@@ -204,31 +195,24 @@ function BreedingView({ state, game, locked }: BreedingViewProps): JSX.Element {
   /** 은퇴 확인 단계를 연다. 거래 확인 단계는 닫는다. */
   const startRetire = (horseId: HorseId): void => {
     setPendingDeal(null);
-    setDealError(null);
-    setRetireError(null);
     setRetireTarget(horseId);
   };
 
-  /** 은퇴를 확정한다. 실패하면 사유를 alert 로 보인다. */
+  /** 은퇴를 확정한다. 실패하면 사유를 토스트로 보인다. */
   const confirmRetire = (): void => {
     if (retireTarget === null) return;
     const name = nameOf(retireTarget);
     const result = game.retireStallion(retireTarget);
     setRetireTarget(null);
-    if (result.ok) {
-      setRetireError(null);
-      setNotice({ tone: 'ok', text: `${name} 은퇴 완료` });
-    } else {
-      setRetireError(retireErrorKo(result.error));
-    }
+    if (result.ok) notify(`${name} 은퇴 완료`, 'ok');
+    else notify(retireErrorKo(result.error), 'error');
   };
 
   const cancelRetire = (): void => {
     setRetireTarget(null);
-    setRetireError(null);
   };
 
-  /** 확인된 거래를 엔진에 넘긴다. 실패하면 사유를 alert 로 보인다. */
+  /** 확인된 거래를 엔진에 넘긴다. 실패하면 사유를 토스트로 보인다(확인 단계는 그대로 둔다). */
   const confirmDeal = (): void => {
     if (pendingDeal === null) return;
     const { horseId, kind } = pendingDeal;
@@ -238,30 +222,24 @@ function BreedingView({ state, game, locked }: BreedingViewProps): JSX.Element {
         : game.leaseStallion(horseId, kind, kind === 'long' ? pendingDeal.returnSeason : undefined);
     if (result.ok) {
       setPendingDeal(null);
-      setDealError(null);
-      setNotice({ tone: 'ok', text: `${nameOf(horseId)} ${DEAL_LABEL_KO[kind]} 완료` });
+      notify(`${nameOf(horseId)} ${DEAL_LABEL_KO[kind]} 완료`, 'ok');
     } else {
-      setDealError(tradeErrorKo(result.error));
+      notify(tradeErrorKo(result.error), 'error');
     }
   };
 
-  /** 내 종마의 공개 여부를 바꾼다. 확인 단계 없이 바로 적용하고, 실패하면 사유를 alert 로 보인다. */
+  /** 내 종마의 공개 여부를 바꾼다. 확인 단계 없이 바로 적용하고, 결과는 토스트로 보인다. */
   const togglePrivate = (horseId: HorseId, makePrivate: boolean): void => {
     const result = game.setStallionPrivate(horseId, makePrivate);
     if (result.ok) {
-      setPrivateError(null);
-      setNotice({
-        tone: 'ok',
-        text: `${nameOf(horseId)} ${makePrivate ? '비공개로 전환' : '공개로 전환'} 완료`,
-      });
+      notify(`${nameOf(horseId)} ${makePrivate ? '비공개로 전환' : '공개로 전환'} 완료`, 'ok');
     } else {
-      setPrivateError(privateErrorKo(result.error));
+      notify(privateErrorKo(result.error), 'error');
     }
   };
 
   const cancelDeal = (): void => {
     setPendingDeal(null);
-    setDealError(null);
   };
 
   return (
@@ -272,11 +250,6 @@ function BreedingView({ state, game, locked }: BreedingViewProps): JSX.Element {
       </div>
       <details className="panel manual-breeding">
       <summary>수동 배합 · 암말과 종마 고르기</summary>
-      {notice !== null && (
-        <p className={`notice notice--${notice.tone}`} role="status">
-          {notice.text}
-        </p>
-      )}
       <div className="breeding-layout">
         <section className="panel">
           <h3>1. 번식 암말 고르기 ({horses.length}두)</h3>
@@ -596,21 +569,6 @@ function BreedingView({ state, game, locked }: BreedingViewProps): JSX.Element {
               </tbody>
             </table>
           </div>
-        )}
-        {dealError !== null && (
-          <p className="notice notice--error" role="alert">
-            {dealError}
-          </p>
-        )}
-        {retireError !== null && (
-          <p className="notice notice--error" role="alert">
-            {retireError}
-          </p>
-        )}
-        {privateError !== null && (
-          <p className="notice notice--error" role="alert">
-            {privateError}
-          </p>
         )}
         {studView.nominations.length > 0 && (
           <>

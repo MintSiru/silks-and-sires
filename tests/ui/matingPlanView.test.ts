@@ -1,11 +1,12 @@
 import 'fake-indexeddb/auto';
+import { readFileSync } from 'node:fs';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { getNicks, getStallionRecords } from '../../src/engine/data/staticData';
 import type { GameState } from '../../src/engine/types';
 import BreedingScreen from '../../src/ui/breeding/BreedingScreen';
-import MatingPlanPanel, { MatingApproveDialog } from '../../src/ui/breeding/MatingPlanPanel';
+import MatingPlanPanel, { flaggedRows, MatingApproveDialog, rowKeyOf } from '../../src/ui/breeding/MatingPlanPanel';
 import {
   approvalSummary,
   bulkApproveState,
@@ -231,5 +232,47 @@ describe('모두 승인 확인과 버튼 상태', () => {
       summary: { count: 1, totalFee: 1000, cautionCount: 0, riskCount: 0 }, onConfirm: () => {}, onCancel: () => {},
     }));
     expect(safe).not.toContain('위험 배합이 포함');
+  });
+
+  it('주의 배합이 1 이상이면 주의 강조, 위험 배합이 1 이상이면 위험 강조를 단다(0이면 없음)', () => {
+    const hot = renderToStaticMarkup(createElement(MatingApproveDialog, {
+      summary: { count: 2, totalFee: 21_000, cautionCount: 1, riskCount: 1 }, onConfirm: () => {}, onCancel: () => {},
+    }));
+    expect(hot).toContain('<dd class="mating-plan__count--caution">1건</dd>');
+    expect(hot).toContain('<dd class="mating-plan__count--danger">1건</dd>');
+    const calm = renderToStaticMarkup(createElement(MatingApproveDialog, {
+      summary: { count: 1, totalFee: 1000, cautionCount: 0, riskCount: 0 }, onConfirm: () => {}, onCancel: () => {},
+    }));
+    expect(calm).not.toContain('mating-plan__count--caution');
+    expect(calm).not.toContain('mating-plan__count--danger');
+  });
+
+  it('주의·위험 배합 목록은 승인 대상만, 위험 먼저, 행마다 검토 버튼과 함께 그린다', () => {
+    const rows = [
+      fakeRow({ mareId: 'a', mareName: '가상 암말 A', stallionName: '가상 종마 A', judgement: { summary: '주의 — 근친 검토 필요', tone: 'warn' } }),
+      fakeRow({ mareId: 'b', mareName: '가상 암말 B', stallionName: '가상 종마 B', judgement: { summary: '위험 — 근친 검토 필요', tone: 'danger' } }),
+      fakeRow({ mareId: 'c', mareName: '가상 암말 C', stallionName: '가상 종마 C', judgement: { summary: '궁합 좋음', tone: 'good' } }),
+      fakeRow({ mareId: 'd', mareName: '가상 암말 D', stallionName: '가상 종마 D', canApprove: false, judgement: { summary: '주의 — 니크 나쁨', tone: 'warn' } }),
+    ];
+    const flags = flaggedRows(rows);
+    expect(flags.map((r) => r.mareId)).toEqual(['b', 'a']);
+    expect(rowKeyOf(rows[0]!)).toBe('2027:a');
+    const summary = approvalSummary(rows);
+    expect(flags.length).toBe(summary.cautionCount + summary.riskCount);
+    const html = renderToStaticMarkup(createElement(MatingApproveDialog, {
+      summary, flagged: flags, onReview: () => {}, onConfirm: () => {}, onCancel: () => {},
+    }));
+    expect(html).toContain('aria-label="주의·위험 배합 목록"');
+    expect(html).toContain('가상 암말 B × 가상 종마 B — 위험 — 근친 검토 필요');
+    expect(html).toContain('가상 암말 A × 가상 종마 A — 주의 — 근친 검토 필요');
+    expect(html.split('>검토</button>').length - 1).toBe(2);
+    expect(html).not.toContain('가상 암말 C ×');
+    expect(html).not.toContain('가상 암말 D ×');
+    const none = renderToStaticMarkup(createElement(MatingApproveDialog, {
+      summary: { count: 1, totalFee: 1000, cautionCount: 0, riskCount: 0 }, onConfirm: () => {}, onCancel: () => {},
+    }));
+    expect(none).not.toContain('mating-plan__flags-box');
+    const css = readFileSync(new URL('../../src/ui/breeding/matingPlan.css', import.meta.url), 'utf8');
+    expect(css).toMatch(/\.mating-plan__flags\s*\{[^}]*max-height:\s*160px/);
   });
 });

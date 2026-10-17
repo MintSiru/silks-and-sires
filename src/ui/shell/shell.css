@@ -138,9 +138,12 @@
 .shell-danger > h3 {
   color: var(--danger-fg);
 }
+/* 새 게임으로 이동: 위험 버튼(위험 토큰 배경·테두리, 밝은 글자). 취소는 기본 .btn 그대로 둔다(M6-W 항목 22). */
 .shell-danger__button {
-  border-color: rgba(255, 145, 145, 0.5);
-  color: var(--danger-fg);
+  background: var(--danger-bg);
+  border-color: var(--danger-fg);
+  color: var(--text);
+  font-weight: 600;
 }
 .shell-modal .hint {
   margin: 4px 0 8px;
