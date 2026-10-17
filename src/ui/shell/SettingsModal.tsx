@@ -17,6 +17,21 @@ import {
   matingProgressGuide,
   racePlanMode,
 } from './settingsView';
+import {
+  SAVE_SLOT_ROWS,
+  deleteConfirmKo,
+  overwriteConfirmKo,
+  saveSlotCells,
+  slotLabelOf,
+  slotMetaOf,
+} from './saveSlotsView';
+import type { ManualSlotId, SaveSlotMeta } from '../storage/saveStore';
+
+/** 저장 칸에서 확인을 기다리는 동작(덮어쓰기는 채워진 칸에 저장할 때, 삭제는 수동 칸) */
+interface PendingSlotAction {
+  id: ManualSlotId;
+  action: 'overwrite' | 'delete';
+}
 
 export interface SettingsModalProps {
   game: GameApi;
@@ -82,6 +97,9 @@ export default function SettingsModal({
   const [saving, setSaving] = useState(false);
   const [silks, setSilks] = useState<SilksDesign | null>(null);
   const [confirmNewGame, setConfirmNewGame] = useState(false);
+  /** 저장 칸 메타. null 이면 아직 읽는 중이다. */
+  const [slots, setSlots] = useState<SaveSlotMeta[] | null>(null);
+  const [pending, setPending] = useState<PendingSlotAction | null>(null);
   const owner = state.owners[state.playerOwnerId];
   const mode = racePlanMode(state.settings);
 
@@ -95,28 +113,71 @@ export default function SettingsModal({
     };
   }, []);
 
-  const runSave = () => {
+  // 모달이 열릴 때 칸 목록을 한 번 읽는다. 저장·삭제 뒤에는 reloadSlots 로 다시 읽는다.
+  useEffect(() => {
+    let alive = true;
+    game
+      .listSaves()
+      .then((list) => {
+        if (alive) setSlots(list);
+      })
+      .catch((e: unknown) => {
+        if (alive) onNotify(messageOf(e), 'error');
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const reloadSlots = (): Promise<void> => game.listSaves().then(setSlots);
+
+  /** 칸에 지금 게임을 쓴다. 성공하면 칸 목록을 다시 읽고 토스트로 알린다. 모달은 열어 둔다. */
+  const performSlotSave = (id: ManualSlotId) => {
     setSaving(true);
     game
-      .save()
+      .saveToSlot(id)
       .then(() => {
-        onClose();
-        onNotify('저장했습니다.');
+        setPending(null);
+        onNotify(`${slotLabelOf(id)}에 저장했습니다.`);
+        return reloadSlots();
       })
       .catch((e: unknown) => onNotify(messageOf(e), 'error'))
       .finally(() => setSaving(false));
   };
 
-  const runLoad = () => {
+  /** 빈 칸이면 바로 저장하고, 채워진 칸이면 덮어쓰기 확인을 먼저 띄운다. */
+  const requestSlotSave = (id: ManualSlotId, filled: boolean) => {
+    if (filled) setPending({ id, action: 'overwrite' });
+    else performSlotSave(id);
+  };
+
+  const performSlotDelete = (id: ManualSlotId) => {
     setSaving(true);
     game
-      .load()
+      .deleteSlot(id)
+      .then(() => {
+        setPending(null);
+        onNotify(`${slotLabelOf(id)} 저장본을 지웠습니다.`);
+        return reloadSlots();
+      })
+      .catch((e: unknown) => onNotify(messageOf(e), 'error'))
+      .finally(() => setSaving(false));
+  };
+
+  const confirmPending = () => {
+    if (pending === null) return;
+    if (pending.action === 'overwrite') performSlotSave(pending.id);
+    else performSlotDelete(pending.id);
+  };
+
+  /** 칸 저장본으로 게임을 바꾼다. 빈 칸이면 모달을 열어 둔 채 알린다. */
+  const runSlotLoad = (id: string) => {
+    setSaving(true);
+    game
+      .loadSlot(id)
       .then((ok) => {
         if (ok) onLoaded();
-        else {
-          onClose();
-          onNotify('불러올 저장본이 없습니다.');
-        }
+        else onNotify('불러올 저장본이 없습니다.', 'error');
       })
       .catch((e: unknown) => onNotify(messageOf(e), 'error'))
       .finally(() => setSaving(false));
@@ -156,14 +217,92 @@ export default function SettingsModal({
 
       <section className="shell-section" aria-labelledby="shell-group-save">
         <h3 id="shell-group-save">저장 관리</h3>
-        <div className="shell-row">
-          <button type="button" className="btn" disabled={saving} onClick={runSave}>
-            저장
-          </button>
-          <button type="button" className="btn" disabled={saving} onClick={runLoad}>
-            불러오기
-          </button>
+        <div className="save-slots-scroll">
+          <table className="save-slots" aria-label="저장 칸">
+            <thead>
+              <tr>
+                <th scope="col">칸</th>
+                <th scope="col">게임 날짜</th>
+                <th scope="col">마주</th>
+                <th scope="col">저장 시각</th>
+                <th scope="col">크기</th>
+                <th scope="col">조작</th>
+              </tr>
+            </thead>
+            <tbody>
+              {SAVE_SLOT_ROWS.map((row) => {
+                const cells = saveSlotCells(slotMetaOf(slots, row.id), slots === null);
+                const ready = slots !== null && !saving;
+                return (
+                  <tr key={row.id}>
+                    <th scope="row">{row.label}</th>
+                    <td>{cells.dateText}</td>
+                    <td>{cells.playerText}</td>
+                    <td>{cells.savedAtText}</td>
+                    <td>{cells.sizeText}</td>
+                    <td>
+                      <div className="save-slots__actions">
+                        {row.kind === 'manual' && (
+                          <button
+                            type="button"
+                            className="btn"
+                            disabled={!ready}
+                            aria-label={`${row.label} 저장`}
+                            onClick={() => requestSlotSave(row.id, cells.filled)}
+                          >
+                            저장
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          className="btn"
+                          disabled={!ready || !cells.filled}
+                          aria-label={`${row.label} 불러오기`}
+                          onClick={() => runSlotLoad(row.id)}
+                        >
+                          불러오기
+                        </button>
+                        {row.kind === 'manual' && (
+                          <button
+                            type="button"
+                            className="btn"
+                            disabled={!ready || !cells.filled}
+                            aria-label={`${row.label} 삭제`}
+                            onClick={() => setPending({ id: row.id, action: 'delete' })}
+                          >
+                            삭제
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
+        {pending !== null && (
+          <div role="group" aria-label="저장 칸 확인" className="save-slots__confirm">
+            <p className="hint">
+              {pending.action === 'overwrite'
+                ? overwriteConfirmKo(slotLabelOf(pending.id))
+                : deleteConfirmKo(slotLabelOf(pending.id))}
+            </p>
+            <div className="shell-row">
+              <button type="button" className="btn" disabled={saving} onClick={() => setPending(null)}>
+                취소
+              </button>
+              <button
+                type="button"
+                className={pending.action === 'delete' ? 'btn shell-danger__button' : 'btn btn--primary'}
+                disabled={saving}
+                onClick={confirmPending}
+              >
+                {pending.action === 'overwrite' ? '덮어쓰기' : '삭제'}
+              </button>
+            </div>
+          </div>
+        )}
       </section>
 
       <section className="shell-section" aria-labelledby="shell-group-progress">

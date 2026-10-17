@@ -2,7 +2,7 @@
 
 /* 설정 모달(native dialog). 본문을 밀지 않고 배경만 흐린다. */
 .shell-modal {
-  width: min(560px, 92vw);
+  width: min(780px, 92vw); /* M6-S3 저장 칸 표(조작 버튼 3개)가 잘리지 않게 넓힘 (Opus) */
   max-height: calc(100dvh - 24px);
   overflow-y: auto;
   margin: auto;
@@ -198,4 +198,50 @@
 /* 시즌 배지(M6-U2 A4): 날짜 옆 작은 배지. */
 .shell-season {
   margin-left: 6px;
+}
+
+/* 저장 관리 표(M6-S S3): 좁은 화면에서는 표 자체만 가로로 민다. 문서 가로 넘침은 만들지 않는다. */
+.save-slots-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.save-slots {
+  width: 100%;
+  min-width: 480px;
+  border-collapse: collapse;
+  font-size: 13px;
+  line-height: 18px;
+}
+/* app.css 의 전역 th(sticky·높이 40px)를 모달 안에서는 끈다. */
+.save-slots th,
+.save-slots td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.save-slots th {
+  position: static;
+  height: auto;
+  background: none;
+}
+.save-slots thead th {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.save-slots__actions {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 4px;
+}
+.save-slots__actions .btn {
+  padding: 3px 8px;
+  font-size: 12px;
+}
+.save-slots__confirm {
+  margin-top: 8px;
+}
+.save-slots__confirm > .hint {
+  margin: 0 0 4px;
 }

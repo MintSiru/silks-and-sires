@@ -84,9 +84,11 @@ import type {
 import {
   AUTOSAVE_SLOT_ID,
   createIndexedDbSaveStore,
+  type ManualSlotId,
   type SaveSlotMeta,
   type SaveStore,
 } from '../storage/saveStore';
+import { isAutoSaveDue, slotLabelOf } from '../shell/saveSlotsView';
 
 /** 새 게임 폼에서 고른 값(bootstrapGame 옵션과 같은 이름). 승부복을 포함한다. */
 export interface NewGameInput {
@@ -182,6 +184,14 @@ export interface GameApi {
   setSilks(design: SilksDesign): Promise<ReturnType<typeof setPlayerSilks>>;
   save(): Promise<void>;            // createIndexedDbSaveStore, 슬롯 id 'autosave'
   load(): Promise<boolean>;
+  /** 저장 칸 목록(M6-S): 자동 저장 1칸 + 수동 3칸의 메타. savedAt 내림차순 */
+  listSaves(): Promise<SaveSlotMeta[]>;
+  /** 지금 게임을 수동 칸에 저장한다. 덮어쓰기 확인은 호출 측이 맡는다. 실패하면 기존 저장은 그대로 남는다 */
+  saveToSlot(id: ManualSlotId): Promise<void>;
+  /** 칸의 저장본으로 게임을 바꾼다. 빈 칸이면 false, 저장본을 읽지 못하면 사유를 담아 던진다 */
+  loadSlot(id: string): Promise<boolean>;
+  /** 수동 칸의 저장본을 지운다(확인은 호출 측이 맡는다) */
+  deleteSlot(id: ManualSlotId): Promise<void>;
 }
 
 /** 거래 이벤트를 eventLog 끝에 붙이고 상한으로 자른다(book 과 같은 방식). */
@@ -193,7 +203,6 @@ function appendEvents(state: GameState, events: GameEvent[]): GameState {
 
 /** 새 게임 승부복 기본값. 띠 뷰어 원판 색은 primary. */
 export const PLAYER_SILKS: Silks = { primary: '#1f4e9c', secondary: '#f5c518', pattern: 'hoops' };
-const AUTOSAVE_NAME = '자동 저장';
 
 /** 주 시스템이 쓰는 정적 데이터(데이터 파일은 모듈 안에서 한 번만 검증된다) */
 function gameStaticData(): GameStaticData {
@@ -258,6 +267,29 @@ export function useGame(): GameApi {
     return current;
   }, []);
 
+  /**
+   * 칸에 쓴다. 직렬화는 호출 시점의 상태로 동기 처리하므로 뒤따르는 진행이 저장본에 섞이지 않는다.
+   * 쓰기 실패는 저장소가 한 트랜잭션으로 막으므로 기존 칸은 그대로 남는다.
+   */
+  const writeSlot = useCallback(async (state: GameState, id: string): Promise<void> => {
+    const savedAt = new Date().toISOString();
+    const json = serializeGame(state, savedAt);
+    const owner = state.owners[state.playerOwnerId];
+    const meta: SaveSlotMeta = {
+      id,
+      name: slotLabelOf(id),
+      savedAt,
+      date: state.date,
+      playerName: owner?.name ?? '',
+    };
+    await saveStore().save(meta, json);
+  }, []);
+
+  /** 자동 저장 칸을 백그라운드로 갱신한다. 실패해도 진행은 그대로 두고 콘솔에만 남긴다. */
+  const autoSave = useCallback((state: GameState): void => {
+    void writeSlot(state, AUTOSAVE_SLOT_ID).catch((error: unknown) => console.error('자동 저장 실패', error));
+  }, [writeSlot]);
+
   const newGame = useCallback((options: NewGameInput): void => {
     if (options.silks.design !== undefined) {
       const error = validateSilksDesign(options.silks.design);
@@ -289,12 +321,14 @@ export function useGame(): GameApi {
         throw new RangeError(`advance: weeks 는 0 이상의 정수여야 한다: ${weeks}`);
       }
       // 여러 주를 한 번의 상태 복제로 진행한다(M6-P)
-      const { state: current, events } = advanceWeeksGated(requireState(), gameSystems(), weeks);
+      const before = requireState();
+      const { state: current, events } = advanceWeeksGated(before, gameSystems(), weeks);
       stateRef.current = current;
       setState(current);
       setLastEvents(events);
+      if (isAutoSaveDue(before.date, current.date)) autoSave(current);
     },
-    [requireState],
+    [requireState, autoSave],
   );
 
   const advanceToPhase = useCallback(
@@ -306,8 +340,9 @@ export function useGame(): GameApi {
       stateRef.current = current;
       setState(current);
       setLastEvents(events);
+      if (isAutoSaveDue(start.date, current.date)) autoSave(current);
     },
-    [requireState],
+    [requireState, autoSave],
   );
 
   const advanceUntil = useCallback(
@@ -315,12 +350,14 @@ export function useGame(): GameApi {
       if (!Number.isInteger(maxWeeks) || maxWeeks < 0) {
         throw new RangeError(`advanceUntil: maxWeeks 는 0 이상의 정수여야 한다: ${maxWeeks}`);
       }
-      const { state: current, events } = advanceWeeksGated(requireState(), gameSystems(), maxWeeks, stop);
+      const before = requireState();
+      const { state: current, events } = advanceWeeksGated(before, gameSystems(), maxWeeks, stop);
       stateRef.current = current;
       setState(current);
       setLastEvents(events);
+      if (isAutoSaveDue(before.date, current.date)) autoSave(current);
     },
-    [requireState],
+    [requireState, autoSave],
   );
 
   const sellToNhStoreWith = useCallback(
@@ -415,9 +452,10 @@ export function useGame(): GameApi {
       stateRef.current = next;
       setState(next);
       setLastEvents(result.events);
+      autoSave(next); // 연말 정산 제출 뒤 자동 저장(M6-S S3)
       return { ...result, state: next };
     },
-    [requireState],
+    [requireState, autoSave],
   );
 
   const book = useCallback(
@@ -585,19 +623,8 @@ export function useGame(): GameApi {
   );
 
   const save = useCallback(async (): Promise<void> => {
-    const current = requireState();
-    const savedAt = new Date().toISOString();
-    const json = serializeGame(current, savedAt);
-    const owner = current.owners[current.playerOwnerId];
-    const meta: SaveSlotMeta = {
-      id: AUTOSAVE_SLOT_ID,
-      name: AUTOSAVE_NAME,
-      savedAt,
-      date: current.date,
-      playerName: owner?.name ?? '',
-    };
-    await saveStore().save(meta, json);
-  }, [requireState]);
+    await writeSlot(requireState(), AUTOSAVE_SLOT_ID);
+  }, [requireState, writeSlot]);
 
   /** 목장 API 는 이벤트만 반환하므로 훅에서 누적한 뒤 자동 저장한다. */
   const applyFarmResult = useCallback(<E extends string>(result: PlayerResult<E>): PlayerResult<E> => {
@@ -656,6 +683,30 @@ export function useGame(): GameApi {
     setState(result.state);
     setLastEvents([]);
     return true;
+  }, []);
+
+  const listSaves = useCallback((): Promise<SaveSlotMeta[]> => saveStore().list(), []);
+
+  const saveToSlot = useCallback(
+    async (id: ManualSlotId): Promise<void> => {
+      await writeSlot(requireState(), id);
+    },
+    [requireState, writeSlot],
+  );
+
+  const loadSlot = useCallback(async (id: string): Promise<boolean> => {
+    const json = await saveStore().load(id);
+    if (json === null) return false;
+    const result = deserializeGame(json);
+    if (!result.ok) throw new Error(`저장본을 불러오지 못했습니다. ${result.error.message}`);
+    stateRef.current = result.state;
+    setState(result.state);
+    setLastEvents([]);
+    return true;
+  }, []);
+
+  const deleteSlot = useCallback(async (id: ManualSlotId): Promise<void> => {
+    await saveStore().remove(id);
   }, []);
 
   return {
@@ -718,5 +769,9 @@ export function useGame(): GameApi {
     terminateRetainer: terminateRetainerWith,
     save,
     load,
+    listSaves,
+    saveToSlot,
+    loadSlot,
+    deleteSlot,
   };
 }

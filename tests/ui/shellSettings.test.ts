@@ -150,3 +150,42 @@ describe('설정 모달 구성 (A1)', () => {
     expect(html).toContain('type="radio"');
   });
 });
+
+describe('저장 관리 표 (M6-S S3)', () => {
+  it('자동 저장 1줄과 수동 칸 3줄을 표로 그리고 칸별 버튼 이름을 붙인다', () => {
+    const state = createNewGame({
+      seed: 20261017,
+      playerName: '구름 마주',
+      silks: { primary: '#123456', secondary: '#ffffff', pattern: 'hoops' },
+    });
+    const html = renderToStaticMarkup(
+      createElement(
+        WeightUnitProvider,
+        null,
+        createElement(SettingsModal, {
+          game: {} as GameApi,
+          state,
+          economyText: '테스트 경제',
+          onClose: () => undefined,
+          onNotify: () => undefined,
+          onLoaded: () => undefined,
+          onStartNewGame: () => undefined,
+        }),
+      ),
+    );
+    expect(html).toContain('<table');
+    expect(html).toContain('aria-label="저장 칸"');
+    for (const text of ['자동 저장', '칸 1', '칸 2', '칸 3', '게임 날짜', '저장 시각', '크기']) {
+      expect(html, text).toContain(text);
+    }
+    // 수동 칸은 저장·불러오기·삭제, 자동 저장은 불러오기만
+    for (const label of ['칸 1', '칸 2', '칸 3']) {
+      expect(html, `${label} 저장`).toContain(`aria-label="${label} 저장"`);
+      expect(html, `${label} 불러오기`).toContain(`aria-label="${label} 불러오기"`);
+      expect(html, `${label} 삭제`).toContain(`aria-label="${label} 삭제"`);
+    }
+    expect(html).toContain('aria-label="자동 저장 불러오기"');
+    expect(html).not.toContain('aria-label="자동 저장 저장"');
+    expect(html).not.toContain('aria-label="자동 저장 삭제"');
+  });
+});

@@ -98,8 +98,10 @@ await closeOverlays();
 const timeline = () => page.getByRole('region', { name: '연대기 목록' });
 await step('16-기록-연대기-예시', async () => {
   await page.getByRole('button', { name: '메뉴', exact: true }).click();
-  await page.getByRole('button', { name: '저장', exact: true }).click();
-  await page.getByRole('status').filter({ hasText: '저장했습니다.' }).waitFor({ timeout: 10000 });
+  // M6-S S3: 수동 칸 2 에 저장(모달은 열린 채) → 닫고 주입 → 칸 2 불러오기(스모크와 같은 흐름)
+  await page.getByRole('button', { name: '칸 2 저장', exact: true }).click();
+  await page.getByRole('status').filter({ hasText: '칸 2에 저장했습니다.' }).waitFor({ timeout: 10000 });
+  await page.getByRole('dialog').getByRole('button', { name: '닫기', exact: true }).click();
   const fixture = await page.evaluate(async () => {
     const db = await new Promise((resolve, reject) => {
       const request = indexedDB.open('silks-and-sires');
@@ -107,7 +109,7 @@ await step('16-기록-연대기-예시', async () => {
       request.onerror = () => reject(request.error);
     });
     const record = await new Promise((resolve, reject) => {
-      const request = db.transaction('data', 'readonly').objectStore('data').get('autosave');
+      const request = db.transaction('data', 'readonly').objectStore('data').get('slot-2');
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });
@@ -158,7 +160,7 @@ await step('16-기록-연대기-예시', async () => {
     return { name: runner.name, year };
   });
   await page.getByRole('button', { name: '메뉴', exact: true }).click();
-  await page.getByRole('button', { name: '불러오기', exact: true }).click();
+  await page.getByRole('button', { name: '칸 2 불러오기', exact: true }).click();
   // 불러오기는 비동기다. 주입한 날짜(다음 해 1월 1주)가 보일 때까지 기다린 뒤 기록 화면으로 간다.
   const nextDate = `${fixture.year + 1}년 1월 1주`;
   await page.waitForFunction((text) => (document.querySelector('[data-testid="game-date"]')?.textContent ?? '').includes(text), nextDate, { timeout: 15000 });

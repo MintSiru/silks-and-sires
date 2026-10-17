@@ -135,13 +135,16 @@ function writeReport(extra = {}) {
     await expect(page.getByRole('status').filter({ hasText: '중요 결정 앞에서 멈췄습니다' })).toBeVisible();
     const endDate = await page.getByTestId('game-date').innerText();
     assert.equal(endDate, '2026년 1월 2주');
+    // M6-S S3: 수동 칸 1 에 저장하면 표가 갱신되고 모달은 연 채로 있다. 닫고 진행한 뒤 칸 1 을 불러와 날짜를 되돌린다.
     await page.getByRole('button', { name: '메뉴', exact: true }).click();
-    await page.getByRole('button', { name: '저장', exact: true }).click();
-    await expect(page.getByRole('status').filter({ hasText: '저장했습니다.' })).toBeVisible();
+    await page.getByRole('button', { name: '칸 1 저장', exact: true }).click();
+    await expect(page.getByRole('status').filter({ hasText: '칸 1에 저장했습니다.' })).toBeVisible();
+    await expect(page.getByRole('table', { name: '저장 칸' })).toContainText(endDate);
+    await page.getByRole('dialog').getByRole('button', { name: '닫기', exact: true }).click();
     await page.getByRole('button', { name: '1주 진행', exact: true }).click();
-    // M6-U2: 저장 뒤 모달은 닫힌다. 불러오기는 메뉴를 다시 열어 진행한다.
+    // M6-U2: 불러오기는 메뉴를 다시 열어 진행한다.
     await page.getByRole('button', { name: '메뉴', exact: true }).click();
-    await page.getByRole('button', { name: '불러오기', exact: true }).click();
+    await page.getByRole('button', { name: '칸 1 불러오기', exact: true }).click();
     await expect(page.getByTestId('game-date')).toHaveText(endDate);
     await nav.getByRole('button', { name: '번식', exact: true }).click();
     await expect(page.locator('[data-slot="breeding-proposals"]')).toHaveCount(1);
@@ -175,8 +178,9 @@ function writeReport(extra = {}) {
     // 실제 저장·불러오기 경로로 다년 기록을 넣어 빈 화면 이외의 모든 기록 탭을 확인한다.
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.getByRole('button', { name: '메뉴', exact: true }).click();
-    await page.getByRole('button', { name: '저장', exact: true }).click();
-    await expect(page.getByRole('status').filter({ hasText: '저장했습니다.' })).toBeVisible();
+    await page.getByRole('button', { name: '칸 2 저장', exact: true }).click();
+    await expect(page.getByRole('status').filter({ hasText: '칸 2에 저장했습니다.' })).toBeVisible();
+    await page.getByRole('dialog').getByRole('button', { name: '닫기', exact: true }).click();
     const fixture = await page.evaluate(async () => {
       const db = await new Promise((resolve, reject) => {
         const request = indexedDB.open('silks-and-sires');
@@ -184,7 +188,7 @@ function writeReport(extra = {}) {
         request.onerror = () => reject(request.error);
       });
       const record = await new Promise((resolve, reject) => {
-        const request = db.transaction('data', 'readonly').objectStore('data').get('autosave');
+        const request = db.transaction('data', 'readonly').objectStore('data').get('slot-2');
         request.onsuccess = () => resolve(request.result);
         request.onerror = () => reject(request.error);
       });
@@ -235,7 +239,7 @@ function writeReport(extra = {}) {
       return { name: runner.name, year };
     });
     await page.getByRole('button', { name: '메뉴', exact: true }).click();
-    await page.getByRole('button', { name: '불러오기', exact: true }).click();
+    await page.getByRole('button', { name: '칸 2 불러오기', exact: true }).click();
     await measureMenus('legacy-fixture');
     await nav.getByRole('button', { name: '기록', exact: true }).click();
     // 앞 단계가 마지막 탭(라이벌)에 머물러 있으므로 연대기 탭으로 돌아간다.
