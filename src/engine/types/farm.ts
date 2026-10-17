@@ -72,6 +72,11 @@ export interface GameSettings {
    * 레이스를 자동 재생한다. 'skip' 이면 멈추지 않고 결과만 남긴다(작전은 선호 작전)
    */
   raceDayMode?: 'brief' | 'skip';
+  /**
+   * 세일 정지(M7-E, 사용자 결정 2026-10-17). 없거나 true 면 여러 주 진행이 세일 카탈로그 발표 주와 내가 입찰한 세일의 개최 주에서 멈춘다.
+   * false 면 멈추지 않는다
+   */
+  stopAtSales?: boolean;
 }
 
 /**
