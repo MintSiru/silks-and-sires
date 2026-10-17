@@ -1,0 +1,178 @@
+/* M6-U6 교배 제안 표: 열 축소, 근거 펼치기, 확인 창, 조작 줄 정렬.
+   색·글자 위계는 app.css :root 토큰과 .badge 클래스를 쓴다. app.css 는 고치지 않는다. */
+
+/* 조작 줄: 요소 높이 36px, 아래쪽 기준선 정렬 */
+section.mating-plan .mating-plan__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px 12px;
+  margin: 8px 0 4px;
+}
+section.mating-plan .mating-plan__toolbar .btn,
+section.mating-plan .mating-plan__toolbar select,
+section.mating-plan .mating-plan__toolbar input {
+  height: 36px;
+  box-sizing: border-box;
+  margin: 0;
+}
+section.mating-plan .mating-plan__bulk {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px;
+}
+section.mating-plan .mating-plan__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 18px;
+}
+section.mating-plan .mating-plan__reason {
+  margin: 0 0 4px;
+}
+
+/* 표: 높이 고정 + 안 스크롤. 헤더는 고정. 1440×900 에서 번식 첫 화면 세로 스크롤이 생기지 않게 높이를 제한한다. */
+section.mating-plan .mating-plan__scroll {
+  max-height: clamp(160px, calc(100dvh - 620px), 320px);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+section.mating-plan .mating-plan__table {
+  font-size: 14px;
+  line-height: 22px;
+}
+section.mating-plan .mating-plan__table th,
+section.mating-plan .mating-plan__table td {
+  white-space: normal;
+  padding: 8px 10px;
+  vertical-align: middle;
+}
+section.mating-plan .mating-plan__table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface);
+  white-space: nowrap;
+}
+section.mating-plan .mating-plan__mare {
+  font-weight: 600;
+  min-width: 140px;
+}
+section.mating-plan .mating-plan__stallion {
+  min-width: 150px;
+}
+section.mating-plan .mating-plan__stallion .hint {
+  display: block;
+  margin: 2px 0 0;
+}
+section.mating-plan .mating-plan__fee {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+section.mating-plan .mating-plan__table td.mating-plan__actions {
+  white-space: nowrap;
+  min-width: 120px;
+}
+section.mating-plan .mating-plan__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+section.mating-plan .mating-plan__actions .btn,
+section.mating-plan .mating-plan__actions select {
+  height: 36px;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+/* 근거: 행 펼치기 */
+section.mating-plan .mating-plan__why {
+  margin-top: 4px;
+  font-weight: 400;
+}
+section.mating-plan .mating-plan__why summary {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 18px;
+  cursor: pointer;
+}
+section.mating-plan .mating-plan__why dl {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 4px 10px;
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 18px;
+}
+section.mating-plan .mating-plan__why dt {
+  color: var(--text-muted);
+}
+section.mating-plan .mating-plan__why dd {
+  margin: 0;
+  white-space: normal;
+}
+
+/* 종합 판단 배지: 한 줄 요약이 길면 줄바꿈 허용 */
+section.mating-plan .mating-plan__table .badge {
+  margin-left: 0;
+  white-space: normal;
+  text-align: left;
+}
+
+/* 확인 창 */
+.mating-plan__scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 10, 14, 0.6);
+}
+.mating-plan__dialog {
+  box-sizing: border-box;
+  width: min(420px, calc(100vw - 32px));
+  padding: 16px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  color: var(--text);
+}
+.mating-plan__dialog h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+}
+.mating-plan__summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 6px 16px;
+  margin: 8px 0;
+}
+.mating-plan__summary dt {
+  color: var(--text-muted);
+}
+.mating-plan__summary dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.mating-plan__dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+.mating-plan__dialog-actions .btn {
+  height: 36px;
+  box-sizing: border-box;
+}
+.mating-plan__dialog .btn--primary {
+  color: var(--text);
+}
