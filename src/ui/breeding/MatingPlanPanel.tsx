@@ -210,7 +210,7 @@ function MatingPlanTableRow({
       </td>
       <td className="mating-plan__actions">
         <StatusBadge tone={matingStatusTone(r.status)} label={r.statusLabel} />
-        {r.canApprove && <>
+        {r.canApprove && <div className="mating-plan__btns">
           <button type="button" className="btn" disabled={unavailable} onClick={onApprove}>승인</button>
           <select
             aria-label={`${r.mareName} 대안으로 바꾸기`} value=""
@@ -221,7 +221,7 @@ function MatingPlanTableRow({
             {r.alternatives.map((a) => <option key={a.id} value={a.id}>{a.label}</option>)}
           </select>
           <button type="button" className="btn" disabled={unavailable} onClick={onRemove}>빼기</button>
-        </>}
+        </div>}
       </td>
     </tr>
   );

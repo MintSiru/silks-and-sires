@@ -19,7 +19,7 @@ type Tab = (typeof TABS)[number][0];
 
 /** 탭마다 무엇을 보는 곳인지 한 줄(I3) */
 const TAB_PURPOSE: Record<Tab, string> = {
-  chronicle: '가문의 주요 순간을 연도별로 모아 봅니다. 최신순입니다.',
+  chronicle: '가문의 주요 순간을 연도별로 모아 봅니다.',
   goals: '12개 왕조 목표의 달성 여부와 진행률을 봅니다.',
   lines: '이어지는 혈통과 후계마를 봅니다. 새로 확립된 부계와 명문 모계가 여기에 남습니다.',
   hall: '내 소유·생산마의 G1 우승과 Laurel 수상을 모은 곳입니다.',
@@ -41,8 +41,8 @@ export function ChronicleList({ rows, showSource = true }: { rows: ChronicleRow[
       <time>{row.dateLabel}</time>
       <span className={`legacy-tag legacy-tag--${row.tag.tone}`}>{row.tag.label}</span>
       {row.horseId && state?.horses[row.horseId]
-        ? <button type="button" className="link-btn horse-link" onClick={() => openHorse(row.horseId!, 'events')}>{row.text}</button>
-        : <span>{row.text}</span>}
+        ? <button type="button" className="link-btn horse-link" onClick={() => openHorse(row.horseId!, 'events')}>{row.body}</button>
+        : <span>{row.body}</span>}
       {showSource && <span className="hint legacy-source">{row.player ? '내 기록' : '세계'}</span>}
     </li>)}
   </ol>;

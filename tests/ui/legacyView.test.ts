@@ -31,6 +31,7 @@ import type {
 import { chronicleKo, countryKo, laurelCategoryKo } from '../../src/ui/game/text';
 import {
   ceremonyView,
+  chronicleBodyKo,
   chronicleTagOf,
   chronicleYearGroups,
   establishedLineRows,
@@ -490,7 +491,8 @@ describe('M5-E2 말 상세와 기록 화면 연결', () => {
     const renderTab = (initialTab: 'chronicle' | 'goals' | 'lines' | 'hall' | 'rivals') => renderToStaticMarkup(createElement(
       HorseNavigation.Provider, { value: { state, openHorse: () => {} } }, createElement(LegacyScreen, { state, initialTab }),
     ));
-    expect(renderTab('chronicle')).toContain('구름들 컵 G1 우승');
+    expect(renderTab('chronicle')).toContain('첫말, 구름들 컵 우승');
+    expect(renderTab('chronicle')).toContain('G1 우승</span>');
     expect(renderTab('chronicle')).toContain('horse-link');
     expect(renderTab('goals').match(/<h3>/g)).toHaveLength(12);
     expect(renderTab('lines')).toContain(lineConditionText());
@@ -580,6 +582,43 @@ describe('M6-U3 기록 화면: 정렬·종류 태그·주요 순간·탭 문구'
     const noSource = renderToStaticMarkup(createElement(ChronicleList, { rows: mine[0]!.rows, showSource: false }));
     expect(noSource).not.toContain('legacy-source');
     expect(noSource).toContain('legacy-tag legacy-tag--major');
+  });
+
+  it('본문은 종류 태그와 겹치는 단어를 뺀다(M6-V 20항): 태그 단어는 화면에 한 번만 보인다', () => {
+    const state = base();
+    horse(state, 'h1', '첫말');
+    owner(state, 'rival', '가상 마주');
+    add(state, { kind: 'first_runner', date: { year: 2029, week: 1 }, player: true, horseId: 'h1' });
+    add(state, { kind: 'first_win', date: { year: 2029, week: 2 }, player: true, horseId: 'h1' });
+    add(state, { kind: 'first_group_win', date: { year: 2029, week: 3 }, player: true, horseId: 'h1' });
+    add(state, { kind: 'g1_win', date: { year: 2029, week: 4 }, player: true, horseId: 'h1', label: '가상 더비' });
+    add(state, { kind: 'classic_win', date: { year: 2029, week: 5 }, player: true, horseId: 'h1', label: '가상 더비' });
+    add(state, { kind: 'laurel_award', date: { year: 2029, week: 6 }, player: true, horseId: 'h1', label: 'horse_of_the_year' });
+    add(state, { kind: 'sire_line_established', date: { year: 2029, week: 7 }, player: true, horseId: 'h1' });
+    add(state, { kind: 'female_family_established', date: { year: 2029, week: 8 }, player: true, horseId: 'h1' });
+    add(state, { kind: 'homebred_stallion', date: { year: 2029, week: 9 }, player: true, horseId: 'h1' });
+    add(state, { kind: 'rival_declared', date: { year: 2029, week: 10 }, player: true, ownerId: 'rival' });
+    add(state, { kind: 'record_sale', date: { year: 2029, week: 11 }, player: true, horseId: 'h1', label: '가상 세일', amount: 10_000 });
+    const rows = chronicleYearGroups(state, 'all', nameOfFor(state), ownerNameFor(state))[0]!.rows;
+    const bodyOf = (kind: ChronicleEntry['kind']) => rows.find((r) => r.kind === kind)!.body;
+    expect(bodyOf('first_runner')).toBe('첫말');
+    expect(bodyOf('first_win')).toBe('첫말, 승리');
+    expect(bodyOf('first_group_win')).toBe('첫말, 우승');
+    expect(bodyOf('g1_win')).toBe('첫말, 가상 더비 우승');
+    expect(bodyOf('classic_win')).toBe('첫말, 가상 더비 우승');
+    expect(bodyOf('laurel_award')).toBe('첫말, 올해의 말 수상');
+    expect(bodyOf('sire_line_established')).toBe('첫말, 계통 확립');
+    expect(bodyOf('female_family_established')).toBe('첫말, 명문 가문 인정');
+    expect(bodyOf('homebred_stallion')).toBe('첫말, 생산마 전환');
+    expect(bodyOf('rival_declared')).toContain('새로 지정');
+    expect(bodyOf('record_sale')).toContain('낙찰');
+    expect(rows.find((r) => r.kind === 'g1_win')!.text).toBe('첫말, 가상 더비 G1 우승');
+    expect(chronicleBodyKo('world_classic', '가상 더비 우승마 첫말')).toBe('가상 더비 우승마 첫말');
+    const html = renderToStaticMarkup(createElement(ChronicleList, { rows: rows.filter((r) => r.kind === 'first_runner') }));
+    expect(html.split('첫 출주').length - 1).toBe(1);
+    const g1Html = renderToStaticMarkup(createElement(ChronicleList, { rows: rows.filter((r) => r.kind === 'g1_win') }));
+    expect(g1Html).toContain('첫말, 가상 더비 우승');
+    expect(g1Html.split('G1 우승').length - 1).toBe(1);
   });
 
   it('탭마다 목적 한 줄을 보이고, 빈 상태 안내와 최신순 표시를 준다', () => {

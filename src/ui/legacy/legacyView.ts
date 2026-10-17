@@ -46,7 +46,10 @@ export interface ChronicleTag {
 export interface ChronicleRow {
   id: string;
   dateLabel: string;
+  /** 전체 문장(chronicleKo 원문) */
   text: string;
+  /** 화면 본문: 종류 태그와 겹치는 단어를 뺀 대상·경주·결과 */
+  body: string;
   horseId?: HorseId;
   player: boolean;
   kind: ChronicleKind;
@@ -218,6 +221,32 @@ export function chronicleTagOf(kind: ChronicleKind): ChronicleTag {
   return CHRONICLE_TAG[kind];
 }
 
+/**
+ * 종류 태그가 이미 말하는 단어를 chronicleKo 문장에서 뺀 본문(M6-V 20항). 태그가 없는 종류는 문장 그대로다.
+ * 문장 형식은 game/text.ts 의 chronicleKo 와 짝을 이룬다. 바뀌면 legacyView.test.ts 의 본문 테스트가 잡는다.
+ */
+const CHRONICLE_BODY_KO: Partial<Record<ChronicleKind, (text: string) => string>> = {
+  first_runner: (text) => text.replace(/, 첫 출주$/, ''),
+  first_win: (text) => text.replace('첫 승리', '승리'),
+  first_group_win: (text) => text.replace('첫 그룹 ', ''),
+  group_win: (text) => text.replace(' · 통산 그룹 ', ' · 통산 '),
+  g1_win: (text) => text.replace(' G1 우승', ' 우승'),
+  classic_win: (text) => text.replace(' 클래식 우승', ' 우승'),
+  laurel_award: (text) => text.replace('Laurel ', ''),
+  leading_title: (text) => text.replace(' 리딩 ', ' '),
+  sire_line_established: (text) => text.replace('부계 확립', '계통 확립'),
+  female_family_established: (text) => text.replace('명문 모계 인정', '명문 가문 인정'),
+  homebred_stallion: (text) => text.replace(' 종마 전환', ' 전환'),
+  record_sale: (text) => text.replace(' 최고가 ', ' 낙찰 '),
+  rival_declared: (text) => text.replace('새로운 라이벌', '새로 지정'),
+};
+
+/** 종류 태그를 본문에서 뺀 한 줄. 빼는 규칙이 없는 종류는 전체 문장을 그대로 준다. */
+export function chronicleBodyKo(kind: ChronicleKind, text: string): string {
+  const strip = CHRONICLE_BODY_KO[kind];
+  return strip === undefined ? text : strip(text);
+}
+
 /** 명명의 전당에 올리는 연대기 kind */
 const HALL_KINDS: ReadonlySet<ChronicleKind> = new Set<ChronicleKind>(['g1_win', 'classic_win', 'laurel_award']);
 
@@ -312,10 +341,12 @@ function chronicleRowOf(
   nameOf: (id: HorseId) => string,
   ownerNameOf: (id: OwnerId) => string,
 ): ChronicleRow {
+  const text = chronicleKo(entry, nameOf, ownerNameOf);
   return {
     id: entry.id,
     dateLabel: formatDateKo(entry.date),
-    text: chronicleKo(entry, nameOf, ownerNameOf),
+    text,
+    body: chronicleBodyKo(entry.kind, text),
     horseId: entry.horseId,
     player: entry.player,
     kind: entry.kind,

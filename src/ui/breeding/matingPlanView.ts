@@ -50,34 +50,38 @@ export interface MatingJudgementInput {
   inbreedPercent: number | null;
 }
 
+/** 주의 요소가 있을 때 첫 배지 뒤에 붙일 긍정 요소 수. 나머지 긍정 요소는 근거 펼침에 남는다(화면 표시 상수). */
+export const MATING_POSITIVE_AFTER_RISK = 1;
+
 /**
- * 장점·위험을 한 줄로 요약한다. 근친 혈량이 INBREED_CAUTION_PERCENT 초과면 주의, INBREED_RISK_PERCENT 초과면 위험.
- * 위험 톤은 근친 위험 또는 니크 나쁨에서만 쓴다(니크 나쁨은 주의 톤).
+ * 종합 판단 한 줄. 주의 요소가 있으면 주의 문구를 첫 배지로 두고 긍정 요소는 뒤에 MATING_POSITIVE_AFTER_RISK 개까지만 붙인다.
+ * 주의 문구는 근친 위험 > 근친 주의 > 니크 나쁨 순으로 하나만 고르고, 나머지 요소는 근거 펼침에서 본다.
+ * 근친 혈량이 INBREED_CAUTION_PERCENT 초과면 주의, INBREED_RISK_PERCENT 초과면 위험.
+ * 위험 톤은 근친 위험에서만 쓴다(근친 주의·니크 나쁨은 주의 톤).
  */
 export function matingJudgement(input: MatingJudgementInput): MatingJudgement {
   if (input.complement === null || input.inbreedPercent === null) {
     return { summary: '판단 정보 없음', tone: 'muted' };
   }
-  const strengths: string[] = [];
-  if (input.complement === 'likely') strengths.push('궁합 좋음');
-  if (input.nick === 'excellent' || input.nick === 'good') strengths.push('니크 좋음');
-  const risks: string[] = [];
-  let riskTone: JudgementTone | null = null;
+  const positives: string[] = [];
+  if (input.complement === 'likely') positives.push('궁합 좋음');
+  if (input.nick === 'excellent' || input.nick === 'good') positives.push('니크 좋음');
+  let lead: string | null = null;
+  let leadTone: JudgementTone = 'warn';
   if (input.inbreedPercent > INBREED_RISK_PERCENT) {
-    risks.push('근친 위험');
-    riskTone = 'danger';
+    lead = '위험 — 근친 검토 필요';
+    leadTone = 'danger';
   } else if (input.inbreedPercent > INBREED_CAUTION_PERCENT) {
-    risks.push('근친 주의');
-    riskTone = 'warn';
+    lead = '주의 — 근친 검토 필요';
+  } else if (input.nick === 'poor') {
+    lead = '주의 — 니크 나쁨';
   }
-  if (input.nick === 'poor') {
-    risks.push('니크 나쁨');
-    if (riskTone === null) riskTone = 'warn';
+  if (lead !== null) {
+    const parts = [lead, ...positives.slice(0, MATING_POSITIVE_AFTER_RISK)];
+    return { summary: parts.join(' · '), tone: leadTone };
   }
-  const summary = [...strengths, ...risks].join(' · ');
-  if (summary === '') return { summary: '특이 사항 없음', tone: 'muted' };
-  if (riskTone !== null) return { summary, tone: riskTone };
-  return { summary, tone: 'good' };
+  if (positives.length === 0) return { summary: '특이 사항 없음', tone: 'muted' };
+  return { summary: positives.join(' · '), tone: 'good' };
 }
 
 /** 제안 상태 → 상태 톤. 검토 대기는 주의, 예약·승인은 좋음, 안 함은 중립. */

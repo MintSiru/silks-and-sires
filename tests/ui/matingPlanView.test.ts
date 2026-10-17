@@ -156,16 +156,28 @@ describe('종합 판단 (matingJudgement)', () => {
     expect(matingJudgement({ complement: 'likely', nick: 'unknown', inbreedPercent: 12.5 }))
       .toEqual({ summary: '궁합 좋음', tone: 'good' });
     expect(matingJudgement({ complement: 'likely', nick: 'unknown', inbreedPercent: 13 }))
-      .toEqual({ summary: '궁합 좋음 · 근친 주의', tone: 'warn' });
+      .toEqual({ summary: '주의 — 근친 검토 필요 · 궁합 좋음', tone: 'warn' });
     expect(matingJudgement({ complement: 'unlikely', nick: null, inbreedPercent: 18.75 }))
-      .toEqual({ summary: '근친 주의', tone: 'warn' });
+      .toEqual({ summary: '주의 — 근친 검토 필요', tone: 'warn' });
     expect(matingJudgement({ complement: 'unlikely', nick: null, inbreedPercent: 19 }))
-      .toEqual({ summary: '근친 위험', tone: 'danger' });
+      .toEqual({ summary: '위험 — 근친 검토 필요', tone: 'danger' });
+  });
+
+  it('주의 문구가 첫 배지이고 긍정 요소는 뒤에 1개까지만 붙는다(나머지는 근거)', () => {
+    // 근친 주의 + 궁합·니크 둘 다 긍정: 주의 첫, 긍정은 1개(궁합)만
+    expect(matingJudgement({ complement: 'likely', nick: 'excellent', inbreedPercent: 13 }))
+      .toEqual({ summary: '주의 — 근친 검토 필요 · 궁합 좋음', tone: 'warn' });
+    // 근친 위험이 니크 나쁨보다 먼저, 니크 나쁨은 근거로 간다
+    expect(matingJudgement({ complement: 'unlikely', nick: 'poor', inbreedPercent: 19 }))
+      .toEqual({ summary: '위험 — 근친 검토 필요', tone: 'danger' });
+    // 니크 나쁨만 있으면 니크 문구가 첫 배지, 궁합 좋음은 뒤에
+    expect(matingJudgement({ complement: 'likely', nick: 'poor', inbreedPercent: 0 }))
+      .toEqual({ summary: '주의 — 니크 나쁨 · 궁합 좋음', tone: 'warn' });
   });
 
   it('니크 나쁨은 주의 톤이고, 판단 정보가 없으면 판단 정보 없음으로 보인다', () => {
     expect(matingJudgement({ complement: 'unknown', nick: 'poor', inbreedPercent: 0 }))
-      .toEqual({ summary: '니크 나쁨', tone: 'warn' });
+      .toEqual({ summary: '주의 — 니크 나쁨', tone: 'warn' });
     expect(matingJudgement({ complement: 'unknown', nick: 'neutral', inbreedPercent: 0 }))
       .toEqual({ summary: '특이 사항 없음', tone: 'muted' });
     expect(matingJudgement({ complement: null, nick: null, inbreedPercent: null }))

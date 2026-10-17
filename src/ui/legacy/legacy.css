@@ -4,7 +4,11 @@
 .legacy-purpose { margin: 0 0 8px; }
 
 /* 연대기 목록은 툴바 아래 영역만 줄여 1440×900 에서 기록 탭도 세로 넘침이 없게 한다 */
-.legacy-toolbar + .legacy-scroll { height: min(500px, calc(100dvh - 400px)); }
+.legacy-toolbar + .legacy-scroll {
+  box-sizing: border-box;
+  height: min(500px, calc(100dvh - 400px));
+  padding-bottom: 12px;
+}
 
 /* 여백은 툴바 한 곳에서만 준다(세로 높이를 늘리지 않도록 자식 여백은 0) */
 .legacy-toolbar {
@@ -19,6 +23,9 @@
   grid-template-columns: 140px 92px minmax(0, 1fr) 56px;
 }
 .legacy-timeline .legacy-row > time { white-space: nowrap; }
+
+/* 말 링크 밑줄은 글자 폭에서 끝난다(셀 전체로 늘어나지 않게) */
+.legacy-timeline .legacy-row > .horse-link { justify-self: start; width: fit-content; max-width: 100%; }
 
 .legacy-tag {
   justify-self: start;
