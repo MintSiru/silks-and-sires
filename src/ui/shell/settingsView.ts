@@ -1,5 +1,8 @@
 // 메뉴·설정 모달의 데이터 함수(M6-U2 A1). 순수 함수: DOM·저장소 접근 없음.
 // 설정 값의 의미는 엔진과 같다: autoApproveRacePlans 가 false 면 승인제, 없거나 true 면 자동 신청.
+import {
+  AUTO_SELL_KEEP_RACERS, AUTO_SELL_KEEP_RACERS_IN_DEBT, AUTO_TRAINING_MIN_GRADE, AUTO_TRAINING_MIN_RACERS,
+} from '../../engine/config/autoSell';
 import { MATING_AUTO_BOOK_WEEK } from '../../engine/config/mating';
 import type { GameSettings } from '../../engine/types';
 
@@ -38,6 +41,14 @@ export function autoApproveFromMode(mode: RacePlanMode): boolean {
 /** 2세 자동 조교 보내기 체크 상태. 값이 없으면 켜짐(기본). */
 export function autoSendToTrainingOn(settings: GameSettings): boolean {
   return settings.autoSendToTraining !== false;
+}
+
+/**
+ * 2세 자동 조교 기준 한 줄(M6-B4). 상수에서 만든다. 기준이 B 면 'B 등급 이상 2세만, 현역 6두까지(빚이면 4두) …'.
+ * 최소 현역 예외와 기준 미달 2세는 판매 제안으로 올라간다는 문장을 덧붙인다.
+ */
+export function autoTrainingGuide(): string {
+  return `${AUTO_TRAINING_MIN_GRADE} 등급 이상 2세만, 현역 ${AUTO_SELL_KEEP_RACERS}두까지(빚이면 ${AUTO_SELL_KEEP_RACERS_IN_DEBT}두) 조교사에게 보냅니다. 현역이 ${AUTO_TRAINING_MIN_RACERS}두 미만이면 가장 나은 2세를 등급과 관계없이 채우고, 나머지는 판매 제안으로 올라갑니다.`;
 }
 
 /** 판매 제안 자동 위탁 체크 상태. 값이 없으면 켜짐(기본). */

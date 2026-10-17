@@ -13,6 +13,7 @@ import {
   autoApproveFromMode,
   autoSellOn,
   autoSendToTrainingOn,
+  autoTrainingGuide,
   matingProgressGuide,
   racePlanMode,
 } from '../../src/ui/shell/settingsView';
@@ -61,6 +62,16 @@ describe('교배 진행 방식 안내 (A1)', () => {
 
   it('기본(없음) 안내는 엔진의 자동 예약 주를 읽는다', () => {
     expect(matingProgressGuide(settings({}))).toContain(`${MATING_AUTO_BOOK_WEEK}주차`);
+  });
+});
+
+describe('2세 자동 조교 기준 안내 (M6-B4)', () => {
+  it('기준 등급·현역 상한·최소 현역·판매 제안을 한 줄로 알린다', () => {
+    const text = autoTrainingGuide();
+    expect(text).toContain('B 등급 이상 2세만');
+    expect(text).toContain('현역 6두까지(빚이면 4두)');
+    expect(text).toContain('현역이 1두 미만이면');
+    expect(text).toContain('판매 제안');
   });
 });
 
@@ -130,6 +141,7 @@ describe('설정 모달 구성 (A1)', () => {
       '메뉴·설정',
       '저장 관리',
       '진행·자동화',
+      autoTrainingGuide(),
       '표시·외형',
       '위험 영역',
       '저장',

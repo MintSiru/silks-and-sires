@@ -9,7 +9,9 @@ import {
   setAutoSell,
 } from '../../src/engine/sales/autoSell';
 import type { SalesStaticData } from '../../src/engine/sales/system';
+import { generateHorse } from '../../src/engine/horse/generate';
 import { createRng } from '../../src/engine/rng';
+import { meetsAutoTrainingGrade, playerGradeOf } from '../../src/engine/season/autoTraining';
 import { createNewGame } from '../../src/engine/state/newGame';
 import { bootstrapWorld, type WorldStaticData } from '../../src/engine/state/world';
 import type { GameState, Horse, HorseId, Rng, SaleEventDef, SaleKind, SellProposal } from '../../src/engine/types';
@@ -20,6 +22,7 @@ const SILKS = { primary: '#1a3c6e', secondary: '#f2d200', pattern: 'hoops' } as 
 const NOW_WEEK = 12;
 const RACE_SALE = 'sev_test_race';
 const YEARLING_SALE = 'sev_test_yearling';
+const BREEZE_SALE = 'sev_test_breeze';
 const EARLY_SALE = 'sev_test_early';
 
 const SALES_BASE = getSalesData();
@@ -45,7 +48,11 @@ const DATA: SalesStaticData = {
   sales: {
     version: SALES_BASE.version,
     companies: SALES_BASE.companies,
-    events: [eventOf('horses_in_training', RACE_SALE, 20), eventOf('yearling', YEARLING_SALE, 20)],
+    events: [
+      eventOf('horses_in_training', RACE_SALE, 20),
+      eventOf('yearling', YEARLING_SALE, 20),
+      eventOf('breeze_up', BREEZE_SALE, 20),
+    ],
   },
 };
 const EARLY_DATA: SalesStaticData = {
@@ -299,5 +306,51 @@ describe('판매 담당: 빼기·지금 위탁·자동 설정', () => {
     system.run(draft, { date: { year: START_YEAR, week: 13 }, rng: forbiddenRng() });
     expect(draft.sales.consignments.map((c) => c.horseId)).toEqual(['h-test-c']);
     expect(draft.sales.sellProposals?.[0]?.status).toBe('consigned');
+  });
+});
+
+/** 2세(브리즈업 대상, 조교사 없음) 한 두. level 40 은 평가 E, 80 은 A·B 가 나온다(측정). 부 없음·OR 없음이라 혈통·OR 보존에 걸리지 않는다 */
+function twoYearOld(base: GameState, id: string, level: number): Horse {
+  const generated = generateHorse(createRng(`auto-sell-${id}`), {
+    id,
+    name: 'Silver Fern',
+    sex: 'male',
+    birthYear: START_YEAR - 2,
+    currentYear: START_YEAR,
+    countryOfBirth: 'GB',
+    status: 'yearling',
+    level,
+  });
+  return {
+    ...generated,
+    ownerId: base.playerOwnerId,
+    trainerId: null,
+    sireId: null,
+    damId: null,
+    officialRating: null,
+  };
+}
+
+describe('판매 담당: 2세 브리즈업 판매(M6-B4)', () => {
+  it('자동 조교 기준 미달 2세만 브리즈업 세일 제안으로 내고 기준 이상 2세는 남긴다', () => {
+    const base = boot();
+    const low = [twoYearOld(base, 'h-test-low-1', 40), twoYearOld(base, 'h-test-low-2', 40)];
+    const high = twoYearOld(base, 'h-test-high', 80);
+    const state = withPlayerHorses(base, [...low, high]);
+    expect(meetsAutoTrainingGrade(playerGradeOf(state, high))).toBe(true);
+    for (const horse of low) expect(meetsAutoTrainingGrade(playerGradeOf(state, horse))).toBe(false);
+
+    const breeze = proposeSales(state, DATA).filter((p) => p.saleId === BREEZE_SALE);
+    expect(proposedIds(breeze).slice().sort()).toEqual(['h-test-low-1', 'h-test-low-2']);
+    for (const p of breeze) {
+      expect(p.year).toBe(START_YEAR);
+      expect(p.note).toContain('2세 하위');
+    }
+  });
+
+  it('기준 미달 2세가 없으면 브리즈업 세일에는 제안하지 않는다', () => {
+    const base = boot();
+    const state = withPlayerHorses(base, [twoYearOld(base, 'h-test-high', 80)]);
+    expect(proposeSales(state, DATA).filter((p) => p.saleId === BREEZE_SALE)).toEqual([]);
   });
 });

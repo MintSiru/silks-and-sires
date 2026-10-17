@@ -14,6 +14,7 @@ import {
   autoApproveFromMode,
   autoSellOn,
   autoSendToTrainingOn,
+  autoTrainingGuide,
   matingProgressGuide,
   racePlanMode,
 } from './settingsView';
@@ -418,6 +419,7 @@ export default function SettingsModal({
               <span>판매 제안 자동 위탁</span>
             </label>
           </div>
+          <p className="hint">{autoTrainingGuide()}</p>
           <div className="shell-item">
             <h4 className="shell-item__title">
               교배 예약

@@ -31,3 +31,15 @@ export const AUTO_SELL_PROTECT_SIRE_FEE = 100_000;
 /** 성적 부진 기준: 출주 이 횟수 이상이고 무승이면 현역 하위 정렬에서 OR 을 아래 값만큼 낮게 친다 */
 export const AUTO_SELL_POOR_MIN_STARTS = 5;
 export const AUTO_SELL_POOR_FORM_PENALTY = 5;
+
+/**
+ * 2세 자동 조교 기준(M6-B4): 플레이어용 종합 등급(assessForPlayer)이 이 등급 이상인 2세만 자동으로 조교사에게 보낸다.
+ * 근거: docs/reports/M6-B3-fixed-costs.md — 무입력 보통 난이도에서 수준 낮은 2세까지 모두 보내 조교료(연 13만~15만)가 상금보다 컸다.
+ * 기준 미달 2세는 판매 담당(브리즈업 세일 판매 제안)이 맡는다.
+ * 측정(M6-B4, 시드 20261011 무입력 보통 10년): C 는 2034년 빚 발생(끝 빚 231,010), B 는 빚 없음(끝 자금 324,002).
+ * 단 B 만으로는 2031·2032년 연말 현역 0두라 아래 최소 현역 규칙을 함께 둔다(M6-B4 보고 참고).
+ */
+export const AUTO_TRAINING_MIN_GRADE: Grade = 'B';
+
+/** 최소 현역(M6-B4): 현역(조교 중·휴양 중)이 이 두수보다 적으면 기준 미달 2세도 등급 높은 순으로 자동 조교에 보낸다(M6-0b 현역 1두 이상 기준) */
+export const AUTO_TRAINING_MIN_RACERS = 1;

@@ -23,6 +23,7 @@ import { SALE_VALUE_ROUND } from '../config/sales';
 import { mareCapacity } from '../farm/purchase';
 import { assessForPlayer } from '../horse/playerView';
 import { createRng } from '../rng';
+import { meetsAutoTrainingGrade } from '../season/autoTraining';
 import type { PlayerResult } from '../season/player';
 import { yearEndCandidates, yearEndPending } from '../stud/yearEnd';
 import {
@@ -153,7 +154,10 @@ function committedElsewhere(
   );
 }
 
-/** 판매 대상 집단(남길 두수를 셀 대상). 플레이어 말 중 종류의 집단에 속하고 다른 데 묶이지 않은 말 */
+/**
+ * 판매 대상 집단(남길 두수를 셀 대상). 플레이어 말 중 종류의 집단에 속하고 다른 데 묶이지 않은 말.
+ * 브리즈업(2세): 자동 조교 기준 미달 2세만. 기준 이상 2세는 조교사에게 가므로 판매 집단에서 뺀다(M6-B4).
+ */
 function groupOf(
   state: GameState,
   kind: SaleKind,
@@ -174,18 +178,21 @@ function groupOf(
           return fitsKind(horse, kind, year);
       }
     })
+    .filter((horse) => kind !== 'breeze_up' || !meetsAutoTrainingGrade(gradeOf(state, horse)))
     .filter((horse) => !yearEndOut.has(horse.id) && !committedElsewhere(state, horse.id, saleId, year, taken))
     .sort(byId);
 }
 
 /**
  * 이 세일에서 남길 두수 기준으로 낼 수 있는 상한(집단 두수 기준).
- * 1세·2세: 집단의 하위 비율(빚이면 높임), 현역: 집단 − 핵심 두수(빚이면 IN_DEBT), 번식 암말: 집단 − 목장 수용 두수.
+ * 1세: 집단의 하위 비율(빚이면 높임), 2세(브리즈업): 집단 전부(집단은 자동 조교 기준 미달 2세뿐, groupOf 참고),
+ * 현역: 집단 − 핵심 두수(빚이면 IN_DEBT), 번식 암말: 집단 − 목장 수용 두수.
  */
 function quotaOf(state: GameState, kind: SaleKind, size: number, debt: boolean): number {
   switch (kind) {
-    case 'yearling':
     case 'breeze_up':
+      return size;
+    case 'yearling':
       return Math.floor(size * (debt ? AUTO_SELL_YOUNG_BOTTOM_SHARE_IN_DEBT : AUTO_SELL_YOUNG_BOTTOM_SHARE));
     case 'horses_in_training':
       return Math.max(0, size - (debt ? AUTO_SELL_KEEP_RACERS_IN_DEBT : AUTO_SELL_KEEP_RACERS));
