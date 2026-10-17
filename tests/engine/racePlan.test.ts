@@ -152,6 +152,19 @@ describe('편집 API', () => {
     expect(JSON.stringify(base)).toBe(before);
   });
 
+  it('그 주에 승인한 계획은 같은 주 다시 짜기에도 남는다(M6-B2)', () => {
+    const saved = setRacePlan(base, horseId, proposeRacePlan(base, staticData, horseId));
+    if (!saved.ok) throw new Error(saved.error);
+    const first = saved.state.seasonState.racePlans![horseId]![0]!;
+    const approved = approvePlan(saved.state, horseId, first.id);
+    if (!approved.ok) throw new Error(approved.error);
+    const thatWeek = structuredClone(approved.state);
+    thatWeek.date = { ...first.date };
+    const replanned = replanHorse(thatWeek, staticData, horseId);
+    if (!replanned.ok) throw new Error(replanned.error);
+    expect(replanned.state.seasonState.racePlans![horseId]!.find((p) => p.id === first.id)?.status).toBe('approved');
+  });
+
   it('플레이어 말만 허용하고 잘못된 계획·상태·id 는 오류 유니언을 돌려준다', () => {
     const ai = Object.values(base.horses).find((h) => h.ownerId !== base.playerOwnerId)!;
     expect(setRacePlan(base, ai.id, [])).toEqual({ ok: false, error: 'not_player_horse' });

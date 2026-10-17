@@ -224,7 +224,9 @@ export function replanHorse(state: GameState, data: RaceCalendarData, horseId: H
   const error = playerError(state, horseId);
   if (error !== null) return { ok: false, error };
   if (state.horses[horseId]!.status !== 'in_training') return { ok: false, error: 'invalid_status' };
-  const keep = (state.seasonState.racePlans?.[horseId] ?? []).filter((p) => p.status === 'declared' || p.status === 'run' || p.status === 'skipped');
+  // 새 제안은 다음 주부터라, 이번 주(또는 이전)에 승인한 계획은 남겨야 그 주 출주가 사라지지 않는다(M6-B2 재현 버그).
+  const keep = (state.seasonState.racePlans?.[horseId] ?? []).filter((p) => p.status === 'declared' || p.status === 'run'
+    || p.status === 'skipped' || (p.status === 'approved' && compareDates(p.date, state.date) <= 0));
   const declared = keep.filter((p) => p.status === 'declared').at(-1);
   const planningState = declared === undefined ? state : { ...state, seasonState: { ...state.seasonState,
     lastRun: { ...state.seasonState.lastRun, [horseId]: declared.date } } };
