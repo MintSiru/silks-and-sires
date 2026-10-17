@@ -21,9 +21,12 @@ import type { GameState, SaleEventDef, SaleKind } from '../../src/engine/types';
 import {
   catalogueRows,
   consignableRows,
+  consignCancelReasonKo,
+  consignStatusKo,
   lotDetailView,
   liveAuctionView,
   saleCalendarRows,
+  type ConsignableRow,
 } from '../../src/ui/sales/salesView';
 import { nearestSaleKey } from '../../src/ui/sales/salesLayoutView';
 import { formatDateKo } from '../../src/engine/time/calendar';
@@ -297,6 +300,7 @@ describe('세일 화면 행: 발표 전 로트 숨김·위탁 마감 (M6-U8)', (
     const event = SALES.events.find((e) => e.id === option.saleId);
     if (event === undefined) throw new Error('테스트 전제 위반: 세일 없음');
     expect(option.deadlineKo).toBe(`${formatDateKo({ year: YEAR, week: announceWeekOf(event) - 1 })}까지`);
+    expect(option.announceKo).toBe(formatDateKo({ year: YEAR, week: announceWeekOf(event) }));
     expect(before.consignedDeadlineKo).toBeNull();
 
     const result = consignToSale(state, horseId, event.id, null, DATA);
@@ -344,5 +348,35 @@ describe('부 주로 성향 경고 (M4-C9)', () => {
     const gbRows = catalogueRows(announced(gb), gb.id, YEAR, DATA, { book: 1 });
     const warned = gbRows.filter((r) => r.surfaceNoteKo !== null).length;
     expect(warned).toBeLessThan(gbRows.length / 2);
+  });
+});
+
+describe('내 말 출품 칸: 상태 문구·취소 사유 (M6-W4)', () => {
+  const HORSE = 'horse_test' as ConsignableRow['horseId'];
+  const row = (over: Partial<ConsignableRow> = {}): ConsignableRow => ({
+    horseId: HORSE,
+    horseName: '가상 말',
+    consignedSaleName: null,
+    consignedDeadlineKo: null,
+    options: [],
+    ...over,
+  });
+
+  it('위탁하지 않은 말은 미출품이고, 취소 사유는 아직 출품하지 않음이다', () => {
+    const r = row();
+    expect(consignStatusKo(r)).toBe('미출품');
+    expect(consignCancelReasonKo(r)).toBe('아직 출품하지 않음');
+  });
+
+  it('위탁 중인 말은 출품됨(세일명)이고, 취소할 수 있으면 사유가 없다', () => {
+    const r = row({ consignedSaleName: '가상 세일', consignedDeadlineKo: '2026년 6월 2주까지' });
+    expect(consignStatusKo(r)).toBe('출품됨(가상 세일)');
+    expect(consignCancelReasonKo(r)).toBeNull();
+  });
+
+  it('카탈로그에 올라간 말은 카탈로그 등록됨이고, 취소 불가 사유가 붙는다', () => {
+    const r = row({ consignedSaleName: '가상 세일', consignedDeadlineKo: null });
+    expect(consignStatusKo(r)).toBe('카탈로그 등록됨');
+    expect(consignCancelReasonKo(r)).toBe('카탈로그 등록 뒤 취소 불가');
   });
 });

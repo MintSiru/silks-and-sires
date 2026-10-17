@@ -27,6 +27,8 @@ import {
 import {
   catalogueRows,
   consignableRows,
+  consignCancelReasonKo,
+  consignStatusKo,
   lotDetailView,
   patronBadge,
   privateOfferRows,
@@ -48,7 +50,8 @@ import {
   type SalesTab,
 } from './salesLayoutView';
 import { InspectBox, LotDetail } from './SalesLotDetail';
-import { NO_VALUE, NoticeLine, SALES_DATA, eventOf, type Notice } from './salesCommon';
+import { useNotify } from '../shell/notify';
+import { NO_VALUE, SALES_DATA, eventOf } from './salesCommon';
 import { useFillHeight } from './useFillHeight';
 import './sales.css';
 
@@ -477,17 +480,16 @@ interface SellTabProps extends SalesViewProps {
   consignRows: ConsignableRow[];
 }
 
+/** 배치: 위 두 칸(판매 제안 · 개인 거래 제안·NH 스토어)은 내용 높이, 아래 내 말 출품은 전체 폭 */
 function SellTab({ game, state, locked, sellRows, consignRows }: SellTabProps): JSX.Element {
   return (
     <div className="sales-sell">
-      <div className="sales-col">
-        <SellProposalPanel game={game} state={state} locked={locked} rows={sellRows} />
-        <ConsignPanel game={game} locked={locked} rows={consignRows} />
-      </div>
+      <SellProposalPanel game={game} state={state} locked={locked} rows={sellRows} />
       <div className="sales-col">
         <PrivateOffersPanel game={game} state={state} locked={locked} />
         {nhStoreOpen(state) && <NhStore game={game} state={state} locked={locked} />}
       </div>
+      <ConsignPanel game={game} locked={locked} rows={consignRows} />
     </div>
   );
 }
@@ -500,19 +502,19 @@ interface SellProposalPanelProps extends SalesViewProps {
 
 /** 판매 담당이 낸 세일 위탁 제안. 플레이어는 빼거나 지금 위탁만 한다(빼지 않으면 엔진이 마감 전 주에 위탁). */
 function SellProposalPanel({ game, state, locked, rows }: SellProposalPanelProps): JSX.Element {
-  const [notice, setNotice] = useState<Notice | null>(null);
+  const notify = useNotify();
   const autoSell = state.settings.autoSell !== false;
 
   const handleRemove = (row: SellProposalRow): void => {
     const result = game.removeSellProposal(row.horseId);
-    if (result.ok) setNotice({ tone: 'ok', text: `${row.horseName} 판매 제안을 뺐습니다.` });
-    else setNotice({ tone: 'error', text: sellProposalErrorKo(result.error) });
+    if (result.ok) notify(`${row.horseName} 판매 제안을 뺐습니다.`);
+    else notify(sellProposalErrorKo(result.error), 'error');
   };
 
   const handleConsign = (row: SellProposalRow): void => {
     const result = game.consignProposal(row.horseId);
-    if (result.ok) setNotice({ tone: 'ok', text: `${row.horseName} 말을 ${row.saleLabel}에 위탁했습니다.` });
-    else setNotice({ tone: 'error', text: sellProposalErrorKo(result.error) });
+    if (result.ok) notify(`${row.horseName} 말을 ${row.saleLabel}에 위탁했습니다.`);
+    else notify(sellProposalErrorKo(result.error), 'error');
   };
 
   // 제안이 없으면 한 줄(제목·0두·안내)로 접는다
@@ -524,7 +526,6 @@ function SellProposalPanel({ game, state, locked, rows }: SellProposalPanelProps
           <span className="badge">0두</span>
           <span className="hint">{sellProposalEmptyKo()}</span>
         </p>
-        <NoticeLine notice={notice} />
       </section>
     );
   }
@@ -581,7 +582,6 @@ function SellProposalPanel({ game, state, locked, rows }: SellProposalPanelProps
           </tbody>
         </table>
       </div>
-      <NoticeLine notice={notice} />
     </section>
   );
 }
@@ -595,7 +595,6 @@ interface ConsignPanelProps {
 }
 
 function ConsignPanel({ game, locked, rows }: ConsignPanelProps): JSX.Element {
-  const [notice, setNotice] = useState<Notice | null>(null);
   return (
     <section className="panel sales-consign" aria-label="내 말 출품">
       <h2>
@@ -612,6 +611,7 @@ function ConsignPanel({ game, locked, rows }: ConsignPanelProps): JSX.Element {
             <thead>
               <tr>
                 <th>말</th>
+                <th>상태</th>
                 <th>세일</th>
                 <th>위탁 기한</th>
                 <th>유보가(€)</th>
@@ -620,13 +620,12 @@ function ConsignPanel({ game, locked, rows }: ConsignPanelProps): JSX.Element {
             </thead>
             <tbody>
               {rows.map((row) => (
-                <ConsignItem key={row.horseId} row={row} game={game} locked={locked} onNotice={setNotice} />
+                <ConsignItem key={row.horseId} row={row} game={game} locked={locked} />
               ))}
             </tbody>
           </table>
         </div>
       )}
-      <NoticeLine notice={notice} />
     </section>
   );
 }
@@ -635,43 +634,40 @@ interface ConsignItemProps {
   row: ConsignableRow;
   game: GameApi;
   locked: boolean;
-  onNotice: (notice: Notice) => void;
 }
 
-/** 말 한 마리의 출품 행. 세일 선택·유보가 입력·출품·출품 취소. 결과 문구는 칸 머리 아래 한 줄에 보인다. */
-function ConsignItem({ row, game, locked, onNotice }: ConsignItemProps): JSX.Element {
+/** 말 한 마리의 출품 행. 세일 선택·유보가 입력·출품·출품 취소. 결과 문구는 토스트로 알린다. */
+function ConsignItem({ row, game, locked }: ConsignItemProps): JSX.Element {
+  const notify = useNotify();
   const [saleId, setSaleId] = useState(row.options[0]?.saleId ?? '');
   const [reserveText, setReserveText] = useState('');
   const chosen = row.options.find((o) => o.saleId === saleId) ?? row.options[0];
   const consigned = row.consignedSaleName !== null;
-  // 카탈로그에 올라간 말은 취소할 수 없다(취소 마감 문구가 없다)
-  const cancelable = consigned && row.consignedDeadlineKo !== null;
+  // 취소 불가 사유가 있으면 버튼을 막고 사유를 title·보조 글자로 보인다(카탈로그에 올라간 말은 취소 불가)
+  const cancelReason = consignCancelReasonKo(row);
 
   const handleConsign = (): void => {
     if (chosen === undefined) return;
     // 빈칸 = 유보 없음(null). 숫자가 아니면 엔진이 invalid_reserve 로 거절한다.
     const reserve = reserveText.trim() === '' ? null : Number(reserveText);
     const result = game.consignToSale(row.horseId, chosen.saleId, reserve);
-    onNotice(
-      result.ok
-        ? { tone: 'ok', text: `${chosen.name} 에 출품했습니다.` }
-        : { tone: 'error', text: consignErrorKo(result.error) },
-    );
+    if (result.ok) notify(`${chosen.name} 에 출품했습니다.`);
+    else notify(consignErrorKo(result.error), 'error');
   };
 
   const handleWithdraw = (): void => {
     const result = game.withdrawConsignment(row.horseId);
-    onNotice(
-      result.ok
-        ? { tone: 'ok', text: '출품을 취소했습니다.' }
-        : { tone: 'error', text: consignWithdrawErrorKo() },
-    );
+    if (result.ok) notify('출품을 취소했습니다.');
+    else notify(consignWithdrawErrorKo(), 'error');
   };
 
   return (
     <tr>
       <td>
         <HorseLink horseId={row.horseId} name={row.horseName} />
+      </td>
+      <td>
+        <span className="badge badge--muted">{consignStatusKo(row)}</span>
       </td>
       <td>
         {consigned ? (
@@ -710,6 +706,7 @@ function ConsignItem({ row, game, locked, onNotice }: ConsignItemProps): JSX.Ele
         ) : (
           <>
             <span>{chosen.deadlineKo}</span>
+            <span className="sales-sub">발표 {chosen.announceKo}</span>
             <span className="sales-sub">이후 위탁 불가</span>
           </>
         )}
@@ -735,9 +732,16 @@ function ConsignItem({ row, game, locked, onNotice }: ConsignItemProps): JSX.Ele
         >
           출품
         </button>{' '}
-        <button type="button" className="btn" disabled={!cancelable} onClick={handleWithdraw}>
+        <button
+          type="button"
+          className="btn"
+          disabled={cancelReason !== null}
+          title={cancelReason ?? undefined}
+          onClick={handleWithdraw}
+        >
           출품 취소
         </button>
+        {cancelReason !== null && <span className="sales-sub">{cancelReason}</span>}
       </td>
     </tr>
   );
@@ -760,7 +764,7 @@ function PrivateOffersPanel({ game, state, locked }: SalesViewProps): JSX.Elemen
 
 function PrivateOffers({ game, state, locked }: SalesViewProps): JSX.Element {
   const rows = privateOfferRows(state);
-  const [notice, setNotice] = useState<Notice | null>(null);
+  const notify = useNotify();
   const [inspectId, setInspectId] = useState<string | null>(null);
   const inspected = rows.find((row) => row.offerId === inspectId);
   const act = (offerId: string, buy: boolean): void => {
@@ -771,15 +775,11 @@ function PrivateOffers({ game, state, locked }: SalesViewProps): JSX.Element {
     )
       return;
     const result = buy ? game.acceptPrivateOffer(offerId) : game.declinePrivateOffer(offerId);
-    setNotice(
-      result.ok
-        ? { tone: 'ok', text: buy ? '구매했습니다.' : '제안을 거절했습니다.' }
-        : { tone: 'error', text: privateOfferErrorKo(result.error) },
-    );
+    if (result.ok) notify(buy ? '구매했습니다.' : '제안을 거절했습니다.');
+    else notify(privateOfferErrorKo(result.error), 'error');
   };
   return (
     <>
-      <NoticeLine notice={notice} />
       {rows.length === 0 ? (
         <p className="hint">
           관계가 좋은 오너브리더가 1~3월에 유망주를 개인적으로 제안합니다(관계 20 이상 또는 명성 35 이상)
@@ -845,7 +845,7 @@ function PrivateOffers({ game, state, locked }: SalesViewProps): JSX.Element {
 // ── NH 스토어 세일 ─────────────────────────────────────────────
 
 function NhStore({ game, state, locked }: SalesViewProps): JSX.Element {
-  const [notice, setNotice] = useState<Notice | null>(null);
+  const notify = useNotify();
   const horses = Object.values(state.horses)
     .filter((horse) => canSellToNhStore(state, horse.id) === null)
     .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
@@ -879,11 +879,8 @@ function NhStore({ game, state, locked }: SalesViewProps): JSX.Element {
                       disabled={locked}
                       onClick={() => {
                         const result = game.sellToNhStore(horse.id);
-                        setNotice(
-                          result.ok
-                            ? { tone: 'ok', text: 'NH 시장에 판매했습니다.' }
-                            : { tone: 'error', text: nhStoreErrorKo(result.error) },
-                        );
+                        if (result.ok) notify('NH 시장에 판매했습니다.');
+                        else notify(nhStoreErrorKo(result.error), 'error');
                       }}
                     >
                       판매
@@ -895,7 +892,6 @@ function NhStore({ game, state, locked }: SalesViewProps): JSX.Element {
           </table>
         </div>
       )}
-      <NoticeLine notice={notice} />
     </section>
   );
 }

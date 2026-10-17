@@ -123,6 +123,8 @@ export interface ConsignOption {
   name: string;
   kindKo: string;
   announceWeek: number;
+  /** 발표 주 문구. 예: '2026년 6월 3주' */
+  announceKo: string;
   /** 위탁 마감 문구. 예: '2026년 6월 2주까지' */
   deadlineKo: string;
 }
@@ -400,6 +402,7 @@ export function consignableRows(state: GameState, data: SalesStaticData): Consig
         name: e.name,
         kindKo: saleKindKo(e.kind),
         announceWeek: announceWeekOf(e),
+        announceKo: formatDateKo({ year, week: announceWeekOf(e) }),
         deadlineKo: deadlineKoOf(year, announceWeekOf(e) - 1),
       }))
       .sort(compareOptions);
@@ -411,6 +414,20 @@ export function consignableRows(state: GameState, data: SalesStaticData): Consig
       options,
     };
   });
+}
+
+/** 내 말 출품 칸의 현재 상태 문구: 미출품 / 출품됨(세일명) / 카탈로그 등록됨 */
+export function consignStatusKo(row: ConsignableRow): string {
+  if (row.consignedSaleName === null) return '미출품';
+  if (row.consignedDeadlineKo === null) return '카탈로그 등록됨';
+  return `출품됨(${row.consignedSaleName})`;
+}
+
+/** 출품 취소가 막힌 사유. 취소할 수 있으면 null. */
+export function consignCancelReasonKo(row: ConsignableRow): string | null {
+  if (row.consignedSaleName === null) return '아직 출품하지 않음';
+  if (row.consignedDeadlineKo === null) return '카탈로그 등록 뒤 취소 불가';
+  return null;
 }
 
 /** 개인 제안의 공개 정보만 화면에 전달한다. */

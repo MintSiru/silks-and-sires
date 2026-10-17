@@ -249,13 +249,34 @@
   margin-top: 4px;
 }
 
-/* 판매 탭: 왼쪽(판매 제안·내 말 출품) · 오른쪽(개인 거래·NH 스토어) */
+/* 판매 탭: 위 두 칸(판매 제안 · 개인 거래 제안·NH 스토어)은 내용 높이로 나란히, 아래 내 말 출품은 전체 폭 */
 .sales-screen .sales-sell {
   flex: 1 1 0;
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  align-items: start;
   gap: 12px;
+}
+
+.sales-screen .sales-sell > .sales-consign {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  align-self: stretch;
+  min-height: 0;
+}
+
+/* 위 두 칸은 내용 높이로 두고, 표가 길면 240px 에서 칸 안 스크롤한다(아래 출품 칸 높이를 남기기 위해) */
+.sales-screen .sales-sell > .sell-proposals,
+.sales-screen .sales-sell .sales-col > .panel {
+  flex: 0 0 auto;
+}
+
+.sales-screen .sales-sell > .sell-proposals .sales-fill,
+.sales-screen .sales-sell .sales-col .sales-fill {
+  flex: 0 1 auto;
+  max-height: 240px;
 }
 
 .sales-screen .sales-col {
@@ -302,14 +323,38 @@
   flex: 1 1 0;
 }
 
-/* 출품 표: 세일 이름이 길어도 칸 밖으로 밀리지 않도록 선택 상자와 유보가 칸 폭을 고정한다 */
+/* 출품 표: 세일 이름이 잘리지 않도록 세일 선택 상자 최소 폭 260px */
 .sales-screen .sales-consign select {
-  width: 13rem;
+  min-width: 260px;
   max-width: 100%;
 }
 
 .sales-screen .sales-consign input[type='number'] {
   width: 6.5rem;
+}
+
+/* 출품 표: 머리글·상태·보조 글자는 줄바꿈하지 않는다(사유 문구는 칸 안에서 keep-all) */
+.sales-screen .sales-consign th {
+  white-space: nowrap;
+}
+
+.sales-screen .sales-consign td:nth-child(2),
+.sales-screen .sales-consign .sales-sub {
+  white-space: nowrap;
+}
+
+.sales-screen .sales-consign td:last-child .sales-sub {
+  display: block;
+  margin-top: 2px;
+  white-space: normal;
+  word-break: keep-all;
+}
+
+/* 후원 진행 막대: 트랙을 바탕(--bg)보다 밝은 테두리(--input-border)로 또렷하게. 높이 8px. */
+.sales-screen .sales-tier .sales-tier__bar {
+  height: 8px;
+  background: var(--bg);
+  border-color: var(--input-border);
 }
 
 /* 로트 상세 대화상자는 app.css 의 .sales-detail 위치를 그대로 쓴다. 이 칸 안에서는 스크롤하지 않는다. */
@@ -333,9 +378,18 @@
     margin-left: 0;
   }
 
-  .sales-screen .sales-buy,
+  .sales-screen .sales-buy {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .sales-screen .sales-sell {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+  }
+
+  .sales-screen .sales-sell > .sales-consign {
+    grid-column: auto;
+    grid-row: auto;
   }
 
   .sales-screen .sales-fill {
