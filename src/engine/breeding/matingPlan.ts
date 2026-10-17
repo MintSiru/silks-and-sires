@@ -13,7 +13,7 @@ import { nickKey, nickLabel, nickValue } from './nicks';
 import { buildMatingPedigree, type PedigreeLookup } from './pedigree';
 import { buildMatingPreview } from './preview';
 import { createPedigreeLookup } from './realPedigree';
-import { bookCovering, bookingSeasonOf, damsireLineOf, familyScore, mareFertility, nominationsLeft, type BookingError } from './season';
+import { bookCovering, bookingSeasonOf, damsireLineOf, debtMatingAllowed, familyScore, mareFertility, nominationsLeft, type BookingError } from './season';
 
 export interface MatingPlanData {
   nicks: readonly NickEntry[];
@@ -99,6 +99,7 @@ function proposal(state: GameState, data: MatingPlanData, mareId: HorseId, seaso
   const damsire = dam.sireId === null ? null : state.horses[dam.sireId] ?? null;
   const budget = matingFeeBudget(state, mareId);
   const revealed = new Set(state.breeding.revealedNicks);
+  const inDebt = state.economy.mode === 'casual' && state.economy.debt > 0;
   const options = Object.keys(state.stallions).sort(compareId).flatMap((id) => {
     if (!matingStallionAvailable(state, id, season)) return [];
     const own = state.horses[id]!.ownerId === state.playerOwnerId;
@@ -110,6 +111,8 @@ function proposal(state: GameState, data: MatingPlanData, mareId: HorseId, seaso
     if ((stallion.bookingSeason === season ? stallion.bookedThisSeason : 0) + pending >= stallion.bookLimit) return [];
     const fee = matingExpectedFee(state, id, season, mareId);
     if (fee > budget) return [];
+    // 캐주얼 빚이 있으면 예약할 수 있는 저가 종마(4~5티어)만 제안한다(M6 사용자 결정)
+    if (inDebt && fee > 0 && !debtMatingAllowed(state, fee, state.playerOwnerId)) return [];
     const inbreeding = matingInbreeding(lookup, id, mareId);
     if (inbreeding.close || inbreeding.bloodPercent > config.MATING_MAX_BLOOD_PERCENT) return [];
     const sire = state.horses[id]!;

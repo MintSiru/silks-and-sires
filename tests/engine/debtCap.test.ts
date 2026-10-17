@@ -38,3 +38,27 @@ describe('M6 캐주얼 이자 완화', () => {
     expect(run(5_000_000, null)).toBe(DEBT_CAP_FALLBACK + Math.round(DEBT_INTEREST_BASE_CAP * DEBT_INTEREST_WEEKLY));
   });
 });
+
+describe('M6 빚이 있어도 4~5티어 교배 허용', () => {
+  it('캐주얼 빚: 4~5티어 종부료는 예약 허용, 그보다 비싸면 거절, 레거시는 그대로', async () => {
+    const { bookCovering, debtMatingAllowed } = await import('../../src/engine/breeding/season');
+    const { tierFromFee } = await import('../../src/engine/world/sirePool');
+    const s = bootstrapGame({ seed: 20261011, playerName: '가상 마주', economyMode: 'casual',
+      silks: { primary: '#123456', secondary: '#ffffff', pattern: 'hoops' } }, sd);
+    s.economy.debt = 100_000;
+    s.owners[s.playerOwnerId]!.funds = 0;
+    expect(debtMatingAllowed(s, 6_000, s.playerOwnerId)).toBe(true);
+    expect(debtMatingAllowed(s, 150_000, s.playerOwnerId)).toBe(false);
+    const legacy = { ...s, economy: { ...s.economy, mode: 'legacy' as const } };
+    expect(debtMatingAllowed(legacy, 6_000, s.playerOwnerId)).toBe(false);
+    const mareId = Object.keys(s.mares).find((id) => s.horses[id]?.ownerId === s.playerOwnerId)!;
+    s.date = { year: s.date.year, week: 2 };
+    const cheap = Object.keys(s.stallions).find((id) => s.stallions[id]!.fee > 0 && tierFromFee(s.stallions[id]!.fee) >= 4
+      && s.horses[id]?.ownerId !== s.playerOwnerId && !s.stallions[id]!.privateTo)!;
+    const dear = Object.keys(s.stallions).find((id) => tierFromFee(s.stallions[id]!.fee) <= 2 && !s.stallions[id]!.privateTo)!;
+    const d = bookCovering(s, s.playerOwnerId, mareId, dear);
+    expect(d.ok ? 'ok' : d.error).toBe('insufficient_funds');
+    const c = bookCovering(s, s.playerOwnerId, mareId, cheap);
+    expect(c.ok ? 'ok' : c.error).toBe('ok');
+  });
+});

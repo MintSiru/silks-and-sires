@@ -171,3 +171,6 @@ export const LONG_LEASE_PAY_WEEK = 27;
 export const STALLION_SALE_HISTORY_LIMIT = 60;
 /** 종마 판매가와 임대료는 종부료 사다리 대신 천 유로 단위로 반올림한다. */
 export const STUD_DEAL_MONEY_STEP = 1_000;
+
+/** 캐주얼 모드에서 빚이 있어도 예약할 수 있는 종부료 등급(M6, 사용자 결정 2026-10-17: 4~5티어). 이 등급 이상(숫자) 만 허용 */
+export const DEBT_MATING_MIN_TIER = 4;

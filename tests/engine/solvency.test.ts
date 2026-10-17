@@ -274,7 +274,7 @@ describe('캐주얼: 임의 지출 제한', () => {
     expect(canSpendDiscretionary(s, 50_000)).toBe(false);
   });
 
-  it('교배 예약: 빚이 있으면 insufficient_funds (자금이 종부료보다 많아도)', () => {
+  it('교배 예약: 빚이 있으면 1~3티어는 insufficient_funds (자금이 종부료보다 많아도)', () => {
     const { state, mareId, stallionId } = bookable();
     const fee = state.stallions[stallionId]?.fee ?? 0;
     const funded = structuredClone(state);
@@ -283,6 +283,9 @@ describe('캐주얼: 임의 지출 제한', () => {
 
     const indebted = structuredClone(funded);
     indebted.economy.debt = 1_000;
+    // 4~5티어는 빚이 있어도 예약 가능(M6) — 차단 규칙은 1티어 종부료로 확인
+    indebted.stallions[stallionId]!.fee = 150_000;
+    ownerOf(indebted, indebted.playerOwnerId).funds = 300_000;
     const result = bookCovering(indebted, indebted.playerOwnerId, mareId, stallionId);
     expect(result).toEqual({ ok: false, error: 'insufficient_funds' });
   });

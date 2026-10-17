@@ -8,9 +8,10 @@ import {
   MARE_MIN_BREEDING_AGE,
 } from '../config/breedingSeason';
 import { PHASE_WINDOWS, WEEKS_PER_YEAR } from '../config/game';
-import { BOOKING_OPEN_WEEK } from '../config/stud';
+import { BOOKING_OPEN_WEEK, DEBT_MATING_MIN_TIER } from '../config/stud';
 import { recordMoney } from '../economy/ledger';
 import { canSpendDiscretionary } from '../economy/solvency';
+import { tierFromFee } from '../world/sirePool';
 import { makeNameRegistry, namingContextFor, type MutableNameRegistry } from '../naming/context';
 import { nameForHorse } from '../naming/generate';
 import type { NamingData } from '../naming/types';
@@ -210,7 +211,8 @@ export function bookCovering(
     nominationsLeft(state, stallionId, season) > 0;
   const fee = ownStallion || useNomination ? 0 : stallion.fee;
   if (!ownStallion && !useNomination &&
-    (state.owners[ownerId] === undefined || !canSpendDiscretionary(state, fee, ownerId))) {
+    (state.owners[ownerId] === undefined
+      || (!canSpendDiscretionary(state, fee, ownerId) && !debtMatingAllowed(state, fee, ownerId)))) {
     return fail('insufficient_funds');
   }
 
@@ -247,6 +249,15 @@ export function bookCovering(
     date: dateOf(state.date),
   };
   return { ok: true, state: next, events: [event] };
+}
+
+/**
+ * 캐주얼 모드 플레이어가 빚이 있어도 예약할 수 있는 저가 교배인지(M6, 사용자 결정 2026-10-17).
+ * 종부료 등급(tierFromFee)이 DEBT_MATING_MIN_TIER 이상(4~5티어)이면 허용 — 생산이 끊기지 않게. 낸 종부료는 다음 자금 판정에서 빚이 된다.
+ */
+export function debtMatingAllowed(state: GameState, fee: number, ownerId: OwnerId): boolean {
+  return ownerId === state.playerOwnerId && state.economy.mode === 'casual' && state.economy.debt > 0
+    && fee > 0 && tierFromFee(fee) >= DEBT_MATING_MIN_TIER;
 }
 
 /** 이번 주가 번식 단계의 첫 주인지(이전 주는 단계 밖) */

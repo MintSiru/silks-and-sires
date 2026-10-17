@@ -144,6 +144,8 @@ describe('시즌별 교배권과 실제 종부료', () => {
     const first = reserve(state, mareId, stallionId).state;
     expect(funds(first)).toBe(-1);
     expect(first.economy).toEqual(state.economy);
+    // 4~5티어는 빚이 있어도 예약 가능(M6) — 차단 규칙은 1티어 종부료로 확인
+    first.stallions[stallionId]!.fee = 150_000;
     expect(bookCovering(first, state.playerOwnerId, otherId, stallionId))
       .toEqual({ ok: false, error: 'insufficient_funds' });
   });

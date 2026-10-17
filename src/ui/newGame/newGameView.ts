@@ -31,7 +31,7 @@ export const ECONOMY_MODE_OPTIONS: readonly ChoiceOption<EconomyMode>[] = [
   {
     value: 'casual',
     label: '캐주얼',
-    line: '파산 없음 · 적자는 빚으로 쌓입니다. 빚이 있으면 유료 지출(교배료·경매·시설)이 막힙니다',
+    line: '파산 없음 · 적자는 빚으로 쌓입니다. 빚이 있으면 유료 지출(경매·시설)이 막히고 교배는 저가(4~5티어) 종마만 됩니다',
   },
   { value: 'legacy', label: '레거시', line: `자금이 ${LEGACY_BANKRUPT_WEEKS}주 연속 음수면 파산합니다` },
 ];
