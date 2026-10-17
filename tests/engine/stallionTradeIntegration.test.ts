@@ -315,7 +315,7 @@ it('판매·임대·교배권 없는 시드 20261011의 52주 결과는 변경 �
   expect(hashes(first)).toEqual({
     raceResults: '2b12724129ad005e366b7466ad5f6c8519cb25e438c1e67e99c2b4e0dc3815a9',
     fees: '5ec8949be1f2bc134c7c3a9d47a2a080e8a0689266528051877c9e645041245c',
-    ledger: 'acfd63474c0c366b579a092a2b1812daf88ca69a561f5c8abab44ef750217027',
+    ledger: '78285f88925d048a28248d6b5fa46b3d2042efd172c15ebec269353ed308a9bc',
   });
   expect(simulate()).toEqual(first);
 }, 600_000);

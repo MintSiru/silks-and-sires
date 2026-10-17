@@ -50,12 +50,12 @@ function captureGame(): GameApi {
 }
 
 describe('farmView', () => {
-  it('보통 오너브리더 요약: 중형·15 + 3 = 18두·연 €72,000·종마 1칸', () => {
+  it('보통 오너브리더 요약: 중형·15 + 3 = 18두·연 €36,000·종마 1칸', () => {
     const state = fixture();
     addMares(state, 2);
     expect(farmSummary(state)).toMatchObject({ owned: true, name: '구름들 목장', sizeKo: '중형',
       countryKo: '영국', acquiredYear: state.date.year, broodmareCount: 2, mareCapacity: 18,
-      baseCapacity: 15, stableBonus: 3, annualUpkeep: 72_000, stallionSlots: 1 });
+      baseCapacity: 15, stableBonus: 3, annualUpkeep: 36_000, stallionSlots: 1 });
   });
 
   it('목장이 없으면 요약과 공사 불가, 새 매물 수용 한도에는 기본 시설 1단계 반영', () => {
@@ -115,7 +115,7 @@ describe('farmView', () => {
     const state = fixture();
     const game = { ...captureGame(), state };
     const owned = renderToStaticMarkup(createElement(FarmScreen, { game }));
-    for (const text of ['구름들 목장', '시설 공사', '목장 매물', '€72,000', '공사 시작', '이전']) expect(owned).toContain(text);
+    for (const text of ['구름들 목장', '시설 공사', '목장 매물', '€36,000', '공사 시작', '이전']) expect(owned).toContain(text);
     // 단계 칸: 채운 칸은 좋음 색 클래스, 빈 칸은 흐린 색 클래스로 나뉜다(V3 · 17)
     expect(owned).toContain('farm-stage__on');
     expect(owned).toContain('farm-stage__off');

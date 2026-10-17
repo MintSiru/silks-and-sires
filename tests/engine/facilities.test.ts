@@ -112,17 +112,17 @@ describe('공사·비용·유지비', () => {
     expect(out.state.farm.construction).toBeNull();
     expect(facilityLevel(out.state, 'stallion_barn')).toBe(2);
     expect(freeStudSlots(out.state)).toBe(2);
-    expect(out.state.economy.playerLedger.at(-1)?.amount).toBe(-Math.round(16_000 / 52));
+    expect(out.state.economy.playerLedger.at(-1)?.amount).toBe(-Math.round(8_000 / 52));
     expect(advanceWeek(out.state, [createFacilitiesSystem()]).events).toEqual([]);
   });
 
-  it('단계 합 6의 52주 유지비는 €48,000 ±52, 정기 비용 시스템과 중복 없음', () => {
+  it('단계 합 6의 52주 유지비는 €24,000 ±52, 정기 비용 시스템과 중복 없음', () => {
     let state = fixture('pool', 3);
     state.farm.facilities.vet_clinic = 3;
     for (let i = 0; i < 52; i++) state = advanceWeek(state, [createFacilitiesSystem(), createCostsSystem()]).state;
     const entries = state.economy.playerLedger.filter((e) => e.category === 'facility');
     expect(entries).toHaveLength(52);
-    expect(Math.abs(entries.reduce((sum, e) => sum - e.amount, 0) - 48_000)).toBeLessThanOrEqual(52);
+    expect(Math.abs(entries.reduce((sum, e) => sum - e.amount, 0) - 24_000)).toBeLessThanOrEqual(52);
     expect(state.stud.slots).toBe(1);
   });
 

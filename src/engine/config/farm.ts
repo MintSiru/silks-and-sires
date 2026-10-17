@@ -71,8 +71,12 @@ export const FARM_RESALE_SHARE = 0.75;
 export const FACILITY_UPGRADE_COST: readonly number[] = [0, 60_000, 150_000, 350_000];
 /** 공사비 배수가 다른 시설(큰 건물) */
 export const FACILITY_COST_MULT: Readonly<Partial<Record<FacilityKind, number>>> = { stallion_barn: 1.5, stable_block: 1.5 };
-/** 연 유지비 = 시설 단계 합 × 이 값(주마다 나눠 장부 'facility') */
-export const FACILITY_UPKEEP_PER_LEVEL_YEAR = 8_000;
+/**
+ * 연 유지비 = 시설 단계 합 × 이 값(주마다 나눠 장부 'facility'). 플레이어 전용(AI 에 적용 안 됨).
+ * M6-B3(2026-10-17): 8,000 → 4,000(절반). 쉬움 10년 자금 1,147k → 1,867k(목표 ≥1.2M 충족), 어려움 3년 빚 없음 유지.
+ * 보통 10년 빚 없음은 이 값으로 미달(2032년 빚 시작) — docs/reports/M6-B3-fixed-costs.md 참고.
+ */
+export const FACILITY_UPKEEP_PER_LEVEL_YEAR = 4_000;
 /** 공사 기간(주). 그동안 새 단계 효과 없음 */
 export const FACILITY_BUILD_WEEKS = 4;
 /** 마방 증축 단계별 번식 암말 수용 보너스(인덱스 = 단계) */
