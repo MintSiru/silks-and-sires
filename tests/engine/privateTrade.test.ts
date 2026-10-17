@@ -12,6 +12,7 @@ import {
   PRIVATE_OFFER_ROUND,
   PRIVATE_OFFER_VALID_WEEKS,
 } from '../../src/engine/config/privateTrade';
+import { PRIVATE_OR_BAND_WIDTH } from '../../src/engine/config/sales';
 import {
   getNamingData,
   getNicks,
@@ -694,17 +695,41 @@ describe('내부거래 화면 목록과 동행 검사', () => {
       'expiresYear',
       'horseId',
       'horseName',
+      'kind',
       'offerId',
+      'orBand',
       'ownerId',
       'ownerName',
       'price',
+      'record',
       'sex',
       'sireId',
+      'source',
     ]);
     expect(row.offerId).toBe(offer.id);
     expect(row.age).toBe(2);
     expect(row.price).toBe(offer.price);
     expect(row.estimate.low).toBeLessThanOrEqual(row.estimate.high);
+    // M7-G1: 출처 없는 옛 제안은 관계 제안, 2세 말, 레이팅 구간은 원값 없이 폭만 준다
+    expect(row.source).toBe('relation');
+    expect(row.kind).toBe('two_year_old');
+    const horseRow = state.horses[offer.horseId];
+    if (horseRow === undefined) throw new Error('테스트 전제 위반: 말 없음');
+    const band = row.orBand;
+    if (horseRow.officialRating === null) {
+      expect(band).toBeNull();
+    } else {
+      if (band === null) throw new Error('테스트 전제 위반: 레이팅 구간 없음');
+      expect(band.high - band.low).toBe(PRIVATE_OR_BAND_WIDTH);
+      expect(horseRow.officialRating).toBeGreaterThanOrEqual(band.low);
+      expect(horseRow.officialRating).toBeLessThan(band.high);
+    }
+    expect(row.record).toEqual({
+      starts: horseRow.record.starts,
+      wins: horseRow.record.wins,
+      groupWins: horseRow.record.groupWins,
+      lastPosition: null,
+    });
   });
 
   it('23. 동행 검사: 관계 100 조교사는 소견을 받고, 자격 없는 조교사는 not_eligible, 없는 제안은 offer_not_found', () => {
@@ -784,10 +809,10 @@ describe('플레이어 말이 AI 마주 생산마로 우승하면 생산 마주 
 
 describe('제안이 없는 기본 진행은 이 시스템 전과 같다', () => {
   it(
-    '29. 시드 20261011, 관계 0·명성 10: 26주 진행 결과가 private_trade 를 뺀 진행과 같고 제안은 생기지 않는다',
+    '29. 시드 20261011, 관계 0·명성 10: 26주 진행에서 관계 제안은 생기지 않고, 내부거래·시장을 뺀 진행과 세계가 같다(시장 매물 칸 제외)',
     () => {
       const systems = createGameSystems(FULL_GAME);
-      const withoutPrivate = systems.filter((s) => s.id !== 'private_trade');
+      const withoutPrivate = systems.filter((s) => s.id !== 'private_trade' && s.id !== 'private_market');
       const run = (list: typeof systems): GameState => {
         let current = fresh();
         for (let i = 0; i < 26; i++) current = advanceWeek(current, list).state;
@@ -795,9 +820,14 @@ describe('제안이 없는 기본 진행은 이 시스템 전과 같다', () => 
       };
       const full = run(systems);
       const baseline = run(withoutPrivate);
-      expect(full.sales.privateOffers).toEqual([]);
-      expect(full.sales.nextPrivateOfferNo).toBe(1);
-      expect(full).toEqual(baseline);
+      // 시장 매물(source 'market')은 M7-G1 이 추가한 것이라 이 비교에서 뺀다. 관계 제안은 0건이어야 한다
+      expect(full.sales.privateOffers.filter((o) => o.source !== 'market')).toEqual([]);
+      const masked = (s: GameState): GameState => ({
+        ...s,
+        sales: { ...s.sales, privateOffers: [], nextPrivateOfferNo: 1 },
+        eventLog: s.eventLog.filter((e) => e.type !== 'private_offer'),
+      });
+      expect(masked(full)).toEqual(masked(baseline));
     },
     HEAVY_TIMEOUT,
   );

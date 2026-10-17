@@ -17,6 +17,7 @@ import {
   autoTrainingGuide,
   matingProgressGuide,
   racePlanMode,
+  stopAtSalesOn,
 } from './settingsView';
 import {
   SAVE_SLOT_ROWS,
@@ -417,6 +418,14 @@ export default function SettingsModal({
                 onChange={(e) => game.setAutoSell(e.target.checked)}
               />
               <span>판매 제안 자동 위탁</span>
+            </label>
+            <label className="shell-check">
+              <input
+                type="checkbox"
+                checked={stopAtSalesOn(state.settings)}
+                onChange={(e) => game.setStopAtSales(e.target.checked)}
+              />
+              <span>세일 발표·거래 주에 멈추기</span>
             </label>
           </div>
           <p className="hint">{autoTrainingGuide()}</p>

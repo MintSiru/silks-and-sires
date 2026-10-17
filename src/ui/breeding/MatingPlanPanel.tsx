@@ -274,6 +274,7 @@ function MatingPlanTableRow({
       </td>
       <td className="mating-plan__actions">
         <StatusBadge tone={matingStatusTone(r.status)} label={r.statusLabel} />
+        {r.approvalNote !== null && <StatusBadge tone="warn" label={r.approvalNote} />}
         {r.canApprove && <div className="mating-plan__btns">
           <button type="button" className="btn" disabled={unavailable} onClick={onApprove}>승인</button>
           <select

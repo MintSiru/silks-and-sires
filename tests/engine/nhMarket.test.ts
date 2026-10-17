@@ -38,6 +38,8 @@ function playerFixture() {
   horse.birthYear = state.date.year - 3;
   horse.gelded = false;
   horse.aptitude.distanceOptimum = 3000;
+  // M7-C1: 종마 전환·판매는 1승 이상만 — 연말 역할 검증용으로 1승을 준다
+  horse.record.wins = Math.max(1, horse.record.wins);
   return { state, horse };
 }
 

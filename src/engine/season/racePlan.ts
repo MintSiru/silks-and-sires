@@ -10,8 +10,9 @@ import {
 } from '../config/entries';
 import { BASE_WEIGHT_LB, HANDICAP_OR_RANGE } from '../config/meetings';
 import {
-  RACE_PLAN_CLASS_SCORE, RACE_PLAN_DISTANCE_SCORE, RACE_PLAN_INTERVAL,
-  RACE_PLAN_HISTORY_WEEKS, RACE_PLAN_MAX_RUNS, RACE_PLAN_RENEW_WEEKS, RACE_PLAN_TARGET_SLACK_WEEKS, RACE_PLAN_WEEKS,
+  RACE_PLAN_CLASS_SCORE, RACE_PLAN_DISTANCE_SCORE, RACE_PLAN_DISTANCE_SLACK_M, RACE_PLAN_INTERVAL,
+  RACE_PLAN_HISTORY_WEEKS, RACE_PLAN_MAX_RUNS, RACE_PLAN_MIN_OR, RACE_PLAN_RENEW_WEEKS,
+  RACE_PLAN_TARGET_SLACK_WEEKS, RACE_PLAN_WEEKS,
 } from '../config/racePlan';
 import { CONDITION_MAX } from '../config/season';
 import { WEEKS_PER_YEAR } from '../config/game';
@@ -73,6 +74,31 @@ function raceFits(state: GameState, horse: Horse, race: Race, date: GameDate): b
     || (horse.officialRating !== null && horse.officialRating >= GROUP_OR_FLOOR[race.grade]);
 }
 
+/**
+ * 조교사 제안 전용 규칙(M7-C2). 플레이어 말 제안(proposeRacePlan)에만 쓰고 AI 선언·수동 계획에는 쓰지 않는다.
+ * - 거리: 적성 범위(distanceOptimum ± distanceRange) ± RACE_PLAN_DISTANCE_SLACK_M 밖은 제안하지 않는다.
+ * - 미승리(0승): 미승리전·노비스전, 2세 조건 레이스만.
+ * - 승리마: 그룹·리스티드는 OR 이 RACE_PLAN_MIN_OR 이상(OR 없으면 불가), 핸디캡은 OR 이 그 클래스 대역 안일 때만.
+ */
+function planRaceAllowed(horse: Horse, race: Race): boolean {
+  const { distanceOptimum, distanceRange } = horse.aptitude;
+  if (Math.abs(distanceOptimum - race.distance) > distanceRange + RACE_PLAN_DISTANCE_SLACK_M) return false;
+  if (horse.record.wins === 0) {
+    return race.kind === 'maiden' || race.kind === 'novice'
+      || (race.kind === 'conditions' && race.conditions.maxAge === JUVENILE_AGE);
+  }
+  const or = horse.officialRating;
+  if (race.kind === 'group' || race.kind === 'listed') {
+    return race.grade !== null && or !== null && or >= RACE_PLAN_MIN_OR[race.grade];
+  }
+  if (race.kind === 'handicap') {
+    if (race.raceClass === 1 || or === null) return false;
+    const band = HANDICAP_OR_RANGE[race.raceClass];
+    return or >= band.min && or <= band.max;
+  }
+  return true;
+}
+
 /** OR 구간 중간과 거리 적성으로 비교한다. 동점은 호출자가 id 순으로 푼다. */
 function suitability(horse: Horse, race: Race): number {
   const distance = Math.abs(horse.aptitude.distanceOptimum - race.distance) / horse.aptitude.distanceRange;
@@ -110,7 +136,7 @@ function targetFor(state: GameState, horse: Horse, week: UpcomingRaceWeek): Race
               weightSystem: rating === null ? 'wfa' : 'handicap', baseWeightLb: BASE_WEIGHT_LB },
             prizeMoney: [], maxRunners: 0,
           };
-          if (raceFits(state, horse, race, week.date)) candidates.push(race);
+          if (planRaceAllowed(horse, race) && raceFits(state, horse, race, week.date)) candidates.push(race);
         }
       }
     }
@@ -120,11 +146,13 @@ function targetFor(state: GameState, horse: Horse, week: UpcomingRaceWeek): Race
     || a.raceClass - b.raceClass || a.distance - b.distance || compareId(a.kind, b.kind));
   const best = candidates[0];
   if (best === undefined) return null;
-  const width = horse.aptitude.distanceRange * DISTANCE_TOLERANCE;
+  // 목표 거리 창은 적응 폭(DISTANCE_TOLERANCE)과 계획 거리 여유 중 좁은 쪽. 후보 거리가 두 조건을 모두 만족하므로 창이 비지 않는다.
+  const { distanceOptimum, distanceRange } = horse.aptitude;
+  const reach = Math.min(distanceRange * DISTANCE_TOLERANCE, distanceRange + RACE_PLAN_DISTANCE_SLACK_M);
   // 같은 클래스에서 자격에 맞는 종류를 함께 허용해 실제 편성과 연결한다.
   const kinds = [...new Set(candidates.filter((r) => r.raceClass === best.raceClass).map((r) => r.kind))];
-  return { kinds, minDistance: Math.max(1, Math.ceil(horse.aptitude.distanceOptimum - width)),
-    maxDistance: Math.floor(horse.aptitude.distanceOptimum + width),
+  return { kinds, minDistance: Math.max(1, Math.ceil(distanceOptimum - reach)),
+    maxDistance: Math.floor(distanceOptimum + reach),
     country: week.meetings.find((m) => m.course.id === best.racecourseId)!.course.country,
     minClass: best.raceClass, maxClass: best.raceClass };
 }
@@ -145,17 +173,22 @@ export function proposeRacePlan(
   // 이번 주 접수도 가능하지만, 새 제안은 검토할 수 있게 다음 주부터 잡는다.
   for (let start = 1; start < weeks && plans.length < RACE_PLAN_MAX_RUNS;) {
     const candidateWeeks = calendar.slice(start, Math.min(weeks, start + gap));
-    const options = candidateWeeks.flatMap((week) => {
+    const options = candidateWeeks.flatMap((week): { date: GameDate; templateId: string | null; target: RacePlanTarget | null }[] => {
       if (last !== undefined && weeksBetween(last, week.date) < gap) return [];
       const projected = projectedHorse(state, horse, week.date);
       if (projected.condition.injury !== null || projected.condition.fitness < MIN_FITNESS_TO_RUN
         || projected.condition.fatigue > MAX_FATIGUE_TO_RUN) return [];
-      const domestic = (race: Race) => data.courses.find((c) => c.id === race.racecourseId)?.country === homeCountry(state, horse) ? 0 : 1;
-      const fixed = week.fixedRaces.filter((race) => raceFits(state, projected, race, week.date))
+      const home = homeCountry(state, horse);
+      const domestic = (race: Race) => data.courses.find((c) => c.id === race.racecourseId)?.country === home ? 0 : 1;
+      const fixed = week.fixedRaces.filter((race) => planRaceAllowed(horse, race) && raceFits(state, projected, race, week.date))
         .sort((a, b) => domestic(a) - domestic(b) || suitability(horse, a) - suitability(horse, b) || compareId(a.id, b.id));
-      const target = fixed.length === 0 ? targetFor(state, projected, week) : null;
-      if (fixed.length === 0 && target === null) return [];
-      return [{ date: week.date, templateId: fixed[0]?.id ?? null, target }];
+      const fixedRace = fixed[0];
+      const target = targetFor(state, projected, week);
+      // 같은 주 후보: 국내 개최가 우선, 같은 나라면 확정된 고정 일정이 우선(조건 목표는 개최가 바뀔 수 있다).
+      if (fixedRace !== undefined && (target === null || domestic(fixedRace) === 0 || target.country !== home)) {
+        return [{ date: week.date, templateId: fixedRace.id, target: null }];
+      }
+      return target === null ? [] : [{ date: week.date, templateId: null, target }];
     });
     const pick = options.find((o) => o.templateId !== null) ?? options[0];
     if (pick === undefined) { start += 1; continue; }

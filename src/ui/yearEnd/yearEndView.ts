@@ -1,6 +1,6 @@
 import { displayName } from '../../engine/naming/register';
 import { retainerRenewalsDue, yearEndCandidates, type YearEndCandidate, type YearEndError } from '../../engine/stud/yearEnd';
-import { salePriceQuote, stallionSalePrice } from '../../engine/stud/trade';
+import { salePriceQuote, saleRecordMult, stallionSalePrice } from '../../engine/stud/trade';
 import { freeStudSlots } from '../../engine/stud/stand';
 import { relationKey, relationOf } from '../../engine/economy/relations';
 import type { GameState, HorseId, YearEndChoice, YearEndSubmission } from '../../engine/types';
@@ -38,7 +38,7 @@ export function salePriceWithNominationsKo(state: GameState, horseId: HorseId, n
   const horse = state.horses[horseId];
   if (quote === null || horse === undefined) return NO_PRICE_KO;
   const age = state.date.year - horse.birthYear;
-  return feeKo(stallionSalePrice(quote.fee, age, 'domestic', nominations));
+  return feeKo(stallionSalePrice(quote.fee, age, 'domestic', nominations, saleRecordMult(horse)));
 }
 
 export function yearEndView(state: GameState) {

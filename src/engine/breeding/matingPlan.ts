@@ -1,6 +1,6 @@
 import * as config from '../config/mating';
 import { DUE_WEEK_KEY_YEAR_SCALE, MARE_MIN_BREEDING_AGE } from '../config/breedingSeason';
-import { PHASE_WINDOWS } from '../config/game';
+import { PHASE_WINDOWS, START_YEAR } from '../config/game';
 import { BOOKING_OPEN_WEEK, FEE_PROGENY_MULT_MIN, FEE_PROGENY_MULT_MAX } from '../config/stud';
 import { progenyMultiplier } from '../stud/market';
 import { publicFertility } from '../stud/fertility';
@@ -93,6 +93,22 @@ export function matingInbreeding(lookup: PedigreeLookup, sireId: HorseId, mareId
     c.sireSide.some((g) => g <= config.MATING_CLOSE_GENERATION) && c.damSide.some((g) => g <= config.MATING_CLOSE_GENERATION)) };
 }
 
+/**
+ * 자동 예약 주(M7-C3). 게임을 시작한 해(START_YEAR)만 첫 시즌 주를 쓰고 그 뒤 해는 기본 주다.
+ * 엔진(createMatingPlansSystem)과 decisionStop 이 이 함수 하나로 같은 주를 판정한다.
+ */
+export function matingAutoBookWeek(state: GameState): number {
+  return state.date.year === START_YEAR ? config.MATING_FIRST_SEASON_AUTO_BOOK_WEEK : config.MATING_AUTO_BOOK_WEEK;
+}
+
+/**
+ * 제안 종마와 암말 사이 예상 자마 근친 혈량이 자동 예약 상한(계수 0.125 = 혈량 12.5%) 이상이면 true.
+ * true 인 제안은 자동 예약하지 않고 플레이어 승인을 기다린다(M7-C3). 자동 예약 방식과 무관하게 같은 규칙이다.
+ */
+export function matingNeedsApproval(lookup: PedigreeLookup, stallionId: HorseId, mareId: HorseId): boolean {
+  return matingInbreeding(lookup, stallionId, mareId).bloodPercent >= config.MATING_AUTO_BOOK_MAX_INBREEDING * 100;
+}
+
 function proposal(state: GameState, data: MatingPlanData, mareId: HorseId, season: number, lookup: PedigreeLookup): MatingProposal | null {
   if (!eligibleMare(state, mareId, season)) return null;
   const dam = state.horses[mareId]!;
@@ -137,8 +153,10 @@ function proposal(state: GameState, data: MatingPlanData, mareId: HorseId, seaso
     const note = [label === 'excellent' ? '니크 매우 좋음' : label === 'good' ? '니크 좋음' : known ? '공개 니크 참고' : '니크 미공개',
       distance > 0 ? '스피드 보완' : distance < 0 ? '장거리 편중' : '거리 적성 고려', own ? '자기 종마' : null,
       `예산 €${budget.toLocaleString('en-US')} 안`].filter((s) => s !== null).join(' · ');
-    return [{ id, fee, score, note }];
-  }).sort((a, b) => b.score - a.score || compareId(a.id, b.id));
+    // 근친 혈량이 자동 예약 상한 이상이면 승인 대기가 되므로 상한 아래 종마가 있으면 그쪽을 먼저 제안한다(M7-C3 보완)
+    const heavy = inbreeding.bloodPercent >= config.MATING_AUTO_BOOK_MAX_INBREEDING * 100;
+    return [{ id, fee, score, note: heavy ? `${note} · 근친 높음` : note, heavy }];
+  }).sort((a, b) => Number(a.heavy) - Number(b.heavy) || b.score - a.score || compareId(a.id, b.id));
   const best = options[0];
   return best === undefined ? null : { mareId, season, stallionId: best.id,
     alternatives: options.slice(1, config.MATING_ALTERNATIVES + 1).map((o) => o.id), expectedFee: best.fee, note: best.note, status: 'proposed' };
@@ -226,6 +244,27 @@ export function approveAllMatings(state: GameState): MatingPlanResult {
   return { ok: true, state: next, events };
 }
 
+/**
+ * 자동 예약(M7-C3): 지정한 암말의 검토 대기 제안 가운데 근친 승인 필요가 아닌 것만 암말 id 순으로 예약한다.
+ * 근친 승인 필요 제안은 proposed 로 남고, 예약 실패 제안은 건너뛴다. 예약은 horses 를 바꾸지 않으므로 혈통 조회 표는 한 번만 만든다.
+ */
+function autoBookMares(state: GameState, data: MatingPlanData, mareIds: readonly HorseId[]): { state: GameState; events: GameEvent[] } {
+  let next = state;
+  const events: GameEvent[] = [];
+  let lookup: PedigreeLookup | undefined;
+  for (const mareId of [...new Set(mareIds)].sort(compareId)) {
+    const p = currentProposal(next, mareId);
+    if (p === undefined || p.status !== 'proposed') continue;
+    lookup ??= createPedigreeLookup(state.horses, data.stallionRecords ?? []);
+    if (matingNeedsApproval(lookup, p.stallionId, mareId)) continue;
+    const result = approveMating(next, mareId);
+    if (!result.ok) continue;
+    next = result.state;
+    events.push(...result.events);
+  }
+  return { state: next, events };
+}
+
 export function changeMating(state: GameState, mareId: HorseId, stallionId: HorseId): MatingPlanResult {
   const error = playerMareError(state, mareId);
   if (error !== null) return { ok: false, error };
@@ -269,7 +308,10 @@ export function replanMatings(state: GameState, data: MatingPlanData): MatingPla
   const keep = (state.stud.matingProposals ?? []).filter((p) => p.season === season && (p.status === 'booked' || p.status === 'skipped'));
   const next = { ...state, stud: { ...state.stud, matingProposals: structuredClone(keep) } };
   next.stud.matingProposals.push(...proposeAllMatings(next, data, season));
-  return next.settings.autoApproveMatings ? approveAllMatings(next) : { ok: true, state: next, events: [] };
+  if (next.settings.autoApproveMatings !== true) return { ok: true, state: next, events: [] };
+  // 즉시 예약 설정이어도 근친 승인 필요 제안은 예약하지 않는다(M7-C3)
+  const booked = autoBookMares(next, data, (next.stud.matingProposals ?? []).filter((p) => p.season === season && p.status === 'proposed').map((p) => p.mareId));
+  return { ok: true, state: booked.state, events: booked.events };
 }
 
 /** breeding → stud_books → mating_plans 순서 권장: 시즌 정리·AI 북 반영 뒤 현재 여유로 제안한다. */
@@ -291,19 +333,17 @@ export function createMatingPlansSystem(data: MatingPlanData): WeeklySystem {
     if (added.length > 0) (draft.stud.matingProposals ??= []).push(...added);
     const events: GameEvent[] = ctx.date.week === BOOKING_OPEN_WEEK && added.length > 0
       ? [{ type: 'mating_proposals_ready', season, count: added.length, date: { ...ctx.date } }] : [];
-    // true: 제안 즉시 예약 / 없음(기본, 사용자 결정 2026-10-16 '그대로 진행'): 시즌 해 MATING_AUTO_BOOK_WEEK 부터
-    // 빼지 않은 제안을 예약 / false: 승인한 것만.
+    // true: 제안 즉시 예약 / 없음(기본, 사용자 결정 2026-10-16 '그대로 진행'): 시즌 해 자동 예약 주(matingAutoBookWeek)부터
+    // 빼지 않은 제안을 예약 / false: 승인한 것만. 두 자동 방식 모두 근친 승인 필요 제안은 남긴다(M7-C3).
     const mode = draft.settings.autoApproveMatings;
-    const due = mode === true ? added
-      : mode === undefined && ctx.date.year === season && ctx.date.week >= config.MATING_AUTO_BOOK_WEEK
-        ? (draft.stud.matingProposals ?? []).filter((p) => p.season === season && p.status === 'proposed')
-          .sort((a, b) => compareId(a.mareId, b.mareId))
+    const mareIds = mode === true ? added.map((p) => p.mareId)
+      : mode === undefined && ctx.date.year === season && ctx.date.week >= matingAutoBookWeek(draft)
+        ? (draft.stud.matingProposals ?? []).filter((p) => p.season === season && p.status === 'proposed').map((p) => p.mareId)
         : [];
-    for (const p of due) {
-      const result = approveMating(draft, p.mareId);
-      if (!result.ok) continue;
-      Object.assign(draft, result.state);
-      events.push(...result.events);
+    if (mareIds.length > 0) {
+      const booked = autoBookMares(draft, data, mareIds);
+      Object.assign(draft, booked.state);
+      events.push(...booked.events);
     }
     return events;
   } };

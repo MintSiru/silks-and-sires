@@ -139,6 +139,17 @@ export const STUD_PENSION_LOW_FEE_MIN_AGE = 12;
 /** 저종부료 노장 AI 종마는 해마다 30% 확률로 은퇴한다. */
 export const STUD_PENSION_LOW_FEE_CHANCE = 0.3;
 
+/** 플레이어 현역 수말은 통산 1승 이상이어야 종마 또는 종마 판매를 고를 수 있다(M7-C1, 사용자 결정 2026-10-17). */
+export const STUD_MIN_WINS = 1;
+/**
+ * 종마 후보 판매가의 최고 성적 배율(M7-C1). 한 단계만 적용한다.
+ * G1 과 G2·G3 우승을 가르는 통산 기록이 아직 없어 그룹 우승 전체를 g1Win 배율로 센다(질문 참고).
+ * 리스티드 우승과 그룹·리스티드 1~3착은 blackType 이다.
+ */
+export const STALLION_SALE_RECORD_MULT = { g1Win: 1.0, groupWin: 0.7, blackType: 0.45, winner: 0.2 } as const;
+/** 통산 1승 미만 말은 종마 판매 옵션이 막혀 가격을 쓰지 않는다. 방어값으로 0을 둔다. */
+export const STALLION_SALE_NO_RECORD_MULT = 0;
+
 /** 종부료의 200배를 국내 예상 수입 약 3년치로 평가한다. */
 export const STALLION_SALE_FEE_MULT = 200;
 /** 열 살까지 판매 가치 전액을 인정한다. */

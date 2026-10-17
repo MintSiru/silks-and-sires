@@ -118,6 +118,8 @@ describe('출주 계획 제안', () => {
     state.date = { year: 2026, week: 13 };
     const horse = state.horses[horseId]!;
     horse.sex = 'male';
+    // M7-C2 변경: 미승리 말은 3세 조건 경주를 제안하지 않으므로 1승 말로 고정 일정 우선 규칙만 검사한다.
+    horse.record.wins = 1;
     const course = staticData.courses.find((c) => c.country === state.trainers[horse.trainerId!]!.country)!;
     const template: RaceTemplate = { id: 'test-plan-fixed', name: '구름들 조건 경주', racecourseId: course.id,
       distance: horse.aptitude.distanceOptimum, kind: 'conditions', grade: null, raceClass: 5,

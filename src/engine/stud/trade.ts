@@ -1,11 +1,11 @@
 import * as config from '../config/stud';
 import { recordMoney } from '../economy/ledger';
 import type {
-  BreederId, CountryCode, GameDate, GameEvent, GameState, HorseId, Money,
+  BreederId, CountryCode, GameDate, GameEvent, GameState, Horse, HorseId, Money,
   StallionSaleMode, StudLease, WeeklySystem,
 } from '../types';
 import { buildStallionRecord } from './stand';
-import { estimateStudFee } from './value';
+import { estimateStudFee, stallionRecordSaleMult } from './value';
 
 export type TradeError = 'not_found' | 'not_player_stallion' | 'outside_deal_window'
   | 'leased' | 'invalid_nominations' | 'already_leased' | 'invalid_return_season';
@@ -22,13 +22,22 @@ export function saleAgeMultiplier(age: number): number {
     1 - config.STALLION_SALE_AGE_DECAY * (age - config.STALLION_SALE_FULL_AGE));
 }
 
+/**
+ * 판매가. recordMult 는 성적 배율(M7-C1)이고 기본 1이다. 배율은 교배권 공제를 포함한 판매가 전체에 곱하고,
+ * 반올림은 마지막에 한 번만 한다.
+ */
 export function stallionSalePrice(
-  fee: Money, age: number, mode: StallionSaleMode, nominations: number,
+  fee: Money, age: number, mode: StallionSaleMode, nominations: number, recordMult = 1,
 ): Money {
-  const base = fee * config.STALLION_SALE_FEE_MULT * saleAgeMultiplier(age);
-  return roundDealMoney(mode === 'domestic'
-    ? base - nominations * fee * config.NOMINATION_PRICE_FEE_MULT
-    : base * config.STALLION_SALE_OVERSEAS_MULT);
+  const gross = fee * config.STALLION_SALE_FEE_MULT * saleAgeMultiplier(age);
+  return roundDealMoney((mode === 'domestic'
+    ? gross - nominations * fee * config.NOMINATION_PRICE_FEE_MULT
+    : gross * config.STALLION_SALE_OVERSEAS_MULT) * recordMult);
+}
+
+/** 판매가에 곱하는 성적 배율. 이미 종마(status 'stud')인 말은 배율 없이 1이다(M7-C1). */
+export function saleRecordMult(horse: Horse): number {
+  return horse.status === 'stud' ? 1 : stallionRecordSaleMult(horse.record);
 }
 
 /** 화면 견적은 상태와 난수를 변경하지 않는다. */
@@ -47,9 +56,10 @@ export function salePriceQuote(state: GameState, horseId: HorseId): {
     fee = estimateStudFee(state, horseId).fee;
   } else return null;
   const age = state.date.year - horse.birthYear;
-  return { fee, domestic: stallionSalePrice(fee, age, 'domestic', 0),
-    overseas: stallionSalePrice(fee, age, 'overseas', 0),
-    nominationCost: fee * config.NOMINATION_PRICE_FEE_MULT };
+  const mult = saleRecordMult(horse);
+  return { fee, domestic: stallionSalePrice(fee, age, 'domestic', 0, mult),
+    overseas: stallionSalePrice(fee, age, 'overseas', 0, mult),
+    nominationCost: fee * config.NOMINATION_PRICE_FEE_MULT * mult };
 }
 
 /** 같은 나라를 우선하고, 규모·ID 순으로 구매자를 결정한다. */
@@ -70,7 +80,7 @@ export function applyStallionSale(
   const owner = draft.owners[draft.playerOwnerId];
   if (horse === undefined || owner === undefined) throw new Error('applyStallionSale: 필수 레코드 없음');
   const fee = draft.stallions[horseId]?.fee ?? estimateStudFee(draft, horseId).fee;
-  const price = stallionSalePrice(fee, date.year - horse.birthYear, mode, nominations);
+  const price = stallionSalePrice(fee, date.year - horse.birthYear, mode, nominations, saleRecordMult(horse));
   if (mode === 'domestic' && draft.stallions[horseId] === undefined) {
     draft.stallions[horseId] = buildStallionRecord(draft, horseId, date.year, owner.country);
   }

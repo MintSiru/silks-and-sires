@@ -3,7 +3,13 @@ import { readFileSync } from 'node:fs';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { beforeAll, describe, expect, it } from 'vitest';
-import { getNicks, getStallionRecords } from '../../src/engine/data/staticData';
+import {
+  getNamingData, getNicks, getPeopleData, getRaceTemplates, getRacecourses, getSalesData, getSeriesDefinitions,
+  getStallionNames, getStallionRecords,
+} from '../../src/engine/data/staticData';
+import { matingNeedsApproval, replanMatings } from '../../src/engine/breeding/matingPlan';
+import { createPedigreeLookup } from '../../src/engine/breeding/realPedigree';
+import { bootstrapGame } from '../../src/engine/state/bootstrap';
 import type { GameState } from '../../src/engine/types';
 import BreedingScreen from '../../src/ui/breeding/BreedingScreen';
 import MatingPlanPanel, { flaggedRows, MatingApproveDialog, rowKeyOf } from '../../src/ui/breeding/MatingPlanPanel';
@@ -20,6 +26,7 @@ import {
   type MatingPlanRow,
 } from '../../src/ui/breeding/matingPlanView';
 import { useGame, type GameApi } from '../../src/ui/game/useGame';
+import { MATING_AUTO_BOOK_MAX_INBREEDING } from '../../src/engine/config/mating';
 
 const data = { nicks: getNicks(), stallionRecords: getStallionRecords() };
 let game: GameApi;
@@ -136,6 +143,34 @@ it('자동 승인·0원 상한·제안·예약 상태를 저장하고 불러온�
   expect(after.state.settings.matingFeeCap).toBe(0);
 });
 
+describe('근친 승인 필요 문구 (approvalNote)', () => {
+  it('검토 대기 행이 근친 상한 이상이면 승인 필요 문구를 달고, 그 밖의 행에는 달지 않는다', () => {
+    // 근친 상한 이상 제안이 확실히 있는 시드(엔진 테스트와 같은 owner_breeder 20261011)로 제안을 다시 짠다
+    const engineData = {
+      ...getPeopleData(), courses: getRacecourses(), templates: getRaceTemplates(), series: getSeriesDefinitions(),
+      sales: getSalesData(), nicks: getNicks(), naming: getNamingData(), stallionNames: getStallionNames(),
+      stallionRecords: getStallionRecords(),
+    };
+    const start = bootstrapGame({ seed: 20261011, playerName: '가상 마주', startType: 'owner_breeder',
+      silks: { primary: '#123456', secondary: '#ffffff', pattern: 'hoops' } }, engineData);
+    const replanned = replanMatings(structuredClone(start), engineData);
+    if (!replanned.ok) throw new Error(replanned.error);
+    // 교배 담당은 근친 상한 아래 종마를 먼저 고르므로(M7-C3 보완) 한 암말의 제안을 근친 높은 종마로 바꿔 둔다
+    const lookup = createPedigreeLookup(replanned.state.horses, engineData.stallionRecords);
+    const target = replanned.state.stud.matingProposals!.find((p) => p.status === 'proposed')!;
+    const heavy = Object.keys(replanned.state.stallions).sort().find((id) => matingNeedsApproval(lookup, id, target.mareId));
+    expect(heavy).toBeDefined();
+    target.stallionId = heavy!;
+    const rows = matingPlanRows(replanned.state, data);
+    const limit = MATING_AUTO_BOOK_MAX_INBREEDING * 100;
+    for (const r of rows) {
+      const flagged = r.status === 'proposed' && (r.inbreedPercent ?? 0) >= limit;
+      expect(r.approvalNote).toBe(flagged ? `승인 필요 — 근친 ${limit}% 이상` : null);
+    }
+    expect(rows.some((r) => r.approvalNote !== null)).toBe(true);
+  });
+});
+
 describe('수준 등급 변환 (matingQualityGrade)', () => {
   it('점수 구간을 S/A/B/C/D 로 바꾸고 최하는 D 로 묶는다', () => {
     expect(matingQualityGrade(100)).toBe('S');
@@ -155,8 +190,11 @@ describe('종합 판단 (matingJudgement)', () => {
     expect(INBREED_RISK_PERCENT).toBe(18.75);
     expect(matingJudgement({ complement: 'likely', nick: 'good', inbreedPercent: 6 }))
       .toMatchObject({ summary: '궁합 좋음 · 니크 좋음', tone: 'good' });
-    expect(matingJudgement({ complement: 'likely', nick: 'unknown', inbreedPercent: 12.5 }))
+    expect(matingJudgement({ complement: 'likely', nick: 'unknown', inbreedPercent: 12 }))
       .toMatchObject({ summary: '궁합 좋음', tone: 'good' });
+    // M7-C3: 자동 예약 승인 기준(12.5% 이상)과 같게 12.5% 부터 주의
+    expect(matingJudgement({ complement: 'likely', nick: 'unknown', inbreedPercent: 12.5 }))
+      .toMatchObject({ summary: '주의 — 근친 검토 필요 · 궁합 좋음', tone: 'warn' });
     expect(matingJudgement({ complement: 'likely', nick: 'unknown', inbreedPercent: 13 }))
       .toMatchObject({ summary: '주의 — 근친 검토 필요 · 궁합 좋음', tone: 'warn' });
     expect(matingJudgement({ complement: 'unlikely', nick: null, inbreedPercent: 18.75 }))

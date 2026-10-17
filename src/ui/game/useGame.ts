@@ -136,6 +136,8 @@ export interface GameApi {
   consignProposal(horseId: HorseId): ReturnType<typeof consignProposal>;
   /** 판매 제안 자동 위탁(settings.autoSell). false 면 제안만 하고 위탁은 플레이어가 한다 */
   setAutoSell(enabled: boolean): ReturnType<typeof setAutoSell>;
+  /** 세일 발표·거래 주 정지(settings.stopAtSales, M7-E). false 면 세일 주에 멈추지 않는다 */
+  setStopAtSales(enabled: boolean): void;
   /** 첫 시즌 체크리스트 진행(M6-T): 단계 완료·닫기 값을 설정에 저장한다. 원본 상태는 바꾸지 않는다 */
   setTutorial(progress: TutorialProgress): void;
   placeBet(input: Parameters<typeof placeBet>[1]): PlayerResult<BetError>;
@@ -556,6 +558,12 @@ export function useGame(): GameApi {
   const removeProposal = useCallback((horseId: HorseId) => applyPlayerResult(removeSellProposal(requireState(), horseId)), [requireState, applyPlayerResult]);
   const consignProposalNow = useCallback((horseId: HorseId) => applyPlayerResult(consignProposal(requireState(), horseId, salesStaticData())), [requireState, applyPlayerResult]);
   const setSellAuto = useCallback((enabled: boolean) => applyPlayerResult(setAutoSell(requireState(), enabled)), [requireState, applyPlayerResult]);
+  const setStopAtSales = useCallback((enabled: boolean): void => {
+    const current = requireState();
+    const next = { ...current, settings: { ...current.settings, stopAtSales: enabled } };
+    stateRef.current = next;
+    setState(next);
+  }, [requireState]);
 
   const declarePlayer = useCallback(
     (meetingId: string, raceId: RaceId, horseId: HorseId): PlayerResult<DeclareError> =>
@@ -759,6 +767,7 @@ export function useGame(): GameApi {
     removeSellProposal: removeProposal,
     consignProposal: consignProposalNow,
     setAutoSell: setSellAuto,
+    setStopAtSales,
     setTutorial,
     state,
     placeBet: placePlayerBet,

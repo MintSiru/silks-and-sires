@@ -8,7 +8,7 @@ import type { AdvanceResult, GameState, WeeklySystem } from '../types';
 
 import { POPULATION_RETIRE_AGE } from '../config/population';
 import { MARE_MIN_BREEDING_AGE } from '../config/breedingSeason';
-import { NOMINATION_MAX_PER_SEASON, STUD_MIN_AGE, YEAR_END_GELDING_MAX_AGE, YEAR_END_MARE_BREED_AGE } from '../config/stud';
+import { NOMINATION_MAX_PER_SEASON, STUD_MIN_AGE, STUD_MIN_WINS, YEAR_END_GELDING_MAX_AGE, YEAR_END_MARE_BREED_AGE } from '../config/stud';
 import type { GameEvent, HorseId, Money, RetainerContract, YearEndChoice, YearEndSubmission } from '../types';
 import { canStandAtStud, freeStudSlots, standPlayerStallion } from './stand';
 import { mareCapacity, playerBroodmareCount } from '../farm/purchase';
@@ -82,8 +82,10 @@ export function yearEndCandidates(state: GameState): YearEndCandidate[] {
         if (horse.sex === 'male' && !horse.gelded && newAge < YEAR_END_GELDING_MAX_AGE) {
           allowed.push('geld');
         }
-        if (canStandAtStud(state, horse.id, year) === null) allowed.push('stud');
-        if (horse.sex === 'male' && !horse.gelded && newAge >= STUD_MIN_AGE) {
+        // 미승리마는 종마·종마 판매를 고를 수 없다(M7-C1). AI 편입 경로는 이 함수를 쓰지 않는다.
+        const wonRace = horse.record.wins >= STUD_MIN_WINS;
+        if (wonRace && canStandAtStud(state, horse.id, year) === null) allowed.push('stud');
+        if (wonRace && horse.sex === 'male' && !horse.gelded && newAge >= STUD_MIN_AGE) {
           allowed.push('sell_domestic', 'sell_overseas');
         }
         if (horse.sex === 'female' && newAge >= MARE_MIN_BREEDING_AGE && state.farm.owned) allowed.push('broodmare');

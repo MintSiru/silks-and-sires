@@ -3,7 +3,7 @@
 import {
   AUTO_SELL_KEEP_RACERS, AUTO_SELL_KEEP_RACERS_IN_DEBT, AUTO_TRAINING_MIN_GRADE, AUTO_TRAINING_MIN_RACERS,
 } from '../../engine/config/autoSell';
-import { MATING_AUTO_BOOK_WEEK } from '../../engine/config/mating';
+import { MATING_AUTO_BOOK_MAX_INBREEDING, MATING_AUTO_BOOK_WEEK, MATING_FIRST_SEASON_AUTO_BOOK_WEEK } from '../../engine/config/mating';
 import type { GameSettings } from '../../engine/types';
 
 /** 출주 계획 진행 방식. 라디오 두 개로만 고른다(명시적 단일 선택). */
@@ -56,13 +56,18 @@ export function autoSellOn(settings: GameSettings): boolean {
   return settings.autoSell !== false;
 }
 
+/** 세일 발표·거래 주 정지 체크 상태(M7-E). 값이 없으면 켜짐(기본). */
+export function stopAtSalesOn(settings: GameSettings): boolean {
+  return settings.stopAtSales !== false;
+}
+
 /** 교배 진행 방식 안내(조작 없음). 엔진 settings.autoApproveMatings 의 세 상태(true·false·없음)에 맞춘다. */
 export function matingProgressGuide(settings: GameSettings): string {
   if (settings.autoApproveMatings === true)
     return '교배 제안은 만들자마자 예약되고 종부료가 미리 나갑니다.';
   if (settings.autoApproveMatings === false)
     return '교배 제안은 승인한 것만 예약됩니다. 번식 화면에서 승인하세요.';
-  return `빼지 않은 교배 제안은 시즌 초(${MATING_AUTO_BOOK_WEEK}주차)에 자동으로 예약됩니다. 번식 화면에서 빼거나 승인할 수 있습니다.`;
+  return `빼지 않은 교배 제안은 시즌 초(${MATING_AUTO_BOOK_WEEK}주차, 첫 해는 ${MATING_FIRST_SEASON_AUTO_BOOK_WEEK}주차)에 자동으로 예약됩니다. 근친 ${MATING_AUTO_BOOK_MAX_INBREEDING * 100}% 이상 배합은 승인해야 예약됩니다. 번식 화면에서 빼거나 승인할 수 있습니다.`;
 }
 
 /** 새 게임 확인 단계의 경고 문구. */

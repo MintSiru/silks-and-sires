@@ -23,7 +23,7 @@ import { SALE_VALUE_ROUND } from '../config/sales';
 import { mareCapacity } from '../farm/purchase';
 import { assessForPlayer } from '../horse/playerView';
 import { createRng } from '../rng';
-import { meetsAutoTrainingGrade } from '../season/autoTraining';
+import { isHomebred, meetsAutoTrainingGrade } from '../season/autoTraining';
 import type { PlayerResult } from '../season/player';
 import { yearEndCandidates, yearEndPending } from '../stud/yearEnd';
 import {
@@ -156,7 +156,8 @@ function committedElsewhere(
 
 /**
  * 판매 대상 집단(남길 두수를 셀 대상). 플레이어 말 중 종류의 집단에 속하고 다른 데 묶이지 않은 말.
- * 브리즈업(2세): 자동 조교 기준 미달 2세만. 기준 이상 2세는 조교사에게 가므로 판매 집단에서 뺀다(M6-B4).
+ * 브리즈업(2세): 자가 생산 2세 중 자동 조교 기준 미달인 말만(M6-B4). 기준 이상 2세는 조교사에게 가므로 판매 집단에서 뺀다.
+ * 세일·개인 거래로 산 2세는 등급과 무관하게 자동 조교 대상이라(M7-A1) 판매 집단에서 뺀다.
  */
 function groupOf(
   state: GameState,
@@ -178,7 +179,8 @@ function groupOf(
           return fitsKind(horse, kind, year);
       }
     })
-    .filter((horse) => kind !== 'breeze_up' || !meetsAutoTrainingGrade(gradeOf(state, horse)))
+    .filter((horse) => kind !== 'breeze_up'
+      || (isHomebred(state, horse) && !meetsAutoTrainingGrade(gradeOf(state, horse))))
     .filter((horse) => !yearEndOut.has(horse.id) && !committedElsewhere(state, horse.id, saleId, year, taken))
     .sort(byId);
 }

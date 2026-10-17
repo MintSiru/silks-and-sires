@@ -24,3 +24,13 @@ export const MATING_DISTANCE_COMPLEMENT = 1;
 export const MATING_DISTANCE_CUP_PENALTY = -1;
 /** 기본 진행 방식에서 검토하지 않은 제안을 예약하는 주(시즌 해). 연말 정산으로 새로 번식 암말이 된 말도 1주에 제안이 생겨 한 주 검토할 수 있다 */
 export const MATING_AUTO_BOOK_WEEK = 2;
+/**
+ * 게임을 시작한 해(첫 시즌)의 자동 예약 주. 플레이 테스트 B9: 1월 2주는 제안을 보기 전에 예약돼 버렸다.
+ * 시작 뒤 4주 이상 검토할 시간을 준다(M7-C3).
+ */
+export const MATING_FIRST_SEASON_AUTO_BOOK_WEEK = 6;
+/**
+ * 예상 자마 근친 계수(혈량 비율, 12.5% = 0.125)가 이 값 이상인 제안은 자동 예약하지 않고 플레이어 승인을 기다린다.
+ * 즉시 예약(autoApproveMatings: true) 설정에서도 같은 규칙이다(M7-C3).
+ */
+export const MATING_AUTO_BOOK_MAX_INBREEDING = 0.125;

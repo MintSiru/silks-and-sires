@@ -33,9 +33,11 @@ function fixture() {
   const choices: YearEndChoice[] = ['continue', 'geld', 'stud', 'broodmare', 'retire'];
   for (const [i, choice] of choices.entries()) {
     const id = `test-${choice}`;
+    // 종마·판매 선택지는 통산 1승 이상만 허용된다(M7-C1). 픽스처 말은 1승으로 둔다.
     state.horses[id] = { ...structuredClone(template), id, ownerId: state.playerOwnerId,
       status: i % 2 === 0 ? 'in_training' : 'resting', birthYear: state.date.year - 4,
-      sex: choice === 'broodmare' ? 'female' : 'male', gelded: false };
+      sex: choice === 'broodmare' ? 'female' : 'male', gelded: false,
+      record: { ...structuredClone(template.record), wins: 1, starts: 1 } };
     state.owners[state.playerOwnerId]!.horseIds.push(id);
   }
   const input = submission(state);

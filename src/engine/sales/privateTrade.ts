@@ -26,10 +26,12 @@ import {
 import { recordMoney } from '../economy/ledger';
 import { adjustRelation, relationKey, relationOf } from '../economy/relations';
 import { canSpendDiscretionary } from '../economy/solvency';
+import { mareCapacity, playerBroodmareCount } from '../farm/purchase';
 import { assessHorse } from '../horse/assessment';
 import { stageFor, trainerAssessorSkill } from '../horse/playerView';
 import type { PlayerResult } from '../season/player';
 import { createRng } from '../rng';
+import { compareDates } from '../time/calendar';
 import type {
   Assessment,
   GameDate,
@@ -40,22 +42,40 @@ import type {
   Money,
   Owner,
   OwnerId,
+  PerformanceEntry,
   PrivateOffer,
   Rng,
+  SaleKind,
   Sex,
   TrainerId,
   WeekContext,
   Week,
   WeeklySystem,
 } from '../types';
+import { PRIVATE_OR_BAND_WIDTH } from '../config/sales';
 import { eligibleInspectors } from './inspection';
 import { estimateRange, valueLot } from './valuation';
 
-export type AcceptPrivateOfferError = 'offer_not_found' | 'offer_invalid' | 'insufficient_funds';
+/** farm_full: 번식 암말을 사는데 목장이 없거나 번식 암말 수용 두수가 찼다(M7-G1) */
+export type AcceptPrivateOfferError = 'offer_not_found' | 'offer_invalid' | 'insufficient_funds' | 'farm_full';
 export type DeclinePrivateOfferError = 'offer_not_found';
 export type InspectOfferError = 'offer_not_found' | 'not_eligible';
 
-/** 화면용 제안 한 줄. 가치 원값은 없고 추정 범위(estimate)만 있다 */
+/** 제안 출처(PrivateOffer.source 가 없으면 relation) */
+export type PrivateOfferSource = 'relation' | 'market' | 'enquiry';
+/** 화면용 말 종류: 미출주 2세 / 현역마(3세 이상) / 번식 암말 */
+export type PrivateOfferKind = 'two_year_old' | 'racehorse' | 'broodmare';
+
+/** 화면용 최근 성적 요약(통산 + 올해 마지막 출주 착순). 원값 그대로 보여도 되는 공개 기록만 쓴다 */
+export interface OfferRecordSummary {
+  starts: number;
+  wins: number;
+  groupWins: number;
+  /** 올해 마지막 출주의 착순. 올해 출주가 없으면 null */
+  lastPosition: number | null;
+}
+
+/** 화면용 제안 한 줄. 가치 원값은 없고 추정 범위(estimate)만 있다. 공식 레이팅도 원값 대신 구간(orBand)만 준다 */
 export interface PrivateOfferView {
   offerId: string;
   horseId: HorseId;
@@ -70,6 +90,12 @@ export interface PrivateOfferView {
   estimate: { low: Money; high: Money };
   expiresYear: number;
   expiresWeek: Week;
+  /** 제안 출처(M7-G1). 옛 제안(출처 없음)은 'relation' */
+  source: PrivateOfferSource;
+  kind: PrivateOfferKind;
+  /** 공식 레이팅 추정 구간(PRIVATE_OR_BAND_WIDTH 폭). 레이팅이 없으면 null */
+  orBand: { low: number; high: number } | null;
+  record: OfferRecordSummary;
 }
 
 export type InspectOfferResult = { ok: true; assessment: Assessment } | { ok: false; error: InspectOfferError };
@@ -91,15 +117,49 @@ function isExpiredAt(offer: PrivateOffer, date: GameDate): boolean {
   return date.week > offer.expiresWeek;
 }
 
-/** 말이 여전히 판매 대상인가: 있고, 제안한 마주 소유이고, 출주 전이다 */
+/** 제안 출처. source 가 없는 옛 제안은 관계 제안 */
+export function offerSourceOf(offer: PrivateOffer): PrivateOfferSource {
+  return offer.source ?? 'relation';
+}
+
+/** 이 말이 아직 출주 신청 전(선언이 열려 있는 레이스에 없다)인가: open·closed 개최 레이스의 선언에 없어야 한다 */
+export function declaredInPendingRace(state: GameState, horseId: HorseId): boolean {
+  return state.seasonState.meetings.some((meeting) =>
+    meeting.races.some(
+      (sr) => (sr.status === 'open' || sr.status === 'closed') && sr.declarations.some((d) => d.horseId === horseId),
+    ),
+  );
+}
+
+/** 올해 G1 우승이 있는가(올해 퍼포먼스 기록의 G1 1착). 연도 전환 때 기록이 비므로 올해 것만 본다 */
+export function groupOneWinThisYear(state: GameState, horseId: HorseId): boolean {
+  return (state.seasonState.performances[horseId] ?? []).some(
+    (run) => run.grade === 'G1' && run.position === 1 && run.date.year === state.date.year,
+  );
+}
+
+/**
+ * 시장·문의 제안의 말이 아직 팔 수 있는가: 제안한 마주 소유, 현역마(in_training) 또는 번식 암말(broodmare),
+ * 출주 선언이 열려 있지 않다. 출주 기록 수는 보지 않는다(3세 이상은 이미 출주했을 수 있다).
+ */
+export function marketOfferHorseOpen(state: GameState, offer: PrivateOffer): boolean {
+  const horse = state.horses[offer.horseId];
+  if (horse === undefined || horse.ownerId !== offer.ownerId) return false;
+  if (horse.status !== 'in_training' && horse.status !== 'broodmare') return false;
+  return !declaredInPendingRace(state, horse.id);
+}
+
+/** 말이 여전히 판매 대상인가: 있고, 제안한 마주 소유이고, 관계 제안은 출주 전, 시장·문의 제안은 판매 가능 상태다 */
 function isOfferHorseValid(state: GameState, offer: PrivateOffer): boolean {
+  const source = offerSourceOf(offer);
+  if (source !== 'relation') return marketOfferHorseOpen(state, offer);
   const horse = state.horses[offer.horseId];
   if (horse === undefined) return false;
   return horse.ownerId === offer.ownerId && horse.record.starts === 0;
 }
 
-/** 제안 가격 평가 rng(말마다 고정 스트림) */
-function valuationRng(state: GameState, horseId: HorseId): Rng {
+/** 제안 가격 평가 rng(말마다 고정 스트림). 목록 추정·시장·문의 가격도 같은 평가를 쓴다 */
+export function valuationRng(state: GameState, horseId: HorseId): Rng {
   return createRng(`${state.initialSeed}:privval:${horseId}`);
 }
 
@@ -163,8 +223,8 @@ function weightedIndex(pool: readonly OfferPoolEntry[], rng: Rng): number {
   return pool.length - 1;
 }
 
-/** 만료 제안 삭제(이벤트 expired)와 무효 제안 조용한 삭제 */
-function sweepOffers(draft: GameState, date: GameDate, events: GameEvent[]): void {
+/** 만료 제안 삭제(이벤트 expired)와 무효 제안 조용한 삭제. 두 주간 시스템(관계·시장)이 함께 쓴다(같은 입력이면 두 번째는 할 일이 없다) */
+export function sweepOffers(draft: GameState, date: GameDate, events: GameEvent[]): void {
   const kept: PrivateOffer[] = [];
   for (const offer of draft.sales.privateOffers) {
     if (isExpiredAt(offer, date)) {
@@ -185,11 +245,16 @@ function sweepOffers(draft: GameState, date: GameDate, events: GameEvent[]): voi
   draft.sales.privateOffers = kept;
 }
 
-/** 이번 주 새 제안 생성(PRIVATE_OFFER_WEEKS 주에만 호출). 진행 중 제안이 MAX 미만인 동안, 주당 PER_RUN 건까지 */
+/**
+ * 이번 주 새 제안 생성(PRIVATE_OFFER_WEEKS 주에만 호출). 진행 중 관계 제안이 MAX 미만인 동안, 주당 PER_RUN 건까지.
+ * 시장·문의 제안은 세지 않는다(개수·마주 중복 판정 모두 관계 제안만 본다). 제안 가격 평가 rng 는 말마다 고정 스트림.
+ */
 function generateOffers(draft: GameState, date: GameDate, events: GameEvent[]): void {
   const year = date.year;
   const rng = createRng(`${draft.initialSeed}:private:${year}:${date.week}`);
-  const activeOwners = new Set(draft.sales.privateOffers.map((o) => o.ownerId));
+  const relationOffers = draft.sales.privateOffers.filter((o) => offerSourceOf(o) === 'relation');
+  let active = relationOffers.length;
+  const activeOwners = new Set(relationOffers.map((o) => o.ownerId));
   const byOwner = candidatesByOwner(draft, year);
 
   const pool: OfferPoolEntry[] = [];
@@ -203,13 +268,14 @@ function generateOffers(draft: GameState, date: GameDate, events: GameEvent[]): 
   }
 
   let created = 0;
-  while (created < PRIVATE_OFFER_PER_RUN && draft.sales.privateOffers.length < PRIVATE_OFFER_MAX_ACTIVE && pool.length > 0) {
+  while (created < PRIVATE_OFFER_PER_RUN && active < PRIVATE_OFFER_MAX_ACTIVE && pool.length > 0) {
     const entry = pool.splice(weightedIndex(pool, rng), 1)[0];
     if (entry === undefined) break;
     const horse = rng.pick(entry.horses);
     const price = offerPrice(draft, horse, entry.ownerId, year);
     const no = draft.sales.nextPrivateOfferNo;
     draft.sales.nextPrivateOfferNo = no + 1;
+    // 관계 제안은 source 를 쓰지 않는다(없음 = relation). 옛 저장본·고정 해시와 같은 모양을 유지한다
     const offer: PrivateOffer = {
       id: `po_${year}_${no}`,
       ownerId: entry.ownerId,
@@ -221,6 +287,7 @@ function generateOffers(draft: GameState, date: GameDate, events: GameEvent[]): 
       expiresWeek: date.week + PRIVATE_OFFER_VALID_WEEKS,
     };
     draft.sales.privateOffers.push(offer);
+    active += 1;
     events.push({
       type: 'private_offer',
       offerId: offer.id,
@@ -261,6 +328,8 @@ export function acceptPrivateOffer(state: GameState, offerId: string): PlayerRes
   const buyer = state.owners[state.playerOwnerId];
   if (seller === undefined || buyer === undefined) return fail('offer_invalid');
   if (!canSpendDiscretionary(state, offer.price)) return fail('insufficient_funds');
+  if (state.horses[offer.horseId]?.status === 'broodmare'
+    && (!state.farm.owned || playerBroodmareCount(state) >= mareCapacity(state))) return fail('farm_full');
 
   const next = structuredClone(state);
   const date: GameDate = { year: state.date.year, week: state.date.week };
@@ -331,13 +400,15 @@ export function privateOfferView(state: GameState): PrivateOfferView[] {
     const horse = state.horses[offer.horseId];
     const owner = state.owners[offer.ownerId];
     if (horse === undefined || owner === undefined || isExpiredAt(offer, state.date)) continue;
-    const valuation = valueLot(state, horse, 'breeze_up', state.date.year, valuationRng(state, horse.id));
+    const age = state.date.year - horse.birthYear;
+    const kind = offerKind(horse, age);
+    const valuation = valueLot(state, horse, valuationKindOf(kind), state.date.year, valuationRng(state, horse.id));
     rows.push({
       offerId: offer.id,
       horseId: horse.id,
       horseName: horse.name,
       sex: horse.sex,
-      age: state.date.year - horse.birthYear,
+      age,
       sireId: horse.sireId,
       ownerId: owner.id,
       ownerName: owner.name,
@@ -345,9 +416,47 @@ export function privateOfferView(state: GameState): PrivateOfferView[] {
       estimate: estimateRange(valuation),
       expiresYear: offer.expiresYear,
       expiresWeek: offer.expiresWeek,
+      source: offerSourceOf(offer),
+      kind,
+      orBand: orBandOf(horse.officialRating),
+      record: recordSummary(state, horse),
     });
   }
   return rows;
+}
+
+/** 추정 범위의 평가 종류: 제안 가격을 정한 평가와 같다(2세 브리즈업 / 현역마 / 번식 암말) */
+function valuationKindOf(kind: PrivateOfferKind): SaleKind {
+  if (kind === 'broodmare') return 'breeding_stock';
+  return kind === 'two_year_old' ? 'breeze_up' : 'horses_in_training';
+}
+
+/** 화면용 말 종류: 번식 암말 → broodmare, 2세 → two_year_old, 그 밖 → racehorse */
+function offerKind(horse: Horse, age: number): PrivateOfferKind {
+  if (horse.status === 'broodmare') return 'broodmare';
+  return age === PRIVATE_OFFER_HORSE_AGE ? 'two_year_old' : 'racehorse';
+}
+
+/** 공식 레이팅 구간: PRIVATE_OR_BAND_WIDTH 폭으로 내린 값부터 한 폭. 레이팅이 없으면 null */
+function orBandOf(rating: number | null): { low: number; high: number } | null {
+  if (rating === null) return null;
+  const low = Math.floor(rating / PRIVATE_OR_BAND_WIDTH) * PRIVATE_OR_BAND_WIDTH;
+  return { low, high: low + PRIVATE_OR_BAND_WIDTH };
+}
+
+/** 통산 기록 + 올해 마지막 출주 착순(performances 는 올해 것만 있다) */
+function recordSummary(state: GameState, horse: Horse): OfferRecordSummary {
+  const runs: readonly PerformanceEntry[] = state.seasonState.performances[horse.id] ?? [];
+  let latest: PerformanceEntry | null = null;
+  for (const run of runs) {
+    if (latest === null || compareDates(run.date, latest.date) >= 0) latest = run;
+  }
+  return {
+    starts: horse.record.starts,
+    wins: horse.record.wins,
+    groupWins: horse.record.groupWins,
+    lastPosition: latest?.position ?? null,
+  };
 }
 
 /**

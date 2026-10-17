@@ -1,7 +1,8 @@
 import { bookingSeasonOf, damsireLineOf } from '../../engine/breeding/season';
-import { mareQuality, mareQualityNote, type MatingPlanData, type MatingPlanError } from '../../engine/breeding/matingPlan';
+import { matingNeedsApproval, mareQuality, mareQualityNote, type MatingPlanData, type MatingPlanError } from '../../engine/breeding/matingPlan';
 import { buildMatingPreview } from '../../engine/breeding/preview';
 import { createPedigreeLookup } from '../../engine/breeding/realPedigree';
+import { MATING_AUTO_BOOK_MAX_INBREEDING } from '../../engine/config/mating';
 import { totalBloodPercent } from '../../engine/breeding/inbreeding';
 import { gradeOf } from '../../engine/horse/assessment';
 import { displayName } from '../../engine/naming/register';
@@ -21,7 +22,7 @@ const ERROR_KO: Record<MatingPlanError, string> = {
 };
 export function matingPlanErrorKo(error: MatingPlanError): string { return ERROR_KO[error]; }
 
-/** 근친 혈량(%) 주의 기준: 이 값을 넘으면 '근친 주의'(주의 톤). 화면 판정용 상수다. */
+/** 근친 혈량(%) 주의 기준: 이 값 이상이면 '근친 주의'(주의 톤, 자동 예약 승인 기준 MATING_AUTO_BOOK_MAX_INBREEDING 과 같다). 화면 판정용 상수다. */
 export const INBREED_CAUTION_PERCENT = 12.5;
 /** 근친 혈량(%) 위험 기준: 이 값을 넘으면 '근친 위험'(위험 톤). 화면 판정용 상수다. */
 export const INBREED_RISK_PERCENT = 18.75;
@@ -73,7 +74,7 @@ export function matingJudgement(input: MatingJudgementInput): MatingJudgement {
   if (input.inbreedPercent > INBREED_RISK_PERCENT) {
     reason = '근친 검토 필요';
     leadTone = 'danger';
-  } else if (input.inbreedPercent > INBREED_CAUTION_PERCENT) {
+  } else if (input.inbreedPercent >= INBREED_CAUTION_PERCENT) {
     reason = '근친 검토 필요';
   } else if (input.nick === 'poor') {
     reason = '니크 나쁨';
@@ -119,6 +120,8 @@ export interface MatingPlanRow {
   note: string;
   status: MatingProposalStatus;
   statusLabel: string;
+  /** 검토 대기 제안이 근친 상한 이상이라 자동 예약하지 않는 경우의 안내 문구(M7-C3). 아니면 null */
+  approvalNote: string | null;
   canApprove: boolean;
   canChange: boolean;
   alternatives: MatingAlternative[];
@@ -142,6 +145,7 @@ export function matingPlanRows(state: GameState, data: MatingPlanData): MatingPl
         ? state.mares[p.mareId]?.bookedFor?.feePaid ?? state.mares[p.mareId]?.coveredFee ?? p.expectedFee
         : p.expectedFee;
       const inbreedPercent = preview === null ? null : totalBloodPercent(preview.inbreeding);
+      const needsApproval = p.status === 'proposed' && sire !== undefined && matingNeedsApproval(lookup, p.stallionId, p.mareId);
       const nickLabel = preview === null ? null : preview.nick.label;
       const complement = preview === null ? null : preview.complement;
       return {
@@ -157,6 +161,7 @@ export function matingPlanRows(state: GameState, data: MatingPlanData): MatingPl
         distance: preview === null ? '—' : `${complementKo(preview.complement)} · ${distanceHintKo(preview.distanceHint)}`,
         complement,
         note: p.note, status: p.status, statusLabel: STATUS_KO[p.status],
+        approvalNote: needsApproval ? `승인 필요 — 근친 ${MATING_AUTO_BOOK_MAX_INBREEDING * 100}% 이상` : null,
         canApprove: editable, canChange: editable,
         alternatives: p.alternatives.map((id) => ({ id, label: nameOf(id) })),
         judgement: matingJudgement({ complement, nick: nickLabel, inbreedPercent }),

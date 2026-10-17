@@ -12,6 +12,7 @@ import {
 import {
   autoTrainingPicks,
   createAutoTrainingSystem,
+  isHomebred,
   meetsAutoTrainingGrade,
   playerGradeOf,
   playerRacerCount,
@@ -31,6 +32,7 @@ function fixture() {
   horse.ownerId = state.playerOwnerId;
   horse.trainerId = null;
   horse.nameRegistered = false;
+  horse.breederId = state.playerOwnerId;
   state.horses = { [horse.id]: horse };
   state.owners[state.playerOwnerId]!.horseIds = [horse.id];
   state.farm.country = 'GB';
@@ -155,7 +157,13 @@ function yearlingAt(state: GameState, id: string, level: number): Horse {
   horse.ownerId = state.playerOwnerId;
   horse.trainerId = null;
   horse.nameRegistered = false;
+  horse.breederId = state.playerOwnerId;
   return horse;
+}
+
+/** 산 2세(세일·개인 거래, 생산자는 다른 마주) 한 두. 등급 기준과 무관하게 자동 조교 대상이다(M7-A1) */
+function boughtYearlingAt(state: GameState, id: string, level: number): Horse {
+  return { ...yearlingAt(state, id, level), breederId: 'ai-breeder' };
 }
 
 describe('2세 자동 입사: 기준 등급·현역 상한', () => {
@@ -247,5 +255,56 @@ describe('2세 자동 입사: 기준 등급·현역 상한', () => {
     const ranks = picks.map((h) => order.indexOf(playerGradeOf(state, h)));
     expect(ranks).toEqual([...ranks].sort((a, b) => a - b));
     expect(run(state)).toEqual(run(structuredClone(state)));
+  });
+});
+
+describe('2세 자동 입사: 산 말(M7-A1)', () => {
+  it('isHomebred 는 생산자가 플레이어 마주일 때만 참이다', () => {
+    const { state, horse } = fixture();
+    expect(isHomebred(state, horse)).toBe(true);
+    expect(isHomebred(state, { ...horse, breederId: 'ai-breeder' })).toBe(false);
+    expect(isHomebred(state, { ...horse, breederId: null })).toBe(false);
+  });
+
+  it('산 C 등급 2세 1두와 현역 1두면 기준 미달이어도 조교사에게 보내며 같은 입력은 같은 결과다', () => {
+    const { state } = fixture();
+    const bought = boughtYearlingAt(state, 'bought', 55);
+    const racer = { ...structuredClone(bought), id: 'racer-0', status: 'in_training' as const, trainerId: 'home',
+      birthYear: state.date.year - 4, breederId: null };
+    state.horses = { [bought.id]: bought, [racer.id]: racer };
+    state.owners[state.playerOwnerId]!.horseIds = [bought.id, racer.id];
+    expect(playerGradeOf(state, bought)).toBe('C');
+    expect(meetsAutoTrainingGrade('C')).toBe(false);
+    const next = run(state).state;
+    expect(next.horses[bought.id]!.status).toBe('in_training');
+    expect(next.horses[bought.id]!.trainerId).not.toBeNull();
+    expect(run(next).events).toEqual([]);
+    expect(run(state)).toEqual(run(structuredClone(state)));
+  });
+
+  it('산 말이 자가 생산 말보다 먼저 고르고, 산 말 안에서는 등급 높은 순이다', () => {
+    const { state } = fixture();
+    const homebred = yearlingAt(state, 'home-high', 80);
+    const boughtLow = boughtYearlingAt(state, 'bought', 55);
+    const boughtHigh = boughtYearlingAt(state, 'bought-hi', 80);
+    state.horses = { [homebred.id]: homebred, [boughtLow.id]: boughtLow, [boughtHigh.id]: boughtHigh };
+    state.owners[state.playerOwnerId]!.horseIds = [homebred.id, boughtLow.id, boughtHigh.id];
+    expect(autoTrainingPicks(state).map((h) => h.id)).toEqual(['bought-hi', 'bought', 'home-high']);
+  });
+
+  it('산 말이 현역 상한에 막히면 남기며 판매 제안 대상이 되지도 않는다(상한은 산 말에도 적용)', () => {
+    const { state, horse } = fixture();
+    delete state.horses[horse.id];
+    state.trainers.home!.capacity = 10;
+    for (let i = 0; i < AUTO_SELL_KEEP_RACERS; i++) {
+      state.horses[`racer-${i}`] = { ...structuredClone(horse), id: `racer-${i}`, status: 'in_training',
+        trainerId: 'home', birthYear: state.date.year - 4, breederId: null };
+    }
+    const bought = boughtYearlingAt(state, 'bought', 55);
+    state.horses[bought.id] = bought;
+    const next = run(state).state;
+    expect(next.horses[bought.id]!.status).toBe('yearling');
+    expect(next.horses[bought.id]!.trainerId).toBeNull();
+    expect(playerRacerCount(next)).toBe(AUTO_SELL_KEEP_RACERS);
   });
 });

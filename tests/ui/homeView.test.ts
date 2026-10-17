@@ -6,6 +6,7 @@ import { getRaceTemplates, getSalesData } from '../../src/engine/data/staticData
 import { generateHorse } from '../../src/engine/horse/generate';
 import { createRng } from '../../src/engine/rng';
 import { createNewGame } from '../../src/engine/state/newGame';
+import { announceWeekOf } from '../../src/engine/sales/system';
 import { addWeeks } from '../../src/engine/time/calendar';
 import type { GameState, Horse, PlannedRace } from '../../src/engine/types';
 import { briefingItems, homeTasks, homeView } from '../../src/ui/home/homeView';
@@ -102,6 +103,28 @@ describe('M6-U3 홈 브리핑 요약', () => {
       ['matings', 1, '1두'],
       ['sales', 1, '1두'],
     ]);
+  });
+});
+
+describe('M7-E 홈 이번 주 세일 줄', () => {
+  it('카탈로그 발표 직후 주에는 이번 주 세일 줄이 붙고 세 항목은 그대로다, 세일 없는 주에는 줄이 없다', () => {
+    const state = quietState();
+    const events = getSalesData().events;
+    const week = announceWeekOf(events[0]!);
+    const same = events.filter((e) => announceWeekOf(e) === week);
+    const sameWeek = same.length;
+    state.date = { year: state.date.year, week: week + 1 };
+    for (const e of same) state.sales.catalogues.push({ saleId: e.id, year: state.date.year, status: 'catalogued', lots: [] });
+    const items = briefingItems(state);
+    expect(items.map((item) => [item.id, item.text])).toEqual([
+      ['races', '없음'],
+      ['matings', '없음'],
+      ['sales', '없음'],
+      ['sale_week', `발표 ${sameWeek}건`],
+    ]);
+    const quiet = quietState();
+    quiet.date = { year: quiet.date.year, week: 3 };
+    expect(briefingItems(quiet).map((item) => item.id)).toEqual(['races', 'matings', 'sales']);
   });
 });
 

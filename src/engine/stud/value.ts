@@ -1,6 +1,17 @@
 import * as config from '../config/stud';
-import type { GameState, HorseId, Money } from '../types';
+import type { CareerRecord, GameState, HorseId, Money } from '../types';
 import { meanAbility, ratingFromAbility } from '../world/rating';
+
+/**
+ * 종마 후보 판매가의 성적 배율(M7-C1). 최고 성적 한 단계만 본다.
+ * G1 과 G2·G3 를 가르는 통산 기록이 없어 그룹 우승은 g1Win 배율로 센다(질문 참고).
+ */
+export function stallionRecordSaleMult(record: CareerRecord): number {
+  if (record.groupWins > 0) return config.STALLION_SALE_RECORD_MULT.g1Win;
+  if (record.blackTypePlacings > 0) return config.STALLION_SALE_RECORD_MULT.blackType;
+  if (record.wins > 0) return config.STALLION_SALE_RECORD_MULT.winner;
+  return config.STALLION_SALE_NO_RECORD_MULT;
+}
 
 export interface StudFeeEstimate {
   fee: Money;

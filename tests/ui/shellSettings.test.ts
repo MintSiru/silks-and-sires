@@ -16,6 +16,7 @@ import {
   autoTrainingGuide,
   matingProgressGuide,
   racePlanMode,
+  stopAtSalesOn,
 } from '../../src/ui/shell/settingsView';
 import SettingsModal from '../../src/ui/shell/SettingsModal';
 import { TOAST_MS, Toast } from '../../src/ui/shell/Toast';
@@ -49,6 +50,12 @@ describe('체크박스 상태 (A1)', () => {
     expect(autoSellOn(settings({}))).toBe(true);
     expect(autoSendToTrainingOn(settings({ autoSendToTraining: false }))).toBe(false);
     expect(autoSellOn(settings({ autoSell: false }))).toBe(false);
+  });
+
+  it('세일 발표·거래 주 정지는 값이 없으면 켜짐(M7-E)', () => {
+    expect(stopAtSalesOn(settings({}))).toBe(true);
+    expect(stopAtSalesOn(settings({ stopAtSales: true }))).toBe(true);
+    expect(stopAtSalesOn(settings({ stopAtSales: false }))).toBe(false);
   });
 });
 
@@ -150,6 +157,7 @@ describe('설정 모달 구성 (A1)', () => {
       '내가 승인한 계획만',
       '2세 자동 조교 보내기',
       '판매 제안 자동 위탁',
+      '세일 발표·거래 주에 멈추기',
       '부담중량 단위',
       '교배 예약',
       '승부복 바꾸기',

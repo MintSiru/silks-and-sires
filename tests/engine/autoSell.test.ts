@@ -309,7 +309,10 @@ describe('판매 담당: 빼기·지금 위탁·자동 설정', () => {
   });
 });
 
-/** 2세(브리즈업 대상, 조교사 없음) 한 두. level 40 은 평가 E, 80 은 A·B 가 나온다(측정). 부 없음·OR 없음이라 혈통·OR 보존에 걸리지 않는다 */
+/**
+ * 2세(브리즈업 대상, 조교사 없음) 한 두. 생산자는 플레이어 마주(자가 생산, M7-A1). level 40 은 평가 E, 55 는 C, 80 은 A·B 가 나온다(측정).
+ * 부 없음·OR 없음이라 혈통·OR 보존에 걸리지 않는다
+ */
 function twoYearOld(base: GameState, id: string, level: number): Horse {
   const generated = generateHorse(createRng(`auto-sell-${id}`), {
     id,
@@ -324,6 +327,7 @@ function twoYearOld(base: GameState, id: string, level: number): Horse {
   return {
     ...generated,
     ownerId: base.playerOwnerId,
+    breederId: base.playerOwnerId,
     trainerId: null,
     sireId: null,
     damId: null,
@@ -352,5 +356,24 @@ describe('판매 담당: 2세 브리즈업 판매(M6-B4)', () => {
     const base = boot();
     const state = withPlayerHorses(base, [twoYearOld(base, 'h-test-high', 80)]);
     expect(proposeSales(state, DATA).filter((p) => p.saleId === BREEZE_SALE)).toEqual([]);
+  });
+
+  it('산 2세는 기준 미달이어도 브리즈업 판매 제안 대상이 아니다(M7-A1)', () => {
+    const base = boot();
+    const homebredLow = twoYearOld(base, 'h-test-low-1', 40);
+    const bought = { ...twoYearOld(base, 'h-test-bought', 40), breederId: 'ai-breeder' };
+    const state = withPlayerHorses(base, [homebredLow, bought]);
+    expect(meetsAutoTrainingGrade(playerGradeOf(state, bought))).toBe(false);
+    const breeze = proposeSales(state, DATA).filter((p) => p.saleId === BREEZE_SALE);
+    expect(proposedIds(breeze)).toEqual(['h-test-low-1']);
+  });
+
+  it('자가 생산 C 등급 2세는 현역이 있으면 남고 브리즈업 판매 제안 대상이다(M7-A1 기존 동작)', () => {
+    const base = boot();
+    const homebredC = twoYearOld(base, 'h-test-d2', 60);
+    const state = withPlayerHorses(base, [...sevenRacers(base), homebredC]);
+    expect(playerGradeOf(state, homebredC)).toBe('C');
+    const breeze = proposeSales(state, DATA).filter((p) => p.saleId === BREEZE_SALE);
+    expect(proposedIds(breeze)).toEqual(['h-test-d2']);
   });
 });

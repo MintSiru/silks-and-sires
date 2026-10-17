@@ -47,24 +47,37 @@ export function autoTrainingRacerCap(state: GameState): number {
 }
 
 /**
- * 자동 입사 실제 대상: 자동 입사 후보 중 기준 등급 이상인 말, 등급 높은 순·같으면 id 오름차순.
- * 단 현역이 AUTO_TRAINING_MIN_RACERS 보다 적으면 기준 미달 2세도 등급 높은 순으로 그 두수까지 채운다(M6-B4 최소 현역).
- * 나머지 기준 미달 2세는 판매 담당이 브리즈업 세일 판매 제안으로 낸다.
+ * 자가 생산 2세 여부(M7-A1): 생산자(breederId)가 플레이어 마주다. 세일·개인 거래로 산 말은 false.
+ * 근거: 산 말은 등급과 무관하게 자동 조교 대상이고, 브리즈업 판매 제안(판매 담당)에서도 뺀다.
+ */
+export function isHomebred(state: GameState, horse: Horse): boolean {
+  return horse.breederId === state.playerOwnerId;
+}
+
+/**
+ * 자동 입사 실제 대상(M7-A1 기준): 산 2세(등급 무관)가 먼저, 그다음 자가 생산 2세 중 기준 등급 이상인 말.
+ * 같은 묶음 안은 등급 높은 순·같으면 id 오름차순.
+ * 단 현역이 AUTO_TRAINING_MIN_RACERS 보다 적으면 자가 생산 기준 미달 2세도 등급 높은 순으로 그 두수까지 채운다(M6-B4 최소 현역).
+ * 나머지 자가 생산 기준 미달 2세는 판매 담당이 브리즈업 세일 판매 제안으로 낸다.
+ * 산 말이 현역 상한(autoTrainingRacerCap)에 막히면 남기며, 판매 제안 대상도 아니다(createAutoTrainingSystem 참고).
  */
 export function autoTrainingPicks(state: GameState): Horse[] {
   const ranked = autoTrainingCandidates(state)
-    .map((horse) => ({ horse, grade: playerGradeOf(state, horse) }))
-    .sort((a, b) => GRADE_ORDER.indexOf(a.grade) - GRADE_ORDER.indexOf(b.grade)
+    .map((horse) => ({ horse, grade: playerGradeOf(state, horse), bought: !isHomebred(state, horse) }))
+    .sort((a, b) => Number(b.bought) - Number(a.bought) || GRADE_ORDER.indexOf(a.grade) - GRADE_ORDER.indexOf(b.grade)
       || (a.horse.id < b.horse.id ? -1 : a.horse.id > b.horse.id ? 1 : 0));
-  const picks = ranked.filter((row) => meetsAutoTrainingGrade(row.grade));
+  const picks = ranked.filter((row) => row.bought || meetsAutoTrainingGrade(row.grade));
   const shortfall = AUTO_TRAINING_MIN_RACERS - playerRacerCount(state) - picks.length;
-  if (shortfall > 0) picks.push(...ranked.filter((row) => !meetsAutoTrainingGrade(row.grade)).slice(0, shortfall));
+  if (shortfall > 0) {
+    picks.push(...ranked.filter((row) => !row.bought && !meetsAutoTrainingGrade(row.grade)).slice(0, shortfall));
+  }
   return picks.map((row) => row.horse);
 }
 
 /**
  * 전속 → 목장 소재국 → 다른 나라, 각 단계는 실력 내림차순·id 오름차순. 난수를 쓰지 않는다.
- * 기준 등급 이상 2세만(최소 현역 예외는 autoTrainingPicks), 현역 두수가 상한(autoTrainingRacerCap)에 닿으면 멈춘다. 남은 2세는 플레이어가 직접 보낼 수 있다.
+ * 대상은 autoTrainingPicks(산 2세 먼저, 자가 생산 2세는 기준 등급 이상·최소 현역 예외), 현역 두수가 상한(autoTrainingRacerCap)에 닿으면 멈춘다.
+ * 남은 2세는 플레이어가 직접 보낼 수 있다.
  */
 export function createAutoTrainingSystem(): WeeklySystem {
   return {

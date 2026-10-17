@@ -11,6 +11,7 @@ import { recentResults, type RecentResultView } from '../season/seasonView';
 import type { HorseTab } from '../horse/HorseLink';
 import { eventInvolvesHorse } from '../horse/horseDetailView';
 import { racePlanRows } from '../season/racePlanView';
+import { announcedSalesOf, tradingSalesOf } from '../shell/decisionStop';
 
 /** 자동 생성 레이스 이름을 보관 목록에서 못 찾을 때 쓰는 표기 */
 const GENERATED_RACE_NAME = '자동 편성 레이스';
@@ -131,7 +132,7 @@ export function homeTasks(state: GameState): HomeTask[] {
 
 /** '다음 진행 때 자동으로 일어날 일' 한 줄(B3). 할 일이 없을 때 홈 브리핑 카드에 보인다. */
 export interface BriefingItem {
-  id: 'races' | 'matings' | 'sales';
+  id: 'races' | 'matings' | 'sales' | 'sale_week';
   label: string;
   count: number;
   /** 화면 문구: '2건', '1두', 0 이면 '없음' */
@@ -150,7 +151,28 @@ function briefingItem(
   return { id, label, count, text: count === 0 ? '없음' : `${count}${unit}`, detail };
 }
 
-/** 다음 진행 때 자동으로 처리되는 일의 개수: 출주 계획·교배 예약·판매 위탁(내 말만) */
+/**
+ * 이번 주 세일 한 줄(M7-E): 카탈로그 발표 주·거래 주인 세일이 있을 때만 준다. 없으면 빈 목록(줄 없음).
+ * 발표·거래 판정은 세일 정지(decisionStop)와 같은 함수를 쓴다.
+ */
+function saleWeekItems(state: GameState): BriefingItem[] {
+  const announced = announcedSalesOf(state).length;
+  const trading = tradingSalesOf(state).length;
+  if (announced + trading === 0) return [];
+  const parts = [
+    ...(announced > 0 ? [`발표 ${announced}건`] : []),
+    ...(trading > 0 ? [`거래 ${trading}건`] : []),
+  ];
+  return [{
+    id: 'sale_week',
+    label: '이번 주 세일',
+    count: announced + trading,
+    text: parts.join(' · '),
+    detail: '카탈로그 발표·세일 거래 주(세일 화면에서 확인)',
+  }];
+}
+
+/** 다음 진행 때 자동으로 처리되는 일의 개수: 출주 계획·교배 예약·판매 위탁(내 말만). 이번 주 세일 줄은 발표·거래가 있을 때만 붙는다 */
 export function briefingItems(state: GameState): BriefingItem[] {
   const owned = (horseId: HorseId) => state.horses[horseId]?.ownerId === state.playerOwnerId;
   const racePlanCount = Object.entries(state.seasonState.racePlans ?? {})
@@ -175,6 +197,7 @@ export function briefingItems(state: GameState): BriefingItem[] {
     briefingItem('races', '출주 예정', racePlanCount, '건', '이번 주·다음 주 출주 계획'),
     briefingItem('matings', '교배 예약 예정', matingCount, '두', '이번 시즌 교배 제안 중 예약 전 암말'),
     briefingItem('sales', '판매 위탁 예정', sellCount, '두', '판매 제안 중 세일 위탁 전 말'),
+    ...saleWeekItems(state),
   ];
 }
 

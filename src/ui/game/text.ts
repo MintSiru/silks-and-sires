@@ -974,6 +974,7 @@ export function privateOfferErrorKo(error: AcceptPrivateOfferError | InspectOffe
   return {
     offer_not_found: '개인 거래 제안을 찾을 수 없습니다.',
     offer_invalid: '기한이 지났거나 거래할 수 없는 제안입니다.',
+    farm_full: '목장의 번식 암말 칸이 모자라 살 수 없습니다.',
     insufficient_funds: '자금이 부족해 구매할 수 없습니다.',
     not_eligible: '이 조교사는 동행 검사를 할 수 없습니다.',
   }[error];

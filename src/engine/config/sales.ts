@@ -202,3 +202,42 @@ export const SALE_PATRON_BOOK_BONUS = { none: 0, silver: 1, gold: 1 } as const;
 export const SALE_CATALOGUE_BUILD_LEAD_WEEKS = 6;
 /** 후원 등급별 카탈로그 추가 사전 열람 주 수 */
 export const SALE_PATRON_PREVIEW_WEEKS = { none: 0, silver: 1, gold: 2 } as const;
+
+// ── 개인 거래 시장·구매 문의(M7-G1) ─────────────────────────
+
+/** 개인 거래 시장: 주 번호가 이 값의 배수인 주에 매물을 새로 낸다(4·8·12…주) */
+export const PRIVATE_MARKET_INTERVAL_WEEKS = 4;
+/** 매물 한 번에 낼 수 있는 최대 두수 */
+export const PRIVATE_MARKET_SIZE = 6;
+/** 매물 현역마 최대 두수(한 번) */
+export const PRIVATE_MARKET_RACE_SLOTS = 4;
+/** 매물 번식 암말 최대 두수(한 번) */
+export const PRIVATE_MARKET_MARE_SLOTS = 2;
+/** 매물 현역마 나이(올해 기준, 양끝 포함). 공식 레이팅(OR)이 있어야 한다 */
+export const PRIVATE_MARKET_RACE_AGE_MIN = 3;
+export const PRIVATE_MARKET_RACE_AGE_MAX = 6;
+/** 매물 번식 암말 나이(올해 기준, 양끝 포함) */
+export const PRIVATE_MARKET_MARE_AGE_MIN = 4;
+export const PRIVATE_MARKET_MARE_AGE_MAX = 12;
+/** 매물 현역마 제외: 앞으로 이 주 안(포함)에 G1 선언이 있으면 후보에서 뺀다 */
+export const PRIVATE_MARKET_G1_LOOKAHEAD_WEEKS = 4;
+/** 매물 가격 할증 범위: 평가값 × [MIN, MAX). 말마다 결정적으로 정한다 */
+export const PRIVATE_MARKET_PREMIUM_MIN = 1.15;
+export const PRIVATE_MARKET_PREMIUM_MAX = 1.35;
+/** 매물 유효 주 수(생성 주 + 이 값까지 수락 가능, 포함) */
+export const PRIVATE_MARKET_OFFER_WEEKS = 8;
+
+/** 구매 문의: 대상 현역마 최소 나이(올해 기준, 이상). 번식 암말은 나이 제한 없음 */
+export const PRIVATE_ENQUIRY_MIN_RACE_AGE = 3;
+/** 구매 문의 거절: 공식 레이팅(OR)이 이 값 이상이면 거절 */
+export const PRIVATE_ENQUIRY_REFUSE_OR = 115;
+/** 구매 문의 호가 할증 범위: 평가값 × [MIN, MAX). 말·주마다 결정적으로 정한다 */
+export const PRIVATE_ENQUIRY_PREMIUM_MIN = 1.3;
+export const PRIVATE_ENQUIRY_PREMIUM_MAX = 1.5;
+/** 구매 문의 호가 유효 주 수(생성 주 + 이 값까지 수락 가능, 포함) */
+export const PRIVATE_ENQUIRY_OFFER_WEEKS = 2;
+/** 한 주 문의 허용 횟수(성공한 문의 기준). 거절된 문의는 상태를 바꾸지 않으므로 세지 않는다 */
+export const PRIVATE_ENQUIRY_PER_WEEK = 3;
+
+/** 화면: 공식 레이팅은 원값 대신 이 폭의 구간([low, high])으로만 보여 준다 */
+export const PRIVATE_OR_BAND_WIDTH = 5;

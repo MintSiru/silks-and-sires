@@ -5,6 +5,7 @@ import { getNamingData, getNicks, getPeopleData, getRaceTemplates, getRacecourse
 import { advanceWeek } from '../../src/engine/time/advance';
 import { advanceWeekGated, submitYearEnd, yearEndCandidates, yearEndPending } from '../../src/engine/stud/yearEnd';
 import { salePriceQuote, stallionSalePrice } from '../../src/engine/stud/trade';
+import { stallionRecordSaleMult } from '../../src/engine/stud/value';
 import type { GameState, HorseId } from '../../src/engine/types';
 import { feeKo } from '../../src/ui/game/text';
 import { defaultSubmission, salePriceWithNominationsKo, yearEndView } from '../../src/ui/yearEnd/yearEndView';
@@ -63,7 +64,9 @@ function withThreeCandidates(): { sim: GameState; male: HorseId; mare: HorseId; 
   if (ids.length < 3) throw new Error('테스트 전제 위반: 연말 정산 후보가 3두 미만');
   const [male, mare, gelding] = ids as [HorseId, HorseId, HorseId];
   const year = sim.date.year;
-  Object.assign(sim.horses[male]!, { sex: 'male', gelded: false, birthYear: year - 4 });
+  // 종마·판매 선택지는 통산 1승 이상만 허용된다(M7-C1). 수말은 1승(우승마 배율 0.2)으로 둔다.
+  Object.assign(sim.horses[male]!, { sex: 'male', gelded: false, birthYear: year - 4,
+    record: { ...sim.horses[male]!.record, starts: 1, wins: 1 } });
   Object.assign(sim.horses[mare]!, { sex: 'female', gelded: false, birthYear: year - 4 });
   Object.assign(sim.horses[gelding]!, { sex: 'male', gelded: true, birthYear: year - 4 });
   return { sim, male, mare, gelding };
@@ -100,9 +103,10 @@ describe('연말 정산 종마 판매 선택지', () => {
     const horse = sim.horses[male]!;
     const quote = salePriceQuote(sim, male)!;
     const age = sim.date.year - horse.birthYear;
+    const mult = stallionRecordSaleMult(horse.record);
     expect(salePriceWithNominationsKo(sim, male, 2))
-      .toBe(feeKo(stallionSalePrice(quote.fee, age, 'domestic', 2)));
+      .toBe(feeKo(stallionSalePrice(quote.fee, age, 'domestic', 2, mult)));
     expect(salePriceWithNominationsKo(sim, male, 0)).toBe(feeKo(quote.domestic));
-    expect(stallionSalePrice(quote.fee, age, 'domestic', 2)).toBeLessThanOrEqual(quote.domestic);
+    expect(stallionSalePrice(quote.fee, age, 'domestic', 2, mult)).toBeLessThanOrEqual(quote.domestic);
   });
 });

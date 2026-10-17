@@ -9,7 +9,7 @@ import {
   createStudLeaseSystem, domesticBuyer, leaseStallion, saleAgeMultiplier,
   salePriceQuote, sellStallion, stallionSalePrice,
 } from '../../src/engine/stud/trade';
-import { estimateStudFee } from '../../src/engine/stud/value';
+import { estimateStudFee, stallionRecordSaleMult } from '../../src/engine/stud/value';
 import { submitYearEnd, yearEndCandidates } from '../../src/engine/stud/yearEnd';
 import { advanceWeek } from '../../src/engine/time/advance';
 import type { CommercialBreeder, GameState, YearEndChoice, YearEndSubmission } from '../../src/engine/types';
@@ -38,6 +38,8 @@ function fixture(stud = true) {
 
 function yearEndFixture(choice: YearEndChoice = 'sell_domestic', nominations = 1) {
   const { state, horseId } = fixture(false);
+  // 종마 판매는 통산 1승 이상만 허용된다(M7-C1). 픽스처 말은 1승(우승마 배율 0.2)으로 둔다.
+  state.horses[horseId]!.record.wins = 1;
   state.date = { year: state.date.year + 1, week: 1 };
   state.horses[horseId]!.birthYear = state.date.year - 4;
   const input: YearEndSubmission = { year: state.date.year,
@@ -204,19 +206,20 @@ describe('연말 종마 판매 진로', () => {
     const before = structuredClone(state);
     const fee = estimateStudFee(state, horseId).fee;
     const mode = choice === 'sell_domestic' ? 'domestic' : 'overseas';
+    const mult = stallionRecordSaleMult(state.horses[horseId]!.record);
     const candidate = yearEndCandidates(state).find((c) => c.horseId === horseId)!;
     expect(candidate.allowed).toContain(choice);
     expect(candidate.allowed).not.toContain('stud');
     expect(candidate.recommended).toBe('continue');
-    expect(candidate.salePrice).toEqual({ domestic: stallionSalePrice(fee, 4, 'domestic', 0),
-      overseas: stallionSalePrice(fee, 4, 'overseas', 0) });
+    expect(candidate.salePrice).toEqual({ domestic: stallionSalePrice(fee, 4, 'domestic', 0, mult),
+      overseas: stallionSalePrice(fee, 4, 'overseas', 0, mult) });
     const result = submitYearEnd(state, input);
     expect(result).toEqual(submitYearEnd(state, input));
     expect(state).toEqual(before);
     if (!result.ok) throw new Error(result.error);
     const next = result.state;
     expect(freeStudSlots(next)).toBe(0);
-    expect(next.stud.sales.at(-1)?.price).toBe(stallionSalePrice(fee, 4, mode, mode === 'domestic' ? 1 : 0));
+    expect(next.stud.sales.at(-1)?.price).toBe(stallionSalePrice(fee, 4, mode, mode === 'domestic' ? 1 : 0, mult));
     if (mode === 'domestic') {
       expect(next.stallions[horseId]).toEqual(buildStallionRecord(state, horseId,
         state.date.year, state.owners[state.playerOwnerId]!.country));

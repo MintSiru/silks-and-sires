@@ -1,11 +1,11 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { beforeAll, describe, expect, it } from 'vitest';
 import * as data from '../../src/engine/data/staticData';
-import { approveAllMatings, approveMating, changeMating, createMatingPlansSystem, mareQuality, matingExpectedFee, matingFeeBudget, matingInbreeding, matingStallionAvailable, proposeAllMatings, proposeMating, removeMating, replanMatings, setMatingFeeCap, type MatingPlanResult } from '../../src/engine/breeding/matingPlan';
+import { approveAllMatings, approveMating, changeMating, createMatingPlansSystem, mareQuality, matingAutoBookWeek, matingExpectedFee, matingFeeBudget, matingInbreeding, matingNeedsApproval, matingStallionAvailable, proposeAllMatings, proposeMating, removeMating, replanMatings, setMatingFeeCap, type MatingPlanResult } from '../../src/engine/breeding/matingPlan';
 import { nickKey } from '../../src/engine/breeding/nicks';
 import { bookCovering } from '../../src/engine/breeding/season';
 import { createPedigreeLookup } from '../../src/engine/breeding/realPedigree';
-import { MATING_AUTO_BOOK_WEEK, MATING_MAX_BLOOD_PERCENT, MATING_MAX_PER_STALLION } from '../../src/engine/config/mating';
+import { MATING_AUTO_BOOK_MAX_INBREEDING, MATING_AUTO_BOOK_WEEK, MATING_FIRST_SEASON_AUTO_BOOK_WEEK, MATING_MAX_BLOOD_PERCENT, MATING_MAX_PER_STALLION } from '../../src/engine/config/mating';
 import { createRng } from '../../src/engine/rng';
 import { bootstrapGame } from '../../src/engine/state/bootstrap';
 import { createGameSystems } from '../../src/engine/state/systems';
@@ -38,6 +38,28 @@ function systemRun(state: GameState) {
 }
 function playerMares(state: GameState) {
   return Object.keys(state.mares).filter((id) => state.horses[id]?.ownerId === state.playerOwnerId && state.horses[id]?.status === 'broodmare').sort();
+}
+/** 검토 대기 제안 가운데 근친 승인 필요(상한 이상) 암말 id */
+/**
+ * M7-C3 보완 뒤 교배 담당은 근친 상한 아래 종마를 먼저 제안하므로, 승인 대기 규칙을 보려면 제안 종마를 근친 높은 종마로 바꿔 둔다.
+ * 암말마다 18.75% 이상 종마가 있으면 그것을, 없으면 12.5% 이상 종마를 고른다(id 순 첫 번째). 상태를 직접 바꾼다.
+ */
+function forceHeavyProposals(state: GameState): GameState {
+  const lookup = createPedigreeLookup(state.horses, staticData.stallionRecords);
+  for (const p of state.stud.matingProposals ?? []) {
+    if (p.status !== 'proposed') continue;
+    const ids = Object.keys(state.stallions).sort();
+    const pick = ids.find((id) => matingInbreeding(lookup, id, p.mareId).bloodPercent >= 18.75)
+      ?? ids.find((id) => matingNeedsApproval(lookup, id, p.mareId));
+    if (pick !== undefined) p.stallionId = pick;
+  }
+  return state;
+}
+
+function riskyIds(state: GameState): string[] {
+  const lookup = createPedigreeLookup(state.horses, staticData.stallionRecords);
+  return (state.stud.matingProposals ?? []).filter((p) => p.status === 'proposed' && matingNeedsApproval(lookup, p.stallionId, p.mareId))
+    .map((p) => p.mareId).sort();
 }
 
 describe('교배 제안', () => {
@@ -206,11 +228,12 @@ describe('승인·변경·제외', () => {
     expect(success(approveMating(state, mareId)).stud.matingProposals!.find((p) => p.mareId === mareId)?.status).toBe('skipped');
   });
 
-  it('자동 승인 설정으로 다시 짜면 새 제안만 바로 예약한다', () => {
+  it('자동 승인 설정으로 다시 짜면 새 제안을 바로 예약하고, 교배 담당은 근친 상한 아래 종마를 먼저 고른다', () => {
     const state = structuredClone(base);
     state.settings.autoApproveMatings = true;
     const result = replanMatings(state, staticData);
     const booked = success(result);
+    expect(riskyIds(booked)).toEqual([]);
     expect(booked.stud.matingProposals!.every((p) => p.status === 'booked')).toBe(true);
     expect(result.ok && result.events.filter((e) => e.type === 'covering_booked')).toHaveLength(playerMares(state).length);
     expect(replanMatings(booked, staticData)).toMatchObject({ ok: true, events: [] });
@@ -267,20 +290,71 @@ describe('주간 자동 교배', () => {
     expect(renewed.state.stud.matingProposals!.every((p) => p.season === 2028)).toBe(true);
   });
 
-  it('기본 진행 방식(설정 없음): 시즌 해 MATING_AUTO_BOOK_WEEK 에 빼지 않은 제안을 예약하고, false 면 그대로 둔다', () => {
+  it('기본 진행 방식(설정 없음): 자동 예약 주에 빼지 않은 제안을 예약하고 근친 승인 필요 제안은 남기며, false 면 그대로 둔다', () => {
     const state = planned();
     const season = state.stud.matingProposals![0]!.season;
-    state.date = { year: season, week: MATING_AUTO_BOOK_WEEK };
+    state.date = { year: season, week: matingAutoBookWeek(state) };
     delete state.settings.autoApproveMatings;
+    const risky = riskyIds(state);
     const auto = systemRun(state);
-    const statuses = auto.state.stud.matingProposals!.filter((p) => p.season === season).map((p) => p.status);
+    const statuses = auto.state.stud.matingProposals!.filter((p) => p.season === season);
     expect(statuses.length).toBeGreaterThan(0);
-    expect(statuses.every((s) => s === 'booked' || s === 'skipped')).toBe(true);
+    expect(statuses.filter((p) => risky.includes(p.mareId)).every((p) => p.status === 'proposed')).toBe(true);
+    expect(statuses.filter((p) => !risky.includes(p.mareId)).every((p) => p.status === 'booked' || p.status === 'skipped')).toBe(true);
     expect(auto.events.some((e) => e.type === 'covering_booked')).toBe(true);
     const manual = structuredClone(state);
     manual.settings.autoApproveMatings = false;
     const kept = systemRun(manual);
     expect(kept.state.stud.matingProposals!.filter((p) => p.season === season).every((p) => p.status === 'proposed')).toBe(true);
+  });
+
+  it('첫 시즌은 6주, 다음 해는 2주에 자동 예약하고 1월 2주에는 예약 기록이 생기지 않는다', () => {
+    const start = base.date.year;
+    const state = planned();
+    delete state.settings.autoApproveMatings;
+    expect(matingAutoBookWeek(state)).toBe(MATING_FIRST_SEASON_AUTO_BOOK_WEEK);
+    const week2 = structuredClone(state);
+    week2.date = { year: start, week: 2 };
+    const early = systemRun(week2);
+    expect(early.events.some((e) => e.type === 'covering_booked')).toBe(false);
+    expect(early.state.stud.matingProposals!.every((p) => p.status === 'proposed')).toBe(true);
+    const week6 = structuredClone(state);
+    week6.date = { year: start, week: MATING_FIRST_SEASON_AUTO_BOOK_WEEK };
+    expect(systemRun(week6).events.some((e) => e.type === 'covering_booked')).toBe(true);
+    const nextYear = structuredClone(state);
+    nextYear.date = { year: start + 1, week: MATING_AUTO_BOOK_WEEK };
+    expect(matingAutoBookWeek(nextYear)).toBe(MATING_AUTO_BOOK_WEEK);
+    expect(systemRun(nextYear).state.stud.matingProposals!.some((p) => p.season === start + 1 && p.status === 'booked')).toBe(true);
+  });
+
+  it('근친 계수 상한 이상(정확히 12.5%, 18.75%) 제안은 자동 예약 주가 지나도 검토 대기로 남고, 승인하면 예약된다', () => {
+    const state = forceHeavyProposals(planned());
+    delete state.settings.autoApproveMatings;
+    const lookup = createPedigreeLookup(state.horses, staticData.stallionRecords);
+    const risky = riskyIds(state);
+    expect(risky.length).toBeGreaterThan(0);
+    for (const p of state.stud.matingProposals!) {
+      const percent = matingInbreeding(lookup, p.stallionId, p.mareId).bloodPercent;
+      expect(percent >= MATING_AUTO_BOOK_MAX_INBREEDING * 100).toBe(risky.includes(p.mareId));
+    }
+    const week6 = structuredClone(state);
+    week6.date = { year: base.date.year, week: MATING_FIRST_SEASON_AUTO_BOOK_WEEK };
+    const after = systemRun(week6).state;
+    for (const id of risky) expect(after.stud.matingProposals!.find((p) => p.mareId === id)?.status).toBe('proposed');
+    const high = after.stud.matingProposals!.find((p) => risky.includes(p.mareId)
+      && matingInbreeding(lookup, p.stallionId, p.mareId).bloodPercent >= 18.75);
+    expect(high).toBeDefined();
+    const approved = success(approveMating(after, high!.mareId));
+    expect(approved.stud.matingProposals!.find((p) => p.mareId === high!.mareId)?.status).toBe('booked');
+  });
+
+  it('즉시 예약 설정의 주간 시스템도 근친 승인 필요 제안은 예약하지 않는다', () => {
+    const state = forceHeavyProposals(planned());
+    state.settings.autoApproveMatings = true;
+    const risky = riskyIds(state);
+    const result = systemRun(state);
+    expect(risky.length).toBeGreaterThan(0);
+    expect(result.state.stud.matingProposals!.every((p) => p.status === (risky.includes(p.mareId) ? 'proposed' : 'booked'))).toBe(true);
   });
 
   it('창 밖·플레이어 암말 없음에는 레거시 상태를 불필요하게 바꾸지 않는다', () => {
