@@ -103,8 +103,11 @@ function sexAgeKo(horse: Horse, year: number): string {
   return `${SEX_SHORT_KO[sexKey]} ${year - horse.birthYear}세`;
 }
 
-/** 현역 최근 5전 착순. 예: '최근 5전 1-3-2-6-1' */
-function recentFormKo(state: GameState, horseId: HorseId): string {
+/**
+ * 현역 최근 5전 착순. 예: '최근 5전 1-3-2-6-1'. 결과 보관 밖이면 통산 기록('통산 N전 N승'), 출주가 없으면 안내 문구.
+ * 레이스 당일 출주표와 같은 규칙으로 공용 사용한다(M7-RD2b).
+ */
+export function recentFormKo(state: GameState, horseId: HorseId): string {
   const runs = recentRuns(state, horseId, RECENT_RUN_COUNT);
   if (runs.length > 0) return `최근 ${runs.length}전 ${runs.map((run) => run.position).join('-')}`;
   // 결과 보관 기간 밖(게임 시작 전 경력 포함)이면 통산 기록으로 보인다(Opus 보완)

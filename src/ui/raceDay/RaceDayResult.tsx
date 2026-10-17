@@ -77,7 +77,7 @@ export default function RaceDayResult({ state, brief, hasNext, onNext, onClose }
         </table>
       </div>
       <div className="rd-grid">
-        <section className="rd-panel" aria-label="내 말 결과">
+        <section className="rd-panel rd-panel--auto" aria-label="내 말 결과">
           <h4>내 말</h4>
           {mine === undefined ? (
             <p className="hint">이번 레이스 결과에 내 말이 없습니다.</p>
@@ -89,7 +89,7 @@ export default function RaceDayResult({ state, brief, hasNext, onNext, onClose }
           )}
         </section>
         {comment !== null && (
-          <section className="rd-panel" aria-label="조교사 사후 코멘트">
+          <section className="rd-panel rd-panel--auto" aria-label="조교사 사후 코멘트">
             <h4>조교사 사후 코멘트</h4>
             <p className="rd-bubble">
               <strong>

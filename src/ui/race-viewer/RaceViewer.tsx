@@ -17,6 +17,13 @@ export interface RaceViewerProps {
   commentary?: { t: number; text: string }[];
   /** 레이스 후 한 줄 평. 착순대로 넘긴다. t ≥ duration 이면 목록으로 보인다. */
   verdicts?: { name: string; text: string }[];
+  /** 재생이 끝나 결과(t = duration)가 된 순간 한 번 부른다(자동 재생 → 결과 화면 전환용, M7-RD2b). */
+  onFinished?: () => void;
+  /**
+   * 결과로 건너뛰기 신호. 값이 바뀔 때마다 '결과만'과 같이 결과 상태로 간다(카운터 prop, M7-RD2b).
+   * 처음 값(0 또는 생략)은 무시한다.
+   */
+  skipToResult?: number;
 }
 
 type Speed = 1 | 2 | 4;
@@ -52,6 +59,12 @@ export default function RaceViewer(props: RaceViewerProps): JSX.Element {
   // rAF 콜백은 최신 t 를 ref 로 읽고 쓴다(state 를 콜백 안에서 읽지 않기 위함)
   const tRef = useRef(-GATE_HOLD_S);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  // 콜백은 ref 로 최신 것을 든다(effect 가 prop identity 에 흔들리지 않게)
+  const onFinishedRef = useRef(props.onFinished);
+  useEffect(() => {
+    onFinishedRef.current = props.onFinished;
+  });
+  const skipSeen = useRef(props.skipToResult ?? 0);
 
   const seek = (value: number): void => {
     tRef.current = value;
@@ -120,6 +133,20 @@ export default function RaceViewer(props: RaceViewerProps): JSX.Element {
 
   const finished = t >= duration;
   const subtitle = subtitleAt(commentary, t);
+
+  // 결과로 건너뛰기 신호: 카운터가 바뀔 때마다 결과 상태로 간다('결과만'과 같다)
+  const skipSignal = props.skipToResult ?? 0;
+  useEffect(() => {
+    if (skipSignal === skipSeen.current) return;
+    skipSeen.current = skipSignal;
+    setPlaying(false);
+    seek(duration);
+  }, [skipSignal, duration]);
+
+  // 결과 상태가 되면 한 번 알린다(재생 끝이든 건너뛰기든 같다)
+  useEffect(() => {
+    if (finished) onFinishedRef.current?.();
+  }, [finished]);
 
   return (
     <div className="race-viewer">

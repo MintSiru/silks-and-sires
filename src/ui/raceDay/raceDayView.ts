@@ -7,9 +7,11 @@ import type {
   RaceDayComment, RatingChange, RunningStyle, Silks, Racecourse,
 } from '../../engine/types';
 import { formatOdds } from '../../engine/race/odds';
+import { formatMarginKo } from '../../engine/race/results';
 import { compareDates } from '../../engine/time/calendar';
 import { feeKo, countryKo, raceDistanceKo, raceGradeKo, sexKo } from '../game/text';
 import { goingKo } from '../horse/horseDetailView';
+import { recentFormKo } from '../sales/privateMarketView';
 import { formatRatingChange } from '../race-viewer/viewModel';
 
 /** 작전 선택지 한 줄. 순서는 선행·선입·중단·추입(config 의 TACTIC_ORDER 와 같다). */
@@ -20,10 +22,10 @@ export interface TacticChoice {
 }
 
 export const TACTIC_CHOICES: readonly TacticChoice[] = [
-  { style: 'front', label: '선행', hint: '처음부터 앞에 나가 선두에서 달립니다. 초반 페이스가 빨라지면 힘을 쓰게 됩니다.' },
-  { style: 'prominent', label: '선입', hint: '선두 바로 뒤에서 앞말을 보며 따라가 직선에서 승부합니다.' },
-  { style: 'midfield', label: '중단', hint: '중간 위치에서 힘을 아끼다 직선 초입부터 끌어올립니다.' },
-  { style: 'held_up', label: '추입', hint: '뒤에서 기다리다 마지막 직선에서 한꺼번에 추월을 노립니다.' },
+  { style: 'front', label: '선행', hint: '처음부터 선두에서 이끕니다' },
+  { style: 'prominent', label: '선입', hint: '선두 바로 뒤에서 따라갑니다' },
+  { style: 'midfield', label: '중단', hint: '중간에서 아끼다 직선에서 끌어올립니다' },
+  { style: 'held_up', label: '추입', hint: '뒤에서 기다리다 마지막에 추월합니다' },
 ];
 
 export function tacticLabelKo(style: RunningStyle): string {
@@ -93,7 +95,7 @@ export function cardRows(brief: RaceDayBrief, state: GameState): CardRow[] {
       trainerName: runner.trainerName ?? '—',
       ownerName: runner.ownerName,
       or: runner.or,
-      formText: runner.recentForm.length > 0 ? runner.recentForm.join('-') : '출주 없음',
+      formText: recentFormKo(state, runner.horseId),
       oddsText: formatOdds(runner.morningOdds),
       impliedProb: impliedProbability(runner.morningOdds),
       silks: runner.silks,
@@ -161,20 +163,10 @@ export function postRaceComment(position: number, expected: number): { verdict: 
   return { verdict, label: POST_RACE_VERDICT_KO[verdict], text: POST_RACE_TEXT[verdict] };
 }
 
-const MARGIN_KO: Record<Exclude<Margin['label'], 'lengths'>, string> = {
-  dead_heat: '동착',
-  nose: '코차',
-  short_head: '짧은 머리차',
-  head: '머리차',
-  neck: '목차',
-  distance: '대차',
-};
-
-/** 착차 표기. 1착(margin null)은 '—'. */
+/** 착차 표기. 레이스 화면과 같은 엔진 표기(예: 4½마신, 짧은 머리). 1착(margin null)은 '—'. */
 export function marginTextKo(margin: Margin | null): string {
   if (margin === null) return '—';
-  if (margin.label === 'lengths') return `${margin.lengths}마신`;
-  return MARGIN_KO[margin.label];
+  return formatMarginKo(margin);
 }
 
 /** 착순표 한 줄 */

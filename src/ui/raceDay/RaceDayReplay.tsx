@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { JSX } from 'react';
 import type { GameState, RaceDayBrief } from '../../engine/types';
 import RaceViewer from '../race-viewer/RaceViewer';
@@ -6,10 +6,11 @@ import { buildReplay, replayKey } from '../season/replayView';
 import type { ReplayBundle } from '../season/replayView';
 import { findReplayEntry } from './raceDayView';
 
-/** RaceViewer 의 '결과만' 버튼 글자. RaceViewer 를 고치지 않고 건너뛰기에 쓴다. */
-const VIEWER_RESULT_BUTTON = '결과만';
-/** RaceViewer 가 재생이 끝나면 그리는 한 줄 평 목록(끝났다는 표시) */
-const VIEWER_FINISHED_SELECTOR = '.race-viewer-verdicts';
+/**
+ * 재생 캔버스 폭. 대화상자 안쪽 폭(1200 - 좌우 여백·테두리)에 맞춰 우측 순위 칸이 잘리지 않게 한다(M7-RD2b).
+ * 화면 표시 크기일 뿐이라 밸런스 상수가 아니다.
+ */
+const REPLAY_WIDTH = 1160;
 
 interface ReplayLoad {
   bundle: ReplayBundle | null;
@@ -35,12 +36,12 @@ function loadReplay(state: GameState, brief: RaceDayBrief): ReplayLoad {
 }
 
 /**
- * 출주 후 자동 재생(M7-RD). RaceViewer 의 재생이 끝나면(한 줄 평이 그려지면) onFinished 를 부른다.
- * '결과로 건너뛰기'는 RaceViewer 의 '결과만' 버튼을 누른다.
+ * 출주 후 자동 재생(M7-RD). RaceViewer 의 재생이 끝나면 onFinished 를 부른다(RaceViewer 의 onFinished prop).
+ * '결과로 건너뛰기'는 RaceViewer 의 skipToResult 카운터를 올린다.
  */
 export default function RaceDayReplay({ state, brief, onFinished }: RaceDayReplayProps): JSX.Element | null {
   const load = useMemo(() => loadReplay(state, brief), [state, brief]);
-  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [skipSignal, setSkipSignal] = useState(0);
   const bundle = load.bundle;
   const hasBundle = bundle !== null;
 
@@ -49,37 +50,18 @@ export default function RaceDayReplay({ state, brief, onFinished }: RaceDayRepla
     if (!hasBundle) onFinished();
   }, [hasBundle, onFinished]);
 
-  // RaceViewer 가 끝나면 한 줄 평 목록이 그려진다. 그 순간을 잡아 결과로 넘긴다.
-  useEffect(() => {
-    const element = containerRef.current;
-    if (element === null || !hasBundle) return undefined;
-    const observer = new MutationObserver(() => {
-      if (element.querySelector(VIEWER_FINISHED_SELECTOR) !== null) {
-        observer.disconnect();
-        onFinished();
-      }
-    });
-    observer.observe(element, { childList: true, subtree: true });
-    return () => observer.disconnect();
-  }, [hasBundle, onFinished]);
-
   if (bundle === null) return null;
-
-  const skip = (): void => {
-    const buttons = containerRef.current?.querySelectorAll('button') ?? [];
-    Array.from(buttons).find((b) => b.textContent === VIEWER_RESULT_BUTTON)?.click();
-  };
 
   return (
     <section className="rd-replay" aria-label="레이스 재생">
       <header className="rd-replay__head">
         <h3>{bundle.info.raceName} · 재생</h3>
-        <button type="button" className="btn" onClick={skip}>
+        <button type="button" className="btn" onClick={() => setSkipSignal((n) => n + 1)}>
           결과로 건너뛰기
         </button>
       </header>
       {load.message !== null && <p role="alert">{load.message}</p>}
-      <div ref={containerRef} className="rd-replay__viewer" style={{ overflowX: 'auto' }}>
+      <div className="rd-replay__viewer" style={{ overflowX: 'auto' }}>
         <RaceViewer
           replay={bundle.output.sim.replay!}
           result={bundle.output.sim.result}
@@ -87,6 +69,9 @@ export default function RaceDayReplay({ state, brief, onFinished }: RaceDayRepla
           info={bundle.info}
           commentary={bundle.commentary}
           verdicts={bundle.verdicts}
+          width={REPLAY_WIDTH}
+          onFinished={onFinished}
+          skipToResult={skipSignal}
         />
       </div>
     </section>

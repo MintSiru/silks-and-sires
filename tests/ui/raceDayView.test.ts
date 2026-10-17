@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { GameSettings, RaceDayBrief } from '../../src/engine/types';
+import type { GameState, GameSettings, RaceDayBrief } from '../../src/engine/types';
 import { RACE_DAY_MODE_OPTIONS, raceDayModeOf } from '../../src/ui/shell/settingsView';
 import {
   CARD_SORT_OPTIONS,
@@ -7,6 +7,7 @@ import {
   TACTIC_CHOICES,
   expectedPosition,
   impliedProbability,
+  cardRows,
   marginTextKo,
   paceTextKo,
   postRaceComment,
@@ -64,6 +65,32 @@ describe('레이스 당일 출주표 정렬', () => {
   });
 });
 
+describe('최근 전적 표기', () => {
+  /** 출주표 한 줄을 만들 최소 브리프. 말 기록은 state.horses 로 준다. */
+  function oneRunnerBrief(): RaceDayBrief {
+    return {
+      horseId: 'h1',
+      card: {
+        runners: [{
+          horseId: 'h1', saddleCloth: 1, draw: 1, name: '말', age: 3, sex: 'male', weightLb: 120,
+          jockeyName: '기수', trainerId: null, trainerName: null, ownerName: '마주', or: 80, recentForm: [],
+          morningOdds: { num: 2, den: 1 }, silks: { primary: '#000000', secondary: '#ffffff', pattern: 'plain' }, isPlayer: true,
+        }],
+      },
+    } as unknown as RaceDayBrief;
+  }
+
+  it('보관 결과가 없으면 통산 기록으로, 출주가 없으면 안내 문구로 보인다', () => {
+    const state = {
+      raceResults: [],
+      horses: { h1: { gelded: false, record: { starts: 4, wins: 1, groupWins: 0, blackTypePlacings: 0 } } },
+    } as unknown as GameState;
+    expect(cardRows(oneRunnerBrief(), state)[0]?.formText).toBe('통산 4전 1승');
+    (state.horses.h1 as { record: { starts: number } }).record.starts = 0;
+    expect(cardRows(oneRunnerBrief(), state)[0]?.formText).toBe('최근 출주 기록 없음');
+  });
+});
+
 describe('예상 착순과 사후 코멘트', () => {
   it('내재 확률은 den / (num + den) 이다', () => {
     expect(impliedProbability({ num: 1, den: 1 })).toBe(0.5);
@@ -99,8 +126,11 @@ describe('표기 보조', () => {
 
   it('착차와 상금 표기', () => {
     expect(marginTextKo(null)).toBe('—');
-    expect(marginTextKo({ label: 'lengths', lengths: 1.5 })).toBe('1.5마신');
-    expect(marginTextKo({ label: 'short_head', lengths: 0 })).toBe('짧은 머리차');
+    // 레이스 화면과 같은 엔진 표기(분수는 ½ 기호)
+    expect(marginTextKo({ label: 'lengths', lengths: 1.5 })).toBe('1½마신');
+    expect(marginTextKo({ label: 'lengths', lengths: 4.5 })).toBe('4½마신');
+    expect(marginTextKo({ label: 'lengths', lengths: 1.75 })).toBe('1¾마신');
+    expect(marginTextKo({ label: 'short_head', lengths: 0 })).toBe('짧은 머리');
     expect(prizeOfPosition({ prizeMoney: [50000, 20000] } as never, 2)).toBe(20000);
     expect(prizeOfPosition({ prizeMoney: [50000] } as never, 3)).toBeNull();
   });

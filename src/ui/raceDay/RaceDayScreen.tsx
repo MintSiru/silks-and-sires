@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { JSX } from 'react';
 import type { GameApi } from '../game/useGame';
 import type { GameState, HorseId, RaceDayBrief, RaceId, RunningStyle } from '../../engine/types';
@@ -61,6 +61,12 @@ export default function RaceDayScreen({ game, entries, onClose }: RaceDayScreenP
   const [snapshot, setSnapshot] = useState<RaceDayBrief[]>([]);
   const startedRef = useRef(false);
   const state = game.state;
+
+  // 대화상자가 떠 있는 동안 토스트를 위로 올린다(하단 버튼을 가리지 않게, raceDay.css). 닫히면 되돌린다.
+  useEffect(() => {
+    document.body.classList.add('rd-open');
+    return () => document.body.classList.remove('rd-open');
+  }, []);
   const raceDayBrief = game.raceDayBrief;
 
   // 출주표는 상태가 바뀔 때마다 다시 만든다(작전 지시가 바뀌면 추천·현재 지시가 갱신된다).
@@ -256,7 +262,7 @@ function BriefView({ state, brief, sort, onSort, onTactic, onStart }: BriefViewP
                 <th scope="col">기수</th>
                 <th scope="col">조교사</th>
                 <th scope="col">OR</th>
-                <th scope="col">최근 5전</th>
+                <th scope="col">최근 전적</th>
                 <th scope="col">예상 오즈</th>
               </tr>
             </thead>
@@ -266,7 +272,7 @@ function BriefView({ state, brief, sort, onSort, onTactic, onStart }: BriefViewP
                   <td>{row.saddleCloth}</td>
                   <td>{row.draw}</td>
                   <td>
-                    <SilksSvg design={silksDesignOf(row.silks, row.horseId)} size={22} />
+                    <SilksSvg design={silksDesignOf(row.silks, row.horseId)} size={18} />
                   </td>
                   <td>{row.name}</td>
                   <td>{row.ageSexKo}</td>
@@ -284,7 +290,7 @@ function BriefView({ state, brief, sort, onSort, onTactic, onStart }: BriefViewP
       </div>
 
       <div className="rd-grid">
-        <section className="rd-panel rd-scroll" aria-label="패독">
+        <section className="rd-panel" aria-label="패독">
           <h4>패독</h4>
           <ul className="rd-list">
             {brief.paddock.map((note) => (
@@ -296,7 +302,7 @@ function BriefView({ state, brief, sort, onSort, onTactic, onStart }: BriefViewP
           </ul>
         </section>
 
-        <section className="rd-panel rd-scroll" aria-label="코멘트">
+        <section className="rd-panel" aria-label="코멘트">
           <h4>코멘트</h4>
           {brief.comments.length === 0 && <p className="hint">코멘트가 없습니다.</p>}
           {brief.comments.map((comment) => (
