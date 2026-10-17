@@ -1,23 +1,31 @@
-/* 목장 화면(M6-U9 · G): 공사 고정 줄, 좌우 높이 맞춤, 시설 단계·효과 차이.
+/* 목장 화면(M6-U9 · G, M6-W W1): 시설 공사 카드 배지, 좌우 높이 맞춤, 시설 단계·효과 차이.
    색은 app.css 의 토큰만 쓴다. app.css 는 이 파일보다 나중에 로드되므로
    같은 규칙을 덮을 때는 .farm-screen 접두로 특이도를 올린다.
    상태는 색 + 글자로 함께 전달한다. */
 
 .farm-screen { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 
-/* 공사 상태: 화면 맨 위에 고정. 다른 '공사 시작' 버튼은 이 줄을 보고 비활성 사유를 함께 본다. */
+/* 공사 상태(M6-W W1): 시설 공사 카드 제목 오른쪽 한 줄 배지. 제목과 배지는 한 줄에 놓는다. */
+.farm-screen .farm-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+.farm-screen .farm-card-head h2 { margin: 0; }
 .farm-screen .farm-construction {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  margin: 0;
-  padding: 8px 14px;
-  border: 1px solid rgba(242, 198, 109, 0.4);
-  border-radius: 8px;
+  display: inline-block;
+  min-width: 0;
+  padding: 2px 10px;
+  border: 1px solid var(--warn-fg);
+  border-radius: 999px;
   background: var(--warn-bg);
   color: var(--warn-fg);
+  font-size: 13px;
   font-weight: 600;
-  line-height: 22px;
+  line-height: 20px;
+  white-space: nowrap;
 }
 
 /* 좌우 높이 맞춤: 왼쪽 '내 목장' 아래에 목장 매물 접기가 붙고, 오른쪽 시설 공사와 같은 높이로 늘어난다. */
@@ -58,11 +66,20 @@
 
 .farm-screen .farm-disabled-reason { margin: 4px 0 0; font-size: 12px; line-height: 18px; }
 
+/* 시설 표(M6-W W1): 시설·단계·다음 단계 비용·공사 열은 nowrap, 효과 칸만 keep-all 로 줄바꿈. */
 .farm-screen .farm-facility-table th,
 .farm-screen .farm-facility-table td { white-space: normal; vertical-align: middle; }
+.farm-screen .farm-facility-table th[scope="row"],
 .farm-screen .farm-facility-table td:nth-child(2),
-.farm-screen .farm-facility-table td:nth-child(4) { white-space: nowrap; }
+.farm-screen .farm-facility-table td:nth-child(4),
+.farm-screen .farm-facility-table td:nth-child(5) { white-space: nowrap; }
+.farm-screen .farm-facility-table td:nth-child(3) { word-break: keep-all; }
+/* 비활성 사유 문장은 공사 열 안에서 어절 단위로 줄바꿈(열 전체 nowrap 이면 표가 넓어진다). */
+.farm-screen .farm-disabled-reason { white-space: normal; word-break: keep-all; }
 
 @media (max-width: 800px) {
   .farm-screen .farm-layout { grid-template-columns: minmax(0, 1fr); }
+  /* 좁은 화면에서는 배지가 줄바꿈해 카드 밖으로 넘치지 않게 한다(1440 에서는 한 줄). */
+  .farm-screen .farm-card-head { flex-wrap: wrap; }
+  .farm-screen .farm-construction { max-width: 100%; white-space: normal; word-break: keep-all; }
 }

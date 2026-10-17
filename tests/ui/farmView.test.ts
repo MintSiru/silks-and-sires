@@ -171,6 +171,11 @@ describe('farmView 화면 보조 (M6-U9 G)', () => {
     expect(html).toContain('aria-label="1/3단계"');
     expect(html).toContain('title="시설 공사 중입니다. 완공 후 착공할 수 있습니다."');
     expect(html).toMatch(/farm-column--left[\s\S]*farm-listings[\s\S]*farm-column--right/);
+    // M6-W W1: 배지는 한 번만(상단 고정 줄 없음), 행마다 '공사 중 대기' 라벨, 행마다 반복되는 사유 줄은 없음
+    expect(html.split('공사 중 · 방목지 1단계 → 2단계').length - 1).toBe(1);
+    expect(html.split('>공사 중 대기<').length - 1).toBe(9);
+    expect(html).not.toContain('farm-disabled-reason');
+    expect(html).not.toContain('>공사 시작<');
   });
 });
 
