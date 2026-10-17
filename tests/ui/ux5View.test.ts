@@ -241,12 +241,24 @@ describe('혈통표 렌더링', () => {
     expect(html).toContain('--leaf-row:32px');
     expect(html).not.toContain('pedigree--deep');
   });
-  it('5대 보기는 말단 칸 17px 행의 32행 격자이고 압축 클래스를 단다', () => {
+  it('5대 보기는 말단 칸 16px 행의 32행 격자이고 압축 클래스를 단다', () => {
     const html = renderToStaticMarkup(createElement(PedigreeTable, { root: fullTree(5), nameOf, depth: 5 }));
-    expect(html).toContain('repeat(32, 17px)');
-    expect(html).toContain('--leaf-row:17px');
+    expect(html).toContain('grid-template-rows:repeat(32, 16px)');
+    expect(html).toContain('--leaf-row:16px');
     expect(html).toContain('pedigree--deep');
     expect(html).toContain('pedigree-wrap--deep');
+  });
+  it('대 머리는 본체 격자 밖 별도 줄에 있고 본체와 같은 열 구성을 쓴다', () => {
+    const html = renderToStaticMarkup(createElement(PedigreeTable, { root: fullTree(5), nameOf, depth: 5 }));
+    expect(html.indexOf('pedigree__heads')).toBeLessThan(html.indexOf('class="pedigree pedigree--deep"'));
+    const columns = 'grid-template-columns:repeat(5, minmax(120px, 1fr))';
+    expect(html.split(columns).length - 1).toBe(2);
+    expect(html).not.toContain('auto repeat(');
+  });
+  it('3대 보기도 행 32px 격자(8행)이다', () => {
+    const html = renderToStaticMarkup(createElement(PedigreeTable, { root: fullTree(3), nameOf, depth: 3 }));
+    expect(html).toContain('grid-template-rows:repeat(8, 32px)');
+    expect(html).not.toContain('auto repeat(');
   });
   it('말단 칸 높이는 이름 칸과 빈 칸이 같은 행 트랙을 쓴다', () => {
     const root = node('root', 0, node('sireA', 1), node(null, 1));
@@ -260,6 +272,21 @@ describe('혈통표 렌더링', () => {
     const html = renderToStaticMarkup(createElement(PedigreeView, { root: fullTree(3), nameOf, nick: '양호' }));
     expect(html).toContain('니크');
     expect(html).toContain('양호');
+  });
+  it('상단 해설의 니크·근친 라벨은 용어 풀이(Term)로 감싼다', () => {
+    const shared = node('root', 0, node('sireA', 1, node('shared-y', 2)), node('damB', 1, node('shared-y', 2)));
+    const html = renderToStaticMarkup(createElement(PedigreeView, { root: shared, nameOf, nick: '양호' }));
+    expect(html).toContain('data-term="nick"');
+    expect(html).toContain('data-term="inbreeding"');
+    expect(html).not.toContain('data-term="damsire"');
+  });
+  it('해설·범례·펼치기 버튼은 한 줄 막대에 함께 든다', () => {
+    const html = renderToStaticMarkup(createElement(PedigreeView, { root: fullTree(3), nameOf, nick: '양호' }));
+    const bar = html.match(/<div class="pedigree-view__bar">([\s\S]*?)<div class="pedigree-wrap/);
+    expect(bar).not.toBeNull();
+    expect(bar![1]).toContain('pedigree-view__commentary');
+    expect(bar![1]).toContain('pedigree__legend');
+    expect(bar![1]).toContain('pedigree-view__toggle');
   });
 });
 

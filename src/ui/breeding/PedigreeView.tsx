@@ -1,4 +1,6 @@
 import HorseLink from '../horse/HorseLink';
+import { Term } from '../common/Term';
+import type { GlossaryId } from '../common/glossary';
 import { statusBadgeClass } from '../common/badges';
 import { useMemo, useState } from 'react';
 import type { JSX } from 'react';
@@ -11,10 +13,21 @@ import {
   layoutPedigree,
   pedigreeCommentary,
   pedigreeLeafRowPx,
+  type PedigreeFact,
 } from './pedigreeLayout';
 import './pedigree.css';
 
-/** 혈통표 격자. depth 대까지 그린다(기본 3대, 펼치면 5대). 말단 칸은 모두 같은 고정 높이(행 트랙)를 쓴다. */
+/** 해설 항목 라벨에 붙는 용어 풀이(니크·근친). 외조부는 풀이가 없다. */
+const FACT_TERM: Partial<Record<PedigreeFact['key'], GlossaryId>> = {
+  nick: 'nick',
+  inbreed: 'inbreeding',
+};
+
+/**
+ * 혈통표 격자. depth 대까지 그린다(기본 3대, 펼치면 5대).
+ * 1~depth 대를 한 격자로 그린다: 대 머리는 격자 위 별도 줄(같은 열 구성), 본체는 말단 행 수만큼의 행 트랙.
+ * 말단 칸 한 행은 고정 px 라서 이름 칸·빈 칸 모두 같은 높이이고, 상위 칸은 자손 묶음 높이(행 합)만큼 늘어난다.
+ */
 export function PedigreeTable({
   root,
   nameOf,
@@ -35,22 +48,25 @@ export function PedigreeTable({
   const generations = Array.from({ length: depth }, (_, i) => i + 1);
   const leafPx = pedigreeLeafRowPx(depth);
   const deep = depth > PEDIGREE_BASE_DEPTH;
+  const columns = `repeat(${depth}, minmax(120px, 1fr))`;
 
   return (
     <div className={deep ? 'pedigree-wrap pedigree-wrap--deep' : 'pedigree-wrap'}>
-      <div
-        className={deep ? 'pedigree pedigree--deep' : 'pedigree'}
-        style={{
-          gridTemplateColumns: `repeat(${depth}, minmax(120px, 1fr))`,
-          gridTemplateRows: `auto repeat(${grid.rows}, ${leafPx}px)`,
-          ['--leaf-row' as string]: `${leafPx}px`,
-        }}
-      >
+      <div className="pedigree__heads" style={{ gridTemplateColumns: columns }}>
         {generations.map((g) => (
-          <div key={`head-${g}`} className="pedigree__head" style={{ gridColumn: String(g), gridRow: '1' }}>
+          <div key={`head-${g}`} className="pedigree__head" style={{ gridColumn: String(g) }}>
             {g}대
           </div>
         ))}
+      </div>
+      <div
+        className={deep ? 'pedigree pedigree--deep' : 'pedigree'}
+        style={{
+          gridTemplateColumns: columns,
+          gridTemplateRows: `repeat(${grid.rows}, ${leafPx}px)`,
+          ['--leaf-row' as string]: `${leafPx}px`,
+        }}
+      >
         {grid.slots.map((slot) => {
           const id = slot.node?.horseId ?? null;
           // 이름 미기록 암말(실명 종마의 모마 칸)은 빈칸과 같은 모양으로 보인다(원칙 1)
@@ -70,7 +86,7 @@ export function PedigreeTable({
               className={classes}
               style={{
                 gridColumn: String(slot.generation),
-                gridRow: `${slot.start + 2} / span ${slot.span}`,
+                gridRow: `${slot.start + 1} / span ${slot.span}`,
               }}
             >
               {/* 빈 칸은 '—' 한 줄만 두고 보조 줄을 만들지 않는다 */}
@@ -101,22 +117,26 @@ export default function PedigreeView({ root, nameOf, nick }: PedigreeViewProps):
   const facts = pedigreeCommentary(root, nameOf, nick);
   return (
     <div className="pedigree-view">
-      <p className="pedigree-view__commentary">
-        {facts.map((fact, index) => (
-          <span key={fact.key}>
-            {index > 0 && <span className="pedigree-view__sep"> · </span>}
-            {fact.label}{' '}
-            {fact.tone ? (
-              <span className={statusBadgeClass(fact.tone)}>{fact.value}</span>
-            ) : (
-              <span className={fact.empty ? 'pedigree-view__fact pedigree-view__fact--empty' : 'pedigree-view__fact'}>
-                {fact.value}
-              </span>
-            )}
-          </span>
-        ))}
-      </p>
+      {/* 해설·범례·펼치기 버튼을 한 줄에 둔다(좁은 화면에서만 줄바꿈). 5대 표가 말 상세 창 안에 들어오도록 높이를 아낀다. */}
       <div className="pedigree-view__bar">
+        <p className="pedigree-view__commentary">
+          {facts.map((fact, index) => {
+            const termId = FACT_TERM[fact.key];
+            return (
+              <span key={fact.key}>
+                {index > 0 && <span className="pedigree-view__sep"> · </span>}
+                {termId ? <Term id={termId}>{fact.label}</Term> : fact.label}{' '}
+                {fact.tone ? (
+                  <span className={statusBadgeClass(fact.tone)}>{fact.value}</span>
+                ) : (
+                  <span className={fact.empty ? 'pedigree-view__fact pedigree-view__fact--empty' : 'pedigree-view__fact'}>
+                    {fact.value}
+                  </span>
+                )}
+              </span>
+            );
+          })}
+        </p>
         <p className="pedigree__legend">
           <span className="pedigree__key pedigree__key--sire">부측</span>
           <span className="pedigree__key pedigree__key--dam">모측</span>

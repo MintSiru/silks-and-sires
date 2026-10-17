@@ -8,9 +8,13 @@ import { INBREED_CAUTION_PERCENT, INBREED_RISK_PERCENT } from './matingPlanView'
 /** 처음 보여 줄 대수(부·모 = 1대). 더 보려면 '5대 보기'로 펼친다. */
 export const PEDIGREE_BASE_DEPTH = 3;
 
-/** 말단(가장 깊은 대) 칸 한 칸의 높이(px). 3대 보기: 32px. 3대 넘게 펼치면 화면 안에 32칸이 들어오도록 압축한다. */
+/**
+ * 말단(가장 깊은 대) 칸 한 칸의 높이(px) = 격자 한 행의 높이. 3대 보기: 32px(8행). 5대 보기: 16px(32행).
+ * 5대는 32행 전체가 말 상세 창(1440×900) 안에 스크롤 없이 들어오도록 압축한다.
+ * 한 행 = 글자 15px + 구분선 1px 이라 말단 글자 줄 높이(15px)와 맞다.
+ */
 export const PEDIGREE_LEAF_ROW_PX = 32;
-export const PEDIGREE_LEAF_ROW_DEEP_PX = 17;
+export const PEDIGREE_LEAF_ROW_DEEP_PX = 16;
 
 /** 대수에 따른 말단 칸 높이. 기본 대수 이하면 32px, 넘으면 압축 높이. */
 export function pedigreeLeafRowPx(depth: number): number {

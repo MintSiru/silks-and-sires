@@ -1,8 +1,21 @@
-/* M6-U5 J4: 혈통표. 기본 3대가 화면 안에 들어오고, 5대 보기는 표 높이 제한을 풀어 32칸이 잘리지 않는다(M6-W W2).
-   부측(파랑)·모측(보라) 왼쪽 선 3px, 인브리드 조상은 --grade-top 배경. 기존 app.css 규칙보다 높은 특이도로 덮는다. */
+/* M6-U5 J4: 혈통표. 기본 3대가 화면 안에 들어오고, 5대 보기는 표 높이 제한을 풀어 32칸이 잘리지 않는다(M6-W 2).
+   부측(파랑)·모측(보라) 왼쪽 선 3px, 인브리드 조상은 --grade-top 배경. 기존 app.css 규칙보다 높은 특이도로 덮는다.
+   M6-X X3: 1~5대를 하나의 격자로. 말단 행(3대 32px, 5대 16px)이 격자 행 트랙이고, 상위 칸은 행 합만큼 길어진다.
+   칸 구분은 아래 1px 선(행 간격 0)이라 대 사이 가로 경계선이 맞물린다. 대 머리는 격자 위 별도 줄(같은 열 구성). */
+
+/* 해설·범례·펼치기 버튼: 한 줄(좁은 화면에서만 줄바꿈) */
+.pedigree-view__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 16px;
+  margin-bottom: 6px;
+}
 
 .pedigree-view__commentary {
-  margin: 0 0 8px;
+  flex: 0 1 auto;
+  min-width: 0;
+  margin: 0;
   color: var(--text);
   font-size: 0.9rem;
   line-height: 22px;
@@ -21,21 +34,21 @@
   font-weight: 400;
 }
 
-.pedigree-view__bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px 12px;
-  margin-bottom: 6px;
+/* 해설 줄의 판정 칩(.badge)이 줄 높이를 늘리지 않게 줄 높이 안에 맞춘다 */
+.pedigree-view .pedigree-view__commentary .badge {
+  padding: 1px 8px;
+  line-height: 18px;
+  vertical-align: middle;
 }
 
-.pedigree-view__bar .pedigree__legend {
-  margin: 0;
-}
-
-.pedigree-view__toggle {
+/* 펼치기 버튼: 한 줄(24px) 높이. 특이도를 높여 app.css .btn 의 여백을 덮는다 */
+.pedigree-view .pedigree-view__toggle {
+  flex: 0 0 auto;
   white-space: nowrap;
+  height: 24px;
+  padding: 0 10px;
+  font-size: 0.85rem;
+  line-height: 22px;
 }
 
 .pedigree-wrap {
@@ -45,17 +58,19 @@
   padding-bottom: 12px;
 }
 
-/* 5대 보기: 표 높이 제한을 풀어 32칸이 표 안에서 잘리지 않게 한다. 가로 스크롤(overflow-x)은 그대로 둔다. */
+/* 5대 보기: 표 높이 제한을 풀어 32행(16px×32)이 표 안에서 잘리지 않게 한다. 가로 스크롤(overflow-x)은 그대로 둔다.
+   표 아래 여백(12px)은 말 상세 창 세로 스크롤을 만들지 않도록 뺀다(창 안에 32칸이 스크롤 없이 들어와야 한다). */
 .pedigree-wrap--deep {
   max-height: none;
+  padding-bottom: 0;
 }
 
-.pedigree-wrap .pedigree {
+/* 대 머리 줄: 본체와 같은 열 구성, 표 안 스크롤과 함께 사라지지 않게 위에 고정 */
+.pedigree-wrap .pedigree__heads {
+  display: grid;
+  column-gap: 4px;
   min-width: 0;
-}
-
-/* 5대 보기에서 대 머리가 표 안 스크롤과 함께 사라지지 않게 고정 */
-.pedigree-wrap .pedigree__head {
+  line-height: 16px;
   position: sticky;
   top: 0;
   z-index: 1;
@@ -64,6 +79,7 @@
 
 /* 범례는 표(.pedigree-wrap) 밖의 막대에 있으므로 .pedigree-view 기준으로 맞춘다 */
 .pedigree-view .pedigree__legend {
+  margin: 0;
   color: var(--text-muted);
   font-size: 0.85rem;
 }
@@ -88,26 +104,28 @@
   color: var(--grade-top-fg);
 }
 
-/* 칸: 말단 칸 높이는 행 트랙(3대 32px, 5대 17px — PedigreeView 가 --leaf-row 로 넘긴다). 이름 14px/20px.
-   행 트랙이 고정 px 라서 말단 칸은 이름·빈 칸 모두 같은 높이다. 상위 칸은 자손 묶음 높이(행 합)만큼 늘어나
-   경계선이 일직선이고, 세로 가운데에 놓인다. */
+/* 본체 격자: 행 간격 0. 칸 사이 구분은 칸 아래 1px 선이 맡는다. */
+.pedigree-wrap .pedigree {
+  min-width: 0;
+  column-gap: 4px;
+  row-gap: 0;
+}
+
+/* 칸: 이름 14px/20px(3대). 행 트랙이 고정 px 라서 말단 칸은 이름·빈 칸 모두 같은 높이다.
+   상위 칸은 자손 묶음 높이만큼 늘어나고(grid stretch), app.css 의 flex 가운데 정렬로 세로 가운데에 놓인다. */
 .pedigree-wrap .pedigree__cell {
   border-left: 3px solid var(--border);
-  min-height: var(--leaf-row, 32px);
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
   font-size: 14px;
   line-height: 20px;
 }
 
-/* 5대 보기: 말단 칸 17px 행에 맞춰 글자 11px/16px, 좌우 여백 6px. 대 머리도 같이 줄인다. */
-.pedigree-wrap .pedigree--deep .pedigree__head {
-  font-size: 11px;
-  line-height: 16px;
-}
-
+/* 5대 보기: 말단 한 행 16px = 글자 15px + 구분선 1px. 글자 10.5px/15px, 좌우 여백 6px. */
 .pedigree-wrap .pedigree--deep .pedigree__cell {
   padding: 0 6px;
-  font-size: 11px;
-  line-height: 16px;
+  font-size: 10.5px;
+  line-height: 15px;
 }
 
 /* 혈통 안 링크: 밑줄은 호버 때만 보인다(자리는 유지해 흔들리지 않게) */
