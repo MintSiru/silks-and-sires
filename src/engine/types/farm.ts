@@ -15,6 +15,16 @@ export type Difficulty = 'easy' | 'normal' | 'hard';
 export type HomeCountry = 'GB' | 'IE' | 'FR' | 'DE' | 'IT';
 
 /** 새 게임에서 고른 설정(게임 내내 유지) */
+/** 첫 시즌 체크리스트 단계(M6-T): 말 상태 확인 → 출주 계획 검토 → 진행 → 결과 확인 / 교배 제안 확인 */
+export type TutorialStepId = 'check_horse' | 'review_plans' | 'advance_week' | 'see_result' | 'review_matings';
+
+export interface TutorialProgress {
+  /** 플레이어가 체크리스트를 닫았으면 true(다시 보이지 않음) */
+  dismissed: boolean;
+  /** 끝낸 단계(순서 무관, 중복 없음) */
+  done: TutorialStepId[];
+}
+
 export interface GameSettings {
   startType: StartType;
   difficulty: Difficulty;
@@ -41,6 +51,8 @@ export interface GameSettings {
    * false 면 제안만 하고 위탁하지 않는다(플레이어가 직접 위탁)
    */
   autoSell?: boolean;
+  /** 첫 시즌 체크리스트 진행(M6-T). 없으면 새로 시작한 것으로 본다 — 옛 저장본은 체크리스트를 다시 보여 줄 수 있다 */
+  tutorial?: TutorialProgress;
   /** 자동 교배 한 두당 종부료 상한(€). null·없으면 교배 담당이 암말 수준으로 예산을 정한다 */
   matingFeeCap?: Money | null;
 }
