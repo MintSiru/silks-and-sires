@@ -2,9 +2,20 @@
 import { dominantCrosses, findInbreeding, totalBloodPercent } from '../../engine/breeding/inbreeding';
 import { isAnonDamId } from '../../engine/breeding/realPedigree';
 import type { HorseId, PedigreeNode } from '../../engine/types';
+import type { StatusTone } from '../common/badges';
+import { INBREED_CAUTION_PERCENT, INBREED_RISK_PERCENT } from './matingPlanView';
 
 /** 처음 보여 줄 대수(부·모 = 1대). 더 보려면 '5대 보기'로 펼친다. */
 export const PEDIGREE_BASE_DEPTH = 3;
+
+/** 말단(가장 깊은 대) 칸 한 칸의 높이(px). 3대 보기: 32px. 3대 넘게 펼치면 화면 안에 32칸이 들어오도록 압축한다. */
+export const PEDIGREE_LEAF_ROW_PX = 32;
+export const PEDIGREE_LEAF_ROW_DEEP_PX = 17;
+
+/** 대수에 따른 말단 칸 높이. 기본 대수 이하면 32px, 넘으면 압축 높이. */
+export function pedigreeLeafRowPx(depth: number): number {
+  return depth > PEDIGREE_BASE_DEPTH ? PEDIGREE_LEAF_ROW_DEEP_PX : PEDIGREE_LEAF_ROW_PX;
+}
 
 /** 정보가 없을 때 쓰는 중립 문구(회색) */
 export const PEDIGREE_EMPTY_KO = '정보 없음';
@@ -61,6 +72,8 @@ export interface PedigreeFact {
   label: string;
   value: string;
   empty: boolean;
+  /** 판정 색(근친 항목만). 교배 화면 기준(INBREED_CAUTION/RISK_PERCENT)으로 정한다. */
+  tone?: StatusTone;
 }
 
 /**
@@ -88,11 +101,23 @@ export function pedigreeCommentary(
     facts.push({ key: 'nick', label: '니크', value: nick ?? PEDIGREE_EMPTY_KO, empty: nick === null });
   }
   const percent = totalBloodPercent(dominantCrosses(root, findInbreeding(root)));
-  facts.push({
-    key: 'inbreed',
-    label: '근친',
-    value: percent > 0 ? `혈량 ${Math.round(percent * 10) / 10}%` : '없음',
-    empty: false,
-  });
+  facts.push(inbreedFact(percent));
   return facts;
+}
+
+/**
+ * 근친 항목: 판정을 먼저 적는다. 기준은 교배 화면과 같은 INBREED_CAUTION_PERCENT(초과 주의)·
+ * INBREED_RISK_PERCENT(초과 위험). 0 이면 '없음'(중립), 0 초과면 강조 표시 안내를 붙인다.
+ */
+export function inbreedFact(percent: number): PedigreeFact {
+  if (percent <= 0) return { key: 'inbreed', label: '근친', value: '없음', empty: false };
+  const shown = `${Math.round(percent * 10) / 10}%`;
+  const suffix = `근친 혈량 ${shown} (반복 조상 강조 표시)`;
+  if (percent > INBREED_RISK_PERCENT) {
+    return { key: 'inbreed', label: '근친', value: `위험 — ${suffix}`, empty: false, tone: 'danger' };
+  }
+  if (percent > INBREED_CAUTION_PERCENT) {
+    return { key: 'inbreed', label: '근친', value: `주의 — ${suffix}`, empty: false, tone: 'warn' };
+  }
+  return { key: 'inbreed', label: '근친', value: `양호 — ${suffix}`, empty: false, tone: 'good' };
 }

@@ -1,4 +1,5 @@
 import HorseLink from '../horse/HorseLink';
+import { statusBadgeClass } from '../common/badges';
 import { useMemo, useState } from 'react';
 import type { JSX } from 'react';
 import { dominantCrosses, findInbreeding } from '../../engine/breeding/inbreeding';
@@ -9,13 +10,11 @@ import {
   isBlankPedigreeNode,
   layoutPedigree,
   pedigreeCommentary,
+  pedigreeLeafRowPx,
 } from './pedigreeLayout';
 import './pedigree.css';
 
-/** 한 행 높이(px). 말단(가장 깊은 대) 칸 한 칸의 높이이며 최소 28px 다(M6-V V5). pedigree.css 의 칸 최소 높이와 맞춘다. */
-const ROW_HEIGHT_PX = 28;
-
-/** 혈통표 격자. depth 대까지 그린다(기본 3대, 펼치면 5대). */
+/** 혈통표 격자. depth 대까지 그린다(기본 3대, 펼치면 5대). 말단 칸은 모두 같은 고정 높이(행 트랙)를 쓴다. */
 export function PedigreeTable({
   root,
   nameOf,
@@ -34,14 +33,17 @@ export function PedigreeTable({
   );
 
   const generations = Array.from({ length: depth }, (_, i) => i + 1);
+  const leafPx = pedigreeLeafRowPx(depth);
+  const deep = depth > PEDIGREE_BASE_DEPTH;
 
   return (
-    <div className="pedigree-wrap">
+    <div className={deep ? 'pedigree-wrap pedigree-wrap--deep' : 'pedigree-wrap'}>
       <div
-        className="pedigree"
+        className={deep ? 'pedigree pedigree--deep' : 'pedigree'}
         style={{
           gridTemplateColumns: `repeat(${depth}, minmax(120px, 1fr))`,
-          gridTemplateRows: `auto repeat(${grid.rows}, ${ROW_HEIGHT_PX}px)`,
+          gridTemplateRows: `auto repeat(${grid.rows}, ${leafPx}px)`,
+          ['--leaf-row' as string]: `${leafPx}px`,
         }}
       >
         {generations.map((g) => (
@@ -104,9 +106,13 @@ export default function PedigreeView({ root, nameOf, nick }: PedigreeViewProps):
           <span key={fact.key}>
             {index > 0 && <span className="pedigree-view__sep"> · </span>}
             {fact.label}{' '}
-            <span className={fact.empty ? 'pedigree-view__fact pedigree-view__fact--empty' : 'pedigree-view__fact'}>
-              {fact.value}
-            </span>
+            {fact.tone ? (
+              <span className={statusBadgeClass(fact.tone)}>{fact.value}</span>
+            ) : (
+              <span className={fact.empty ? 'pedigree-view__fact pedigree-view__fact--empty' : 'pedigree-view__fact'}>
+                {fact.value}
+              </span>
+            )}
           </span>
         ))}
       </p>

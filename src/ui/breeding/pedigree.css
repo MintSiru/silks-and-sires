@@ -1,4 +1,4 @@
-/* M6-U5 J4: 혈통표. 기본 3대가 화면 안에 들어오고, 5대 보기는 표 영역 안에서만 스크롤한다.
+/* M6-U5 J4: 혈통표. 기본 3대가 화면 안에 들어오고, 5대 보기는 표 높이 제한을 풀어 32칸이 잘리지 않는다(M6-W W2).
    부측(파랑)·모측(보라) 왼쪽 선 3px, 인브리드 조상은 --grade-top 배경. 기존 app.css 규칙보다 높은 특이도로 덮는다. */
 
 .pedigree-view__commentary {
@@ -45,6 +45,11 @@
   padding-bottom: 12px;
 }
 
+/* 5대 보기: 표 높이 제한을 풀어 32칸이 표 안에서 잘리지 않게 한다. 가로 스크롤(overflow-x)은 그대로 둔다. */
+.pedigree-wrap--deep {
+  max-height: none;
+}
+
 .pedigree-wrap .pedigree {
   min-width: 0;
 }
@@ -83,13 +88,26 @@
   color: var(--grade-top-fg);
 }
 
-/* 칸: 말단 칸 최소 28px(행 높이는 PedigreeView 의 ROW_HEIGHT_PX), 이름 14px/20px.
-   상위 칸은 자손 묶음 높이만큼 늘어나고 flex 로 세로 가운데에 놓인다. 빈 칸도 같은 높이를 쓴다. */
+/* 칸: 말단 칸 높이는 행 트랙(3대 32px, 5대 17px — PedigreeView 가 --leaf-row 로 넘긴다). 이름 14px/20px.
+   행 트랙이 고정 px 라서 말단 칸은 이름·빈 칸 모두 같은 높이다. 상위 칸은 자손 묶음 높이(행 합)만큼 늘어나
+   경계선이 일직선이고, 세로 가운데에 놓인다. */
 .pedigree-wrap .pedigree__cell {
   border-left: 3px solid var(--border);
-  min-height: 28px;
+  min-height: var(--leaf-row, 32px);
   font-size: 14px;
   line-height: 20px;
+}
+
+/* 5대 보기: 말단 칸 17px 행에 맞춰 글자 11px/16px, 좌우 여백 6px. 대 머리도 같이 줄인다. */
+.pedigree-wrap .pedigree--deep .pedigree__head {
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.pedigree-wrap .pedigree--deep .pedigree__cell {
+  padding: 0 6px;
+  font-size: 11px;
+  line-height: 16px;
 }
 
 /* 혈통 안 링크: 밑줄은 호버 때만 보인다(자리는 유지해 흔들리지 않게) */

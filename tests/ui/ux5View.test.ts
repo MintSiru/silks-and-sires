@@ -9,6 +9,7 @@ import {
   PEDIGREE_BASE_DEPTH,
   isBlankPedigreeNode,
   layoutPedigree,
+  inbreedFact,
   pedigreeCommentary,
 } from '../../src/ui/breeding/pedigreeLayout';
 import {
@@ -197,7 +198,22 @@ describe('혈통표 상단 해설', () => {
     const shared = 'shared-ancestor';
     const root = node('root', 0, node('sireA', 1, node(shared, 2)), node('damB', 1, node(shared, 2)));
     const inbreed = pedigreeCommentary(root, nameOf).find((f) => f.key === 'inbreed')!;
-    expect(inbreed.value.startsWith('혈량 ')).toBe(true);
+    expect(inbreed.value).toContain('근친 혈량');
+    expect(inbreed.value).toContain('(반복 조상 강조 표시)');
+    expect(inbreed.tone).toBeDefined();
+  });
+  it('근친 판정은 교배 화면 기준(12.5 주의, 18.75 위험, 초과일 때)을 쓴다', () => {
+    expect(inbreedFact(0)).toMatchObject({ value: '없음', empty: false });
+    expect(inbreedFact(0)).not.toHaveProperty('tone');
+    expect(inbreedFact(12.5)).toMatchObject({ tone: 'good', value: '양호 — 근친 혈량 12.5% (반복 조상 강조 표시)' });
+    expect(inbreedFact(12.6)).toMatchObject({ tone: 'warn', value: '주의 — 근친 혈량 12.6% (반복 조상 강조 표시)' });
+    expect(inbreedFact(18.75)).toMatchObject({ tone: 'warn' });
+    expect(inbreedFact(18.76)).toMatchObject({ tone: 'danger', value: '위험 — 근친 혈량 18.8% (반복 조상 강조 표시)' });
+  });
+  it('근친 판정 배지는 상태 톤 클래스로 그린다', () => {
+    const root = node('root', 0, node('sireA', 1, node('shared-x', 2)), node('damB', 1, node('shared-x', 2)));
+    const html = renderToStaticMarkup(createElement(PedigreeView, { root, nameOf }));
+    expect(html).toMatch(/badge badge--(warn|danger)/);
   });
 });
 
@@ -219,9 +235,26 @@ describe('혈통표 렌더링', () => {
     expect(html).toContain('pedigree__cell--unknown');
     expect(html).toContain('>—</div>');
   });
-  it('말단 칸 높이는 28px 행이고 3대는 8행 격자다', () => {
+  it('말단 칸 높이는 3대에서 32px 행이고 3대는 8행 격자다', () => {
     const html = renderToStaticMarkup(createElement(PedigreeTable, { root: fullTree(3), nameOf, depth: 3 }));
-    expect(html).toContain('repeat(8, 28px)');
+    expect(html).toContain('repeat(8, 32px)');
+    expect(html).toContain('--leaf-row:32px');
+    expect(html).not.toContain('pedigree--deep');
+  });
+  it('5대 보기는 말단 칸 17px 행의 32행 격자이고 압축 클래스를 단다', () => {
+    const html = renderToStaticMarkup(createElement(PedigreeTable, { root: fullTree(5), nameOf, depth: 5 }));
+    expect(html).toContain('repeat(32, 17px)');
+    expect(html).toContain('--leaf-row:17px');
+    expect(html).toContain('pedigree--deep');
+    expect(html).toContain('pedigree-wrap--deep');
+  });
+  it('말단 칸 높이는 이름 칸과 빈 칸이 같은 행 트랙을 쓴다', () => {
+    const root = node('root', 0, node('sireA', 1), node(null, 1));
+    const html = renderToStaticMarkup(createElement(PedigreeTable, { root, nameOf, depth: 3 }));
+    const cells = html.match(/class="pedigree__cell[^"]*"/g) ?? [];
+    // 1대 2칸 + 2대 4칸 + 3대 8칸
+    expect(cells.length).toBe(14);
+    expect(html).toContain('repeat(8, 32px)');
   });
   it('니크를 넘기면 상단 해설에 니크가 나온다', () => {
     const html = renderToStaticMarkup(createElement(PedigreeView, { root: fullTree(3), nameOf, nick: '양호' }));
