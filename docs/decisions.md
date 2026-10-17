@@ -387,3 +387,4 @@
 - 2026-10-17 M6-0b2 승인(Haiku): 세일 맨 위 '판매 제안' 칸(빼기·지금 위탁, 표 높이 고정), 홈 할 일 '판매 제안 N두', 설정 '판매 제안 자동 위탁'(기본 켬), useGame API. Opus 수정: 24주 뒤 세일 화면 921px 넘침 → 빈 상태와 안내를 한 줄로 합쳐 스모크 PASS.
 - 2026-10-17 사용자 결정 '캐주얼 이자 완화': 이자는 빚 중 DEBT_INTEREST_BASE_CAP(€500,000)까지에만, 빚 상한 = 지난해 지출 × 2(없으면 €600,000, 넘는 몫 탕감). 30년 무입력: 빚 최대 약 60만으로 발산 멈춤, 명문 모계 첫 확립, M4·M5 판정 유지. 빚이 있으면 유료 교배 차단 규칙 때문에 2050년 이후 현역 0두는 남음 — 사용자에게 후속 선택 요청.
 - 2026-10-17 M6-U: 아스트라·아르곤 1차 검토를 docs/feedback/2026-10-17-ui-review.md 로 합침(공통 지적 ★, 실행 티켓 U1~U10·T). 웹 글꼴·호버 미리보기는 범위 밖. 사용자 요청 '고친 뒤 다시 피드백': npm run screens(tests/ui/capture-screens.mjs) + ui-review-request.md 재검토 지시문 추가. 빚·교배 후속 질문은 사용자 답 없음 — 현행 유지.
+- 2026-10-17 M6-U1 승인(Haiku): app.css 토큰 통합(:root 1개 — 표면·상태 3종·등급 4단·글자 위계·tabular-nums), 공통 배지 클래스·표 규칙(sticky 헤더·nowrap)·링크 하단선·포커스 링·말 상세 드로어 분리, src/ui/common/badges.ts·Badge.tsx(GradeBadge·PositionBadge·StatusBadge — 문구 필수). 대비 부족 2곳 보정. 스모크 PASS.
