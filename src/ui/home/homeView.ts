@@ -20,6 +20,12 @@ export function homeTasks(state: GameState): HomeTask[] {
   const tasks: HomeTask[] = [];
   if (yearEndPending(state))
     tasks.push({ id: 'yearEnd', label: '연말 정산을 제출하세요', screen: 'yearEnd' });
+  // 판매 제안(M6-0b2): 검토 대기 제안이 있으면 세일 메뉴로. 빼지 않으면 마감 전 주에 위탁된다.
+  const sellCount = (state.sales.sellProposals ?? []).filter(
+    (p) => p.status === 'proposed' && state.horses[p.horseId]?.ownerId === state.playerOwnerId,
+  ).length;
+  if (sellCount > 0)
+    tasks.push({ id: 'sell-proposals', label: `판매 제안 ${sellCount}두 — 세일에서 검토`, screen: 'sales' });
   if (state.settings.autoSendToTraining === false) {
     for (const horse of autoTrainingCandidates(state)) {
       tasks.push({ id: `training:${horse.id}`, label: `${displayName(state, horse)} · 조교사에게 맡기기`,

@@ -2,6 +2,7 @@ import { dynastyGoals as calculateDynastyGoals } from '../../engine/legacy/goals
 import { rivalViews, type RivalView } from '../../engine/legacy/rivals';
 import { approveMating, approveAllMatings, changeMating, removeMating, replanMatings, setMatingFeeCap } from '../../engine/breeding/matingPlan';
 import { sellToNhStore } from '../../engine/sales/nhStore';
+import { consignProposal, removeSellProposal, setAutoSell } from '../../engine/sales/autoSell';
 import { FARM_NAME_ERROR_KO } from './text';
 import { upcomingRaces, type UpcomingRaceWeek } from '../../engine/season/lookahead';
 import { approvePlan, removePlan, replanHorse, setRacePlan } from '../../engine/season/racePlan';
@@ -70,6 +71,7 @@ import type {
   HorseId,
   PlannedRace,
   MatingProposal,
+  SellProposal,
   InjuryTreatment,
   Money,
   RaceId,
@@ -121,6 +123,14 @@ export interface GameApi {
   upcomingRaces(weeks: number): UpcomingRaceWeek[];
   setAutoApproveRacePlans(enabled: boolean): void;
   setAutoSendToTraining(enabled: boolean): void;
+  /** 판매 제안 목록(복제본). 세일 화면 '판매 제안' 칸과 홈 할 일이 쓴다 */
+  sellProposals(): SellProposal[];
+  /** 판매 제안을 뺀다(이번 세일 제외, 상태 skipped). 실패하면 사유를 돌려준다 */
+  removeSellProposal(horseId: HorseId): ReturnType<typeof removeSellProposal>;
+  /** 판매 제안을 지금 위탁한다(consignToSale, 유보가는 제안 값). 성공하면 consigned */
+  consignProposal(horseId: HorseId): ReturnType<typeof consignProposal>;
+  /** 판매 제안 자동 위탁(settings.autoSell). false 면 제안만 하고 위탁은 플레이어가 한다 */
+  setAutoSell(enabled: boolean): ReturnType<typeof setAutoSell>;
   placeBet(input: Parameters<typeof placeBet>[1]): PlayerResult<BetError>;
   cancelBet(betId: string): ReturnType<typeof cancelBet>;
   state: GameState | null;
@@ -496,6 +506,10 @@ export function useGame(): GameApi {
     stateRef.current = next;
     setState(next);
   }, [requireState]);
+  const sellProposals = useCallback((): SellProposal[] => structuredClone(requireState().sales.sellProposals ?? []), [requireState]);
+  const removeProposal = useCallback((horseId: HorseId) => applyPlayerResult(removeSellProposal(requireState(), horseId)), [requireState, applyPlayerResult]);
+  const consignProposalNow = useCallback((horseId: HorseId) => applyPlayerResult(consignProposal(requireState(), horseId, salesStaticData())), [requireState, applyPlayerResult]);
+  const setSellAuto = useCallback((enabled: boolean) => applyPlayerResult(setAutoSell(requireState(), enabled)), [requireState, applyPlayerResult]);
 
   const declarePlayer = useCallback(
     (meetingId: string, raceId: RaceId, horseId: HorseId): PlayerResult<DeclareError> =>
@@ -664,6 +678,10 @@ export function useGame(): GameApi {
     upcomingRaces: upcoming,
     setAutoApproveRacePlans,
     setAutoSendToTraining,
+    sellProposals,
+    removeSellProposal: removeProposal,
+    consignProposal: consignProposalNow,
+    setAutoSell: setSellAuto,
     state,
     placeBet: placePlayerBet,
     cancelBet: cancelPlayerBet,

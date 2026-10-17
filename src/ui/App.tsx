@@ -302,6 +302,14 @@ function AppContent() {
                   끄면(기본) 조교사 제안을 빼지 않는 한 그대로 출주합니다. 켜면 승인한 계획만 출주합니다. ·{' '}
                   {economyModeKo(banner.mode)}
                 </p>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={state.settings.autoSell !== false}
+                    onChange={(e) => game.setAutoSell(e.target.checked)}
+                  />{' '}
+                  판매 제안 자동 위탁
+                </label>
                 <button
                   type="button"
                   className="btn"

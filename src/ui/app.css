@@ -837,6 +837,10 @@ details[open] > .calendar-week .calendar-week__date::before { content: '▾ '; }
 .calendar-weeks { max-height: 450px; overflow: auto; }
 .meeting-details > summary, details.panel > summary { padding: 0; font-weight: 600; }
 .meeting-details[open] { max-height: 420px; overflow: auto; }
+.sell-proposals { margin-bottom: 12px; }
+.sell-proposals .hint { margin: 0 0 8px; }
+.sell-proposals__scroll { max-height: 8.5rem; overflow: auto; overscroll-behavior: contain; }
+.sell-proposals__scroll th, .sell-proposals__scroll td { padding: 6px 10px; }
 .sales-workspace { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 12px; align-items: start; }
 .sales-workspace .sales-layout { display: block; min-width: 0; }
 .sales-support { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; align-items: start; }

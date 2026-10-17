@@ -34,6 +34,13 @@ import {
 } from '../game/text';
 import type { GameApi } from '../game/useGame';
 import {
+  sellProposalEmptyKo,
+  sellProposalErrorKo,
+  sellProposalGuideKo,
+  sellProposalRows,
+  type SellProposalRow,
+} from './sellProposalView';
+import {
   catalogueRows,
   consignableRows,
   liveAuctionView,
@@ -246,6 +253,8 @@ function SalesView({ game, state, locked }: SalesViewProps): JSX.Element {
           최근 2년 구매액 {badge.spendKo} · {badge.nextKo} · {badge.benefitsKo.join(' · ')}
         </p>
       </header>
+
+      <SellProposalPanel game={game} state={state} locked={locked} />
 
       <div className="sales-workspace">
         <section className="panel sales-calendar">
@@ -460,6 +469,101 @@ function SalesView({ game, state, locked }: SalesViewProps): JSX.Element {
           )}
         </details>
       </div>
+    </section>
+  );
+}
+
+// ── 판매 제안 칸(M6-0b2) ───────────────────────────────────────
+
+interface SellProposalPanelProps {
+  game: GameApi;
+  state: GameState;
+  locked: boolean;
+}
+
+/** 판매 담당이 낸 세일 위탁 제안. 플레이어는 빼거나 지금 위탁만 한다(빼지 않으면 엔진이 마감 전 주에 위탁). */
+function SellProposalPanel({ game, state, locked }: SellProposalPanelProps): JSX.Element {
+  const [notice, setNotice] = useState<Notice | null>(null);
+  const rows = useMemo(() => sellProposalRows(state, SALES_DATA), [state]);
+  const autoSell = state.settings.autoSell !== false;
+  const pendingCount = rows.filter((row) => row.canRemove).length;
+
+  const handleRemove = (row: SellProposalRow): void => {
+    const result = game.removeSellProposal(row.horseId);
+    if (result.ok) setNotice({ tone: 'ok', text: `${row.horseName} 판매 제안을 뺐습니다.` });
+    else setNotice({ tone: 'error', text: sellProposalErrorKo(result.error) });
+  };
+
+  const handleConsign = (row: SellProposalRow): void => {
+    const result = game.consignProposal(row.horseId);
+    if (result.ok) setNotice({ tone: 'ok', text: `${row.horseName} 말을 ${row.saleLabel}에 위탁했습니다.` });
+    else setNotice({ tone: 'error', text: sellProposalErrorKo(result.error) });
+  };
+
+  return (
+    <section className="panel sell-proposals" aria-label="판매 제안">
+      <h2>
+        판매 제안 <span className="badge">{pendingCount}두</span>
+      </h2>
+      {/* 제안이 없으면 안내와 빈 상태를 한 줄로(1440×900 스크롤 없음 유지) */}
+      {rows.length === 0 ? (
+        <p className="hint">{sellProposalEmptyKo()} · {sellProposalGuideKo(autoSell)}</p>
+      ) : (<>
+        <p className="hint">{sellProposalGuideKo(autoSell)}</p>
+        <div className="table-scroll sell-proposals__scroll">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>말</th>
+                <th>세일</th>
+                <th>유보가</th>
+                <th>이유</th>
+                <th>상태</th>
+                <th>조작</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row) => (
+                <tr key={`${row.saleId}:${row.horseId}`}>
+                  <td>
+                    <HorseLink horseId={row.horseId} name={row.horseName} />
+                  </td>
+                  <td>{row.saleLabel}</td>
+                  <td>{row.reserveKo}</td>
+                  <td>{row.note}</td>
+                  <td>
+                    <span
+                      className={
+                        row.statusTone === 'plain' ? 'status-chip' : `status-chip status-chip--${row.statusTone}`
+                      }
+                    >
+                      {row.statusKo}
+                    </span>
+                  </td>
+                  <td>
+                    {row.canRemove && (
+                      <>
+                        <button type="button" className="btn" onClick={() => handleRemove(row)}>
+                          빼기
+                        </button>{' '}
+                        <button
+                          type="button"
+                          className="btn"
+                          disabled={locked}
+                          onClick={() => handleConsign(row)}
+                        >
+                          지금 위탁
+                        </button>
+                      </>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </>)}
+      <NoticeLine notice={notice} />
     </section>
   );
 }
