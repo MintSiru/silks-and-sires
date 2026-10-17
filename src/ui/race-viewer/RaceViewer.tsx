@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { JSX } from 'react';
 import type { RacePath, RaceReplay, RaceResult } from '../../engine/types';
-import { buildStripModel, replayDuration } from './viewModel';
+import { GATE_HOLD_S, buildStripModel, replayDuration } from './viewModel';
 import type { ViewerInfo } from './viewModel';
 import { drawStrip } from './stripRenderer';
 
@@ -46,9 +46,10 @@ export default function RaceViewer(props: RaceViewerProps): JSX.Element {
   const duration = useMemo(() => replayDuration(replay), [replay]);
   const [playing, setPlaying] = useState(true);
   const [speed, setSpeed] = useState<Speed>(1);
-  const [t, setT] = useState(0);
+  // τ 는 −GATE_HOLD_S(게이트 대기)에서 시작한다. 음수 구간은 첫 프레임에 머문다.
+  const [t, setT] = useState(-GATE_HOLD_S);
   // rAF 콜백은 최신 t 를 ref 로 읽고 쓴다(state 를 콜백 안에서 읽지 않기 위함)
-  const tRef = useRef(0);
+  const tRef = useRef(-GATE_HOLD_S);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const seek = (value: number): void => {
@@ -102,7 +103,7 @@ export default function RaceViewer(props: RaceViewerProps): JSX.Element {
       setPlaying(false);
       return;
     }
-    if (tRef.current >= duration) seek(0);
+    if (tRef.current >= duration) seek(-GATE_HOLD_S);
     setPlaying(true);
   };
 
@@ -112,7 +113,7 @@ export default function RaceViewer(props: RaceViewerProps): JSX.Element {
   };
 
   const restart = (): void => {
-    seek(0);
+    seek(-GATE_HOLD_S);
     setPlaying(true);
   };
 

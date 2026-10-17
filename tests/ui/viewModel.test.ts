@@ -322,10 +322,11 @@ describe('placeDiscs', () => {
   const rect = { x: 0, y: 0, w: 700, h: 200 };
   const win = { from: 40, to: 110 }; // 1m = 10px
 
-  it('겹치는 두 원판 중 뒤쪽 alpha 0.55, 앞쪽 1, progress 오름차순 반환', () => {
+  it('겹치는 두 원판 중 뒤쪽 alpha 0.55, 앞쪽 1, 그리기 순서는 레인 바깥→안쪽(같은 레인은 runnerIndex)', () => {
+    // M7-R1: 반환 순서가 progress 오름차순 → 레인 그리기 순서로 바뀌었다(떨림 방지). 같은 레인이므로 [0,1,2].
     const frame = frameWith([100, 99, 50]);
     const discs = placeDiscs(frame, win, makeInfo(), rect, 30);
-    expect(discs.map((d) => d.runnerIndex)).toEqual([2, 1, 0]);
+    expect(discs.map((d) => d.runnerIndex)).toEqual([0, 1, 2]);
     const byIndex = new Map(discs.map((d) => [d.runnerIndex, d]));
     expect(byIndex.get(1)?.alpha).toBe(0.55);
     expect(byIndex.get(0)?.alpha).toBe(1);

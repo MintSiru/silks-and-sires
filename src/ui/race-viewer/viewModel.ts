@@ -67,6 +67,31 @@ export const BOARD_COUNT = 6;
 const KMH_PER_MPS = 3.6;
 /** 음수 기호(U+2212). OR 변동 표기에 쓴다. */
 const MINUS_SIGN = '−';
+// ── 출발 대기 · 레인 분산 (UI 표시 상수, M7-R1) ────────────────────────
+/** 재생 시간 τ 의 시작점(s, 음수). 게이트에 말이 들어가 대기하는 구간이다. 근거: 사용자 요청(2026-10-12) '2~3초 대기 후 출발'. */
+export const GATE_HOLD_S = 2.5;
+/** 출발 이 시간(s) 전부터 'ready'(문 앞 정렬 완료). 그 전은 'loading'(칸 안으로 들어가는 중). */
+const GATE_READY_LEAD_S = 1.0;
+/** 문이 열리는 표시 구간(s). 출발 직후 짧게 보인다. */
+export const GATE_OPEN_FLASH_S = 0.35;
+/** 로딩 중 원판이 칸 뒤쪽(−이 값 m)에서 칸 안으로 미끄러져 들어온다. */
+const GATE_SLIDE_M = 3;
+/** 칸 y 에서 레인 y 로 옮겨 가는 시간(s). 근거: 플레이 테스트(2026-10-17) '출발 즉시 달리기 시작'을 피하려고 첫 1.5s 를 보간. */
+const START_BLEND_S = 1.5;
+/** 칸 간 세로 간격 상한(px). 원판 지름 + 2px. 칸 수가 적어도 칸 열이 띠 전체로 흩어지지 않게 한다. */
+const STALL_PITCH_PX = 2 * DISC_RADIUS + 2;
+/** 필드 폭 W(m)의 하한. 근거: 플레이 테스트(2026-10-17) 캡처에서 폭이 좁으면 원판이 전부 아래 레일에 붙었다. */
+const FIELD_MIN_SPREAD_M = 6;
+/** 필드 폭을 정하는 창의 반폭(s). 이 구간 프레임들의 최대 레인으로 W 를 정해 확대·축소가 출렁이지 않게 한다. */
+const FIELD_WINDOW_S = 1.5;
+/** 레인 이동 평균 창 길이(s) */
+const LANE_SMOOTH_S = 0.3;
+/** 레인 이동 평균 표본 수(창 안 균등 분할) */
+const LANE_SMOOTH_SAMPLES = 7;
+/** 같은 자리 판정 배수(×r). |dx|, |dy| 모두 이 값 × r 미만이면 겹친 것으로 보고 바깥 원판을 위로 민다. */
+const COLLISION_RATIO = 1.4;
+/** 플레이어 이름표와 원판 윗변 사이 간격(px) */
+const PLAYER_TAG_GAP_PX = 4;
 
 // ── 타입 ───────────────────────────────────────────────────────────────
 export interface ViewerInfo {
@@ -145,6 +170,23 @@ export interface Rect {
   h: number;
 }
 
+/** 출발 대기 화면. phase: loading(칸 안으로 들어가는 중) · ready(문 앞 정렬) · open(문 열림 표시). */
+export interface GateView {
+  phase: 'loading' | 'ready' | 'open';
+  /** 출발까지 남은 초. open 이면 0. */
+  remaining: number;
+  /** 칸 열의 x(카메라 창 기준, 출발선 progress 0) */
+  x: number;
+  /** index = draw − 1 인 칸 y. draw 1 = 내측 = 아래. */
+  stalls: number[];
+}
+
+/** 내 말의 현재 순위. behind 는 선두와의 차(마신 표기), 선두(1위)면 null. */
+export interface MyStanding {
+  position: number;
+  behind: string | null;
+}
+
 export interface StripModel {
   width: number;
   height: number;
@@ -179,6 +221,15 @@ export interface StripModel {
     courseName: string;
     finished: boolean;
   };
+  /** 출발 대기 중이면 게이트 뷰. 게이트 구간 밖(τ ≥ GATE_OPEN_FLASH_S)이면 null. */
+  gate: GateView | null;
+  /** 카메라 창 안의 펄롱 표지('5f' 식) 와 결승선 'F'. x 오름차순. center.poles 와 같은 표지에 결승선을 더한 것. */
+  poles: { x: number; label: string }[];
+  /** 플레이어 말 원판 위 이름표 자리(x·y 는 strip 좌표) */
+  playerTags: { x: number; y: number; name: string }[];
+  /** 첫 플레이어 말의 현재 순위(결승 후는 확정 순위). 플레이어 말이 없으면 null. */
+  myStanding: MyStanding | null;
+  surface: Surface;
 }
 
 // ── 리플레이 보간 ─────────────────────────────────────────────────────
@@ -292,7 +343,12 @@ function orderByProgress(progress: readonly number[], info: ViewerInfo): number[
   return idx;
 }
 
-/** 실시간 순위 상위 count 두. 착차는 직전 말과의 progress 차 / LENGTH_M. */
+/** 진행도 차(m)를 착차 문구로. 마신 환산은 LENGTH_M. */
+function marginTextOf(gapM: number): string {
+  return formatMarginKo(marginFromLengths(gapM / LENGTH_M));
+}
+
+/** 실시간 순위 상위 count 두. 착차는 직전 말과의 progress 차를 marginTextOf 로 환산한다. */
 export function liveStandings(frame: ReplayFrame, info: ViewerInfo, count = 3): StandingRow[] {
   const order = orderByProgress(frame.progress, info).slice(0, count);
   const rows: StandingRow[] = [];
@@ -301,9 +357,7 @@ export function liveStandings(frame: ReplayFrame, info: ViewerInfo, count = 3): 
     const entry = requireEntry(info, runnerIndex);
     let marginText = '선두';
     if (prevIndex !== undefined) {
-      const gap =
-        ((frame.progress[prevIndex] ?? 0) - (frame.progress[runnerIndex] ?? 0)) / LENGTH_M;
-      marginText = formatMarginKo(marginFromLengths(gap));
+      marginText = marginTextOf((frame.progress[prevIndex] ?? 0) - (frame.progress[runnerIndex] ?? 0));
     }
     rows.push({
       runnerIndex,
@@ -462,35 +516,96 @@ export function speedKmh(mps: number): number {
 }
 
 // ── 원판 배치 ─────────────────────────────────────────────────────────
+/** 출발 대기 레이아웃 입력(placeDiscs). y 는 칸 y 에서 레인 y 로 blend 만큼 보간하고, x 는 progressOffset 만큼 민다. */
+export interface StartLayout {
+  /** index = draw − 1 인 칸 y. draw 1 = 내측 = 아래. */
+  stallY: readonly number[];
+  /** 0 = 칸 y, 1 = 레인 y */
+  blend: number;
+  /** progress 에 더하는 오프셋(m). 로딩 중 칸 뒤쪽에서 들어오는 연출에 쓴다. */
+  progressOffset: number;
+}
+
+function clamp(v: number, lo: number, hi: number): number {
+  return Math.min(hi, Math.max(lo, v));
+}
+
 /**
- * 원판 배치. x 는 카메라 창 기준, y 는 lane 기준(0 = 아래쪽 내측 레일).
- * progress 오름차순으로 반환하며, 자기보다 앞쪽(progress 가 큰) 원판과 2·DISC_RADIUS 이내면 alpha 를 낮춘다.
+ * 원판 배치. x 는 카메라 창 기준, y 는 레인 기준(0 = 아래쪽 내측 레일).
+ * spreadM 은 필드 폭 W(m): 레인 m 을 띠 사용 높이의 lane / W 로 매핑한다.
+ * 같은 자리(|dx|, |dy| 모두 COLLISION_RATIO·r 미만)면 바깥 레인 원판을 위로 민다.
+ * 밀기 순서는 레인 안쪽 → 바깥(같은 레인은 runnerIndex 순)이라 결과가 결정적이다.
+ * start 가 있으면 y 를 칸 y 에서 레인 y 로 start.blend 만큼 보간한다.
+ * 반환은 그리기 순서: 레인 바깥 → 안쪽(안쪽이 위), 같은 레인은 runnerIndex 오름차순.
+ * alpha: 자기보다 앞쪽(progress 가 큰) 원판과 2·DISC_RADIUS 이내면 OVERLAP_ALPHA.
  */
 export function placeDiscs(
   frame: ReplayFrame,
   win: CameraWindow,
   info: ViewerInfo,
   rect: Rect,
-  trackWidth: number,
+  spreadM: number,
+  start?: StartLayout,
 ): DiscPlacement[] {
-  if (!(trackWidth > 0)) throw new RangeError(`trackWidth 는 0보다 커야 한다 (${trackWidth})`);
+  if (!(spreadM > 0)) throw new RangeError(`spreadM 은 0보다 커야 한다 (${spreadM})`);
   const span = win.to - win.from;
   const usableH = rect.h - 2 * DISC_RADIUS;
+  const yMin = rect.y + DISC_RADIUS;
+  const yMax = rect.y + rect.h - DISC_RADIUS;
+  const offset = start?.progressOffset ?? 0;
+  const blend = start?.blend ?? 1;
 
-  const base = frame.progress.map((p, runnerIndex) => {
+  interface Node {
+    runnerIndex: number;
+    lane: number;
+    progress: number;
+    x: number;
+    y: number;
+    /** 밀기·칸 보간 전 레인 y. 겹침 흐림(alpha) 판정에 쓴다. */
+    laneY: number;
+  }
+  const nodes: Node[] = frame.progress.map((p, runnerIndex) => {
     const lane = frame.lane[runnerIndex] ?? 0;
-    const x = rect.x + ((p - win.from) / span) * rect.w;
-    const y = rect.y + rect.h - DISC_RADIUS - (lane / trackWidth) * usableH;
-    return { runnerIndex, progress: p, x, y };
+    const progress = p + offset;
+    const x = rect.x + ((progress - win.from) / span) * rect.w;
+    const y = clamp(rect.y + rect.h - DISC_RADIUS - (lane / spreadM) * usableH, yMin, yMax);
+    return { runnerIndex, lane, progress, x, y, laneY: y };
   });
-  base.sort((a, b) => a.progress - b.progress || a.runnerIndex - b.runnerIndex);
 
+  // 겹침 줄이기: 안쪽(레인 작은 순, 같은 레인은 runnerIndex 순)부터 자리를 정하고 뒤의 바깥 원판을 위로 민다.
+  // 겹침 판정은 COLLISION_RATIO·r 로 하고, 밀어낼 때는 원판 지름(2·r)만큼 떨어뜨려 완전히 겹치지 않게 한다.
+  const detectDist = COLLISION_RATIO * DISC_RADIUS;
+  const pushDist = 2 * DISC_RADIUS;
+  const byInside = [...nodes].sort((a, b) => a.lane - b.lane || a.runnerIndex - b.runnerIndex);
+  const settled: Node[] = [];
+  for (const node of byInside) {
+    // 위로 민 자리가 다른 원판과 또 겹칠 수 있으므로 겹치지 않을 때까지 반복한다(원판 수를 넘지 않는다).
+    for (let guard = 0; guard <= nodes.length; guard++) {
+      const hit = settled.find(
+        (o) => Math.abs(o.x - node.x) < detectDist && Math.abs(o.y - node.y) < detectDist,
+      );
+      if (hit === undefined) break;
+      node.y = Math.max(yMin, hit.y - pushDist);
+    }
+    settled.push(node);
+  }
+
+  // 출발 대기: 칸 y 에서 레인 y 로 보간(blend 0 = 칸, 1 = 레인)
+  if (start !== undefined && blend < 1) {
+    for (const node of nodes) {
+      const entry = requireEntry(info, node.runnerIndex);
+      const stall = start.stallY[entry.draw - 1] ?? node.y;
+      node.y = blend <= 0 ? stall : stall + (node.y - stall) * blend;
+    }
+  }
+
+  // alpha 는 밀기 전 레인 위치로 판정한다(앞쪽 원판과 겹쳐 있던 뒤쪽 원판을 흐리게 하는 기존 규칙)
   const minDist = 2 * DISC_RADIUS;
-  return base.map((d, k) => {
-    const overlapped = base.some((o, j) => {
-      if (j <= k || !(o.progress > d.progress)) return false;
-      return Math.hypot(o.x - d.x, o.y - d.y) < minDist;
-    });
+  const drawOrder = [...nodes].sort((a, b) => b.lane - a.lane || a.runnerIndex - b.runnerIndex);
+  return drawOrder.map((d) => {
+    const overlapped = nodes.some(
+      (o) => o !== d && o.progress > d.progress && Math.hypot(o.x - d.x, o.laneY - d.laneY) < minDist,
+    );
     const entry = requireEntry(info, d.runnerIndex);
     const fill = entry.silks.primary;
     return {
@@ -620,6 +735,97 @@ function profileGeometry(
   };
 }
 
+// ── 출발 대기 · 레인 분산 (M7-R1) ─────────────────────────────────────
+/** 0~1 로 자른 뒤 smoothstep(3s²−2s³) */
+function smoothstep(v: number): number {
+  const s = clamp(v, 0, 1);
+  return s * s * (3 - 2 * s);
+}
+
+/** τ 시점의 게이트 단계. 게이트 구간 밖이면 null. */
+function gatePhaseAt(t: number): GateView['phase'] | null {
+  if (t < -GATE_READY_LEAD_S) return 'loading';
+  if (t < 0) return 'ready';
+  if (t < GATE_OPEN_FLASH_S) return 'open';
+  return null;
+}
+
+/** 칸 y → 레인 y 보간 계수(출발 전 0, START_BLEND_S 동안 0 → 1). */
+function startBlendAt(t: number): number {
+  return t <= 0 ? 0 : smoothstep(t / START_BLEND_S);
+}
+
+/** 로딩 중 progress 오프셋: 칸 뒤쪽 −GATE_SLIDE_M 에서 칸 안(0)으로 들어온다. ready 부터 0. */
+function gateSlideOffsetAt(t: number): number {
+  if (t >= -GATE_READY_LEAD_S) return 0;
+  const k = smoothstep((t + GATE_HOLD_S) / (GATE_HOLD_S - GATE_READY_LEAD_S));
+  return -GATE_SLIDE_M * (1 - k);
+}
+
+/**
+ * 칸 y 목록(index = draw − 1, draw 1 = 내측 = 아래). 간격은 STALL_PITCH_PX 이하이고 띠 가운데에 모은다.
+ */
+export function stallYs(count: number, rect: Rect): number[] {
+  const usableH = rect.h - 2 * DISC_RADIUS;
+  const pitch = count > 1 ? Math.min(STALL_PITCH_PX, usableH / (count - 1)) : 0;
+  const bottom = rect.y + rect.h / 2 + ((count - 1) * pitch) / 2;
+  return Array.from({ length: count }, (_, k) => bottom - k * pitch);
+}
+
+/**
+ * 필드 폭 W(m). 창 중심(t 를 [0, duration] 으로 자른 값)의 ±FIELD_WINDOW_S 프레임들의 최대 레인 + 1m,
+ * 하한 FIELD_MIN_SPREAD_M. 창 안 최대값을 쓰므로 프레임마다 출렁이지 않는다.
+ */
+export function fieldSpreadM(replay: RaceReplay, t: number): number {
+  const duration = replayDuration(replay);
+  const centre = t > 0 ? Math.min(t, duration) : 0;
+  let maxLane = 0;
+  for (const f of replay.frames) {
+    if (Math.abs(f.t - centre) > FIELD_WINDOW_S) continue;
+    for (const l of f.lane) {
+      if (l > maxLane) maxLane = l;
+    }
+  }
+  return Math.max(FIELD_MIN_SPREAD_M, maxLane + 1);
+}
+
+/** τ 시점 레인의 이동 평균(LANE_SMOOTH_S 창, 균등 표본). 프레임 사이는 frameAt 이 선형 보간한다. */
+export function smoothedLanes(replay: RaceReplay, t: number): number[] {
+  const half = (LANE_SMOOTH_SAMPLES - 1) / 2;
+  const samples = Array.from({ length: LANE_SMOOTH_SAMPLES }, (_, k) =>
+    frameAt(replay, t + (LANE_SMOOTH_S * (k - half)) / (LANE_SMOOTH_SAMPLES - 1)).lane,
+  );
+  const n = samples[0]?.length ?? 0;
+  return Array.from({ length: n }, (_, i) => {
+    let sum = 0;
+    for (const lane of samples) sum += lane[i] ?? 0;
+    return sum / samples.length;
+  });
+}
+
+/** 첫 플레이어 말의 현재 순위와 선두와의 차. 결승 후는 확정 순위. 플레이어 말이 없으면 null. */
+function myStandingOf(
+  frame: ReplayFrame,
+  info: ViewerInfo,
+  result: RaceResult,
+  finished: boolean,
+): MyStanding | null {
+  const me = info.entries.findIndex((e) => e.isPlayer);
+  if (me < 0) return null;
+  if (finished) {
+    const rr = result.runners.find((r) => r.runnerIndex === me);
+    if (rr === undefined) return null;
+    return { position: rr.position, behind: rr.position === 1 ? null : finalMarginText(rr) };
+  }
+  const order = orderByProgress(frame.progress, info);
+  const pos = order.indexOf(me);
+  const leader = order[0];
+  if (pos < 0 || leader === undefined) return null;
+  if (pos === 0) return { position: 1, behind: null };
+  const gap = (frame.progress[leader] ?? 0) - (frame.progress[me] ?? 0);
+  return { position: pos + 1, behind: marginTextOf(gap) };
+}
+
 // ── 모델 ──────────────────────────────────────────────────────────────
 function gradeBadgeOf(grade: RaceGrade | null): string | null {
   if (grade === null) return null;
@@ -653,9 +859,29 @@ export function buildStripModel(args: {
     h: height,
   };
   const win = cameraWindow(frame, distance);
-  const discs = placeDiscs(frame, win, info, rect, path.width);
   const winSpan = win.to - win.from;
   const xOf = (progress: number): number => rect.x + ((progress - win.from) / winSpan) * rect.w;
+
+  // 출발 대기 + 레인 분산: τ<0 은 칸에서 대기, τ 가 0 을 지나면 START_BLEND_S 동안 칸 y 에서 레인 y 로 옮긴다.
+  const stalls = stallYs(info.entries.length, rect);
+  const discs = placeDiscs(
+    { t: frame.t, progress: frame.progress, lane: smoothedLanes(replay, t), speed: frame.speed },
+    win,
+    info,
+    rect,
+    fieldSpreadM(replay, t),
+    { stallY: stalls, blend: startBlendAt(t), progressOffset: gateSlideOffsetAt(t) },
+  );
+  const gatePhase = gatePhaseAt(t);
+  const gate: GateView | null =
+    gatePhase === null
+      ? null
+      : {
+          phase: gatePhase,
+          remaining: gatePhase === 'open' ? 0 : Math.max(0, -t),
+          x: xOf(0),
+          stalls,
+        };
 
   const poles: { x: number; label: string }[] = [];
   for (let k = 1; ; k++) {
@@ -686,6 +912,15 @@ export function buildStripModel(args: {
     photoRace === null ? third.finishTime : Math.max(third.finishTime, photoRace.t0 + PHOTO_HOLD_S);
   const boardOn = frame.t >= boardAt;
 
+  const finishLabel = finishX === null ? [] : [{ x: finishX, label: 'F' }];
+  const playerTags = discs
+    .filter((d) => d.isPlayer)
+    .map((d) => ({
+      x: d.x,
+      y: d.y - DISC_RADIUS - PLAYER_TAG_GAP_PX,
+      name: horseNameOf(info, d.runnerIndex),
+    }));
+
   return {
     width,
     height,
@@ -715,5 +950,10 @@ export function buildStripModel(args: {
       courseName: info.courseName,
       finished,
     },
+    gate,
+    poles: [...poles, ...finishLabel].sort((a, b) => a.x - b.x),
+    playerTags,
+    myStanding: myStandingOf(frame, info, result, finished),
+    surface: info.surface,
   };
 }
