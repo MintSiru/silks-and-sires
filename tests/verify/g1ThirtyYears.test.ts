@@ -4,6 +4,17 @@ import { dirname, resolve } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 import { EVENT_LOG_LIMIT, START_YEAR, WEEKS_PER_YEAR } from '../../src/engine/config/game';
 import {
+  CHRONICLE_WORLD_YEARS,
+  FAMILY_MIN_BLACK_TYPE_WINNERS,
+  FAMILY_MIN_GROUP_WINNERS,
+  LINE_MIN_FOUNDER_GROUP_WINNERS,
+  LINE_MIN_STUD_SONS,
+  LINE_MIN_TOTAL_GROUP_WINNERS,
+} from '../../src/engine/config/legacy';
+import { RIVAL_MAX_ACTIVE } from '../../src/engine/config/rivals';
+import { dynastyGoals } from '../../src/engine/legacy/goals';
+import { familyCandidates, lineCandidates, type FamilyCandidate, type LineCandidate } from '../../src/engine/legacy/lines';
+import {
   getNamingData,
   getNicks,
   getPeopleData,
@@ -28,11 +39,15 @@ import {
 import { bootstrapGame, type BootstrapData } from '../../src/engine/state/bootstrap';
 import { createGameSystems, type GameStaticData } from '../../src/engine/state/systems';
 import type {
+  ChronicleEntry,
+  ChronicleKind,
   DistanceProfile,
+  DynastyGoalProgress,
   GameDate,
   GameEvent,
   GameState,
   RaceResult,
+  RivalReason,
   SaleKind,
   SeriesDefinition,
   StudRole,
@@ -45,6 +60,8 @@ import type {
  * G1_OUT 이 없으면 건너뛴다. 이 테스트는 무결성(예외·NaN·음수 두수·파산 중단)만 단언하고,
  * 밸런스 판정 1~6 은 JSON 의 judgements 에 적어 리포트가 ✅/❌ 로 옮긴다(프로젝트 관례: season.test.ts 와 같다).
  * 게임 정적 데이터는 UI(src/ui/game/useGame.ts)와 같이 sales 를 포함한다.
+ * M5-G(docs/m5-plan.md): 연별 row.m5 에 연대기·부계/명문 모계·라이벌·왕조 목표·명성·M5 필드 바이트를 기록하고,
+ * 판정 (a)~(e) 는 JSON 의 m5Judgements 에 적는다. 측정 전용이라 엔진을 바꾸지 않는다.
  */
 
 /* ------------------------------------------------------------------ */
@@ -52,6 +69,8 @@ import type {
 /* ------------------------------------------------------------------ */
 
 const G1_OUT = process.env.G1_OUT;
+/** 대조 실험 전용(M5-G 원인 확인): 쉼표로 적은 주 시스템 id 를 뺀다. 비워 두면 전체 시스템(기본 측정) */
+const G1_SKIP_SYSTEMS = (process.env.G1_SKIP_SYSTEMS ?? '').split(',').map((s) => s.trim()).filter((s) => s !== '');
 const SEED = 20261011;
 const SILKS = { primary: '#1d4e89', secondary: '#ffd23f', pattern: 'hoops' } as const;
 const PLAYER_NAME = '가상 마주';
@@ -61,6 +80,20 @@ const DEFAULT_YEARS = 30;
 const LONG_RUN_YEAR_FOR_RATIO = 30;
 const BASE_YEAR_FOR_RATIO = 5;
 const HORSE_RATIO_BASE_YEAR = 10;
+
+/** M5-G 판정 기준(docs/m5-plan.md). 연대기 상한·저장 비중·라이벌 활성 범위는 엔진 상수와 같은 값을 쓴다 */
+const M5_CHRONICLE_MAX = 5000;
+const M5_SHARE_MAX = 0.05;
+const M5_RIVAL_MIN = 0;
+const M5_RIVAL_MAX = RIVAL_MAX_ACTIVE;
+const M5_TOP_CANDIDATES = 3;
+
+const CHRONICLE_KINDS: readonly ChronicleKind[] = [
+  'first_runner', 'first_win', 'first_group_win', 'group_win', 'g1_win', 'classic_win',
+  'series_champion', 'laurel_award', 'leading_title', 'sire_line_established', 'female_family_established',
+  'homebred_stallion', 'record_sale', 'rival_declared', 'rival_clash', 'world_classic',
+];
+const RIVAL_REASONS: readonly RivalReason[] = ['same_tier', 'big_race', 'sale_battle'];
 
 /** 판정 기준 */
 const INFLATION_MIN = 0.67;
@@ -233,6 +266,13 @@ interface Collector {
   entrants: EntrantRec[];
   weekMs: Map<number, number[]>;
   unknownSaleEvents: number;
+  /** M5: 연도별 관측 주 중 활성 라이벌 수의 최댓값(매주 관측) */
+  rivalMaxByYear: Map<number, number>;
+  rivalWeeksObserved: number;
+  /** M5: 활성 라이벌이 상한을 넘긴 주 수(판정 (d)) */
+  rivalWeeksOver: number;
+  /** M5: 연도별 rival_clash 이벤트 수(이벤트의 날짜 연도 기준) */
+  clashByYear: Map<number, number>;
 }
 
 function newCollector(initial: GameState): Collector {
@@ -247,6 +287,10 @@ function newCollector(initial: GameState): Collector {
     entrants: [],
     weekMs: new Map(),
     unknownSaleEvents: 0,
+    rivalMaxByYear: new Map(),
+    rivalWeeksObserved: 0,
+    rivalWeeksOver: 0,
+    clashByYear: new Map(),
   };
 }
 
@@ -363,6 +407,18 @@ function observeStallions(c: Collector, state: GameState): void {
   }
 }
 
+/** M5: 매주 활성 라이벌 수를 보고 rival_clash 이벤트를 연도별로 센다(주 처리 직후 호출) */
+function observeRivalsWeek(c: Collector, state: GameState, year: number, events: readonly GameEvent[]): void {
+  const active = (state.rivals ?? []).filter((rival) => rival.active).length;
+  c.rivalWeeksObserved++;
+  if (active > M5_RIVAL_MAX || active < M5_RIVAL_MIN) c.rivalWeeksOver++;
+  c.rivalMaxByYear.set(year, Math.max(c.rivalMaxByYear.get(year) ?? 0, active));
+  for (const ev of events) {
+    if (ev.type !== 'rival_clash') continue;
+    c.clashByYear.set(ev.date.year, (c.clashByYear.get(ev.date.year) ?? 0) + 1);
+  }
+}
+
 /* ------------------------------------------------------------------ */
 /* 연말 정산 기본 제출 (tests/engine/yearEnd.test.ts 의 submission 과 같다) */
 /* ------------------------------------------------------------------ */
@@ -425,10 +481,178 @@ function mergeSaleAggs(list: readonly SaleAgg[]): SaleAgg {
   return out;
 }
 
+/** M5 후보 한 줄: 조건에 얼마나 가까운지(score 0~1, 모든 조건을 채우면 1) 와 원자료 */
+interface CandidateView {
+  id: string;
+  score: number;
+  established: boolean;
+  raw: Record<string, number | boolean>;
+}
+
+/**
+ * M5 연별 지표. 행 L 은 L년 전 주를 처리한 뒤(L+1년 1주 진행 전) 상태다.
+ * 연도 귀속: 연대기·라이벌 맞대결·확립 계통은 날짜 연도가 L 인 것을 센다(legacy 는 연초 1주에 L 로 기록).
+ */
+interface M5Row {
+  chronicle: {
+    total: number;
+    player: number;
+    world: number;
+    /** 날짜 연도가 L 인 항목 수 */
+    addedYear: number;
+    byKind: Record<string, number>;
+    /** 목록(CHRONICLE_KINDS)에 없는 kind 수(0 이어야 한다) */
+    unlistedKinds: number;
+  };
+  legacy: {
+    lines: { cum: number; new: number; playerBredCum: number; playerBredNew: number };
+    families: { cum: number; new: number; playerBredCum: number; playerBredNew: number };
+    familyTallyKeys: number;
+    lineTop: CandidateView[];
+    familyTop: CandidateView[];
+    /** 판정 근거 풀 크기(lineCandidates·familyCandidates 길이). 상위 3 목록이 3 미만이면 풀 자체가 작다 */
+    linePool: number;
+    familyPool: number;
+    /** 암말(sex female) 전체를 상태별로 센 수(진단: 명문 모계 후보 풀 구성) */
+    femaleByStatus: Record<string, number>;
+  };
+  /** 플레이어 소유 말의 상태별 수(진단: 그룹 레이스 맞대결이 끊긴 이유) */
+  playerHorsesByStatus: Record<string, number>;
+  rivals: {
+    active: number;
+    cumulative: number;
+    byReason: Record<string, number>;
+    activeByReason: Record<string, number>;
+    /** 이번 해 매주 관측한 활성 라이벌 수의 최댓값 */
+    maxActiveYear: number;
+    /** 이번 해 rival_clash 이벤트 수 */
+    clashYear: number;
+  };
+  reputation: number;
+  dynasty: { done: number; goals: DynastyGoalProgress[] };
+  bytes: { chronicle: number; legacy: number; rivals: number; m5: number; save: number; m5Share: number | null };
+}
+
+/** 근거 점수: 조건별 달성 비율(상한 1)의 평균. 부계 3조건, 명문 모계 2조건 */
+function lineScore(c: LineCandidate): number {
+  const frac = (v: number, min: number): number => Math.min(1, v / min);
+  return (frac(c.sons, LINE_MIN_STUD_SONS) + frac(c.founderGroupWinners, LINE_MIN_FOUNDER_GROUP_WINNERS)
+    + frac(c.groupWinners, LINE_MIN_TOTAL_GROUP_WINNERS)) / 3;
+}
+
+function familyScore(c: FamilyCandidate): number {
+  const frac = (v: number, min: number): number => Math.min(1, v / min);
+  return (frac(c.blackTypeWinners, FAMILY_MIN_BLACK_TYPE_WINNERS) + frac(c.groupWinners, FAMILY_MIN_GROUP_WINNERS)) / 2;
+}
+
+function compareDesc(a: number, b: number): number {
+  return b - a;
+}
+
+function statusCounts(horses: readonly { status: string }[]): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const h of horses) out[h.status] = (out[h.status] ?? 0) + 1;
+  return out;
+}
+
+function m5Snapshot(state: GameState, label: number, c: Collector, saveBytes: number): M5Row {
+  const entries: ChronicleEntry[] = state.chronicle ?? [];
+  const kindCount = new Map<string, number>();
+  for (const e of entries) kindCount.set(e.kind, (kindCount.get(e.kind) ?? 0) + 1);
+  const byKind = Object.fromEntries(CHRONICLE_KINDS.map((k) => [k, kindCount.get(k) ?? 0]));
+  const player = entries.filter((e) => e.player).length;
+
+  const lines = state.legacy?.lines ?? [];
+  const families = state.legacy?.families ?? [];
+  const rivals = state.rivals ?? [];
+
+  const lineRows = lineCandidates(state);
+  const lineEstablished = new Set(lines.map((l) => l.founderId));
+  const lineTop = lineRows
+    .map((cand) => ({ cand, score: lineScore(cand) }))
+    .sort((a, b) => compareDesc(a.score, b.score) || compareDesc(a.cand.groupWinners, b.cand.groupWinners)
+      || (a.cand.founderId < b.cand.founderId ? -1 : a.cand.founderId > b.cand.founderId ? 1 : 0))
+    .slice(0, M5_TOP_CANDIDATES)
+    .map(({ cand, score }): CandidateView => ({
+      id: cand.founderId,
+      score,
+      established: lineEstablished.has(cand.founderId),
+      raw: { sons: cand.sons, founderGroupWinners: cand.founderGroupWinners, groupWinners: cand.groupWinners, eligible: cand.eligible },
+    }));
+
+  const familyRows = familyCandidates(state);
+  const familyEstablished = new Set(families.map((f) => f.founderMareId));
+  const familyTop = familyRows
+    .map((cand) => ({ cand, score: familyScore(cand) }))
+    .sort((a, b) => compareDesc(a.score, b.score) || compareDesc(a.cand.groupWinners, b.cand.groupWinners)
+      || (a.cand.founderMareId < b.cand.founderMareId ? -1 : a.cand.founderMareId > b.cand.founderMareId ? 1 : 0))
+    .slice(0, M5_TOP_CANDIDATES)
+    .map(({ cand, score }): CandidateView => ({
+      id: cand.founderMareId,
+      score,
+      established: familyEstablished.has(cand.founderMareId),
+      raw: { blackTypeWinners: cand.blackTypeWinners, groupWinners: cand.groupWinners, eligible: cand.eligible },
+    }));
+
+  const goals = dynastyGoals(state, { templates: STATIC_GAME.templates });
+  const enc = (v: unknown): number => (v === undefined ? 0 : new TextEncoder().encode(JSON.stringify(v)).length);
+  const bytes = {
+    chronicle: enc(state.chronicle),
+    legacy: enc(state.legacy),
+    rivals: enc(state.rivals),
+  };
+  const m5Bytes = bytes.chronicle + bytes.legacy + bytes.rivals;
+
+  return {
+    chronicle: {
+      total: entries.length,
+      player,
+      world: entries.length - player,
+      addedYear: entries.filter((e) => e.date.year === label).length,
+      byKind,
+      unlistedKinds: entries.filter((e) => !CHRONICLE_KINDS.includes(e.kind)).length,
+    },
+    legacy: {
+      lines: {
+        cum: lines.length,
+        new: lines.filter((l) => l.establishedYear === label).length,
+        playerBredCum: lines.filter((l) => l.playerBred).length,
+        playerBredNew: lines.filter((l) => l.establishedYear === label && l.playerBred).length,
+      },
+      families: {
+        cum: families.length,
+        new: families.filter((f) => f.establishedYear === label).length,
+        playerBredCum: families.filter((f) => f.playerBred).length,
+        playerBredNew: families.filter((f) => f.establishedYear === label && f.playerBred).length,
+      },
+      familyTallyKeys: Object.keys(state.legacy?.familyTally ?? {}).length,
+      lineTop,
+      familyTop,
+      linePool: lineRows.length,
+      familyPool: familyRows.length,
+      femaleByStatus: statusCounts(Object.values(state.horses).filter((h) => h.sex === 'female')),
+    },
+    playerHorsesByStatus: statusCounts(Object.values(state.horses).filter((h) => h.ownerId === state.playerOwnerId)),
+    rivals: {
+      active: rivals.filter((r) => r.active).length,
+      cumulative: rivals.length,
+      byReason: Object.fromEntries(RIVAL_REASONS.map((reason) => [reason, rivals.filter((r) => r.reason === reason).length])),
+      activeByReason: Object.fromEntries(RIVAL_REASONS.map((reason) => [reason,
+        rivals.filter((r) => r.active && r.reason === reason).length])),
+      maxActiveYear: c.rivalMaxByYear.get(label) ?? 0,
+      clashYear: c.clashByYear.get(label) ?? 0,
+    },
+    reputation: state.relations.reputation,
+    dynasty: { done: goals.filter((g) => g.done).length, goals },
+    bytes: { ...bytes, m5: m5Bytes, save: saveBytes, m5Share: share(m5Bytes, saveBytes) },
+  };
+}
+
 interface YearRow {
   year: number;
   /** 연차(1부터) */
   n: number;
+  m5: M5Row;
   funds: {
     aiCount: number;
     aiMedian: number | null;
@@ -504,6 +728,7 @@ function snapshotYear(state: GameState, label: number, c: Collector, n: number):
 
   const t = c.weekMs.get(label) ?? [];
   const saveJson = serializeGame(state, SAVED_AT);
+  const saveBytes = new TextEncoder().encode(saveJson).length;
 
   const nhPlayerYear = c.nhPlayer.get(label);
   return {
@@ -558,12 +783,13 @@ function snapshotYear(state: GameState, label: number, c: Collector, n: number):
     profileMs: { ...profileByYear.get(label), cloneAndDispatch: t.reduce((a, b) => a + b, 0)
       - Object.values(profileByYear.get(label) ?? {}).reduce((a, b) => a + b, 0) },
     breederFlows: { ...breederFlows.get(label) },
+    m5: m5Snapshot(state, label, c, saveBytes),
     perf: {
       advanceMsMedian: median(t),
       weeks: t.length,
       advanceMsTotal: t.reduce((acc, x) => acc + x, 0),
       advanceMsMax: t.length === 0 ? 0 : Math.max(...t),
-      saveBytes: new TextEncoder().encode(saveJson).length,
+      saveBytes,
       saveChars: saveJson.length,
     },
   };
@@ -593,12 +819,13 @@ interface RunOutcome {
   totalMs: number;
   initialBalances: { ai: number; breeders: number; player: number };
   races: Map<number, RaceAgg>;
+  m5Rivals: { maxByYear: Map<number, number>; clashByYear: Map<number, number>; weeksObserved: number; weeksOver: number };
 }
 
 function runYears(years: number): RunOutcome {
   profileByYear.clear();
   breederFlows.clear();
-  const systems = createGameSystems(STATIC_GAME).map((system) => ({
+  const systems = createGameSystems(STATIC_GAME).filter((system) => !G1_SKIP_SYSTEMS.includes(system.id)).map((system) => ({
     id: system.id,
     run: (draft: GameState, ctx: Parameters<typeof system.run>[1]) => {
       const breederBefore = system.id === 'sales' || system.id === 'capital'
@@ -627,6 +854,7 @@ function runYears(years: number): RunOutcome {
     player: state.owners[state.playerOwnerId]!.funds,
   };
   const collector = newCollector(state);
+  observeRivalsWeek(collector, state, START_YEAR, []);
   const rows: YearRow[] = [];
   const errors: string[] = [];
   const totalWeeks = years * WEEKS_PER_YEAR;
@@ -677,6 +905,7 @@ function runYears(years: number): RunOutcome {
     observeSales(collector, state);
     observeNhPlayer(collector, state);
     observeStallions(collector, state);
+    observeRivalsWeek(collector, state, processed.year, advanced.events);
 
     const labelled = state.date.year - 1;
     if (state.date.week === 1 && labelled >= START_YEAR && labelled - START_YEAR === rows.length) {
@@ -689,7 +918,9 @@ function runYears(years: number): RunOutcome {
       }
       process.stdout.write(
         `[G1] ${labelled}년 끝: AI 중앙값 ${row.funds.aiMedian?.toFixed(0) ?? '-'} · 플레이어 ${row.funds.playerFunds} · `
-        + `말 ${row.horses.total} · 저장 ${row.perf.saveBytes}B · 주당 누적 ${row.perf.advanceMsTotal.toFixed(0)}ms\n`,
+        + `말 ${row.horses.total} · 저장 ${row.perf.saveBytes}B · 주당 누적 ${row.perf.advanceMsTotal.toFixed(0)}ms · `
+        + `연대기 ${row.m5.chronicle.total} · 부계 ${row.m5.legacy.lines.cum} · 명문 모계 ${row.m5.legacy.families.cum} · `
+        + `라이벌 ${row.m5.rivals.active}\n`,
       );
     }
   }
@@ -707,6 +938,12 @@ function runYears(years: number): RunOutcome {
     totalMs: performance.now() - t0,
     initialBalances,
     races: collector.races,
+    m5Rivals: {
+      maxByYear: collector.rivalMaxByYear,
+      clashByYear: collector.clashByYear,
+      weeksObserved: collector.rivalWeeksObserved,
+      weeksOver: collector.rivalWeeksOver,
+    },
   };
 }
 
@@ -839,6 +1076,127 @@ function judge(out: RunOutcome, years: number): { judgements: Judgement[]; deriv
   return { judgements, derived };
 }
 
+interface M5Judgement {
+  id: string;
+  name: string;
+  pass: boolean | null;
+  /** ✅ / ❌ / 조건 재검토 필요 / 측정 불가 */
+  verdict: string;
+  detail: string;
+}
+
+function verdictOf(pass: boolean | null, reviewWhenNull: boolean): string {
+  if (pass === true) return '✅';
+  if (pass === false) return '❌';
+  return reviewWhenNull ? '조건 재검토 필요' : '측정 불가';
+}
+
+function fmtCands(list: readonly CandidateView[]): string {
+  if (list.length === 0) return '후보 없음';
+  return list.map((c) => `${c.id}(근거 ${c.score.toFixed(2)}${c.established ? ', 확립' : ''})`).join(', ');
+}
+
+/**
+ * M5 판정 (a)~(e). (a) 는 판정 1·6 과 같은 무결성, (c) 는 연도별 비중의 최댓값으로 본다(어느 해도 5% 이하).
+ * (e) 는 '0개면 ❌ 가 아니라 조건 재검토 필요'(docs/m5-plan.md 지시): 0개일 때 가장 가까운 후보를 적는다.
+ * 연수가 30 미만이면 30년차 기준 판정은 측정 불가로 둔다.
+ */
+function judgeM5(out: RunOutcome, years: number, derived: Record<string, number | null>): M5Judgement[] {
+  const rows = out.years;
+  const at = (n: number): YearRow | undefined => rows[n - 1];
+  const row30 = at(LONG_RUN_YEAR_FOR_RATIO);
+  const last = rows[rows.length - 1];
+  const enough = years >= LONG_RUN_YEAR_FOR_RATIO;
+  const maxOf = (xs: readonly number[]): number | null => (xs.length === 0 ? null : Math.max(...xs));
+
+  // (a) 예외 없음
+  const aPass = out.errors.length === 0 && out.halted === null && rows.length === years;
+
+  // (b) 연대기 30년차 ≤ 5,000
+  const chron30 = row30?.m5.chronicle.total ?? null;
+  const chronMax = maxOf(rows.map((r) => r.m5.chronicle.total));
+  derived.m5ChronicleTotal30 = chron30;
+  derived.m5ChronicleTotalMax = chronMax;
+  const bPass = chron30 === null ? null : chron30 <= M5_CHRONICLE_MAX;
+
+  // (c) M5 필드(chronicle·legacy·rivals) 바이트 비중 ≤ 5% (모든 연도 최댓값)
+  const shareList = rows.flatMap((r) => (r.m5.bytes.m5Share === null ? [] : [r.m5.bytes.m5Share]));
+  const shareMax = maxOf(shareList);
+  const share30 = row30?.m5.bytes.m5Share ?? null;
+  derived.m5ShareAt30 = share30;
+  derived.m5ShareMax = shareMax;
+  const cPass = shareMax === null ? null : shareMax <= M5_SHARE_MAX;
+
+  // (d) 라이벌 활성 수 매주 0~2 (관측 주 기준)
+  const maxActive = maxOf([...out.m5Rivals.maxByYear.values()]);
+  derived.m5RivalMaxActive = maxActive;
+  const dPass = maxActive === null || out.m5Rivals.weeksObserved === 0
+    ? null
+    : maxActive >= M5_RIVAL_MIN && maxActive <= M5_RIVAL_MAX && out.m5Rivals.weeksOver === 0;
+
+  // (e-1) 부계 확립 1개 이상, (e-2) 명문 모계 1개 이상 (30년 중 어느 해든)
+  const lineMax = maxOf(rows.map((r) => r.m5.legacy.lines.cum));
+  const familyMax = maxOf(rows.map((r) => r.m5.legacy.families.cum));
+  derived.m5LineCumMax = lineMax;
+  derived.m5FamilyCumMax = familyMax;
+  const e1Pass = lineMax !== null && lineMax >= 1 ? true : null;
+  const e2Pass = familyMax !== null && familyMax >= 1 ? true : null;
+  const lineNear = fmtCands(last?.m5.legacy.lineTop ?? []);
+  const familyNear = fmtCands(last?.m5.legacy.familyTop ?? []);
+
+  const m5Dynasty = row30?.m5.dynasty.done ?? null;
+  derived.m5DynastyDone30 = m5Dynasty;
+
+  return [
+    {
+      id: 'a',
+      name: '30년 동안 예외 없음',
+      pass: aPass,
+      verdict: verdictOf(aPass, false),
+      detail: `예외 ${out.errors.length}건, 파산·중단 ${out.halted ?? '없음'}, 연수 ${rows.length}/${years}`,
+    },
+    {
+      id: 'b',
+      name: '연대기 30년차 ≤ 5,000 항목',
+      pass: bPass,
+      verdict: verdictOf(bPass, false),
+      detail: `30년차 ${chron30 ?? '-'}항목 (연도 중 최댓값 ${chronMax ?? '-'}); `
+        + `플레이어 ${row30?.m5.chronicle.player ?? '-'} · 세계 ${row30?.m5.chronicle.world ?? '-'} (세계 항목 보존 ${CHRONICLE_WORLD_YEARS}년)`,
+    },
+    {
+      id: 'c',
+      name: '저장 크기 중 M5 필드(chronicle·legacy·rivals) 비중 ≤ 5%',
+      pass: cPass,
+      verdict: verdictOf(cPass, false),
+      detail: `비중 30년차 ${fmtPct(share30)}, 연도 중 최댓값 ${fmtPct(shareMax)}; `
+        + `30년차 바이트 연대기 ${row30?.m5.bytes.chronicle ?? '-'} · 부계·모계 ${row30?.m5.bytes.legacy ?? '-'} · 라이벌 ${row30?.m5.bytes.rivals ?? '-'} / 저장 ${row30?.m5.bytes.save ?? '-'}`,
+    },
+    {
+      id: 'd',
+      name: '라이벌 활성 수 매주 0~2',
+      pass: dPass,
+      verdict: verdictOf(dPass, false),
+      detail: `활성 라이벌 연도별 최댓값 ${maxActive ?? '-'}; 상한 초과 주 ${out.m5Rivals.weeksOver}/${out.m5Rivals.weeksObserved}주`,
+    },
+    {
+      id: 'e-1',
+      name: '부계 확립 30년 중 1개 이상',
+      pass: e1Pass,
+      verdict: verdictOf(e1Pass, enough),
+      detail: `확립 누적 최댓값 ${lineMax ?? '-'}; 근거 상위 ${M5_TOP_CANDIDATES}: ${lineNear}`
+        + (e1Pass === null && enough ? ' — 0개: 조건(아들 3·직계 그룹 우승 3·합산 8) 재검토 필요' : ''),
+    },
+    {
+      id: 'e-2',
+      name: '명문 모계 30년 중 1개 이상',
+      pass: e2Pass,
+      verdict: verdictOf(e2Pass, enough),
+      detail: `확립 누적 최댓값 ${familyMax ?? '-'}; 근거 상위 ${M5_TOP_CANDIDATES}: ${familyNear}`
+        + (e2Pass === null && enough ? ' — 0개: 조건(3대 블랙타입 5·그룹 1) 재검토 필요' : ''),
+    },
+  ];
+}
+
 function fmtRatio(x: number | null): string {
   return x === null ? '측정 불가' : x.toFixed(3);
 }
@@ -910,6 +1268,7 @@ describe('M4-G1 30년 자동 진행 측정', () => {
       writeFileSync(progress, '');
       const out = runYears(years);
       const { judgements, derived } = judge(out, years);
+      const m5Judgements = judgeM5(out, years, derived);
 
       const nonFinite: string[] = [];
       nonFinitePaths(out.years, 'years', nonFinite);
@@ -929,6 +1288,7 @@ describe('M4-G1 30년 자동 진행 측정', () => {
           seed: SEED,
           difficulty: 'normal',
           startType: 'owner_breeder',
+          skippedSystems: G1_SKIP_SYSTEMS,
           economyMode: final?.economy.mode ?? null,
           years,
           weeksPerYear: WEEKS_PER_YEAR,
@@ -953,6 +1313,14 @@ describe('M4-G1 30년 자동 진행 측정', () => {
         },
         derived,
         judgements,
+        // M5-G(docs/m5-plan.md): 판정 (a)~(e). 기존 판정 1~6 과 따로 적는다
+        m5Judgements,
+        m5Rivals: {
+          weeksObserved: out.m5Rivals.weeksObserved,
+          weeksOver: out.m5Rivals.weeksOver,
+          maxActiveByYear: Object.fromEntries([...out.m5Rivals.maxByYear].map(([y, n]) => [String(y), n])),
+          clashByYear: Object.fromEntries([...out.m5Rivals.clashByYear].map(([y, n]) => [String(y), n])),
+        },
         integrity: {
           errors: out.errors,
           halted: out.halted,
