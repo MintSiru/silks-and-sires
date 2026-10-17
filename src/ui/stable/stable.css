@@ -1,0 +1,137 @@
+/* M6-U4 마구간: 열 폭 고정, 다음 출주 두 줄, 최근 5전 착순 띠, 탭 줄 오른쪽 검색.
+   app.css 의 전역 규칙과 겹치지 않도록 .stable-table 아래에 더 구체적인 선택자를 쓴다. */
+
+.stable-search {
+  flex: 0 0 220px;
+  width: 220px;
+  margin: 0 0 8px;
+}
+
+.table-scroll.stable-scroll {
+  max-height: min(560px, calc(100dvh - 300px));
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.stable-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.stable-table thead th {
+  white-space: nowrap;
+}
+
+/* 셀 여백 8px: 열 폭(width)은 여백을 뺀 내용 폭이라 합계가 패널 폭(약 1220px)을 넘지 않게 맞춘다 */
+.data-table.stable-table th,
+.data-table.stable-table td {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.stable-table .stable-col--name { width: 128px; overflow: hidden; text-overflow: ellipsis; }
+.stable-table .stable-col--age { width: 80px; }
+.stable-table .stable-col--status { width: 76px; }
+.stable-table .stable-col--overall { width: 56px; }
+.stable-table .stable-col--condition { width: 76px; }
+.stable-table .stable-col--form { width: 172px; }
+.stable-table tbody td.stable-col--form { min-width: 0; }
+.stable-table .stable-col--or { width: 48px; }
+.stable-table .stable-col--trainer { width: 112px; }
+.stable-table .stable-col--next { width: 244px; }
+.stable-table .stable-col--warn { width: auto; min-width: 96px; }
+
+.stable-table tbody td.stable-col--name,
+.stable-table tbody th.stable-col--name {
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.stable-table tbody td.stable-col--next {
+  white-space: normal;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.stable-table tbody td.stable-col--warn {
+  white-space: normal;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.stable-trainer {
+  display: block;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 18px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* 최근 5전 착순 띠: 1~3착 색 강조(토큰은 app.css 의 등급 색과 같은 계열) */
+.form-band {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
+}
+
+.form-band__item {
+  min-width: 24px;
+  padding: 1px 3px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface-raised);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.form-band__item--top {
+  color: var(--grade-top-fg);
+  background: var(--grade-top-bg);
+  border-color: rgba(253, 224, 71, 0.4);
+}
+
+.form-band__item--high {
+  color: var(--grade-high-fg);
+  background: var(--grade-high-bg);
+  border-color: rgba(96, 165, 250, 0.4);
+}
+
+/* 다음 출주 두 줄 */
+.next-race {
+  display: block;
+  min-width: 0;
+}
+
+.next-race__line1,
+.next-race__line2,
+.next-race__text {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+}
+
+.next-race__line1 .badge {
+  margin-left: 4px;
+  vertical-align: baseline;
+}
+
+.next-race__line2 {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.next-race__text {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 18px;
+}

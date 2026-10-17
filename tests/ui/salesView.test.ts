@@ -25,6 +25,8 @@ import {
   liveAuctionView,
   saleCalendarRows,
 } from '../../src/ui/sales/salesView';
+import { nearestSaleKey } from '../../src/ui/sales/salesLayoutView';
+import { formatDateKo } from '../../src/engine/time/calendar';
 
 const SEED = 20261011;
 const YEAR = START_YEAR;
@@ -263,6 +265,72 @@ describe('위탁 가능 말', () => {
     if (!result.ok) return;
     const after = consignableRows(result.state, DATA).find((r) => r.horseId === horseId);
     expect(after?.consignedSaleName).toBe(event.name);
+  });
+});
+
+describe('세일 화면 행: 발표 전 로트 숨김·위탁 마감 (M6-U8)', () => {
+  it('발표 전이지만 카탈로그가 있는 세일은 상태가 발표 전이고 로트 수를 주지 않는다', () => {
+    const event = earliestOf('yearling');
+    const state = runSalesAt(fresh(), { year: YEAR, week: announceWeekOf(event) });
+    state.date = { year: YEAR, week: announceWeekOf(event) };
+    expect(state.sales.catalogues.some((c) => c.saleId === event.id && c.year === YEAR)).toBe(true);
+    const row = saleCalendarRows(state, DATA).find((r) => r.saleId === event.id);
+    expect(row).toMatchObject({ status: 'upcoming', statusKo: '발표 전', lots: null });
+    expect(row?.consignLastWeek).toBe(announceWeekOf(event) - 1);
+  });
+
+  it('위탁 옵션의 마감은 발표 주 전 주이고, 위탁한 뒤에는 같은 마감이 취소 마감으로 붙는다', () => {
+    const state = fresh();
+    state.date = { year: YEAR, week: 1 };
+    const horseId = playerHorseIds(state)[0];
+    if (horseId === undefined) throw new Error('테스트 전제 위반: 플레이어 말 없음');
+    const horse = state.horses[horseId];
+    if (horse === undefined) throw new Error('테스트 전제 위반: 말 없음');
+    horse.birthYear = YEAR - 1;
+    horse.status = 'yearling';
+    horse.sex = 'male';
+    horse.gelded = false;
+
+    const before = consignableRows(state, DATA).find((r) => r.horseId === horseId);
+    const option = before?.options[0];
+    if (before === undefined || option === undefined) throw new Error('테스트 전제 위반: 위탁 옵션 없음');
+    const event = SALES.events.find((e) => e.id === option.saleId);
+    if (event === undefined) throw new Error('테스트 전제 위반: 세일 없음');
+    expect(option.deadlineKo).toBe(`${formatDateKo({ year: YEAR, week: announceWeekOf(event) - 1 })}까지`);
+    expect(before.consignedDeadlineKo).toBeNull();
+
+    const result = consignToSale(state, horseId, event.id, null, DATA);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const after = consignableRows(result.state, DATA).find((r) => r.horseId === horseId);
+    expect(after?.consignedDeadlineKo).toBe(option.deadlineKo);
+  });
+
+  it('카탈로그에 올라간 뒤에는 취소 마감이 없다(카탈로그 등록)', () => {
+    const event = earliestOf('yearling');
+    const state = announced(event);
+    const lot = catalogueRows(state, event.id, YEAR, DATA)[0];
+    expect(lot).toBeDefined();
+    const rows = consignableRows(state, DATA);
+    expect(rows.every((r) => r.consignedDeadlineKo === null)).toBe(true);
+  });
+
+  it('시작 상태에서 자동 선택 세일은 발표 전 세일이다(카탈로그가 아직 없다)', () => {
+    const rows = saleCalendarRows(BASE, DATA);
+    const key = nearestSaleKey(rows, BASE.date);
+    expect(key).not.toBeNull();
+    const row = rows.find((r) => r.saleId === key?.saleId && r.year === key?.year);
+    expect(row?.status).toBe('upcoming');
+  });
+
+  it('카탈로그가 열린 뒤 자동 선택 세일은 로트가 보이는 세일이다', () => {
+    const event = earliestOf('yearling');
+    const state = announced(event);
+    const rows = saleCalendarRows(state, DATA);
+    const key = nearestSaleKey(rows, state.date);
+    const row = rows.find((r) => r.saleId === key?.saleId && r.year === key?.year);
+    expect(row?.status).not.toBe('upcoming');
+    expect(row?.lots).not.toBeNull();
   });
 });
 

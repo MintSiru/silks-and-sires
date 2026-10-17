@@ -1,0 +1,152 @@
+/* M6-U4 말 상세: 개요(한 줄 총평·칩·컨디션 말), 전적 요약·표, 기록 단일 타임라인.
+   app.css 의 전역 규칙과 겹치지 않도록 더 구체적인 선택자를 쓴다. */
+
+/* 개요 */
+.horse-detail .overview-lead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+}
+
+.horse-detail .overview-lead .badge {
+  margin-left: 0;
+}
+
+.horse-detail .fact-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.horse-detail .fact-chips li {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 2px 10px;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.horse-detail .fact-chips strong {
+  margin-right: 4px;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.horse-detail .overview-notes {
+  margin: 0 0 8px;
+  padding-left: 1.2em;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.horse-detail .overview-notes li {
+  margin: 2px 0;
+}
+
+/* 컨디션: 말이 먼저, 수치는 작게 */
+.horse-detail .condition-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  margin: 0 0 4px;
+}
+
+.horse-detail .condition-line small {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* 조교사 변경 작은 폼(폭 320px) */
+.horse-detail .trainer-form {
+  box-sizing: border-box;
+  width: 320px;
+  max-width: 100%;
+  margin: 0 0 12px;
+  padding: 12px;
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.horse-detail .trainer-form .field {
+  margin: 0;
+}
+
+.horse-detail .trainer-form .actions {
+  gap: 8px;
+}
+
+/* 전적 */
+.horse-detail .record-summary {
+  margin: 0 0 8px;
+}
+
+.horse-detail .record-scroll {
+  max-height: min(360px, calc(100dvh - 380px));
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.horse-detail .record-table td small {
+  display: block;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 18px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.horse-detail .record-table td {
+  vertical-align: middle;
+}
+
+/* 기록: 단일 타임라인(최신순) */
+.horse-detail .horse-timeline-scroll {
+  max-height: min(380px, calc(100dvh - 360px));
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.horse-detail ol.horse-timeline > li {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: baseline;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  overflow-wrap: anywhere;
+}
+
+.horse-detail ol.horse-timeline > li time {
+  color: var(--text-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.horse-detail ol.horse-timeline .badge {
+  margin-left: 0;
+}
+
+.horse-detail .ops-log {
+  margin-top: 12px;
+}
+
+.horse-detail .ops-log > summary {
+  padding: 6px 0;
+  color: var(--text-muted);
+  font-weight: 600;
+}

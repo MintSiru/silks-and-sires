@@ -17,6 +17,7 @@ import {
 } from '../../engine/sales/bidding';
 import { announceWeekOf, type SalesStaticData } from '../../engine/sales/system';
 import { estimateRange } from '../../engine/sales/valuation';
+import type { UpcomingSale } from '../../engine/sales/player';
 import { ageInYear, formatDateKo, monthOfWeek } from '../../engine/time/calendar';
 import type {
   CountryCode,
@@ -53,10 +54,15 @@ export interface SaleCalendarRow {
   kindKo: string;
   /** 세일 시작 주의 월. 예: '8월' */
   monthKo: string;
+  /** 카탈로그가 공개되는 주(후원 등급 반영). 화면에서는 '발표 예정 주'로 쓴다 */
   announceWeek: number;
   saleWeek: number;
   statusKo: string;
-  /** 카탈로그가 없으면 null */
+  /** 일정 상태(발표 전·카탈로그 발표·마감). 발표 전이면 카탈로그가 있어도 로트를 감춘다 */
+  status: UpcomingSale['status'];
+  /** 위탁 마감 주(발표 주 전 주, 세일 연도 기준). 1 미만이면 마감 없음 */
+  consignLastWeek: number;
+  /** 카탈로그가 없거나 발표 전(아직 안 보임)이면 null */
   lots: number | null;
   myBids: number;
   myConsignments: number;
@@ -117,6 +123,8 @@ export interface ConsignOption {
   name: string;
   kindKo: string;
   announceWeek: number;
+  /** 위탁 마감 문구. 예: '2026년 6월 2주까지' */
+  deadlineKo: string;
 }
 
 export interface ConsignableRow {
@@ -124,6 +132,8 @@ export interface ConsignableRow {
   horseName: string;
   /** 이미 위탁했거나 카탈로그에 올라간 세일 이름. 없으면 null */
   consignedSaleName: string | null;
+  /** 위탁 중(카탈로그 전)인 말의 취소 마감 문구. 카탈로그에 올라갔거나 위탁이 없으면 null */
+  consignedDeadlineKo: string | null;
   options: ConsignOption[];
 }
 
@@ -205,7 +215,7 @@ function myBidOf(state: GameState, saleId: string, year: number, lotNo: number):
 /** 세일 캘린더 행. 세일 일정(saleCalendarView)에 회사명·카탈로그 로트 수를 붙인다. */
 export function saleCalendarRows(state: GameState, data: SalesStaticData): SaleCalendarRow[] {
   return saleCalendarView(state, data).map((entry) => {
-    const { event, year } = entry;
+    const { event, year, status } = entry;
     const company = companyNameOf(data, event.companyId);
     const catalogue = findCatalogue(state, event.id, year);
     return {
@@ -218,8 +228,11 @@ export function saleCalendarRows(state: GameState, data: SalesStaticData): SaleC
       monthKo: `${monthOfWeek(event.week)}월`,
       announceWeek: entry.announceWeek,
       saleWeek: event.week,
-      statusKo: saleStatusKo(entry.status),
-      lots: catalogue === undefined ? null : catalogue.lots.length,
+      statusKo: saleStatusKo(status),
+      status,
+      consignLastWeek: announceWeekOf(event) - 1,
+      // 발표 전이면 카탈로그가 이미 있어도 아직 보이지 않으므로 로트 수를 주지 않는다
+      lots: catalogue === undefined || status === 'upcoming' ? null : catalogue.lots.length,
       myBids: entry.myBidCount,
       myConsignments: entry.myConsignmentCount,
     };
@@ -349,9 +362,27 @@ function consignedSaleNameOf(state: GameState, data: SalesStaticData, horseId: H
   return catalogue === undefined ? null : saleNameOf(data, catalogue.saleId);
 }
 
+/** 위탁 마감 문구: '2026년 6월 2주까지'. 주 번호가 1 미만이면 '—' */
+function deadlineKoOf(year: number, week: number): string {
+  return week < 1 ? EMPTY_KO : `${formatDateKo({ year, week })}까지`;
+}
+
+/**
+ * 위탁 중(카탈로그 전)인 말의 취소 마감 문구. 발표 주 전 주까지 취소할 수 있다.
+ * 카탈로그에 올라간 말이나 위탁이 없는 말이면 null.
+ */
+function consignedDeadlineOf(state: GameState, data: SalesStaticData, horseId: HorseId): string | null {
+  const consignment = state.sales.consignments.find((c) => c.horseId === horseId);
+  if (consignment === undefined) return null;
+  const event = data.sales?.events.find((e) => e.id === consignment.saleId);
+  if (event === undefined) return null;
+  return deadlineKoOf(consignment.year, announceWeekOf(event) - 1);
+}
+
 /**
  * 플레이어 말마다 올해 출품 가능한 미발표 세일 목록. 조건: 발표 주가 이번 주보다 뒤(위탁 가능)이고 fitsKind 가 참.
  * 이미 위탁했거나 카탈로그에 올라간 말은 consignedSaleName 에 그 세일 이름을 넣는다.
+ * 각 세일 옵션의 deadlineKo 는 위탁 마감 주(발표 주 전 주), consignedDeadlineKo 는 위탁 중인 말의 취소 마감이다.
  */
 export function consignableRows(state: GameState, data: SalesStaticData): ConsignableRow[] {
   const events = data.sales?.events ?? [];
@@ -369,12 +400,14 @@ export function consignableRows(state: GameState, data: SalesStaticData): Consig
         name: e.name,
         kindKo: saleKindKo(e.kind),
         announceWeek: announceWeekOf(e),
+        deadlineKo: deadlineKoOf(year, announceWeekOf(e) - 1),
       }))
       .sort(compareOptions);
     return {
       horseId: horse.id,
       horseName: displayName(state, horse),
       consignedSaleName: consignedSaleNameOf(state, data, horse.id),
+      consignedDeadlineKo: consignedDeadlineOf(state, data, horse.id),
       options,
     };
   });

@@ -9,20 +9,9 @@ import HorseNamingPanel from '../breeding/HorseNamingPanel';
 import PedigreeView from '../breeding/PedigreeView';
 import { pedigreeNameOf } from '../breeding/pedigreeNames';
 import { bookStatusOf, fertilityKo, mareBookingKo } from '../breeding/bookView';
+import { GradeBadge, PositionBadge, StatusBadge } from '../common/Badge';
 import { useWeightUnit } from '../game/WeightUnitContext';
-import {
-  assignTrainerErrorKo,
-  coatColourKo,
-  commentText,
-  conformationLabelKo,
-  distanceHintKo,
-  feeKo,
-  growthKo,
-  gradeTextColor,
-  sexKo,
-  statusKo,
-  type ConformationKey,
-} from '../game/text';
+import { assignTrainerErrorKo, coatColourKo, feeKo, sexKo, statusKo } from '../game/text';
 import { formatWeight } from '../game/units';
 import type { GameApi } from '../game/useGame';
 import ReplayPanel from '../season/ReplayPanel';
@@ -32,9 +21,52 @@ import HorseEventText from './HorseEventText';
 import HorseLink, { HorseNavigation, type HorseTab } from './HorseLink';
 import InjuryBlock from './InjuryBlock';
 import RacePlanPanel from './RacePlanPanel';
-import { HORSE_TAB_LABELS, horseEvents, horsePedigree, horseRunRows, horseTabs } from './horseDetailView';
-import { horseChronicleRows, horseLegacyBadges } from '../legacy/legacyView';
-import { ChronicleList } from '../legacy/LegacyScreen';
+import {
+  HORSE_TAB_LABELS,
+  RECENT_RUN_COUNT,
+  conditionOf,
+  formSummaryKo,
+  horsePedigree,
+  horseRunRows,
+  horseTabs,
+  horseTimeline,
+  overviewOf,
+  recentRuns,
+  type TimelineItem,
+} from './horseDetailView';
+import { horseLegacyBadges } from '../legacy/legacyView';
+import './horse.css';
+
+/** 기록 타임라인 한 줄의 본문. 연대기는 문장, 말 관점 출주는 '착순 — 경주명', 나머지는 이벤트 문장. */
+function TimelineText({ item }: { item: TimelineItem }) {
+  if (item.kind === 'milestone') return <>{item.text ?? ''}</>;
+  if (item.kind === 'race' && item.race) {
+    const { position, fieldSize, raceName } = item.race;
+    if (position === null) return <>출주 — {raceName}</>;
+    return (
+      <>
+        <PositionBadge position={position} fieldSize={fieldSize ?? undefined} /> — {raceName}
+      </>
+    );
+  }
+  return item.event ? <HorseEventText event={item.event} /> : null;
+}
+
+function TimelineList({ items, className }: { items: TimelineItem[]; className: string }) {
+  return (
+    <ol className={className}>
+      {items.map((item) => (
+        <li key={item.key}>
+          <time>{item.dateLabel}</time>
+          <span className="horse-timeline__text">
+            <TimelineText item={item} />
+          </span>
+          {item.kind === 'milestone' && <span className="badge badge--grade-top">주요 순간</span>}
+        </li>
+      ))}
+    </ol>
+  );
+}
 
 export default function HorseDetail({
   game,
@@ -51,6 +83,7 @@ export default function HorseDetail({
 }) {
   const [tab, setTab] = useState<HorseTab>(initialTab);
   const [trainerId, setTrainerId] = useState('');
+  const [trainerOpen, setTrainerOpen] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [injuryError, setInjuryError] = useState<InjuryError | null>(null);
   const [replay, setReplay] = useState<string | null>(null);
@@ -74,17 +107,21 @@ export default function HorseDetail({
   const tabs = horseTabs(horse);
   const activeTab = tabs.includes(tab) ? tab : 'overview';
   const assessment = assessForPlayer(state, horseId);
+  const overview = overviewOf(assessment);
+  const condition = conditionOf(horse);
   const pedigree = horsePedigree(state, horse);
   const owner = horse.ownerId ? state.owners[horse.ownerId] : undefined;
   const nameOf = (id: string) => pedigreeNameOf(state, id);
   const mare = state.mares[horseId];
   const stallion = state.stallions[horseId];
   const runs = horseRunRows(state, horseId);
-  const events = horseEvents(state, horseId);
-  const chronicle = horseChronicleRows(state, horseId, nameOf);
+  const recent = recentRuns(state, horseId, RECENT_RUN_COUNT);
+  const timeline = horseTimeline(state, horseId, nameOf);
   const legacyBadges = horseLegacyBadges(state, horseId);
   const health = playerHorses(state).find((h) => h.id === horseId);
   const offspring = state.sireStats[horseId];
+  const canChangeTrainer = owned && ['in_training', 'resting', 'yearling'].includes(horse.status);
+  const trainerName = horse.trainerId ? (state.trainers[horse.trainerId]?.name ?? '—') : '미배정';
   return (
     <dialog
       ref={panel}
@@ -111,12 +148,66 @@ export default function HorseDetail({
         </button>
       </div>
       <p className="horse-detail__meta">
-        <span className={`status-chip status-chip--${horse.condition.injury ? 'danger' : 'good'}`}>
-          {statusKo(horse.status)}
+        <StatusBadge tone={horse.condition.injury ? 'danger' : 'good'} label={statusKo(horse.status)} />
+        <span>
+          조교사 {trainerName}
+          {canChangeTrainer && (
+            <>
+              {' '}
+              <button
+                type="button"
+                className="link-btn"
+                aria-expanded={trainerOpen}
+                onClick={() => setTrainerOpen((open) => !open)}
+              >
+                변경
+              </button>
+            </>
+          )}
         </span>
-        <span>조교사 {horse.trainerId ? (state.trainers[horse.trainerId]?.name ?? '—') : '미배정'}</span>
         <span>OR {horse.officialRating ?? '미부여'}</span>
       </p>
+      {canChangeTrainer && trainerOpen && (
+        <section className="trainer-form" aria-label="조교사 변경">
+          <label className="field">
+            조교사
+            <select value={trainerId} disabled={locked} onChange={(e) => setTrainerId(e.target.value)}>
+              <option value="">조교사 선택</option>
+              {trainerChoices(state, horseId).map((t) => (
+                <option key={t.id} value={t.id} disabled={t.full}>
+                  {t.name} ({t.load}/{t.capacity}두){t.full ? ' · 만원' : ''}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className="actions">
+            <button
+              type="button"
+              className="btn"
+              disabled={locked || !trainerId}
+              onClick={() => {
+                const r = game.assignTrainer(horseId, trainerId);
+                if (r.ok) {
+                  setTrainerOpen(false);
+                  setNotice('조교사를 바꿨습니다.');
+                } else {
+                  setNotice(assignTrainerErrorKo(r.error));
+                }
+              }}
+            >
+              조교사 맡기기
+            </button>
+            <button type="button" className="btn" onClick={() => setTrainerOpen(false)}>
+              닫기
+            </button>
+          </div>
+        </section>
+      )}
+      {notice && (
+        <p role="status" className="hint">
+          {notice}
+        </p>
+      )}
       <nav className="tabs" aria-label="말 상세 탭">
         {tabs.map((t) => (
           <button
@@ -138,38 +229,54 @@ export default function HorseDetail({
           <>
             <section>
               <h3>능력·적성 해설</h3>
-              <ul className="ability-chips">
-                {(
-                  ['overall', 'frame', 'hindquarters', 'legs', 'action', 'temperament'] as ConformationKey[]
-                ).map((k) => (
-                  <li key={k}>
-                    {conformationLabelKo(k)} <span className="grade-badge" style={{ color: gradeTextColor(assessment.conformation[k]) }}>{assessment.conformation[k]}</span>
-                  </li>
-                ))}
-              </ul>
-              <ul className="comments">
-                {assessment.comments.map((c, i) => (
-                  <li className={`comment comment--${c.tone}`} key={i}>
-                    {commentText(c, `${assessment.horseId}|${assessment.year}|${assessment.week}|${c.key}`)}
-                  </li>
-                ))}
-              </ul>
-              <p>
-                거리 힌트 {distanceHintKo(assessment.distanceHint)} · 성장 {growthKo(assessment.growthHint)}
+              <p className="overview-lead">
+                종합 <GradeBadge grade={overview.grade} />
+                {overview.lead !== null ? (
+                  <span>— {overview.lead}</span>
+                ) : (
+                  <span className="hint">해설이 아직 없습니다.</span>
+                )}
               </p>
+              <ul className="fact-chips" aria-label="적성과 성장">
+                <li>
+                  <strong>적성 거리</strong> {overview.distanceKo}
+                </li>
+                <li>
+                  <strong>성장형</strong> {overview.growthKo}
+                </li>
+              </ul>
+              <ul className="overview-notes">
+                {overview.details.map((d) => (
+                  <li key={d.key}>
+                    {d.label} {d.grade}
+                  </li>
+                ))}
+                {overview.notes.map((n, i) => (
+                  <li key={i} className={`comment comment--${n.tone}`}>
+                    {n.text}
+                  </li>
+                ))}
+              </ul>
             </section>
             <section>
               <h3>컨디션·피로</h3>
-              <div className="condition-grid">
-                <label>
-                  컨디션 <meter min="0" max="100" value={horse.condition.fitness} />{' '}
-                  {Math.round(horse.condition.fitness)}%
-                </label>
-                <label>
-                  피로 <meter min="0" max="100" value={horse.condition.fatigue} />{' '}
-                  {Math.round(horse.condition.fatigue)}%
-                </label>
-              </div>
+              <p className="condition-line">
+                <StatusBadge tone={condition.tone} label={condition.label} />
+                <span>
+                  컨디션 <strong>{condition.fitnessWord}</strong>
+                </span>
+                <span>
+                  피로 <strong>{condition.fatigueWord}</strong>
+                </span>
+                <small>
+                  준비도 {Math.round(condition.fitness)}% · 피로 {Math.round(condition.fatigue)}%
+                </small>
+              </p>
+              <p className="hint">
+                {condition.reasons.length > 0
+                  ? condition.reasons.join(' · ')
+                  : '컨디션과 피로 모두 출주 기준 안입니다.'}
+              </p>
               {horse.condition.injury && (
                 <InjuryBlock
                   injury={injuryViewOf(horse.condition.injury)}
@@ -201,34 +308,6 @@ export default function HorseDetail({
             {owned && horse.nameRegistered === false && (
               <HorseNamingPanel game={game} horse={horse} locked={locked} />
             )}
-            {owned && ['in_training', 'resting', 'yearling'].includes(horse.status) && (
-              <section>
-                <h3>조교사 바꾸기</h3>
-                <label className="field">
-                  조교사
-                  <select value={trainerId} disabled={locked} onChange={(e) => setTrainerId(e.target.value)}>
-                    <option value="">조교사 선택</option>
-                    {trainerChoices(state, horseId).map((t) => (
-                      <option key={t.id} value={t.id} disabled={t.full}>
-                        {t.name} ({t.load}/{t.capacity}두){t.full ? ' · 만원' : ''}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <button
-                  type="button"
-                  className="btn"
-                  disabled={locked || !trainerId}
-                  onClick={() => {
-                    const r = game.assignTrainer(horseId, trainerId);
-                    setNotice(r.ok ? '조교사를 바꿨습니다.' : assignTrainerErrorKo(r.error));
-                  }}
-                >
-                  조교사 맡기기
-                </button>
-                {notice && <p role="status">{notice}</p>}
-              </section>
-            )}
           </>
         )}
         {activeTab === 'plan' &&
@@ -240,31 +319,21 @@ export default function HorseDetail({
         {activeTab === 'record' && (
           <section>
             <h3>전적</h3>
-            <p>
-              {horse.record.starts}전 {horse.record.wins}승 · 누적 상금 {feeKo(horse.record.earnings)}
+            <p className="record-summary">
+              <strong>{formSummaryKo(recent)}</strong>
+              <span>
+                {' '}
+                · 통산 {horse.record.starts}전 {horse.record.wins}승 · 누적 상금 {feeKo(horse.record.earnings)}
+              </span>
             </p>
             {runs.length === 0 ? (
               <p className="empty-state">보관된 출주 기록이 없습니다.</p>
             ) : (
-              <div className="table-scroll">
-                <table className="data-table">
+              <div className="table-scroll record-scroll">
+                <table className="data-table record-table">
                   <thead>
                     <tr>
-                      {[
-                        '날짜',
-                        '경마장',
-                        '레이스',
-                        '등급',
-                        '거리',
-                        '마장',
-                        '착순/두수',
-                        '착차',
-                        '기수',
-                        '부담중량',
-                        'OR 전후',
-                        '상금',
-                        '결과',
-                      ].map((c) => (
+                      {['날짜', '착순', '경주', '조건', '상금'].map((c) => (
                         <th key={c}>{c}</th>
                       ))}
                     </tr>
@@ -273,24 +342,29 @@ export default function HorseDetail({
                     {runs.map((r) => (
                       <tr key={r.key}>
                         <td>{r.date}</td>
-                        <td>{r.course}</td>
-                        <td>{r.name}</td>
-                        <td>{r.grade}</td>
-                        <td>{r.distance}</td>
-                        <td>{r.going}</td>
-                        <td>{r.placing}</td>
-                        <td>{r.margin}</td>
-                        <td>{r.jockey}</td>
-                        <td>{formatWeight(r.weight, unit)}</td>
-                        <td>{r.rating}</td>
-                        <td>{r.prize}</td>
                         <td>
+                          <PositionBadge position={r.position} fieldSize={r.fieldSize} />
+                          <small>{r.margin}</small>
+                        </td>
+                        <td>
+                          <GradeBadge grade={r.gradeBadge} /> {r.name}
+                          <small>
+                            {r.course} · 기수 {r.jockey} · {formatWeight(r.weight, unit)} · OR {r.rating}
+                          </small>
                           {r.replayKey && (
-                            <button type="button" className="link-btn" onClick={() => setReplay(r.replayKey)}>
+                            <button
+                              type="button"
+                              className="link-btn"
+                              onClick={() => setReplay(r.replayKey)}
+                            >
                               다시보기
                             </button>
                           )}
                         </td>
+                        <td title={r.goingTitle}>
+                          {r.distance} · {r.going}
+                        </td>
+                        <td>{r.prize}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -302,30 +376,38 @@ export default function HorseDetail({
         )}
         {activeTab === 'pedigree' && (
           <section>
-            <h3>5대 혈통</h3>
-            {legacyBadges.length > 0 && <div className="legacy-badges">
-              {legacyBadges.map((label) => <span className="status-chip status-chip--good" key={label}>{label}</span>)}
-            </div>}
-            <p>{pedigree.summary}</p>
-            <PedigreeView root={pedigree.root} nameOf={nameOf} />
+            <h3>혈통</h3>
+            {legacyBadges.length > 0 && (
+              <div className="legacy-badges">
+                {legacyBadges.map((label) => (
+                  <span className="status-chip status-chip--good" key={label}>
+                    {label}
+                  </span>
+                ))}
+              </div>
+            )}
+            <PedigreeView root={pedigree.root} nameOf={nameOf} nick={pedigree.nick} />
           </section>
         )}
         {activeTab === 'events' && (
           <section>
             <h3>이 말의 기록</h3>
-            {events.length === 0 && chronicle.length === 0 && <p className="empty-state">아직 기록이 없습니다.</p>}
-            {chronicle.length > 0 && <>
-              <h4>연대기</h4>
-              <div className="table-scroll"><ChronicleList rows={chronicle} /></div>
-            </>}
-            {events.length > 0 && <h4>최근 이벤트</h4>}
-            <ol className="event-list">
-              {events.map((e, i) => (
-                <li key={i}>
-                  <HorseEventText event={e} />
-                </li>
-              ))}
-            </ol>
+            {timeline.items.length === 0 && timeline.ops.length === 0 && (
+              <p className="empty-state">아직 기록이 없습니다.</p>
+            )}
+            {timeline.items.length > 0 && (
+              <div className="horse-timeline-scroll">
+                <TimelineList items={timeline.items} className="legacy-timeline horse-timeline" />
+              </div>
+            )}
+            {timeline.ops.length > 0 && (
+              <details className="ops-log">
+                <summary>운영 로그 {timeline.ops.length}건 (출주 신청·건너뜀·교배 예약)</summary>
+                <div className="horse-timeline-scroll">
+                  <TimelineList items={timeline.ops} className="horse-timeline horse-timeline--ops" />
+                </div>
+              </details>
+            )}
           </section>
         )}
         {activeTab === 'breeding' && (

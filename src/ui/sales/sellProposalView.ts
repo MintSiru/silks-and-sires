@@ -70,6 +70,11 @@ export function sellProposalErrorKo(error: RemoveProposalError | ConsignProposal
   return consignErrorKo(error);
 }
 
+/** 검토 대기 두수(빼기·지금 위탁이 가능한 제안). 칸 머리 숫자에 쓴다. */
+export function sellProposalPendingCount(rows: readonly SellProposalRow[]): number {
+  return rows.filter((row) => row.canRemove).length;
+}
+
 /** 판매 제안 행 목록. 말이 없는 제안은 뺀다. 입력 state 는 바꾸지 않는다. */
 export function sellProposalRows(state: GameState, data: SalesStaticData): SellProposalRow[] {
   const autoSell = state.settings.autoSell !== false;

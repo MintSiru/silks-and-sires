@@ -8,6 +8,7 @@ import {
   sellProposalEmptyKo,
   sellProposalErrorKo,
   sellProposalGuideKo,
+  sellProposalPendingCount,
   sellProposalRows,
   sellStatusKo,
 } from '../../src/ui/sales/sellProposalView';
@@ -155,6 +156,23 @@ describe('판매 제안 칸 행', () => {
     expect(first!.horseName.localeCompare(second!.horseName, 'ko')).toBeLessThanOrEqual(0);
     expect(state).toEqual(before);
     expect(sellProposalRows(state, SALES)).toEqual(rows);
+  });
+});
+
+describe('판매 제안 머리 숫자 (M6-U8)', () => {
+  it('검토 대기 두수는 빼기·지금 위탁이 가능한 제안만 센다', () => {
+    const state = structuredClone(base);
+    const ids = playerHorseIds(state);
+    const [saleId] = twoSaleEvents();
+    if (ids.length < 3) throw new Error('플레이어 말 부족');
+    state.sales.sellProposals = [
+      { horseId: ids[0]!, saleId: saleId!, year: 2026, reserve: null, note: '', status: 'proposed' },
+      { horseId: ids[1]!, saleId: saleId!, year: 2026, reserve: null, note: '', status: 'consigned' },
+      { horseId: ids[2]!, saleId: saleId!, year: 2026, reserve: null, note: '플레이어가 뺌', status: 'skipped' },
+    ];
+    const rows = sellProposalRows(state, SALES);
+    expect(sellProposalPendingCount(rows)).toBe(1);
+    expect(sellProposalPendingCount([])).toBe(0);
   });
 });
 

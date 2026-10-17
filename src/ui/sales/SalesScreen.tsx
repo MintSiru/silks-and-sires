@@ -1,49 +1,32 @@
+import { Fragment, useEffect, useMemo, useRef, useState, type JSX } from 'react';
+import { StatusBadge } from '../common/Badge';
+import { statusTone } from '../common/badges';
 import HorseLink from '../horse/HorseLink';
-import { nearSaleCalendar } from './salesLayoutView';
-import { parentageOf } from '../breeding/pedigreeNames';
-import type { JSX } from 'react';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { getSalesData, getSireLines } from '../../engine/data/staticData';
 import { displayName } from '../../engine/naming/register';
-import { bidIncrement } from '../../engine/sales/auction';
-import { liveAuctionSteps } from '../../engine/sales/bidding';
-import { eligibleInspectors, inspectLot } from '../../engine/sales/inspection';
 import { canSellToNhStore, nhStoreOpen } from '../../engine/sales/nhStore';
-import { inspectOfferHorse } from '../../engine/sales/privateTrade';
-import type { SalesStaticData } from '../../engine/sales/system';
 import { nhStoreQuote } from '../../engine/stud/nh';
-import { ageInYear, compareDates, formatDateKo } from '../../engine/time/calendar';
-import type { Assessment, GameState, HorseId, Money, SaleEventDef } from '../../engine/types';
-import HorseCard from '../breeding/HorseCard';
+import { compareDates } from '../../engine/time/calendar';
+import type { GameState } from '../../engine/types';
 import {
-  bidErrorKo,
-  bidMinimumKo,
-  clearBidErrorKo,
   consignErrorKo,
   consignWithdrawErrorKo,
   countryKo,
   feeKo,
-  inspectErrorKo,
-  inspectNoneKo,
-  liveClosedKo,
-  liveFinalNoticeKo,
   nhStoreErrorKo,
   privateOfferErrorKo,
-  saleAnnounceKo,
-  saleStatusKo,
 } from '../game/text';
 import type { GameApi } from '../game/useGame';
 import {
   sellProposalEmptyKo,
   sellProposalErrorKo,
   sellProposalGuideKo,
+  sellProposalPendingCount,
   sellProposalRows,
   type SellProposalRow,
 } from './sellProposalView';
 import {
   catalogueRows,
   consignableRows,
-  liveAuctionView,
   lotDetailView,
   patronBadge,
   privateOfferRows,
@@ -51,53 +34,34 @@ import {
   type CatalogueFilter,
   type ConsignableRow,
   type LotDetailView,
+  type SaleCalendarRow,
 } from './salesView';
+import {
+  defaultSalesTab,
+  nearSaleCalendar,
+  nearestSaleKey,
+  patronProgressView,
+  saleScheduleNoticeKo,
+  saleSubLineKo,
+  type SaleKey,
+  type SalesTab,
+} from './salesLayoutView';
+import { InspectBox, LotDetail } from './SalesLotDetail';
+import { NO_VALUE, NoticeLine, SALES_DATA, eventOf, type Notice } from './salesCommon';
+import { useFillHeight } from './useFillHeight';
+import './sales.css';
 
-/** 세일 정적 데이터(useGame 과 같은 원천). 화면은 세일 이름·호가·북 정보만 쓴다. */
-const SALES_DATA: SalesStaticData = { sales: getSalesData() };
-/** 계통 id → 계통 표시명 */
-const SIRE_LINE_LABEL: ReadonlyMap<string, string> = new Map(
-  getSireLines().map((line) => [line.id, line.label]),
-);
-/** 값이 없을 때 칸을 채우는 표기 */
-const NO_VALUE = '—';
+export { LotDetail };
+
 /** 북 선택 상자의 '전체' 값 */
 const ALL_BOOKS = 'all';
-/** 실시간 보기 첫 단계 번호. 화면 연출 값(밸런스 아님) */
-const FIRST_STEP = 1;
-/** 실시간 보기 한 단계 표시 간격(ms). 화면 연출 값(밸런스 아님) */
-const LIVE_STEP_MS = 400;
-
-interface Notice {
-  tone: 'ok' | 'error';
-  text: string;
-}
-
-/** 화면에서 고른 세일(saleId + 카탈로그 연도) */
-interface SaleKey {
-  saleId: string;
-  year: number;
-}
-
-function eventOf(saleId: string): SaleEventDef | undefined {
-  return SALES_DATA.sales?.events.find((e) => e.id === saleId);
-}
-
-function lineLabelOf(sireLineId: string | null): string {
-  if (sireLineId === null) return NO_VALUE;
-  return SIRE_LINE_LABEL.get(sireLineId) ?? sireLineId;
-}
-
-function NoticeLine({ notice }: { notice: Notice | null }): JSX.Element | null {
-  if (notice === null) return null;
-  return (
-    <p className={`notice notice--${notice.tone}`} role="status">
-      {notice.text}
-    </p>
-  );
-}
-
-// ── 화면 진입점 ─────────────────────────────────────────────────
+/** 화면 아래 여백(px). app.css 의 .shell-main 아래 패딩과 맞춘다. 칸 높이는 창 아래 끝에서 이만큼 뺀다. */
+const SALES_BOTTOM_GAP = 16;
+/** 하위 탭 순서와 문구. 기본 탭은 salesLayoutView.defaultSalesTab 이 고른다. */
+const SALES_TABS: readonly (readonly [SalesTab, string])[] = [
+  ['buy', '구매'],
+  ['sell', '판매'],
+];
 
 interface SalesScreenProps {
   game: GameApi;
@@ -124,12 +88,102 @@ interface SalesViewProps {
   locked: boolean;
 }
 
+/** 구매 탭 필터: 북 · 부 이름 · 내 입찰만 */
+interface BuyFilters {
+  book: string;
+  query: string;
+  onlyMine: boolean;
+}
+
+const EMPTY_FILTERS: BuyFilters = { book: ALL_BOOKS, query: '', onlyMine: false };
+
+/** 세일 화면 뼈대: 후원 등급 한 줄, 구매/판매 하위 탭. 탭을 바꿔도 고른 세일과 필터는 남는다. */
 function SalesView({ game, state, locked }: SalesViewProps): JSX.Element {
+  const [tabPick, setTabPick] = useState<SalesTab | null>(null);
   const [picked, setPicked] = useState<SaleKey | null>(null);
+  const [filters, setFilters] = useState<BuyFilters>(EMPTY_FILTERS);
+  const calendar = useMemo(() => saleCalendarRows(state, SALES_DATA), [state]);
+  const sellRows = useMemo(() => sellProposalRows(state, SALES_DATA), [state]);
+  const consignRows = useMemo(() => consignableRows(state, SALES_DATA), [state]);
+  const tab: SalesTab = tabPick ?? defaultSalesTab(sellRows.length);
+  // 고른 세일이 없으면 가장 가까운 열람 가능 세일(없으면 가장 가까운 발표 전 세일)
+  const active: SaleKey | null = picked ?? nearestSaleKey(calendar, state.date);
+  const badge = patronBadge(state);
+  const progress = patronProgressView(state);
+  // 상단 바 높이가 바뀌어도 화면이 창 아래 끝에 맞도록 칸 높이를 잰다
+  const screenRef = useRef<HTMLElement>(null);
+  const fillHeight = useFillHeight(screenRef, SALES_BOTTOM_GAP);
+
+  return (
+    <section
+      aria-label="세일"
+      className="sales-screen"
+      ref={screenRef}
+      style={fillHeight === null ? undefined : { height: fillHeight }}
+    >
+      <div className="sales-head">
+        <h2>세일</h2>
+        <span className={progress.badgeClass} title={`후원 혜택: ${badge.benefitsKo.join(' · ')}`}>
+          후원 {progress.tierKo}
+        </span>
+        <div className="sales-tier">
+          <span className="sales-tier__next">{progress.nextKo}</span>
+          <span
+            className="sales-tier__bar"
+            role="progressbar"
+            aria-label="후원 등급 진행"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={progress.percent}
+          >
+            <span style={{ width: `${progress.percent}%` }} />
+          </span>
+          <span className="sales-tier__spend">최근 2년 구매 {progress.spendKo}</span>
+        </div>
+      </div>
+      <nav className="tabs sales-tabs" aria-label="세일 구분">
+        {SALES_TABS.map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            className={`tab${tab === id ? ' tab--active' : ''}`}
+            aria-pressed={tab === id}
+            onClick={() => setTabPick(id)}
+          >
+            {label}
+          </button>
+        ))}
+      </nav>
+      {tab === 'buy' ? (
+        <BuyTab
+          game={game}
+          state={state}
+          locked={locked}
+          calendar={calendar}
+          active={active}
+          onPick={setPicked}
+          filters={filters}
+          onFilters={setFilters}
+        />
+      ) : (
+        <SellTab game={game} state={state} locked={locked} sellRows={sellRows} consignRows={consignRows} />
+      )}
+    </section>
+  );
+}
+
+// ── 구매 탭: 일정 · 카탈로그 · 로트 상세 ─────────────────────────
+
+interface BuyTabProps extends SalesViewProps {
+  calendar: SaleCalendarRow[];
+  active: SaleKey | null;
+  onPick: (key: SaleKey) => void;
+  filters: BuyFilters;
+  onFilters: (next: BuyFilters) => void;
+}
+
+function BuyTab({ game, state, locked, calendar, active, onPick, filters, onFilters }: BuyTabProps): JSX.Element {
   const [lotNo, setLotNo] = useState<number | null>(null);
-  const [book, setBook] = useState(ALL_BOOKS);
-  const [query, setQuery] = useState('');
-  const [onlyMine, setOnlyMine] = useState(false);
   const detailPanel = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     if (lotNo === null) return;
@@ -142,135 +196,212 @@ function SalesView({ game, state, locked }: SalesViewProps): JSX.Element {
     };
   }, [lotNo]);
 
-  const badge = patronBadge(state);
-  const calendar = useMemo(() => saleCalendarRows(state, SALES_DATA), [state]);
-  const consignRows = useMemo(() => consignableRows(state, SALES_DATA), [state]);
-
-  // 고른 세일이 없으면 판매 중인 카탈로그를 연다
-  const openCatalogue = state.sales.catalogues.find((c) => c.status === 'catalogued');
-  const active: SaleKey | null =
-    picked ??
-    (openCatalogue === undefined
-      ? null
-      : { saleId: openCatalogue.saleId, year: openCatalogue.year });
   const activeRow =
-    active === null
-      ? undefined
-      : calendar.find((r) => r.saleId === active.saleId && r.year === active.year);
+    active === null ? undefined : calendar.find((r) => r.saleId === active.saleId && r.year === active.year);
   const catalogue =
     active === null
       ? undefined
       : state.sales.catalogues.find((c) => c.saleId === active.saleId && c.year === active.year);
   const activeEvent = active === null ? undefined : eventOf(active.saleId);
   const activeName = activeEvent?.name ?? active?.saleId ?? '';
+  // 발표 전 세일은 카탈로그가 이미 만들어졌어도 후원 등급의 공개 주 전이라 보이지 않는다
+  const showLots = catalogue !== undefined && activeRow?.status !== 'upcoming';
   // 엔진 일정에서 빠진 마감 카탈로그(결과 보기용)
   const closedOnly = state.sales.catalogues.filter(
-    (c) =>
-      c.status === 'closed' && !calendar.some((r) => r.saleId === c.saleId && r.year === c.year),
+    (c) => c.status === 'closed' && !calendar.some((r) => r.saleId === c.saleId && r.year === c.year),
   );
+  const near = nearSaleCalendar(calendar, state.date);
 
   const filter: CatalogueFilter = {
-    book: book === ALL_BOOKS ? undefined : Number(book),
-    sireQuery: query,
-    onlyMyBids: onlyMine,
+    book: filters.book === ALL_BOOKS ? undefined : Number(filters.book),
+    sireQuery: filters.query,
+    onlyMyBids: filters.onlyMine,
   };
   const lots =
-    active === null || catalogue === undefined
-      ? []
-      : catalogueRows(state, active.saleId, active.year, SALES_DATA, filter);
-
+    active === null || !showLots ? [] : catalogueRows(state, active.saleId, active.year, SALES_DATA, filter);
   const detail: LotDetailView | null =
-    active === null || lotNo === null
+    active === null || lotNo === null || !showLots
       ? null
       : lotDetailView(state, active.saleId, active.year, lotNo, SALES_DATA);
   const open = catalogue?.status === 'catalogued' && detail !== null && detail.result === null;
   const liveActive = open && detail !== null && compareDates(detail.saleWeek, state.date) === 0;
 
   const pickSale = (key: SaleKey): void => {
-    setPicked(key);
+    onPick(key);
     setLotNo(null);
-    setBook(ALL_BOOKS);
+    onFilters({ ...filters, book: ALL_BOOKS });
   };
 
-  const renderCalendar = (rows: typeof calendar): JSX.Element => (
-    <div className="table-scroll">
-      <table className="data-table">
-        <thead>
-          <tr>
-            <th>세일</th>
-            <th>종류</th>
-            <th>월</th>
-            <th>상태</th>
-            <th>로트</th>
-            <th>내 입찰</th>
-            <th>내 위탁</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => {
-            const selected =
-              active !== null && row.saleId === active.saleId && row.year === active.year;
-            return (
-              <tr
-                key={`${row.saleId}-${row.year}`}
-                className={selected ? 'is-selected' : 'is-clickable'}
-                onClick={() => pickSale({ saleId: row.saleId, year: row.year })}
-              >
+  const renderCalendar = (rows: SaleCalendarRow[]): JSX.Element => (
+    <table className="data-table sales-table">
+      <thead>
+        <tr>
+          <th>세일</th>
+          <th className="sales-num">로트 수</th>
+          <th>카탈로그</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row, index) => {
+          const selected = active !== null && row.saleId === active.saleId && row.year === active.year;
+          const newYear = index === 0 || rows[index - 1]?.year !== row.year;
+          return (
+            <Fragment key={`${row.saleId}-${row.year}`}>
+              {newYear && (
+                <tr className="sales-year-row">
+                  <th colSpan={3} scope="colgroup">
+                    {row.year}년
+                  </th>
+                </tr>
+              )}
+              <tr className={selected ? 'is-selected' : undefined}>
+                <td>
+                  <span className="sales-name">{row.name}</span>
+                  <span className="sales-sub" title={`${row.companyName} · ${countryKo(row.country)}`}>
+                    {saleSubLineKo(row)}
+                  </span>
+                </td>
+                <td className="sales-num">{row.lots ?? NO_VALUE}</td>
                 <td>
                   <button
                     type="button"
-                    className="link-btn"
+                    className="btn"
+                    aria-pressed={selected}
                     onClick={() => pickSale({ saleId: row.saleId, year: row.year })}
                   >
-                    {row.name}
+                    카탈로그 보기
                   </button>
-                  <br />
-                  <span className="sales-sub">
-                    {row.companyName} · {countryKo(row.country)} · {row.year}년
-                  </span>
                 </td>
-                <td>{row.kindKo}</td>
-                <td>{row.monthKo}</td>
-                <td>{row.statusKo}</td>
-                <td>{row.lots ?? NO_VALUE}</td>
-                <td>{row.myBids}</td>
-                <td>{row.myConsignments}</td>
               </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+            </Fragment>
+          );
+        })}
+      </tbody>
+    </table>
   );
 
-  return (
-    <section aria-label="세일">
-      <header className="panel">
-        <h2>
-          세일 <span className="badge">후원 {badge.tierKo}</span>
-        </h2>
+  const catalogueBody =
+    active === null ? (
+      <p className="hint">세일 일정에서 세일을 고르세요.</p>
+    ) : activeRow?.status === 'upcoming' ? (
+      <div className="sales-schedule">
+        <p>{saleScheduleNoticeKo(activeRow)}</p>
+        <p className="hint">발표 주에 카탈로그와 로트가 열리고, 판매 주까지 입찰할 수 있습니다.</p>
+      </div>
+    ) : catalogue === undefined ? (
+      <p className="hint">이 세일의 카탈로그가 없습니다.</p>
+    ) : (
+      <>
         <p className="hint">
-          최근 2년 구매액 {badge.spendKo} · {badge.nextKo} · {badge.benefitsKo.join(' · ')}
+          {catalogue.status === 'catalogued'
+            ? '로트를 누르면 상세가 열립니다. 판매 주까지 입찰할 수 있습니다.'
+            : '마감된 세일입니다. 로트의 낙찰 결과만 볼 수 있습니다.'}
         </p>
-      </header>
-
-      <SellProposalPanel game={game} state={state} locked={locked} />
-
-      <div className="sales-workspace">
-        <section className="panel sales-calendar">
-          <h2>세일 일정 · 앞으로 3개월</h2>
-          <p className="hint">
-            세일을 누르면 카탈로그가 열립니다. 발표 전 세일은 발표 주에 카탈로그가 나옵니다.
-          </p>
-          {nearSaleCalendar(calendar, state.date).length === 0 ? (
-            <p className="hint">앞으로 3개월에 세일이 없습니다. 전체 일정을 확인하세요.</p>
+        <div className="sales-filter">
+          <label>
+            북{' '}
+            <select value={filters.book} onChange={(e) => onFilters({ ...filters, book: e.target.value })}>
+              <option value={ALL_BOOKS}>전체</option>
+              {(activeEvent?.books ?? []).map((b) => (
+                <option key={b.book} value={String(b.book)}>
+                  {b.book}북
+                </option>
+              ))}
+            </select>
+          </label>
+          <input
+            type="search"
+            className="search"
+            placeholder="부(父) 이름 검색"
+            aria-label="부 이름 검색"
+            value={filters.query}
+            onChange={(e) => onFilters({ ...filters, query: e.target.value })}
+          />
+          <label>
+            <input
+              type="checkbox"
+              checked={filters.onlyMine}
+              onChange={(e) => onFilters({ ...filters, onlyMine: e.target.checked })}
+            />{' '}
+            내 입찰만
+          </label>
+        </div>
+        <div className="sales-fill">
+          {lots.length === 0 ? (
+            <p className="hint">조건에 맞는 로트가 없습니다.</p>
           ) : (
-            renderCalendar(nearSaleCalendar(calendar, state.date))
+            <table className="data-table sales-lots">
+              <thead>
+                <tr>
+                  <th>로트</th>
+                  <th>북</th>
+                  <th>말</th>
+                  <th>부 × 모부(외조부)</th>
+                  <th>판매자</th>
+                  <th>추정가</th>
+                  <th>내 입찰</th>
+                  <th>결과</th>
+                </tr>
+              </thead>
+              <tbody>
+                {lots.map((row) => (
+                  <tr
+                    key={row.lotNo}
+                    className={row.lotNo === lotNo ? 'is-selected' : 'is-clickable'}
+                    onClick={() => setLotNo(row.lotNo)}
+                  >
+                    <td>
+                      <button type="button" className="link-btn" onClick={() => setLotNo(row.lotNo)}>
+                        {row.lotNo}번
+                      </button>
+                    </td>
+                    <td className="sales-num">{row.book}</td>
+                    <td>
+                      <HorseLink horseId={row.horseId} name={row.horseName} />
+                      <span className="sales-sub">{row.sexAgeKo}</span>
+                    </td>
+                    <td>
+                      <HorseLink name={row.sireName} />
+                      {' × '}
+                      <HorseLink name={row.damsireName} />
+                      {row.surfaceNoteKo !== null && (
+                        <span className="sale-surface-note"> ⚠ {row.surfaceNoteKo}</span>
+                      )}
+                    </td>
+                    <td>{row.vendorKo}</td>
+                    <td>{row.estimateKo}</td>
+                    <td className="sales-num">{row.myBid === null ? NO_VALUE : feeKo(row.myBid)}</td>
+                    <td>{row.resultKo ?? NO_VALUE}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )}
-          <details>
-            <summary>전체 일정 ({calendar.length}건)</summary>
-            {renderCalendar(calendar)}
-          </details>
+        </div>
+      </>
+    );
+
+  return (
+    <div className="sales-buy">
+      <section className="panel" aria-label="세일 일정">
+        <h2>세일 일정 · 앞으로 3개월</h2>
+        <p className="hint">세일을 고르면 카탈로그가 열립니다. 발표 전 세일은 발표 주에 나옵니다.</p>
+        <div className="sales-fill">
+          {near.length === 0 ? (
+            // 3개월 안에 세일이 없으면 전체 일정을 바로 보인다(자동 선택 세일이 이 목록에 있어야 한다)
+            <>
+              <p className="hint">앞으로 3개월에 세일이 없어 전체 일정을 보입니다.</p>
+              {renderCalendar(calendar)}
+            </>
+          ) : (
+            <>
+              {renderCalendar(near)}
+              <details className="sales-all">
+                <summary>전체 일정 ({calendar.length}건)</summary>
+                {renderCalendar(calendar)}
+              </details>
+            </>
+          )}
           {closedOnly.length > 0 && (
             <>
               <h3>마감된 세일 (결과 보기)</h3>
@@ -289,204 +420,82 @@ function SalesView({ game, state, locked }: SalesViewProps): JSX.Element {
               </ul>
             </>
           )}
-        </section>
-
-        <div className="sales-layout">
-        <section className="panel">
-          <h2>카탈로그{activeName === '' ? '' : ` · ${activeName}`}</h2>
-          {active === null ? (
-            <p className="hint">세일 일정에서 세일을 고르세요.</p>
-          ) : catalogue === undefined ? (
-            activeRow !== undefined && activeRow.statusKo === saleStatusKo('upcoming') ? (
-              <p className="hint">
-                {saleAnnounceKo(activeRow.year, state.date.year, activeRow.announceWeek)}
-              </p>
-            ) : (
-              <p className="hint">이 세일의 카탈로그가 없습니다.</p>
-            )
-          ) : (
-            <>
-              <p className="hint">
-                {catalogue.status === 'catalogued'
-                  ? '로트를 누르면 상세가 열립니다. 판매 주까지 입찰할 수 있습니다.'
-                  : '마감된 세일입니다. 로트의 낙찰 결과만 볼 수 있습니다.'}
-              </p>
-              <div className="sales-filter">
-                <label>
-                  북{' '}
-                  <select value={book} onChange={(e) => setBook(e.target.value)}>
-                    <option value={ALL_BOOKS}>전체</option>
-                    {(activeEvent?.books ?? []).map((b) => (
-                      <option key={b.book} value={String(b.book)}>
-                        {b.book}북
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <input
-                  type="search"
-                  className="search"
-                  placeholder="부(父) 이름 검색"
-                  aria-label="부 이름 검색"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                />
-                <label>
-                  <input type="checkbox" checked={onlyMine} onChange={(e) => setOnlyMine(e.target.checked)} />{' '}
-                  내 입찰만
-                </label>
-              </div>
-              {lots.length === 0 ? (
-                <p className="hint">조건에 맞는 로트가 없습니다.</p>
-              ) : (
-                <div className="table-scroll">
-                  <table className="data-table">
-                    <thead>
-                      <tr>
-                        <th>로트</th>
-                        <th>북</th>
-                        <th>말</th>
-                        <th>성별·나이</th>
-                        <th>부 × 모부(외조부)</th>
-                        <th>판매자</th>
-                        <th>추정가</th>
-                        <th>내 입찰</th>
-                        <th>결과</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {lots.map((row) => (
-                        <tr
-                          key={row.lotNo}
-                          className={row.lotNo === lotNo ? 'is-selected' : 'is-clickable'}
-                          onClick={() => setLotNo(row.lotNo)}
-                        >
-                          <td>
-                            <button type="button" className="link-btn" onClick={() => setLotNo(row.lotNo)}>
-                              {row.lotNo}번 상세
-                            </button>
-                          </td>
-                          <td>{row.book}</td>
-                          <td>
-                            <HorseLink horseId={row.horseId} name={row.horseName} />
-                          </td>
-                          <td>{row.sexAgeKo}</td>
-                          <td>
-                            <HorseLink name={row.sireName} />
-                            {' × '}<HorseLink name={row.damsireName} />
-                            {row.surfaceNoteKo !== null && (
-                              <span className="sale-surface-note"> ⚠ {row.surfaceNoteKo}</span>
-                            )}
-                          </td>
-                          <td>{row.vendorKo}</td>
-                          <td>{row.estimateKo}</td>
-                          <td>{row.myBid === null ? NO_VALUE : feeKo(row.myBid)}</td>
-                          <td>{row.resultKo ?? NO_VALUE}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </>
-          )}
-        </section>
-
-          <dialog
-            ref={detailPanel}
-            className="horse-detail sales-detail"
-            aria-label="로트 상세"
-            onCancel={(e) => {
-              e.preventDefault();
-              setLotNo(null);
-            }}
-          >
-            <div className="horse-detail__head">
-              <h2>로트 상세</h2>
-              <button type="button" className="btn" onClick={() => setLotNo(null)}>
-                로트 상세 닫기
-              </button>
-            </div>
-            {active === null || detail === null || lotNo === null ? (
-              <p className="hint">카탈로그에서 로트를 고르세요.</p>
-            ) : (
-              <LotDetail
-                key={`${active.saleId}|${active.year}|${lotNo}`}
-                game={game}
-                state={state}
-                saleId={active.saleId}
-                year={active.year}
-                detail={detail}
-                event={activeEvent}
-                open={open}
-                liveActive={liveActive}
-                locked={locked}
-              />
-            )}
-          </dialog>
         </div>
-      </div>
+      </section>
 
-      <div className="sales-support">
-        {nhStoreOpen(state) && (
-          <details className="panel">
-            <summary>NH 스토어 세일</summary>
-            <NhStore game={game} state={state} locked={locked} />
-          </details>
+      <section className="panel" aria-label="카탈로그">
+        <h2>카탈로그{activeName === '' ? '' : ` · ${activeName}`}</h2>
+        {catalogueBody}
+      </section>
+
+      <dialog
+        ref={detailPanel}
+        className="horse-detail sales-detail"
+        aria-label="로트 상세"
+        onCancel={(e) => {
+          e.preventDefault();
+          setLotNo(null);
+        }}
+      >
+        <div className="horse-detail__head">
+          <h2>로트 상세</h2>
+          <button type="button" className="btn" onClick={() => setLotNo(null)}>
+            로트 상세 닫기
+          </button>
+        </div>
+        {active === null || detail === null || lotNo === null ? (
+          <p className="hint">카탈로그에서 로트를 고르세요.</p>
+        ) : (
+          <LotDetail
+            key={`${active.saleId}|${active.year}|${lotNo}`}
+            game={game}
+            state={state}
+            saleId={active.saleId}
+            year={active.year}
+            detail={detail}
+            event={activeEvent}
+            open={open}
+            liveActive={liveActive}
+            locked={locked}
+          />
         )}
-        <details className="panel">
-          <summary>개인 거래 제안 ({privateOfferRows(state).length}건)</summary>
-          <PrivateOffers game={game} state={state} locked={locked} />
-        </details>
+      </dialog>
+    </div>
+  );
+}
 
-        <details className="panel sales-consign">
-          <summary>내 말 출품 ({consignRows.length}두)</summary>
-          <p className="hint">
-            발표 주 전에 세일을 골라 말을 올립니다. 유보가를 비우면 유보 없음입니다. 발표 뒤에는
-            취소할 수 없습니다.
-          </p>
-          {consignRows.length === 0 ? (
-            <p className="hint">출품할 내 말이 없습니다.</p>
-          ) : (
-            <div className="table-scroll">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>말</th>
-                    <th>출품 상태</th>
-                    <th>세일</th>
-                    <th>유보가(€)</th>
-                    <th>출품</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {consignRows.map((row) => (
-                    <ConsignItem key={row.horseId} row={row} game={game} locked={locked} />
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </details>
+// ── 판매 탭: 판매 제안 · 내 말 출품 · 개인 거래 제안 · NH 스토어 ─────
+
+interface SellTabProps extends SalesViewProps {
+  sellRows: SellProposalRow[];
+  consignRows: ConsignableRow[];
+}
+
+function SellTab({ game, state, locked, sellRows, consignRows }: SellTabProps): JSX.Element {
+  return (
+    <div className="sales-sell">
+      <div className="sales-col">
+        <SellProposalPanel game={game} state={state} locked={locked} rows={sellRows} />
+        <ConsignPanel game={game} locked={locked} rows={consignRows} />
       </div>
-    </section>
+      <div className="sales-col">
+        <PrivateOffersPanel game={game} state={state} locked={locked} />
+        {nhStoreOpen(state) && <NhStore game={game} state={state} locked={locked} />}
+      </div>
+    </div>
   );
 }
 
 // ── 판매 제안 칸(M6-0b2) ───────────────────────────────────────
 
-interface SellProposalPanelProps {
-  game: GameApi;
-  state: GameState;
-  locked: boolean;
+interface SellProposalPanelProps extends SalesViewProps {
+  rows: SellProposalRow[];
 }
 
 /** 판매 담당이 낸 세일 위탁 제안. 플레이어는 빼거나 지금 위탁만 한다(빼지 않으면 엔진이 마감 전 주에 위탁). */
-function SellProposalPanel({ game, state, locked }: SellProposalPanelProps): JSX.Element {
+function SellProposalPanel({ game, state, locked, rows }: SellProposalPanelProps): JSX.Element {
   const [notice, setNotice] = useState<Notice | null>(null);
-  const rows = useMemo(() => sellProposalRows(state, SALES_DATA), [state]);
   const autoSell = state.settings.autoSell !== false;
-  const pendingCount = rows.filter((row) => row.canRemove).length;
 
   const handleRemove = (row: SellProposalRow): void => {
     const result = game.removeSellProposal(row.horseId);
@@ -500,481 +509,203 @@ function SellProposalPanel({ game, state, locked }: SellProposalPanelProps): JSX
     else setNotice({ tone: 'error', text: sellProposalErrorKo(result.error) });
   };
 
+  // 제안이 없으면 한 줄(제목·0두·안내)로 접는다
+  if (rows.length === 0) {
+    return (
+      <section className="panel sell-proposals is-empty" aria-label="판매 제안">
+        <p className="sales-oneline">
+          <strong>판매 제안</strong>
+          <span className="badge">0두</span>
+          <span className="hint">{sellProposalEmptyKo()}</span>
+        </p>
+        <NoticeLine notice={notice} />
+      </section>
+    );
+  }
+
   return (
     <section className="panel sell-proposals" aria-label="판매 제안">
       <h2>
-        판매 제안 <span className="badge">{pendingCount}두</span>
+        판매 제안 <span className="badge">{sellProposalPendingCount(rows)}두</span>
       </h2>
-      {/* 제안이 없으면 안내와 빈 상태를 한 줄로(1440×900 스크롤 없음 유지) */}
+      <p className="hint">{sellProposalGuideKo(autoSell)}</p>
+      <div className="sales-fill">
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>말</th>
+              <th>세일</th>
+              <th>유보가</th>
+              <th>이유</th>
+              <th>상태</th>
+              <th>조작</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr key={`${row.saleId}:${row.horseId}`}>
+                <td>
+                  <HorseLink horseId={row.horseId} name={row.horseName} />
+                </td>
+                <td>{row.saleLabel}</td>
+                <td>{row.reserveKo}</td>
+                <td className="sales-wrap">{row.note}</td>
+                <td>
+                  <StatusBadge tone={statusTone(row.statusTone)} label={row.statusKo} />
+                </td>
+                <td>
+                  {row.canRemove && (
+                    <>
+                      <button type="button" className="btn" onClick={() => handleRemove(row)}>
+                        빼기
+                      </button>{' '}
+                      <button
+                        type="button"
+                        className="btn"
+                        disabled={locked}
+                        onClick={() => handleConsign(row)}
+                      >
+                        지금 위탁
+                      </button>
+                    </>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <NoticeLine notice={notice} />
+    </section>
+  );
+}
+
+// ── 내 말 출품: 위탁 기한·취소 가능 시점을 이 칸 한곳에 둔다 ──────
+
+interface ConsignPanelProps {
+  game: GameApi;
+  locked: boolean;
+  rows: ConsignableRow[];
+}
+
+function ConsignPanel({ game, locked, rows }: ConsignPanelProps): JSX.Element {
+  const [notice, setNotice] = useState<Notice | null>(null);
+  return (
+    <section className="panel sales-consign" aria-label="내 말 출품">
+      <h2>
+        내 말 출품 <span className="badge">{rows.length}두</span>
+      </h2>
+      <p className="hint">
+        위탁 기한 주까지 세일에 말을 올립니다. 유보가를 비우면 유보 없음입니다. 발표 주부터는 취소할 수 없습니다.
+      </p>
       {rows.length === 0 ? (
-        <p className="hint">{sellProposalEmptyKo()} · {sellProposalGuideKo(autoSell)}</p>
-      ) : (<>
-        <p className="hint">{sellProposalGuideKo(autoSell)}</p>
-        <div className="table-scroll sell-proposals__scroll">
+        <p className="hint">출품할 내 말이 없습니다.</p>
+      ) : (
+        <div className="sales-fill">
           <table className="data-table">
             <thead>
               <tr>
                 <th>말</th>
                 <th>세일</th>
-                <th>유보가</th>
-                <th>이유</th>
-                <th>상태</th>
-                <th>조작</th>
+                <th>위탁 기한</th>
+                <th>유보가(€)</th>
+                <th>출품</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((row) => (
-                <tr key={`${row.saleId}:${row.horseId}`}>
-                  <td>
-                    <HorseLink horseId={row.horseId} name={row.horseName} />
-                  </td>
-                  <td>{row.saleLabel}</td>
-                  <td>{row.reserveKo}</td>
-                  <td>{row.note}</td>
-                  <td>
-                    <span
-                      className={
-                        row.statusTone === 'plain' ? 'status-chip' : `status-chip status-chip--${row.statusTone}`
-                      }
-                    >
-                      {row.statusKo}
-                    </span>
-                  </td>
-                  <td>
-                    {row.canRemove && (
-                      <>
-                        <button type="button" className="btn" onClick={() => handleRemove(row)}>
-                          빼기
-                        </button>{' '}
-                        <button
-                          type="button"
-                          className="btn"
-                          disabled={locked}
-                          onClick={() => handleConsign(row)}
-                        >
-                          지금 위탁
-                        </button>
-                      </>
-                    )}
-                  </td>
-                </tr>
+                <ConsignItem key={row.horseId} row={row} game={game} locked={locked} onNotice={setNotice} />
               ))}
             </tbody>
           </table>
         </div>
-      </>)}
-      <NoticeLine notice={notice} />
-    </section>
-  );
-}
-
-// ── 로트 상세 ───────────────────────────────────────────────────
-
-interface LotDetailProps {
-  game: GameApi;
-  state: GameState;
-  saleId: string;
-  year: number;
-  detail: LotDetailView;
-  event: SaleEventDef | undefined;
-  /** 카탈로그가 진행 중이고 이 로트가 아직 팔리지 않았다 */
-  open: boolean;
-  /** 판매 주이고 로트가 열려 있다(실시간 보기 활성) */
-  liveActive: boolean;
-  locked: boolean;
-}
-
-export function LotDetail({
-  game,
-  state,
-  saleId,
-  year,
-  detail,
-  event,
-  open,
-  liveActive,
-  locked,
-}: LotDetailProps): JSX.Element {
-  const lotNo = detail.lot.lotNo;
-  return (
-    <>
-      <h3>
-        {lotNo}번 <HorseLink horseId={detail.lot.horseId} name={detail.lot.horseName} />
-      </h3>
-      <dl className="sales-facts">
-        <dt>부</dt>
-        <dd>
-          <HorseLink name={detail.sireName} />
-          {detail.surfaceNoteKo !== null && (
-            <span className="sale-surface-note"> ⚠ {detail.surfaceNoteKo}</span>
-          )}
-        </dd>
-        <dt>모</dt>
-        <dd>
-          <HorseLink name={detail.damName} />
-        </dd>
-        <dt>모부(외조부)</dt>
-        <dd><HorseLink name={detail.damsireName} /></dd>
-        <dt>판매자</dt>
-        <dd>{detail.vendorKo}</dd>
-        <dt>판매일</dt>
-        <dd>{detail.saleDateKo}</dd>
-        <dt>추정가</dt>
-        <dd>{detail.estimateKo}</dd>
-        {detail.reserveKo !== null && (
-          <>
-            <dt>유보가</dt>
-            <dd>{detail.reserveKo}</dd>
-          </>
-        )}
-      </dl>
-      <InspectBox state={state} saleId={saleId} year={year} lotNo={lotNo} horseId={detail.lot.horseId} />
-      <BidBox
-        game={game}
-        saleId={saleId}
-        year={year}
-        lotNo={lotNo}
-        myBid={detail.myBid}
-        event={event}
-        open={open}
-        locked={locked}
-      />
-      <LiveBox
-        game={game}
-        state={state}
-        saleId={saleId}
-        year={year}
-        lotNo={lotNo}
-        myBid={detail.myBid}
-        active={liveActive}
-        dateKo={formatDateKo(detail.saleWeek)}
-        locked={locked}
-      />
-    </>
-  );
-}
-
-type InspectView = { ok: true; assessment: Assessment; trainerName: string } | { ok: false; text: string };
-
-interface InspectBoxProps {
-  state: GameState;
-  saleId: string;
-  year: number;
-  lotNo: number;
-  horseId: HorseId;
-}
-
-/** 조교사 검사: 동행 가능한 조교사를 고르고 소견을 HorseCard 로 보인다 */
-function InspectBox(
-  props: InspectBoxProps | { state: GameState; horseId: HorseId; offerId: string },
-): JSX.Element {
-  const { state, horseId } = props;
-  const eligible = useMemo(() => eligibleInspectors(state), [state]);
-  const [pickId, setPickId] = useState<string | null>(null);
-  const [view, setView] = useState<InspectView | null>(null);
-  const picked = eligible.find((e) => e.trainerId === pickId) ?? eligible[0];
-  const horse = state.horses[horseId];
-
-  const handleInspect = (): void => {
-    if (picked === undefined) return;
-    if ('offerId' in props) {
-      const result = inspectOfferHorse(state, props.offerId, picked.trainerId);
-      if (result.ok) setView({ ok: true, assessment: result.assessment, trainerName: picked.name });
-      else setView({ ok: false, text: privateOfferErrorKo(result.error) });
-    } else {
-      const result = inspectLot(state, props.saleId, props.year, props.lotNo, picked.trainerId);
-      if (result.ok) setView({ ok: true, assessment: result.assessment, trainerName: picked.name });
-      else setView({ ok: false, text: inspectErrorKo(result.error) });
-    }
-  };
-
-  return (
-    <section className="sales-block">
-      <h3>조교사 검사</h3>
-      <p className="hint">동행할 조교사를 고르면 그 사람의 소견을 얻습니다. 검사에는 돈이 들지 않습니다.</p>
-      {eligible.length === 0 ? (
-        <p className="hint">{inspectNoneKo()}</p>
-      ) : (
-        <div className="sales-inline">
-          <select
-            aria-label="검사 조교사"
-            value={picked?.trainerId ?? ''}
-            onChange={(e) => setPickId(e.target.value)}
-          >
-            {eligible.map((e) => (
-              <option key={e.trainerId} value={e.trainerId}>
-                {e.name} ({e.reason === 'retained' ? '전속' : '관계'})
-              </option>
-            ))}
-          </select>
-          <button type="button" className="btn" onClick={handleInspect}>
-            검사
-          </button>
-        </div>
-      )}
-      {view !== null && !view.ok && (
-        <p className="notice notice--error" role="status">
-          {view.text}
-        </p>
-      )}
-      {view !== null && view.ok && horse !== undefined && (
-        <>
-          <p className="hint">{view.trainerName} 의 소견</p>
-          <HorseCard
-            state={state}
-            horse={horse}
-            assessment={view.assessment}
-            ageYears={ageInYear(horse.birthYear, state.date.year)}
-            parentage={parentageOf(state, horse)}
-            lineLabel={lineLabelOf(horse.sireLineId)}
-          />
-        </>
-      )}
-    </section>
-  );
-}
-
-interface BidBoxProps {
-  game: GameApi;
-  saleId: string;
-  year: number;
-  lotNo: number;
-  myBid: Money | null;
-  event: SaleEventDef | undefined;
-  open: boolean;
-  locked: boolean;
-}
-
-/** 입찰: 상한을 걸거나 취소한다. 실패 사유는 bidErrorKo 로 바로 보인다. */
-function BidBox({ game, saleId, year, lotNo, myBid, event, open, locked }: BidBoxProps): JSX.Element {
-  const [amountText, setAmountText] = useState('');
-  const [notice, setNotice] = useState<Notice | null>(null);
-
-  const handleBid = (): void => {
-    // 빈칸은 NaN 으로 넘겨 엔진이 invalid_amount 로 거절하게 한다
-    const amount = amountText.trim() === '' ? Number.NaN : Number(amountText);
-    const result = game.setMaxBid(saleId, year, lotNo, amount);
-    if (result.ok) setNotice({ tone: 'ok', text: `상한 ${feeKo(amount)} 로 입찰했습니다.` });
-    else setNotice({ tone: 'error', text: bidErrorKo(result.error) });
-  };
-
-  const handleClear = (): void => {
-    const result = game.clearMaxBid(saleId, year, lotNo);
-    if (result.ok) setNotice({ tone: 'ok', text: '입찰 상한을 취소했습니다.' });
-    else setNotice({ tone: 'error', text: clearBidErrorKo() });
-  };
-
-  return (
-    <section className="sales-block">
-      <h3>입찰</h3>
-      <p className="hint">
-        {open && event !== undefined
-          ? `${bidMinimumKo(event.minimumBid)}. 상한을 걸면 경매에서 상한 안에서 자동으로 응찰합니다.`
-          : '마감된 로트는 입찰할 수 없습니다.'}
-      </p>
-      <p>현재 내 상한: {myBid === null ? '없음' : feeKo(myBid)}</p>
-      <div className="sales-inline">
-        <input
-          type="number"
-          inputMode="numeric"
-          min={event?.minimumBid}
-          step={1}
-          aria-label="입찰 상한"
-          placeholder="€ 금액"
-          value={amountText}
-          disabled={!open}
-          onChange={(e) => setAmountText(e.target.value)}
-        />
-        <button type="button" className="btn" disabled={locked || !open} onClick={handleBid}>
-          상한 설정
-        </button>
-        <button
-          type="button"
-          className="btn"
-          disabled={locked || !open || myBid === null}
-          onClick={handleClear}
-        >
-          입찰 취소
-        </button>
-      </div>
-      <NoticeLine notice={notice} />
-    </section>
-  );
-}
-
-interface LiveBoxProps {
-  game: GameApi;
-  state: GameState;
-  saleId: string;
-  year: number;
-  lotNo: number;
-  myBid: Money | null;
-  /** 판매 주이고 로트가 열려 있을 때만 true */
-  active: boolean;
-  dateKo: string;
-  locked: boolean;
-}
-
-/**
- * 실시간 보기: 호가 단계를 LIVE_STEP_MS 간격으로 하나씩 보인다.
- * '+ 한 호가 올리기' 는 상한을 (현재 가격 + 호가 단위)로 올리고, 단계를 다시 계산해 이어 보여 준다.
- * 타이머는 effect 에서 만들고 cleanup 에서 지운다(화면 해제·판매 주 종료·단계 변경 때).
- */
-function LiveBox({
-  game,
-  state,
-  saleId,
-  year,
-  lotNo,
-  myBid,
-  active,
-  dateKo,
-  locked,
-}: LiveBoxProps): JSX.Element {
-  const [shown, setShown] = useState<number | null>(null);
-  const [notice, setNotice] = useState<Notice | null>(null);
-  // 화면 문구용 단계(liveAuctionView)와 호가 계산용 원시 단계(liveAuctionSteps)는 같은 입력에서 나온다
-  const live = useMemo(
-    () => liveAuctionView(state, saleId, year, lotNo, myBid, SALES_DATA),
-    [state, saleId, year, lotNo, myBid],
-  );
-  const rawSteps = useMemo(
-    () => liveAuctionSteps(state, saleId, year, lotNo, myBid, SALES_DATA),
-    [state, saleId, year, lotNo, myBid],
-  );
-  const total = live.steps.length;
-  const visible = shown === null ? 0 : Math.min(shown, total);
-  const running = active && shown !== null && visible < total;
-  const finished = shown !== null && visible >= total;
-
-  useEffect(() => {
-    if (!active || shown === null || shown >= total) return undefined;
-    const id = window.setTimeout(() => setShown(shown + 1), LIVE_STEP_MS);
-    return () => window.clearTimeout(id);
-  }, [active, shown, total]);
-
-  const raise = (): void => {
-    const current = rawSteps[visible - 1];
-    if (current === undefined) return;
-    const target = current.price + bidIncrement(current.price);
-    if (myBid !== null && target <= myBid) {
-      setNotice({
-        tone: 'error',
-        text: `지금 상한 ${feeKo(myBid)} 이 다음 호가 ${feeKo(target)} 보다 높아 올릴 필요가 없습니다.`,
-      });
-      return;
-    }
-    const result = game.setMaxBid(saleId, year, lotNo, target);
-    if (result.ok)
-      setNotice({ tone: 'ok', text: `상한을 ${feeKo(target)} 로 올렸습니다. 이어서 보여 줍니다.` });
-    else setNotice({ tone: 'error', text: bidErrorKo(result.error) });
-  };
-
-  return (
-    <section className={`sales-block sales-live${active && shown !== null ? ' sales-live--active' : ''}`}>
-      <h3>실시간 보기</h3>
-      <p className="hint">{liveFinalNoticeKo()}</p>
-      {!active && <p className="hint">{liveClosedKo(dateKo)}</p>}
-      <div className="sales-inline">
-        <button
-          type="button"
-          className="btn"
-          disabled={!active || running}
-          onClick={() => setShown(FIRST_STEP)}
-        >
-          {shown === null ? '실시간 보기' : '처음부터 다시 보기'}
-        </button>
-        <button type="button" className="btn" disabled={locked || !running} onClick={raise}>
-          + 한 호가 올리기
-        </button>
-      </div>
-      {active && shown !== null && (
-        <>
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>단계</th>
-                <th>가격</th>
-                <th>선두</th>
-                <th>이탈</th>
-              </tr>
-            </thead>
-            <tbody>
-              {live.steps.slice(0, visible).map((step, index) => (
-                <tr key={index} className={index === visible - 1 ? 'is-current' : undefined}>
-                  <td>{index + 1}</td>
-                  <td>{step.priceKo}</td>
-                  <td>{step.leaderKo}</td>
-                  <td>{step.droppedKo}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {finished && (
-            <p className="sales-live__result" role="status">
-              {live.resultKo}
-            </p>
-          )}
-        </>
       )}
       <NoticeLine notice={notice} />
     </section>
   );
 }
-
-// ── 내 말 출품 ──────────────────────────────────────────────────
 
 interface ConsignItemProps {
   row: ConsignableRow;
   game: GameApi;
   locked: boolean;
+  onNotice: (notice: Notice) => void;
 }
 
-/** 말 한 마리의 출품 행. 세일 선택·유보가 입력·출품·출품 취소, 결과 문구는 행 안에 보인다. */
-function ConsignItem({ row, game, locked }: ConsignItemProps): JSX.Element {
+/** 말 한 마리의 출품 행. 세일 선택·유보가 입력·출품·출품 취소. 결과 문구는 칸 머리 아래 한 줄에 보인다. */
+function ConsignItem({ row, game, locked, onNotice }: ConsignItemProps): JSX.Element {
   const [saleId, setSaleId] = useState(row.options[0]?.saleId ?? '');
   const [reserveText, setReserveText] = useState('');
-  const [notice, setNotice] = useState<Notice | null>(null);
   const chosen = row.options.find((o) => o.saleId === saleId) ?? row.options[0];
   const consigned = row.consignedSaleName !== null;
+  // 카탈로그에 올라간 말은 취소할 수 없다(취소 마감 문구가 없다)
+  const cancelable = consigned && row.consignedDeadlineKo !== null;
 
   const handleConsign = (): void => {
     if (chosen === undefined) return;
     // 빈칸 = 유보 없음(null). 숫자가 아니면 엔진이 invalid_reserve 로 거절한다.
     const reserve = reserveText.trim() === '' ? null : Number(reserveText);
     const result = game.consignToSale(row.horseId, chosen.saleId, reserve);
-    if (result.ok) setNotice({ tone: 'ok', text: `${chosen.name} 에 출품했습니다.` });
-    else setNotice({ tone: 'error', text: consignErrorKo(result.error) });
+    onNotice(
+      result.ok
+        ? { tone: 'ok', text: `${chosen.name} 에 출품했습니다.` }
+        : { tone: 'error', text: consignErrorKo(result.error) },
+    );
   };
 
   const handleWithdraw = (): void => {
     const result = game.withdrawConsignment(row.horseId);
-    if (result.ok) setNotice({ tone: 'ok', text: '출품을 취소했습니다.' });
-    else setNotice({ tone: 'error', text: consignWithdrawErrorKo() });
+    onNotice(
+      result.ok
+        ? { tone: 'ok', text: '출품을 취소했습니다.' }
+        : { tone: 'error', text: consignWithdrawErrorKo() },
+    );
   };
 
   return (
     <tr>
       <td>
-        <HorseLink name={row.horseName} />
+        <HorseLink horseId={row.horseId} name={row.horseName} />
       </td>
-      <td>{row.consignedSaleName ?? NO_VALUE}</td>
       <td>
-        {row.options.length === 0 ? (
+        {consigned ? (
+          row.consignedSaleName
+        ) : row.options.length === 0 ? (
           <span className="hint">출품 가능한 세일이 없습니다</span>
         ) : (
           <select
-            aria-label={`$<HorseLink name={row.horseName} /> 출품 세일`}
+            aria-label={`${row.horseName} 출품 세일`}
             value={chosen?.saleId ?? ''}
-            disabled={consigned}
             onChange={(e) => setSaleId(e.target.value)}
           >
             {row.options.map((o) => (
               <option key={o.saleId} value={o.saleId}>
-                {o.name} · {o.kindKo} · 발표 {o.announceWeek}주
+                {o.name} · {o.kindKo}
               </option>
             ))}
           </select>
+        )}
+      </td>
+      <td>
+        {consigned ? (
+          row.consignedDeadlineKo === null ? (
+            <>
+              <span>카탈로그 등록</span>
+              <span className="sales-sub">취소 불가</span>
+            </>
+          ) : (
+            <>
+              <span>{row.consignedDeadlineKo}</span>
+              <span className="sales-sub">이 주까지 취소 가능</span>
+            </>
+          )
+        ) : chosen === undefined ? (
+          NO_VALUE
+        ) : (
+          <>
+            <span>{chosen.deadlineKo}</span>
+            <span className="sales-sub">이후 위탁 불가</span>
+          </>
         )}
       </td>
       <td>
@@ -982,7 +713,7 @@ function ConsignItem({ row, game, locked }: ConsignItemProps): JSX.Element {
           type="number"
           min={0}
           step={1}
-          aria-label={`$<HorseLink name={row.horseName} /> 유보가`}
+          aria-label={`${row.horseName} 유보가`}
           placeholder="없음"
           value={reserveText}
           disabled={consigned}
@@ -998,12 +729,26 @@ function ConsignItem({ row, game, locked }: ConsignItemProps): JSX.Element {
         >
           출품
         </button>{' '}
-        <button type="button" className="btn" disabled={!consigned} onClick={handleWithdraw}>
+        <button type="button" className="btn" disabled={!cancelable} onClick={handleWithdraw}>
           출품 취소
         </button>
-        <NoticeLine notice={notice} />
       </td>
     </tr>
+  );
+}
+
+// ── 개인 거래 제안 ──────────────────────────────────────────────
+
+function PrivateOffersPanel({ game, state, locked }: SalesViewProps): JSX.Element {
+  return (
+    <section className="panel sales-offers" aria-label="개인 거래 제안">
+      <h2>
+        개인 거래 제안 <span className="badge">{privateOfferRows(state).length}건</span>
+      </h2>
+      <div className="sales-fill">
+        <PrivateOffers game={game} state={state} locked={locked} />
+      </div>
+    </section>
   );
 }
 
@@ -1034,8 +779,8 @@ function PrivateOffers({ game, state, locked }: SalesViewProps): JSX.Element {
           관계가 좋은 오너브리더가 1~3월에 유망주를 개인적으로 제안합니다(관계 20 이상 또는 명성 35 이상)
         </p>
       ) : (
-        <div className="table-scroll">
-          <table>
+        <div className="sales-fill">
+          <table className="data-table">
             <thead>
               <tr>
                 {['말', '성별 나이', '부', '제안 마주', '가격', '추정가', '기한', '행동'].map((label) => (
@@ -1060,7 +805,7 @@ function PrivateOffers({ game, state, locked }: SalesViewProps): JSX.Element {
                   <td>
                     <button type="button" className="btn" onClick={() => setInspectId(row.offerId)}>
                       조교사 검사
-                    </button>
+                    </button>{' '}
                     <button
                       type="button"
                       className="btn"
@@ -1068,7 +813,7 @@ function PrivateOffers({ game, state, locked }: SalesViewProps): JSX.Element {
                       onClick={() => act(row.offerId, true)}
                     >
                       구매
-                    </button>
+                    </button>{' '}
                     <button type="button" className="btn" onClick={() => act(row.offerId, false)}>
                       거절
                     </button>
@@ -1091,53 +836,58 @@ function PrivateOffers({ game, state, locked }: SalesViewProps): JSX.Element {
   );
 }
 
+// ── NH 스토어 세일 ─────────────────────────────────────────────
+
 function NhStore({ game, state, locked }: SalesViewProps): JSX.Element {
   const [notice, setNotice] = useState<Notice | null>(null);
   const horses = Object.values(state.horses)
     .filter((horse) => canSellToNhStore(state, horse.id) === null)
     .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   return (
-    <section className="panel" aria-label="NH 스토어 세일">
+    <section className="panel sales-nh" aria-label="NH 스토어 세일">
       <h2>NH 스토어 세일</h2>
-      <p>3~4세 수말·거세마를 NH 시장에 판매합니다. 판매한 말은 평지 경주에서 은퇴합니다.</p>
+      <p className="hint">3~4세 수말·거세마를 NH 시장에 판매합니다. 판매한 말은 평지 경주에서 은퇴합니다.</p>
       {horses.length === 0 ? (
-        <p>판매 가능한 말이 없습니다.</p>
+        <p className="hint">판매 가능한 말이 없습니다.</p>
       ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>말</th>
-              <th>견적</th>
-              <th>판매</th>
-            </tr>
-          </thead>
-          <tbody>
-            {horses.map((horse) => (
-              <tr key={horse.id}>
-                <td>
-                  <HorseLink horseId={horse.id} name={displayName(state, horse)} />
-                </td>
-                <td>{feeKo(nhStoreQuote(state, horse.id)!)}</td>
-                <td>
-                  <button
-                    type="button"
-                    disabled={locked}
-                    onClick={() => {
-                      const result = game.sellToNhStore(horse.id);
-                      setNotice(
-                        result.ok
-                          ? { tone: 'ok', text: 'NH 시장에 판매했습니다.' }
-                          : { tone: 'error', text: nhStoreErrorKo(result.error) },
-                      );
-                    }}
-                  >
-                    판매
-                  </button>
-                </td>
+        <div className="sales-fill">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>말</th>
+                <th>견적</th>
+                <th>판매</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {horses.map((horse) => (
+                <tr key={horse.id}>
+                  <td>
+                    <HorseLink horseId={horse.id} name={displayName(state, horse)} />
+                  </td>
+                  <td className="sales-num">{feeKo(nhStoreQuote(state, horse.id)!)}</td>
+                  <td>
+                    <button
+                      type="button"
+                      className="btn"
+                      disabled={locked}
+                      onClick={() => {
+                        const result = game.sellToNhStore(horse.id);
+                        setNotice(
+                          result.ok
+                            ? { tone: 'ok', text: 'NH 시장에 판매했습니다.' }
+                            : { tone: 'error', text: nhStoreErrorKo(result.error) },
+                        );
+                      }}
+                    >
+                      판매
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
       <NoticeLine notice={notice} />
     </section>

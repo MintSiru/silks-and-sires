@@ -1,0 +1,339 @@
+/*
+ * 세일 화면 전용 스타일(M6-U8). 색은 app.css :root 토큰(--surface, --border, --text-muted, --good-fg 등)만 쓴다.
+ * 선택자는 모두 .sales-screen 아래로 한정해 CSS 로드 순서와 상관없이 app.css 의 기본 규칙을 이긴다.
+ * 1440×900 에서 첫 화면(구매·판매 두 탭 모두)이 세로 스크롤 없이 들어가도록 높이를 뷰포트에서 빼고,
+ * 긴 목록은 각 칸 안에서만 스크롤한다.
+ */
+
+/* 화면 전체: 상단 바·메뉴를 뺀 나머지 높이를 채운다(상단 크롬 높이는 아래 값을 실측해 맞춘다). */
+.sales-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  height: calc(100dvh - 132px);
+  min-height: 460px;
+  min-width: 0;
+}
+
+/* 제목 줄: 세일 · 후원 배지 · 다음 등급 진행 막대(한 줄) */
+.sales-screen .sales-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  flex: 0 0 auto;
+}
+
+.sales-screen .sales-head > h2 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 700;
+}
+
+.sales-screen .sales-head > .badge {
+  margin-left: 0;
+}
+
+.sales-screen .sales-tier {
+  display: flex;
+  flex: 1 1 360px;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--text-muted);
+}
+
+.sales-screen .sales-tier__next,
+.sales-screen .sales-tier__spend {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.sales-screen .sales-tier__spend {
+  margin-left: auto;
+}
+
+.sales-screen .sales-tier__bar {
+  position: relative;
+  flex: 0 1 200px;
+  min-width: 120px;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--surface-raised);
+  overflow: hidden;
+}
+
+.sales-screen .sales-tier__bar > span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 4px;
+  background: var(--link);
+}
+
+/* 구매·판매 하위 탭 줄: 제목 줄 아래 여백만 */
+.sales-screen .sales-tabs {
+  margin: 0;
+  flex: 0 0 auto;
+}
+
+/* 패널: 칸 높이를 채우고 안에서 스크롤 */
+.sales-screen .panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+.sales-screen .panel > h2 {
+  flex: 0 0 auto;
+  margin: 0 0 6px;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+}
+
+.sales-screen .panel > .hint {
+  flex: 0 0 auto;
+  margin: 0 0 6px;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.sales-screen .sales-fill {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+/* 표는 칸 안 스크롤(app.css 의 .table-scroll 높이 제한을 풀고 칸 높이에 맞춘다) */
+.sales-screen .table-scroll {
+  max-height: none;
+}
+
+.sales-screen .data-table th,
+.sales-screen .data-table td {
+  padding: 6px 8px;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+/* app.css 의 th 고정 높이(40px)를 풀어 머리 줄이 내용 높이만큼만 차지하게 한다 */
+.sales-screen .data-table th {
+  height: auto;
+  vertical-align: middle;
+}
+
+.sales-screen .data-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface);
+}
+
+.sales-screen .sales-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.sales-screen .sales-wrap {
+  white-space: normal;
+  min-width: 120px;
+}
+
+.sales-screen .sales-sub {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.sales-screen .sales-name {
+  display: block;
+  font-weight: 600;
+}
+
+.sales-screen .sales-year-row th {
+  padding-top: 10px;
+  font-size: 12px;
+  color: var(--text-muted);
+  background: transparent;
+  border-bottom: 1px solid var(--border);
+}
+
+.sales-screen .sale-surface-note {
+  white-space: normal;
+  color: var(--warn-fg);
+  font-size: 12px;
+}
+
+/* 구매 탭: 일정(왼쪽 좁게) · 카탈로그(오른쪽 넓게) */
+.sales-screen .sales-buy {
+  flex: 1 1 0;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
+  gap: 12px;
+}
+
+/* 로트 표: 여덟 열이 카탈로그 칸 안에 들도록 긴 칸(부·모부·판매자·추정가)은 두 줄로 접는다 */
+.sales-screen .sales-lots td,
+.sales-screen .sales-lots th {
+  white-space: normal;
+}
+
+.sales-screen .sales-lots th {
+  white-space: nowrap;
+}
+
+.sales-screen .sales-lots td:nth-child(1),
+.sales-screen .sales-lots td:nth-child(2) {
+  white-space: nowrap;
+}
+
+.sales-screen .sales-buy > .panel {
+  min-height: 0;
+}
+
+.sales-screen .sales-schedule {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-raised);
+  padding: 10px 12px;
+  margin: 0 0 8px;
+  flex: 0 0 auto;
+}
+
+.sales-screen .sales-schedule p {
+  margin: 0;
+}
+
+.sales-screen .sales-schedule .hint {
+  margin-top: 6px;
+}
+
+.sales-screen .sales-filter {
+  flex: 0 0 auto;
+  margin: 0 0 6px;
+  gap: 6px 12px;
+}
+
+.sales-screen .sales-closed {
+  margin: 4px 0 0;
+  padding-left: 18px;
+}
+
+.sales-screen .sales-all > summary {
+  padding: 6px 0;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.sales-screen .sales-all[open] > .data-table {
+  margin-top: 4px;
+}
+
+/* 판매 탭: 왼쪽(판매 제안·내 말 출품) · 오른쪽(개인 거래·NH 스토어) */
+.sales-screen .sales-sell {
+  flex: 1 1 0;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr);
+  gap: 12px;
+}
+
+.sales-screen .sales-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  min-height: 0;
+}
+
+.sales-screen .sales-col > .panel {
+  flex: 1 1 0;
+}
+
+/* 판매 제안이 없으면 한 줄로 접는다 */
+.sales-screen .sell-proposals.is-empty {
+  flex: 0 0 auto;
+}
+
+.sales-screen .sales-oneline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.sales-screen .sales-oneline > strong {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.sales-screen .sales-oneline > .badge {
+  margin-left: 0;
+}
+
+.sales-screen .sales-oneline > .hint {
+  margin: 0;
+}
+
+.sales-screen .sales-consign .sales-fill {
+  flex: 1 1 0;
+}
+
+/* 출품 표: 세일 이름이 길어도 칸 밖으로 밀리지 않도록 선택 상자와 유보가 칸 폭을 고정한다 */
+.sales-screen .sales-consign select {
+  width: 13rem;
+  max-width: 100%;
+}
+
+.sales-screen .sales-consign input[type='number'] {
+  width: 6.5rem;
+}
+
+/* 로트 상세 대화상자는 app.css 의 .sales-detail 위치를 그대로 쓴다. 이 칸 안에서는 스크롤하지 않는다. */
+.sales-screen .sales-detail {
+  overflow-y: auto;
+}
+
+/* 좁은 화면: 한 줄로 쌓고 칸 높이를 고정 값으로 제한한다(가로 넘침 방지). */
+@media (max-width: 800px) {
+  .sales-screen {
+    height: auto;
+    min-height: 0;
+  }
+
+  .sales-screen .sales-tier {
+    flex-basis: 100%;
+    flex-wrap: wrap;
+  }
+
+  .sales-screen .sales-tier__spend {
+    margin-left: 0;
+  }
+
+  .sales-screen .sales-buy,
+  .sales-screen .sales-sell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sales-screen .sales-fill {
+    max-height: 420px;
+  }
+
+  .sales-screen .panel {
+    overflow-wrap: anywhere;
+  }
+}

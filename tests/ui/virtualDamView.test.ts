@@ -60,7 +60,7 @@ it('UX2 HorseDetail의 실제 혈통 탭에서 가상 모마·외조부가 표�
   const html = renderToStaticMarkup(createElement(WeightUnitProvider, null,
     createElement(HorseDetail, { game, horseId: horse.id, initialTab: 'pedigree', onClose() {}, onBreeding() {} })));
   const expected = parentageOf(state, horse);
-  expect(html).toContain('5대 혈통');
+  expect(html).toContain('<h3>혈통</h3>');
   expect(html).toContain(text(expected.dam));
   expect(html).toContain(text(expected.damsire));
   expect(horsePedigree(state, horse).summary).toContain(expected.damsire);
