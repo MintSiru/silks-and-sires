@@ -29,7 +29,8 @@ export const STARTING_PACKAGES: Readonly<Record<Difficulty, {
 }>> = {
   easy: { funds: 1_500_000, mares: 3, breederRacehorses: 2, ownerRacehorses: 3, facilityLevel: 2, farmSize: 'medium' },
   normal: { funds: 600_000, mares: 2, breederRacehorses: 1, ownerRacehorses: 2, facilityLevel: 1, farmSize: 'medium' },
-  hard: { funds: 250_000, mares: 1, breederRacehorses: 0, ownerRacehorses: 1, facilityLevel: 1, farmSize: 'small' },
+  // 어려움 오너브리더도 현역 1두(사용자 결정 2026-10-17 — 0두면 수입원이 없어 3년차 빚, M6-B2)
+  hard: { funds: 250_000, mares: 1, breederRacehorses: 1, ownerRacehorses: 1, facilityLevel: 1, farmSize: 'small' },
 };
 
 /** 소재국 혈통 차이(사용자 피드백 2026-10-12): 같은 나라 계류 종마의 선택 가중치를 3배로 한다. */

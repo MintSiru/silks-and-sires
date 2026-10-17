@@ -27,7 +27,7 @@ const LEGACY_HASH = '7f1ebc16acf85ae145a1266621cbe41d374f4ad1e192900abab45f70755
 const PACKAGES = [
   { difficulty: 'easy', funds: 1_500_000, mares: 3, breeder: 2, owner: 3, level: 2, size: 'medium' },
   { difficulty: 'normal', funds: 600_000, mares: 2, breeder: 1, owner: 2, level: 1, size: 'medium' },
-  { difficulty: 'hard', funds: 250_000, mares: 1, breeder: 0, owner: 1, level: 1, size: 'small' },
+  { difficulty: 'hard', funds: 250_000, mares: 1, breeder: 1, owner: 1, level: 1, size: 'small' },
 ] as const;
 const DATE = { year: 2026, week: 25 };
 const RACE_ID = 'test-catastrophic-race';

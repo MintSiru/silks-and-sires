@@ -23,7 +23,7 @@ export const START_TYPE_OPTIONS: readonly ChoiceOption<StartType>[] = [
 export const DIFFICULTY_OPTIONS: readonly ChoiceOption<Difficulty>[] = [
   { value: 'easy', label: '쉬움', line: '자금과 지급 말이 가장 넉넉하고 시설이 한 단계 높습니다' },
   { value: 'normal', label: '보통', line: '표준 자금과 규모로 시작합니다' },
-  { value: 'hard', label: '어려움', line: '자금이 적고 목장이 작으며 지급 현역마가 줄어듭니다' },
+  { value: 'hard', label: '어려움', line: '자금이 적고 목장이 작으며 번식 암말이 1두뿐입니다' },
 ];
 
 /** 경제 모드 선택지(고급 설정). 파산 주 수는 config 값을 그대로 쓴다. */
