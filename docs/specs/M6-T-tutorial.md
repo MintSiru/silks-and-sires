@@ -33,3 +33,12 @@
 1. decisionStop.ts(순수): `decisionStopReason(state): string | null` — 이번 주에 플레이어가 확인해야 할 결정이 있으면 한국어 사유: (a) 판매 제안이 이번 주 위탁 마감(자동 위탁 직전), (b) 교배 자동 예약 주(MATING_AUTO_BOOK_WEEK)이고 빼지 않은 제안이 있음, (c) 승인제(autoApproveRacePlans === false)에서 이번 주 출주 대상 계획이 승인 대기, (d) 연말 정산 대기. 엔진 상수·함수(upcoming 판매 제안·matingPlan·racePlans·yearEndPending)를 import 해 판정, 엔진 수정 금지.
 2. App: '4주 진행'·'다음 내 출주까지' 는 `game.advanceUntil(s => decisionStopReason(s) !== null, weeks)` 로 — 멈추면 토스트 '중요 결정 앞에서 멈췄습니다: <사유>'. '1주 진행'은 그대로. 진행 전에 현재 주에 이미 사유가 있으면 첫 주는 진행(같은 사유로 영원히 막히지 않게 — 시작 주의 사유는 무시하고 다음 주부터 판정).
 3. 테스트: 각 사유 판정, 사유 없을 때 null, 시작 주 무시 로직(작은 헬퍼로 분리해 테스트).
+
+## 추가: 경험 수준별 튜토리얼 (사용자 결정 2026-10-17)
+공용 타입(Opus): `TutorialLevel = 'racing_new' | 'game_new' | 'veteran'`, `TutorialProgress.level?`, 단계 `'learn_basics'`·`'automation_rules'` 추가.
+- 카드가 처음 뜰 때(level 없음) '어떤 플레이어인가요?' 세 버튼: '경마를 몰라요' / '경마는 알지만 이런 게임은 처음이에요' / '이런 류의 게임을 해 봤어요'. 고르면 level 저장. 카드에 '수준 바꾸기'(작은 링크).
+- 수준별 단계(T2 tutorialView 의 표 — 화면 상수):
+  - racing_new: learn_basics(경마 기초 — 그룹·OR·마장·핸디캡·블랙타입을 한 줄씩, T1 glossary 재사용, 카드 안 펼침으로 읽으면 완료) → check_horse → review_plans → advance_week → see_result → review_matings. 각 단계 설명을 더 친절하게(경마 용어 풀이 포함).
+  - game_new: check_horse → review_plans → advance_week → see_result → review_matings(지금 5단계, 게임 조작 위주 설명).
+  - veteran: automation_rules(제안은 빼지 않으면 그대로 진행 — 출주 계획·교배·판매·2세 조교, 설정에서 바꿈, 진행이 중요 결정 앞에서 멈춤 — 읽으면 완료) → review_plans → review_matings. 짧은 설명.
+- 용어 점선 도움말(T1)·결정 앞 정지(T3)는 모든 수준에 그대로.

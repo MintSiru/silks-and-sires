@@ -15,10 +15,22 @@ export type Difficulty = 'easy' | 'normal' | 'hard';
 export type HomeCountry = 'GB' | 'IE' | 'FR' | 'DE' | 'IT';
 
 /** 새 게임에서 고른 설정(게임 내내 유지) */
-/** 첫 시즌 체크리스트 단계(M6-T): 말 상태 확인 → 출주 계획 검토 → 진행 → 결과 확인 / 교배 제안 확인 */
-export type TutorialStepId = 'check_horse' | 'review_plans' | 'advance_week' | 'see_result' | 'review_matings';
+/**
+ * 첫 시즌 체크리스트 단계(M6-T): 경마 기초(용어) → 말 상태 확인 → 출주 계획 검토 → 진행 → 결과 확인 / 교배 제안 확인,
+ * 경험자용 '자동 진행 규칙' 안내. 수준별로 보이는 단계가 다르다(사용자 결정 2026-10-17)
+ */
+export type TutorialStepId = 'learn_basics' | 'automation_rules' | 'check_horse' | 'review_plans' | 'advance_week'
+  | 'see_result' | 'review_matings';
+
+/**
+ * 플레이어 경험 수준(사용자 결정 2026-10-17): 'racing_new' 경마를 몰라요 / 'game_new' 경마는 알지만 이런 게임은 처음 /
+ * 'veteran' 이런 류의 게임을 해 봤어요
+ */
+export type TutorialLevel = 'racing_new' | 'game_new' | 'veteran';
 
 export interface TutorialProgress {
+  /** 고른 경험 수준. 없으면 체크리스트 카드가 먼저 수준을 묻는다 */
+  level?: TutorialLevel;
   /** 플레이어가 체크리스트를 닫았으면 true(다시 보이지 않음) */
   dismissed: boolean;
   /** 끝낸 단계(순서 무관, 중복 없음) */
