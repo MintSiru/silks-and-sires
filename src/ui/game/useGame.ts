@@ -15,6 +15,7 @@ import { setPlayerSilks, validateSilksDesign } from '../../engine/people/silks';
 import { SILKS_ERROR_KO } from '../silks/silksText';
 import { placeBet, cancelBet, type BetError } from '../../engine/betting/betting';
 import { acceptPrivateOffer, declinePrivateOffer, type AcceptPrivateOfferError, type DeclinePrivateOfferError } from '../../engine/sales/privateTrade';
+import { enquirePrivatePurchase, type EnquiryError } from '../../engine/sales/privateMarket';
 import { useCallback, useRef, useState } from 'react';
 import { WEEKS_PER_YEAR, EVENT_LOG_LIMIT } from '../../engine/config/game';
 import { createGameSystems, type GameStaticData } from '../../engine/state/systems';
@@ -182,6 +183,8 @@ export interface GameApi {
   terminateRetainer(kind: RetainerKind, personId: string): PlayerResult<'not_contracted'>;
   acceptPrivateOffer(offerId: string): PlayerResult<AcceptPrivateOfferError>;
   declinePrivateOffer(offerId: string): PlayerResult<DeclinePrivateOfferError>;
+  /** AI 마주 말에 구매를 문의한다(M7-G2). 수락이면 호가(출처 enquiry)가 개인 거래 탭에 생기고 이벤트를 남긴다. 거절이면 사유를 돌려주고 상태는 그대로다 */
+  enquirePrivatePurchase(horseId: HorseId): PlayerResult<EnquiryError>;
   registerHorseName(horseId: HorseId, name: string): ReturnType<typeof registerHorseName>;
   nameSuggestions(horseId: HorseId, round?: number): string[];
   renameFarm(name: string): ReturnType<typeof renameFarm>;
@@ -609,6 +612,14 @@ export function useGame(): GameApi {
     (offerId: string) => applyPlayerResult(declinePrivateOffer(requireState(), offerId)),
     [requireState, applyPlayerResult],
   );
+  const enquireOffer = useCallback((horseId: HorseId): PlayerResult<EnquiryError> => {
+    const result = enquirePrivatePurchase(requireState(), horseId);
+    if (!result.ok) return result;
+    const next = appendEvents(result.state, result.events);
+    stateRef.current = next;
+    setState(next);
+    return { ...result, state: next };
+  }, [requireState]);
 
   const clearBid = useCallback(
     (saleId: string, year: number, lotNo: number): PlayerResult<'bid_not_found'> =>
@@ -801,6 +812,7 @@ export function useGame(): GameApi {
     clearMaxBid: clearBid,
     acceptPrivateOffer: acceptOffer,
     declinePrivateOffer: declineOffer,
+    enquirePrivatePurchase: enquireOffer,
     signRetainer: signRetainerWith,
     terminateRetainer: terminateRetainerWith,
     save,

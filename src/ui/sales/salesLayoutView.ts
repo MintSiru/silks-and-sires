@@ -9,8 +9,8 @@ import type { GameDate, GameState } from '../../engine/types';
 import { feeKo, patronTierKo } from '../game/text';
 import type { SaleCalendarRow } from './salesView';
 
-/** 세일 화면 하위 탭: 구매(일정·카탈로그·로트 상세) / 판매(판매 제안·개인 거래·내 말 출품) */
-export type SalesTab = 'buy' | 'sell';
+/** 세일 화면 하위 탭: 구매(일정·카탈로그·로트 상세) / 판매(판매 제안·내 말 출품·NH) / 개인 거래(시장·문의 매물, M7-G2) */
+export type SalesTab = 'buy' | 'sell' | 'private';
 
 /** 화면에서 고른 세일(saleId + 카탈로그 연도) */
 export interface SaleKey {

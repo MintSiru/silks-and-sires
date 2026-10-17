@@ -28,6 +28,7 @@ import {
   MARE_HISTORY_SEASONS,
   RECENT_RUN_COUNT,
   conditionOf,
+  enquiryAvailable,
   formSummaryKo,
   horsePedigree,
   horseRunRows,
@@ -42,6 +43,7 @@ import {
   type TimelineItem,
 } from './horseDetailView';
 import { horseLegacyBadges } from '../legacy/legacyView';
+import { enquiryNoticeKo } from '../sales/privateMarketView';
 import { useNotify } from '../shell/notify';
 import './horse.css';
 
@@ -289,6 +291,21 @@ export default function HorseDetail({
           <Term id="or">OR</Term> {orValueKo(horse.officialRating)}
         </span>
       </p>
+      {enquiryAvailable(state, horseId) && (
+        <p className="horse-detail__enquiry">
+          <button
+            type="button"
+            className="btn"
+            onClick={() => {
+              const notice = enquiryNoticeKo(state, horseId, game.enquirePrivatePurchase(horseId));
+              notify(notice.text, notice.ok ? 'ok' : 'error');
+            }}
+          >
+            구매 문의
+          </button>{' '}
+          <span className="hint">호가를 받아 세일의 개인 거래 탭에 올립니다.</span>
+        </p>
+      )}
       {canChangeTrainer && trainerOpen && (
         <section className="trainer-form" aria-label="조교사 변경">
           <label className="field">

@@ -5,7 +5,8 @@ import { findInbreeding, dominantCrosses, totalBloodPercent } from '../../engine
 import { nickKey, nickLabel, nickValue } from '../../engine/breeding/nicks';
 import { displayName } from '../../engine/naming/register';
 import { goingLabel } from '../../engine/going/going';
-import { formatDateKo } from '../../engine/time/calendar';
+import { ageInYear, formatDateKo } from '../../engine/time/calendar';
+import { PRIVATE_ENQUIRY_MIN_RACE_AGE } from '../../engine/config/sales';
 import { DUE_WEEK_KEY_YEAR_SCALE } from '../../engine/config/breedingSeason';
 import {
   FITNESS_PEAK_ZONE,
@@ -95,6 +96,19 @@ export function horseTabs(horse: Horse): HorseTab[] {
   if (horse.status === 'stud') return ['overview', 'book', 'offspring', ...common];
   if (['foal', 'weanling', 'yearling', 'historical'].includes(horse.status)) return ['overview', ...common];
   return ['overview', 'plan', 'record', ...common];
+}
+
+/**
+ * 말 상세의 '구매 문의' 버튼을 보일지(M7-G2). AI 마주가 소유한 현역마(문의 최소 나이 이상) 또는 번식 암말만 대상이다.
+ * 레이팅·G1 우승·주당 횟수 같은 거절 조건은 엔진 enquirePrivatePurchase 가 판단하고, 여기서는 대상 종류만 본다.
+ */
+export function enquiryAvailable(state: GameState, id: string): boolean {
+  const horse = state.horses[id];
+  if (horse === undefined || horse.ownerId === null || horse.ownerId === state.playerOwnerId) return false;
+  const owner = state.owners[horse.ownerId];
+  if (owner === undefined || owner.isPlayer) return false;
+  if (horse.status === 'broodmare') return horse.sex === 'female';
+  return horse.status === 'in_training' && ageInYear(horse.birthYear, state.date.year) >= PRIVATE_ENQUIRY_MIN_RACE_AGE;
 }
 
 export function eventInvolvesHorse(event: GameEvent, id: string): boolean {

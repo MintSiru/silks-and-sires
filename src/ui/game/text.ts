@@ -17,7 +17,8 @@ import type { RetainerRefusal } from '../../engine/economy/contracts';
 import type { BidError } from '../../engine/sales/bidding';
 import type { InspectError } from '../../engine/sales/inspection';
 import type { ConsignError, UpcomingSale } from '../../engine/sales/player';
-import { SALE_INSPECT_MIN_RELATION } from '../../engine/config/sales';
+import { PRIVATE_ENQUIRY_PER_WEEK, PRIVATE_ENQUIRY_REFUSE_OR, SALE_INSPECT_MIN_RELATION } from '../../engine/config/sales';
+import type { EnquiryError } from '../../engine/sales/privateMarket';
 import type { TrainerReportKey } from '../../engine/horse/conditioning';
 import type { PersonalityClueKey } from '../../engine/horse/personality';
 import type { AssignTrainerError, DeclareError, WithdrawError } from '../../engine/season/player';
@@ -977,6 +978,18 @@ export function privateOfferErrorKo(error: AcceptPrivateOfferError | InspectOffe
     farm_full: '목장의 번식 암말 칸이 모자라 살 수 없습니다.',
     insufficient_funds: '자금이 부족해 구매할 수 없습니다.',
     not_eligible: '이 조교사는 동행 검사를 할 수 없습니다.',
+  }[error];
+}
+
+/** 구매 문의 실패 사유 → 한국어(M7-G2). 거절 기준 숫자는 엔진 config 를 그대로 쓴다 */
+export function enquiryErrorKo(error: EnquiryError): string {
+  return {
+    horse_not_found: '말을 찾을 수 없습니다.',
+    not_for_sale: '이 말은 지금 구매 문의를 받지 않습니다.',
+    refused_group_winner: '올해 그룹 레이스에서 우승한 말은 마주가 팔지 않습니다.',
+    refused_rating: `공식 레이팅 ${PRIVATE_ENQUIRY_REFUSE_OR} 이상인 말은 문의를 받지 않습니다.`,
+    already_enquired: '이번 주에 이미 문의한 말입니다.',
+    enquiry_limit: `구매 문의는 이번 주 ${PRIVATE_ENQUIRY_PER_WEEK}회까지입니다.`,
   }[error];
 }
 

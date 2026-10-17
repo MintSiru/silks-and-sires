@@ -13,7 +13,6 @@ import {
   countryKo,
   feeKo,
   nhStoreErrorKo,
-  privateOfferErrorKo,
 } from '../game/text';
 import type { GameApi } from '../game/useGame';
 import {
@@ -31,7 +30,6 @@ import {
   consignStatusKo,
   lotDetailView,
   patronBadge,
-  privateOfferRows,
   saleCalendarRows,
   type CatalogueFilter,
   type ConsignableRow,
@@ -49,7 +47,8 @@ import {
   type SaleKey,
   type SalesTab,
 } from './salesLayoutView';
-import { InspectBox, LotDetail } from './SalesLotDetail';
+import { LotDetail } from './SalesLotDetail';
+import { PrivateMarketTab } from './PrivateMarketTab';
 import { useNotify } from '../shell/notify';
 import { NO_VALUE, SALES_DATA, eventOf } from './salesCommon';
 import { useFillHeight } from './useFillHeight';
@@ -65,6 +64,7 @@ const SALES_BOTTOM_GAP = 16;
 const SALES_TABS: readonly (readonly [SalesTab, string])[] = [
   ['buy', '구매'],
   ['sell', '판매'],
+  ['private', '개인 거래'],
 ];
 
 interface SalesScreenProps {
@@ -159,7 +159,7 @@ function SalesView({ game, state, locked }: SalesViewProps): JSX.Element {
           </button>
         ))}
       </nav>
-      {tab === 'buy' ? (
+      {tab === 'buy' && (
         <BuyTab
           game={game}
           state={state}
@@ -170,9 +170,11 @@ function SalesView({ game, state, locked }: SalesViewProps): JSX.Element {
           filters={filters}
           onFilters={setFilters}
         />
-      ) : (
+      )}
+      {tab === 'sell' && (
         <SellTab game={game} state={state} locked={locked} sellRows={sellRows} consignRows={consignRows} />
       )}
+      {tab === 'private' && <PrivateMarketTab game={game} state={state} locked={locked} />}
     </section>
   );
 }
@@ -474,22 +476,23 @@ function BuyTab({ game, state, locked, calendar, active, onPick, filters, onFilt
   );
 }
 
-// ── 판매 탭: 판매 제안 · 내 말 출품 · 개인 거래 제안 · NH 스토어 ─────
+// ── 판매 탭: 판매 제안 · 내 말 출품 · NH 스토어 ─────────────────
 
 interface SellTabProps extends SalesViewProps {
   sellRows: SellProposalRow[];
   consignRows: ConsignableRow[];
 }
 
-/** 배치: 위 두 칸(판매 제안 · 개인 거래 제안·NH 스토어)은 내용 높이, 아래 내 말 출품은 전체 폭 */
+/** 배치: 위 두 칸(판매 제안 · NH 스토어)은 내용 높이, 아래 내 말 출품은 전체 폭. 개인 거래 매물은 개인 거래 탭이 맡는다 */
 function SellTab({ game, state, locked, sellRows, consignRows }: SellTabProps): JSX.Element {
   return (
     <div className="sales-sell">
       <SellProposalPanel game={game} state={state} locked={locked} rows={sellRows} />
-      <div className="sales-col">
-        <PrivateOffersPanel game={game} state={state} locked={locked} />
-        {nhStoreOpen(state) && <NhStore game={game} state={state} locked={locked} />}
-      </div>
+      {nhStoreOpen(state) && (
+        <div className="sales-col">
+          <NhStore game={game} state={state} locked={locked} />
+        </div>
+      )}
       <ConsignPanel game={game} locked={locked} rows={consignRows} />
     </div>
   );
@@ -744,101 +747,6 @@ function ConsignItem({ row, game, locked }: ConsignItemProps): JSX.Element {
         {consigned && cancelReason !== null && <span className="sales-sub">{cancelReason}</span>}
       </td>
     </tr>
-  );
-}
-
-// ── 개인 거래 제안 ──────────────────────────────────────────────
-
-function PrivateOffersPanel({ game, state, locked }: SalesViewProps): JSX.Element {
-  return (
-    <section className="panel sales-offers" aria-label="개인 거래 제안">
-      <h2>
-        개인 거래 제안 <span className="badge">{privateOfferRows(state).length}건</span>
-      </h2>
-      <div className="sales-fill">
-        <PrivateOffers game={game} state={state} locked={locked} />
-      </div>
-    </section>
-  );
-}
-
-function PrivateOffers({ game, state, locked }: SalesViewProps): JSX.Element {
-  const rows = privateOfferRows(state);
-  const notify = useNotify();
-  const [inspectId, setInspectId] = useState<string | null>(null);
-  const inspected = rows.find((row) => row.offerId === inspectId);
-  const act = (offerId: string, buy: boolean): void => {
-    const row = rows.find((entry) => entry.offerId === offerId);
-    if (
-      buy &&
-      (locked || !window.confirm(`${row?.horseName ?? ''}을 ${row?.priceKo ?? ''}에 구매합니다. 계속할까요?`))
-    )
-      return;
-    const result = buy ? game.acceptPrivateOffer(offerId) : game.declinePrivateOffer(offerId);
-    if (result.ok) notify(buy ? '구매했습니다.' : '제안을 거절했습니다.');
-    else notify(privateOfferErrorKo(result.error), 'error');
-  };
-  return (
-    <>
-      {rows.length === 0 ? (
-        <p className="hint">
-          관계가 좋은 오너브리더가 1~3월에 유망주를 개인적으로 제안합니다(관계 20 이상 또는 명성 35 이상)
-        </p>
-      ) : (
-        <div className="sales-fill">
-          <table className="data-table">
-            <thead>
-              <tr>
-                {['말', '성별 나이', '부', '제안 마주', '가격', '추정가', '기한', '행동'].map((label) => (
-                  <th key={label}>{label}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => (
-                <tr key={row.offerId}>
-                  <td>
-                    <HorseLink name={row.horseName} />
-                  </td>
-                  <td>{row.sexAgeKo}</td>
-                  <td>
-                    <HorseLink name={row.sireName} />
-                  </td>
-                  <td>{row.ownerName}</td>
-                  <td>{row.priceKo}</td>
-                  <td>{row.estimateKo}</td>
-                  <td>{row.expiresKo}</td>
-                  <td>
-                    <button type="button" className="btn" onClick={() => setInspectId(row.offerId)}>
-                      조교사 검사
-                    </button>{' '}
-                    <button
-                      type="button"
-                      className="btn"
-                      disabled={locked}
-                      onClick={() => act(row.offerId, true)}
-                    >
-                      구매
-                    </button>{' '}
-                    <button type="button" className="btn" onClick={() => act(row.offerId, false)}>
-                      거절
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-      {inspected !== undefined && (
-        <InspectBox
-          key={inspected.offerId}
-          state={state}
-          horseId={inspected.horseId}
-          offerId={inspected.offerId}
-        />
-      )}
-    </>
   );
 }
 
