@@ -1,0 +1,39 @@
+/* 레이스 띠 뷰어: 캔버스 아래 자막·조작 줄·한 줄 평. 색은 app.css 의 토큰과 .btn 을 쓴다. */
+.race-viewer {
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
+}
+
+.race-viewer-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.race-viewer-controls .btn {
+  min-width: 64px;
+  font-size: 13px;
+  padding: 4px 10px;
+}
+
+/* 현재 배속 강조(aria-pressed 와 함께 쓴다) */
+.race-viewer-controls .btn.is-active {
+  background: #1f4e9c;
+  border-color: #2d64be;
+  color: #ffffff;
+}
+
+.race-viewer-subtitle {
+  color: var(--text);
+  font-size: 14px;
+}
+
+.race-viewer-verdicts {
+  margin: 6px 0 0;
+  padding-left: 20px;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 20px;
+}

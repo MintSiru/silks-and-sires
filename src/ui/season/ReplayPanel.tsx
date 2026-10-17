@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
 import type { JSX } from 'react';
-import { goingLabel } from '../../engine/going/going';
 import type { GameState } from '../../engine/types';
+import { goingKo } from '../horse/horseDetailView';
 import RaceViewer from '../race-viewer/RaceViewer';
 import { buildReplay, replayList } from './replayView';
 import type { ReplayBundle } from './replayView';
+import './replayPanel.css';
 
 interface ReplayPanelProps {
   state: GameState;
@@ -15,8 +16,14 @@ interface ReplayPanelProps {
 export default function ReplayPanel({ state, initialKey = null }: ReplayPanelProps): JSX.Element {
   const list = useMemo(() => replayList(state), [state]);
   const [picked, setPicked] = useState<string | null>(initialKey);
+  // '내 말 출주만' 체크. null 은 기본값(켬)을 뜻한다. 내 말 레이스가 하나도 없으면 꺼진 상태로 둔다.
+  const [mineSetting, setMineSetting] = useState<boolean | null>(null);
   // 고른 항목이 목록에서 사라졌으면(예: 오래된 항목 정리) 선택이 없는 것으로 본다
   const activeKey = picked !== null && list.some((item) => item.key === picked) ? picked : null;
+  const anyPlayer = list.some((item) => item.hasPlayer);
+  const mineOnly = anyPlayer && (mineSetting ?? true);
+  // 고른 항목은 필터와 무관하게 목록에 남긴다(열린 레이스가 목록에서 사라지지 않게)
+  const visible = mineOnly ? list.filter((item) => item.hasPlayer || item.key === activeKey) : list;
 
   const loaded = useMemo((): { bundle: ReplayBundle | null; error: string | null } => {
     if (activeKey === null) return { bundle: null, error: null };
@@ -36,11 +43,21 @@ export default function ReplayPanel({ state, initialKey = null }: ReplayPanelPro
 
   return (
     <div>
+      <label className="replay-filter">
+        <input
+          type="checkbox"
+          checked={mineOnly}
+          disabled={!anyPlayer}
+          onChange={(e) => setMineSetting(e.target.checked)}
+        />
+        내 말 출주만
+      </label>
       <ul className="replay-list">
-        {list.map((item) => (
+        {visible.map((item) => (
           <li key={item.key}>
             <button
               type="button"
+              className="btn"
               aria-pressed={item.key === activeKey}
               onClick={() => setPicked(item.key)}
             >
@@ -56,7 +73,7 @@ export default function ReplayPanel({ state, initialKey = null }: ReplayPanelPro
       {bundle !== null && (
         <div>
           <p>
-            {bundle.info.raceName} · 마장 {goingLabel(bundle.info.going)} · 출주 {bundle.info.horseNames.length}두
+            {bundle.info.raceName} · 마장 {goingKo(bundle.info.going)} · 출주 {bundle.info.horseNames.length}두
           </p>
           {replay !== null ? (
             <div style={{ overflowX: 'auto' }}>

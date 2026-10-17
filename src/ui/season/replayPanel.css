@@ -1,0 +1,30 @@
+/* 다시보기 목록: 항목을 .btn 모양으로 보인다. 목록 위 '내 말 출주만' 체크. */
+.replay-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.replay-list {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.replay-list .btn {
+  width: 100%;
+  text-align: left;
+  font-size: 13px;
+  padding: 6px 10px;
+  overflow-wrap: anywhere;
+}
+
+.replay-list .btn[aria-pressed='true'] {
+  background: #1f4e9c;
+  border-color: #2d64be;
+}

@@ -4,6 +4,7 @@ import type { RacePath, RaceReplay, RaceResult } from '../../engine/types';
 import { GATE_HOLD_S, buildStripModel, replayDuration } from './viewModel';
 import type { ViewerInfo } from './viewModel';
 import { drawStrip } from './stripRenderer';
+import './raceViewer.css';
 
 export interface RaceViewerProps {
   replay: RaceReplay;
@@ -132,24 +133,24 @@ export default function RaceViewer(props: RaceViewerProps): JSX.Element {
         {subtitle}
       </div>
       <div className="race-viewer-controls">
-        <button type="button" onClick={togglePlay}>
+        <button type="button" className="btn" onClick={togglePlay}>
           {playing ? '일시정지' : '재생'}
         </button>
         {SPEEDS.map((s) => (
           <button
             key={s}
             type="button"
+            className={speed === s ? 'btn is-active' : 'btn'}
             aria-pressed={speed === s}
-            className={speed === s ? 'is-active' : undefined}
             onClick={() => setSpeed(s)}
           >
             {`${s}×`}
           </button>
         ))}
-        <button type="button" onClick={showResult}>
+        <button type="button" className="btn" onClick={showResult}>
           결과만
         </button>
-        <button type="button" onClick={restart}>
+        <button type="button" className="btn" onClick={restart}>
           처음부터
         </button>
       </div>

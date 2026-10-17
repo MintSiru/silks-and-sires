@@ -197,7 +197,9 @@ describe('drawStrip', () => {
     drawStrip(ctx, modelAt(10));
     const all = texts(calls);
     expect(all.some((s) => s.includes('Sample Stakes'))).toBe(true);
-    expect(all.some((s) => s.includes('GOOD'))).toBe(true);
+    // M7-R2: 마장은 한국어('GOOD' → '좋음'), 주로·거리는 '잔디 1,200m (6f)' 식
+    expect(all.some((s) => s.includes('마장 좋음'))).toBe(true);
+    expect(all.some((s) => s.startsWith('잔디 '))).toBe(true);
   });
 
   it('save 와 restore 호출 수가 같다', () => {
