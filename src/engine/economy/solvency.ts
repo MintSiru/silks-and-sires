@@ -7,6 +7,9 @@
  * 난수 미사용. 모든 순회는 ID 오름차순이라 같은 상태 → 같은 결과.
  */
 import {
+  DEBT_CAP_FALLBACK,
+  DEBT_CAP_YEARS_OF_COSTS,
+  DEBT_INTEREST_BASE_CAP,
   DEBT_INTEREST_WEEKLY,
   DEBT_REPAY_BUFFER,
   DISTRESS_PRICE_BASE_OR,
@@ -66,8 +69,14 @@ function settleCasual(draft: GameState, player: Owner, date: GameDate, events: G
     events.push({ type: 'economy_warning', kind: 'debt_started', weeksLeft: null, date });
   }
 
+  // 빚 상한: 지난해 지출 DEBT_CAP_YEARS_OF_COSTS 년분(넘는 몫 탕감 — 캐주얼 전용)
+  const last = economy.yearSummaries.at(-1)?.player;
+  const lastCosts = last === undefined ? 0 : -Object.values(last).reduce((sum, v) => sum + Math.min(0, v ?? 0), 0);
+  const debtCap = lastCosts > 0 ? Math.round(lastCosts * DEBT_CAP_YEARS_OF_COSTS) : DEBT_CAP_FALLBACK;
+  if (economy.debt > debtCap) economy.debt = debtCap;
+
   if (economy.debt > 0) {
-    const interest = Math.round(economy.debt * DEBT_INTEREST_WEEKLY);
+    const interest = Math.round(Math.min(economy.debt, DEBT_INTEREST_BASE_CAP) * DEBT_INTEREST_WEEKLY);
     if (interest > 0) {
       economy.debt += interest;
       recordLedgerOnly(draft, player.id, 'interest', -interest, date);

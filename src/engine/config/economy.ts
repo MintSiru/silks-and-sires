@@ -27,6 +27,14 @@ export const PLAYER_LEDGER_KEEP_WEEKS = 104;
 
 /** 캐주얼 모드: 빚 이자(주당, 빚 잔액에 곱해 반올림). 빚이 있는 주마다 붙는다 */
 export const DEBT_INTEREST_WEEKLY = 0.001;
+/**
+ * 캐주얼 이자 완화(M6, 사용자 결정 2026-10-17): 이자는 빚 중 이 액수까지에만 붙는다(복리 발산 방지 — 연 이자 상한 약 €26,000).
+ * 캐주얼은 파산 없는 모드라 빚이 끝없이 불어나 게임이 멈추지 않게 한다.
+ */
+export const DEBT_INTEREST_BASE_CAP = 500_000;
+/** 캐주얼 빚 상한: 지난해 플레이어 지출 합의 이 배수. 넘는 몫은 탕감한다(지난해 기록이 없으면 DEBT_CAP_FALLBACK) */
+export const DEBT_CAP_YEARS_OF_COSTS = 2;
+export const DEBT_CAP_FALLBACK = 600_000;
 /** 캐주얼 모드: 자금이 이 액수를 넘으면 넘는 만큼 빚을 자동 상환한다(이 액수는 남긴다) */
 export const DEBT_REPAY_BUFFER = 50_000;
 /** 레거시 모드: 자금 마이너스가 이 주 연속이면 파산한다 */
