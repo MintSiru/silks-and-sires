@@ -98,7 +98,7 @@ describe('UX2 마구간·셸', () => {
   });
   it('게임이 없으면 시작 화면만 그린다', () => {
     const html = renderToStaticMarkup(createElement(App));
-    expect(html).toContain('새 게임 시작');
+    expect(html).toContain('이 조건으로 시작');
     expect(html).not.toContain('공통 상단 바');
     expect(html).not.toContain('화면 선택');
   });

@@ -20,7 +20,7 @@ await page.goto('http://cap.local/');
 await page.waitForTimeout(1500);
 await shot('01-시작-화면');
 await page.getByRole('textbox', { name: '마주 이름', exact: true }).fill('구름들 마주');
-await page.getByRole('button', { name: '새 게임 시작', exact: true }).click();
+await page.getByRole('button', { name: '이 조건으로 시작', exact: true }).click();
 const nav = page.getByRole('navigation', { name: '화면 선택' });
 await nav.waitFor({ timeout: 90000 });
 for (let k = 0; k < 6; k++) { await page.getByRole('button', { name: '4주 진행', exact: true }).click(); await page.waitForTimeout(500); }

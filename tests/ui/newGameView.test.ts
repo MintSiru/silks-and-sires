@@ -1,11 +1,16 @@
 import { describe, expect, it } from 'vitest';
+import { DEFAULT_ECONOMY_MODE, LEGACY_BANKRUPT_WEEKS } from '../../src/engine/config/economy';
 import { DEFAULT_GAME_SETTINGS, STARTING_PACKAGES } from '../../src/engine/config/farm';
 import { CATASTROPHIC_FRACTURE_SHARE } from '../../src/engine/config/injury';
 import { feeKo } from '../../src/ui/game/text';
 import {
   CATASTROPHIC_INJURY_HINT_KO,
   DIFFICULTY_OPTIONS,
+  ECONOMY_MODE_OPTIONS,
+  RECOMMENDED_START,
   START_TYPE_OPTIONS,
+  isRecommendedStart,
+  recommendedStartKo,
   startSummaryKo,
 } from '../../src/ui/newGame/newGameView';
 
@@ -69,5 +74,65 @@ describe('선택지 상수', () => {
   it('예후불량 설명은 config 의 비율(약 40%)을 그대로 적는다', () => {
     expect(Math.round(CATASTROPHIC_FRACTURE_SHARE * 100)).toBe(40);
     expect(CATASTROPHIC_INJURY_HINT_KO).toContain('약 40%가 사망');
+  });
+});
+
+describe('M6-U10 시작 화면 선택지 한 줄 설명(L2)', () => {
+  it('모든 선택지는 결과 중심 한 줄 설명을 가진다', () => {
+    for (const option of [...START_TYPE_OPTIONS, ...DIFFICULTY_OPTIONS, ...ECONOMY_MODE_OPTIONS]) {
+      expect(option.line.length).toBeGreaterThan(4);
+      expect(option.line).not.toContain('\n');
+    }
+  });
+
+  it('캐주얼은 파산 없음과 빚으로 쌓인다는 결과를, 유료 지출이 막힌다는 조건을 말한다', () => {
+    const casual = ECONOMY_MODE_OPTIONS.find((o) => o.value === 'casual');
+    expect(casual?.line.startsWith('파산 없음 · 적자는 빚으로')).toBe(true);
+    expect(casual?.line).toContain('유료 지출');
+  });
+
+  it('레거시 설명의 주 수는 config 의 파산 주 수와 같다', () => {
+    const legacy = ECONOMY_MODE_OPTIONS.find((o) => o.value === 'legacy');
+    expect(legacy?.line).toBe(`자금이 ${LEGACY_BANKRUPT_WEEKS}주 연속 음수면 파산합니다`);
+    expect(LEGACY_BANKRUPT_WEEKS).toBe(12);
+  });
+
+  it('시작 유형 설명은 오너브리더 생산 · 마주 현역마 시작을 말한다', () => {
+    expect(START_TYPE_OPTIONS.find((o) => o.value === 'owner')?.line).toContain('목장 없이 현역마');
+    expect(START_TYPE_OPTIONS.find((o) => o.value === 'owner_breeder')?.line).toContain('번식 암말');
+  });
+
+  it('경제 모드 기본값(캐주얼)은 엔진 기본 경제 모드와 같다', () => {
+    expect(ECONOMY_MODE_OPTIONS.map((o) => o.value)).toContain(DEFAULT_ECONOMY_MODE);
+  });
+});
+
+describe('추천 조건(L1 추천 조건으로 시작)', () => {
+  it('추천 조건은 엔진 기본 설정과 같고 소재국은 영국이다', () => {
+    expect(RECOMMENDED_START.startType).toBe(DEFAULT_GAME_SETTINGS.startType);
+    expect(RECOMMENDED_START.difficulty).toBe(DEFAULT_GAME_SETTINGS.difficulty);
+    expect(RECOMMENDED_START.catastrophicInjuries).toBe(DEFAULT_GAME_SETTINGS.catastrophicInjuries);
+    expect(RECOMMENDED_START.homeCountry).toBe('GB');
+    expect(RECOMMENDED_START.economyMode).toBe(DEFAULT_ECONOMY_MODE);
+  });
+
+  it('추천 문구는 오너브리더 · 보통 · 영국 · 캐주얼이다', () => {
+    expect(recommendedStartKo()).toBe('오너브리더 · 보통 · 영국 · 캐주얼');
+  });
+
+  it('추천 조건 그대로면 추천이고 하나라도 다르면 추천이 아니다', () => {
+    expect(isRecommendedStart({ ...RECOMMENDED_START })).toBe(true);
+    expect(isRecommendedStart({ ...RECOMMENDED_START, difficulty: 'hard' })).toBe(false);
+    expect(isRecommendedStart({ ...RECOMMENDED_START, homeCountry: 'FR' })).toBe(false);
+    expect(isRecommendedStart({ ...RECOMMENDED_START, economyMode: 'legacy' })).toBe(false);
+    expect(isRecommendedStart({ ...RECOMMENDED_START, catastrophicInjuries: false })).toBe(false);
+  });
+
+  it('현역마 지급 선택은 오너브리더 추천 판정에 들어가고, 마주 시작에서는 지급 선택과 무관하다', () => {
+    expect(isRecommendedStart({ ...RECOMMENDED_START, grantRacehorses: false })).toBe(false);
+    const owner = { ...RECOMMENDED_START, startType: 'owner' as const };
+    expect(isRecommendedStart({ ...owner, grantRacehorses: false })).toBe(
+      isRecommendedStart({ ...owner, grantRacehorses: true }),
+    );
   });
 });

@@ -1,0 +1,83 @@
+/* M6-U10 시작 화면(L): 기본 조건만 펼치고 고급 설정·승부복 편집은 접는다. 1440×900 에서 문서 스크롤이 없다.
+   app.css 가 뒤에 로드되므로 모든 규칙을 .new-game 아래에 두어 특이도를 높였다. 색은 app.css 토큰(:root)만 쓴다. */
+
+.new-game.start-card { max-width: none; margin: 0 auto; padding: 20px 24px; box-sizing: border-box; }
+.new-game .start-card__form { display: flex; flex-direction: column; gap: 14px; }
+.new-game .start-card__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+  /* 기본 조건은 안에 들어오고, 고급 설정·편집기를 펼쳐 넘칠 때만 이 영역 안에서 스크롤한다(버튼 줄은 고정). */
+  max-height: calc(100dvh - 330px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.new-game .start-card__main,
+.new-game .start-card__side { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+
+/* 마주 이름 · 목장 이름 · 소재국 한 줄 */
+.new-game .start-card__row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; align-items: start; }
+.new-game .start-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.new-game .start-field > label { font-size: 14px; line-height: 20px; color: var(--text-muted); }
+.new-game .start-field input,
+.new-game .start-field select { width: 100%; box-sizing: border-box; height: 34px; }
+.new-game .start-hint { margin: 0; font-size: 12px; line-height: 18px; color: var(--text-muted); }
+
+/* 추천 조건 안내 */
+.new-game .start-recommend {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px;
+  margin: 0; padding: 10px 12px; border-radius: 8px; box-sizing: border-box;
+  background: rgba(159, 195, 255, 0.08); border: 1px solid rgba(159, 195, 255, 0.3);
+  font-size: 13px; line-height: 20px; color: var(--text);
+}
+.new-game .start-recommend > strong { font-size: 15px; font-weight: 600; }
+
+/* 선택 카드 묶음(시작 유형·난이도·경제 모드): 옵션마다 결과 한 줄 */
+.new-game .start-group { min-width: 0; margin: 0; padding: 0; border: 0; }
+.new-game .start-group > legend { padding: 0; margin-bottom: 6px; font-size: 15px; line-height: 22px; font-weight: 600; color: var(--text); }
+.new-game .start-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 8px; }
+.new-game .start-option {
+  display: flex; align-items: flex-start; gap: 10px; min-width: 0; box-sizing: border-box;
+  padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface-raised); cursor: pointer;
+}
+.new-game .start-option:hover { border-color: #526c8f; }
+.new-game .start-option.is-selected { border-color: var(--focus); background: rgba(159, 195, 255, 0.12); }
+.new-game .start-option > input { margin-top: 4px; }
+.new-game .start-option__text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.new-game .start-option__text > strong { font-size: 15px; line-height: 22px; font-weight: 600; }
+.new-game .start-option__line { font-size: 12px; line-height: 18px; color: var(--text-muted); overflow-wrap: anywhere; }
+
+/* 고급 설정 접기 */
+.new-game .start-advanced-toggle {
+  align-self: flex-start; padding: 4px 0; border: 0; background: transparent;
+  color: var(--link); font: inherit; font-size: 14px; line-height: 20px; cursor: pointer;
+}
+.new-game .start-advanced {
+  display: flex; flex-direction: column; gap: 12px; box-sizing: border-box;
+  padding: 12px; border: 1px dashed var(--border); border-radius: 8px;
+}
+.new-game .start-check { display: flex; flex-direction: column; gap: 2px; }
+.new-game .start-check > label { display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 22px; font-weight: 600; cursor: pointer; }
+.new-game .start-check > .start-hint { margin-left: 24px; }
+
+/* 오른쪽: 승부복 미리보기·꾸미기, 고른 조건 요약 */
+.new-game .start-silks { display: flex; align-items: center; gap: 16px; }
+.new-game .start-silks > svg { flex: 0 0 auto; }
+.new-game .start-silks__title { margin: 0 0 8px; font-size: 15px; line-height: 22px; font-weight: 600; }
+.new-game .start-silks-editor .silks-editor { margin: 0; }
+.new-game .start-summary { padding: 12px; box-sizing: border-box; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-raised); }
+.new-game .start-summary__title { margin: 0 0 6px; font-size: 15px; line-height: 22px; font-weight: 600; }
+.new-game .start-summary ul { margin: 0; padding-left: 18px; font-size: 14px; line-height: 22px; }
+
+/* 아래: 주 버튼(카드 하단 전체 폭 44px) + 보조 줄 */
+.new-game .start-card__footer { display: flex; flex-direction: column; gap: 8px; }
+.new-game .start-card__start { width: 100%; height: 44px; min-height: 44px; box-sizing: border-box; padding: 0 16px; font-size: 16px; font-weight: 600; }
+.new-game .start-card__sub { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.new-game .start-card__error { margin: 0; }
+
+@media (max-width: 800px) {
+  .new-game.start-card { padding: 14px; }
+  .new-game .start-card__body { grid-template-columns: minmax(0, 1fr); max-height: none; overflow: visible; }
+}

@@ -282,14 +282,16 @@ describe('UX3 홈·캘린더', () => {
 });
 
 describe('UX3 시작·가독성·세일 일정', () => {
-  it('라디오와 체크박스는 한 줄 라벨이며 설정·승부복 영역을 나눈다', () => {
+  it('기본 화면은 시작 유형·난이도 선택 카드만 펼치고 고급 설정은 접는다(M6-U10)', () => {
     const html = renderToStaticMarkup(
       createElement(NewGameScreen, { game: {} as GameApi, onDone: () => {} }),
     );
-    expect(html).toContain('new-game__settings');
-    expect(html.match(/class="choice-field"/g)).toHaveLength(9);
-    expect(html).not.toMatch(/class="field"><input type="(?:radio|checkbox)"/);
-    expect(html).toContain('시작 설정 도움말');
+    expect(html).toContain('start-card__body');
+    expect(html.match(/class="start-option(?: is-selected)?"/g)).toHaveLength(5);
+    expect(html).toContain('aria-expanded="false"');
+    expect(html).toContain('고급 설정');
+    expect(html).not.toContain('같은 시드는');
+    expect(html).not.toContain('start-advanced"');
   });
   it('능력 등급 글자 토큰은 상세 배경에서 모두 WCAG AA 대비를 만족한다', () => {
     const luminance = (hex: string) => {

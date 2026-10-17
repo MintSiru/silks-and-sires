@@ -81,7 +81,7 @@ function writeReport(extra = {}) {
     }
     await measure('시작', 'desktop');
     await page.getByRole('textbox', { name: '마주 이름', exact: true }).fill('구름들 마주');
-    await page.getByRole('button', { name: '새 게임 시작', exact: true }).click();
+    await page.getByRole('button', { name: '이 조건으로 시작', exact: true }).click();
     const nav = page.getByRole('navigation', { name: '화면 선택' });
     await expect(nav).toBeVisible({ timeout: 60000 });
     await expect(nav.getByRole('button')).toHaveCount(8);
