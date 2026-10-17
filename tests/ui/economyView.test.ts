@@ -244,7 +244,8 @@ describe('pnlHistory', () => {
 
 describe('경영 화면 표시 (M6-U9 H)', () => {
   it('장부 표시 이름: 시설은 건설·유지비, 목장 유지비는 기본 유지비, 나머지는 장부 이름 그대로', () => {
-    expect(ledgerDisplayName('facility')).toBe('시설 건설·유지비');
+    expect(ledgerDisplayName('facility')).toBe('시설 유지비');
+    expect(ledgerDisplayName('facility_build')).toBe('시설 건설비');
     expect(ledgerDisplayName('farm_upkeep')).toBe('목장 기본 유지비');
     expect(ledgerDisplayName('prize')).toBe('레이스 상금');
     expect(ledgerDisplayName('stud_fee_paid')).toBe('종부료 지출');
@@ -289,10 +290,10 @@ describe('경영 화면 표시 (M6-U9 H)', () => {
     const state = freshGame();
     post(state, 'prize', 10_000, 4);
     post(state, 'farm_upkeep', -500, 4);
-    post(state, 'facility', -150_000, 6);
+    post(state, 'facility_build', -150_000, 6);
     const html = renderToStaticMarkup(createElement(EconomyScreen, { game: { state } as unknown as GameApi }));
     for (const text of ['올해 총수입', '올해 총지출', '올해 순손익', '운영 판정', '손익 (', '최근 장부',
-      '시설 건설·유지비', '목장 기본 유지비', 'economy-week', '2건']) {
+      '시설 건설비', '목장 기본 유지비', 'economy-week', '2건']) {
       expect(html).toContain(text);
     }
     expect(html).toContain('economy-amount--income');

@@ -206,10 +206,9 @@ export function pnlHistory(state: GameState): PnlHistoryRow[] {
 
 /**
  * 장부 종류 중 화면 이름을 다르게 보이는 것. 장부 종류 자체와 text.ts 는 바꾸지 않는다.
- * 'facility' 는 엔진이 공사비와 주간 유지비를 같은 종류로 적으므로 한 이름('시설 건설·유지비')으로 묶는다.
+ * 시설은 'facility'(주간 유지비)와 'facility_build'(공사비)로 나뉘어 text.ts 이름을 그대로 쓴다.
  */
 const LEDGER_DISPLAY_OVERRIDE: Partial<Record<LedgerCategory, string>> = {
-  facility: '시설 건설·유지비',
   farm_upkeep: '목장 기본 유지비',
 };
 

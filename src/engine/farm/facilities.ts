@@ -35,7 +35,7 @@ export function startFacilityUpgrade(state: GameState, kind: FacilityKind): Faci
   const cost = upgradeCost(kind, level);
   if (!canSpendDiscretionary(state, cost)) return { ok: false, error: 'insufficient_funds' };
   const draft = structuredClone(state);
-  recordMoney(draft, draft.playerOwnerId, 'facility', -cost, draft.date);
+  recordMoney(draft, draft.playerOwnerId, 'facility_build', -cost, draft.date);
   draft.farm.construction = { facility: kind, level,
     readyWeekKey: weekKey(addWeeks(draft.date, FACILITY_BUILD_WEEKS)) };
   // 착공은 비용을 담아 반환하고, 완공 때는 같은 종류의 cost 0 알림을 낸다.

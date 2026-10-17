@@ -46,8 +46,10 @@ export type LedgerCategory =
   | 'vet_fee'
   /** 목장 구매·매각(M4-E0b) */
   | 'farm_purchase'
-  /** 목장 시설 공사·유지(M4-E) */
+  /** 목장 시설 유지비(M4-E, 주간) */
   | 'facility'
+  /** 목장 시설 공사비(M6, 착공 때 한 번 — 사용자 검토 2026-10-17: 투자와 반복 지출 구분) */
+  | 'facility_build'
   /** NH 스토어 세일 판매 대금(M4-F1) */
   | 'nh_store_sale'
   /** 빚 이자(캐주얼 모드) */

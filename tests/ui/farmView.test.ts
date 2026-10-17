@@ -187,7 +187,7 @@ it('useGame 목장 구매·공사가 상태·장부·eventLog를 한 번 갱신�
   if (!started.ok) throw new Error(started.error);
   expect(started.state.farm.construction).toMatchObject({ facility: 'pool', level: 2 });
   expect(started.state.eventLog.filter((e) => e.type === 'facility_upgraded')).toHaveLength(1);
-  expect(started.state.economy.playerLedger.at(-1)).toMatchObject({ category: 'facility', amount: -150_000 });
+  expect(started.state.economy.playerLedger.at(-1)).toMatchObject({ category: 'facility_build', amount: -150_000 });
   expect(started.state.owners[state.playerOwnerId]!.funds).toBe(950_000);
   expect(api.startFacilityUpgrade('paddock')).toEqual({ ok: false, error: 'under_construction' });
   expect(api.purchaseFarm('missing')).toEqual({ ok: false, error: 'not_found' });

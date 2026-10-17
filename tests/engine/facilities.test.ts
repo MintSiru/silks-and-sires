@@ -73,7 +73,7 @@ describe('공사·비용·유지비', () => {
       expect(result.state.eventLog).toEqual(before.eventLog);
       expect(result.events).toEqual([{ type: 'facility_upgraded', facility: kind, level: target, cost, date: state.date }]);
       expect(result.state.owners[state.playerOwnerId]!.funds).toBe(2_000_000 - cost);
-      expect(result.state.economy.playerLedger).toEqual([{ date: state.date, category: 'facility', amount: -cost, horseId: null }]);
+      expect(result.state.economy.playerLedger).toEqual([{ date: state.date, category: 'facility_build', amount: -cost, horseId: null }]);
       expect(facilityLevel(result.state, kind)).toBe(target - 1);
       expect(startFacilityUpgrade(result.state, 'pool')).toEqual({ ok: false, error: 'under_construction' });
     }
