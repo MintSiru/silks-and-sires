@@ -177,6 +177,8 @@ describe('M6-U7 경주 캘린더 화면', () => {
     expect(html.match(/class="cal-week__head"/g)).toHaveLength(12);
     expect(html.match(/aria-expanded="false"/g)).toHaveLength(12);
     expect(html.match(/class="cal-week__detail" hidden=""/g)).toHaveLength(12);
+    expect(html.match(/class="cal-week__chevron"/g)).toHaveLength(12);
+    expect(html).not.toContain('▸');
     expect(html).toContain('말 상세에서 계획 관리');
     expect(html).toContain('계획 · ');
     expect(html).toContain('이번 주·다음 주 개최 (');

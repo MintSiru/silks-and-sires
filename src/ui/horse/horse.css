@@ -154,6 +154,19 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* 자세히 칸은 상금 열과 20px 띄운다(.record-table td 의 기본 패딩보다 높은 선택자로 덮는다). */
+.horse-detail .record-table td.record-col--more {
+  padding-left: 20px;
+}
+
+/* 자세히: 밑줄 없는 작은 아웃라인 버튼(.btn 보조 크기) */
+.horse-detail .record-more-btn {
+  padding: 2px 10px;
+  font-size: 13px;
+  line-height: 20px;
+  text-decoration: none;
+}
+
 .horse-detail .record-col--pos .badge {
   margin-left: 0;
 }

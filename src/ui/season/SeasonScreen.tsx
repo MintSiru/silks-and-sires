@@ -16,6 +16,7 @@ import {
   type RaceStatusView,
 } from './seasonView';
 import HorseLink, { HorseNavigation } from '../horse/HorseLink';
+import { useNotify } from '../shell/notify';
 import './calendar.css';
 
 const RACE_STATUS_KO: Record<RaceStatusView, string> = {
@@ -38,7 +39,7 @@ export default function SeasonScreen({
   section?: 'calendar' | 'results';
 }): JSX.Element | null {
   const [betRace, setBetRace] = useState<{ meetingId: string; raceId: string } | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
+  const notify = useNotify();
   const [racePicks, setRacePicks] = useState<Record<string, string>>({});
   const [openWeeks, setOpenWeeks] = useState<Record<string, boolean>>({});
   const calendar = useMemo(
@@ -53,11 +54,6 @@ export default function SeasonScreen({
 
   return (
     <>
-      {notice !== null && (
-        <p role="status" className="notice">
-          {notice}
-        </p>
-      )}
       {section === 'calendar' ? (
         <>
           <section className="panel calendar-panel">
@@ -106,13 +102,12 @@ export default function SeasonScreen({
                           onDeclare={() => {
                             const id = racePicks[key];
                             if (!id) {
-                              setNotice('출주시킬 말을 고르세요.');
+                              notify('출주시킬 말을 고르세요.', 'error');
                               return;
                             }
                             const result = game.declarePlayerHorse(race.meetingId, race.raceId, id);
-                            setNotice(
-                              result.ok ? '출주를 접수했습니다.' : declareErrorKo(result.error),
-                            );
+                            if (result.ok) notify('출주를 접수했습니다.', 'ok');
+                            else notify(declareErrorKo(result.error), 'error');
                           }}
                           onWithdraw={(id) => {
                             const result = game.withdrawPlayerHorse(
@@ -120,9 +115,8 @@ export default function SeasonScreen({
                               race.raceId,
                               id,
                             );
-                            setNotice(
-                              result.ok ? '출주를 취소했습니다.' : withdrawErrorKo(result.error),
-                            );
+                            if (result.ok) notify('출주를 취소했습니다.', 'ok');
+                            else notify(withdrawErrorKo(result.error), 'error');
                           }}
                         />
                       );
@@ -262,8 +256,10 @@ function CalendarWeek({
         aria-controls={detailId}
         onClick={onToggle}
       >
-        <span className="cal-week__chevron" aria-hidden="true">
-          {open ? '▾' : '▸'}
+        <span className={open ? 'cal-week__chevron cal-week__chevron--open' : 'cal-week__chevron'} aria-hidden="true">
+          <svg viewBox="0 0 14 14" width="14" height="14" focusable="false">
+            <path d="M4 1.5 L10.5 7 L4 12.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
         </span>
         <span className="cal-week__date">{row.dateLabel}</span>
         <span className="cal-week__fixed">

@@ -11,6 +11,7 @@ import {
   racePlanRows,
   racePlanSections,
 } from '../season/racePlanView';
+import { useNotify } from '../shell/notify';
 import { planChoices } from './horseDetailView';
 import './racePlan.css';
 
@@ -65,12 +66,12 @@ export default function RacePlanPanel({
   const choices = useMemo(() => planChoices(horse.id, weeks), [horse.id, weeks]);
   const [weekPick, setWeekPick] = useState('');
   const [pick, setPick] = useState('');
-  const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
+  const notify = useNotify();
   const unavailable = locked || horse.status !== 'in_training' || horse.trainerId === null;
   const weekKey = weekPick || `${weeks[0]?.date.year}-${weeks[0]?.date.week}`;
   const available = choices.filter((c) => `${c.plan.date.year}-${c.plan.date.week}` === weekKey);
   const show = (result: ReturnType<GameApi['approvePlan']>, text: string) =>
-    setNotice(result.ok ? { ok: true, text } : { ok: false, text: racePlanErrorKo(result.error) });
+    result.ok ? notify(text, 'ok') : notify(racePlanErrorKo(result.error), 'error');
   return (
     <section aria-label="출주 계획 검토">
       <h3>출주 계획</h3>
@@ -81,11 +82,6 @@ export default function RacePlanPanel({
       </p>
       {horse.trainerId === null && <p className="notice">개요에서 조교사를 배정하세요.</p>}
       {horse.status === 'resting' && <p className="notice">휴양 중에는 계획을 변경할 수 없습니다.</p>}
-      {notice && (
-        <p className={`notice notice--${notice.ok ? 'ok' : 'error'}`} role="status">
-          {notice.text}
-        </p>
-      )}
       {rows.length === 0 ? (
         <p className="empty-state">
           {state ? emptyRacePlanHint(state, horse) : '현재 제안된 계획이 없습니다.'}
@@ -221,7 +217,7 @@ export default function RacePlanPanel({
                 (p) => p.date.year === choice.plan.date.year && p.date.week === choice.plan.date.week,
               )
             ) {
-              setNotice({ ok: false, text: '그 주에는 이미 계획이 있습니다. 기존 계획을 제외한 뒤 추가하세요.' });
+              notify('그 주에는 이미 계획이 있습니다. 기존 계획을 제외한 뒤 추가하세요.', 'error');
               return;
             }
             show(

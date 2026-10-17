@@ -284,6 +284,7 @@ describe('M6-U4 말 상세 뷰', () => {
     expect(record).toContain('5착/11');
     expect(record).toContain('title="GOOD TO FIRM"');
     expect(record).toContain('자세히');
+    expect(record).toContain('record-more-btn');
     expect(record).not.toContain('<dt>기수</dt>');
 
     const events = render('events');

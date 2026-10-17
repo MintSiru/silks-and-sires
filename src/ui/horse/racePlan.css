@@ -41,9 +41,19 @@
   font-weight: 400;
 }
 
+/* 머리글은 한 줄, 조교사 메모 칸은 어절 단위로 줄바꿈('간/격' 같은 한 글자 줄바꿈을 막는다) */
+.plan-table thead th {
+  white-space: nowrap;
+}
+
 .plan-table td.plan-table__note {
   color: var(--text-muted);
   font-size: 0.87rem;
+  word-break: keep-all;
+}
+
+.plan-history .hint {
+  word-break: keep-all;
 }
 
 .plan-note__memo {

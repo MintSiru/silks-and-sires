@@ -54,11 +54,20 @@
   outline-offset: -2px;
 }
 
+/* 펼침 표시: 글리프 대신 14px 인라인 SVG 꺾쇠(시각 높이 약 12px). 펼치면 아래를 향하도록 90도 돌린다. */
 .cal-week__chevron {
-  font-size: 14px;
-  line-height: 1;
-  text-align: center;
+  display: block;
+  width: 14px;
+  height: 14px;
   color: var(--text-muted);
+}
+
+.cal-week__chevron svg {
+  display: block;
+}
+
+.cal-week__chevron--open svg {
+  transform: rotate(90deg);
 }
 
 .cal-week__date {

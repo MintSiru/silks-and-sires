@@ -22,7 +22,19 @@
 .home-grid .home-results > li.home-result { padding: 3px 0; }
 .home-results-card .badge { padding: 1px 6px; line-height: 16px; }
 .home-result .hint { margin: 2px 0 0; line-height: 16px; }
-.home-grid .home-major { margin: 6px 0 0; line-height: 16px; }
+/* 세계 주요 결과(G1) 줄: 내 결과와 점선으로 나누고 라벨을 앞에 둔다. 한 줄 높이를 유지한다. */
+.home-grid .home-major {
+  margin: 4px 0 0;
+  padding-top: 4px;
+  border-top: 1px dashed var(--border);
+  line-height: 16px;
+}
+.home-major__label {
+  margin-right: 6px;
+  color: var(--text);
+  font-weight: 600;
+  white-space: nowrap;
+}
 
 /* 출주 예정 카드 둘째 줄: 날짜 · 등급 배지 · 거리 · 상태(V1 항목 3). 마구간 다음 출주와 같은 순서. */
 .home-grid .home-entry__meta { margin: 2px 0 0; }

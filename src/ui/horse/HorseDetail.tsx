@@ -36,6 +36,7 @@ import {
   type TimelineItem,
 } from './horseDetailView';
 import { horseLegacyBadges } from '../legacy/legacyView';
+import { useNotify } from '../shell/notify';
 import './horse.css';
 
 /** 기록 타임라인 한 줄의 본문. 연대기는 문장, 말 관점 출주는 '착순 — 경주명', 나머지는 이벤트 문장. */
@@ -97,7 +98,7 @@ function RecordRows({
               <td className="record-col--more">
                 <button
                   type="button"
-                  className="link-btn"
+                  className="btn record-more-btn"
                   aria-expanded={open}
                   onClick={() => setOpenKey(open ? null : r.key)}
                 >
@@ -173,7 +174,7 @@ export default function HorseDetail({
   const [tab, setTab] = useState<HorseTab>(initialTab);
   const [trainerId, setTrainerId] = useState('');
   const [trainerOpen, setTrainerOpen] = useState(false);
-  const [notice, setNotice] = useState<string | null>(null);
+  const notify = useNotify();
   const [injuryError, setInjuryError] = useState<InjuryError | null>(null);
   const [replay, setReplay] = useState<string | null>(null);
   const { openHorse } = useContext(HorseNavigation);
@@ -278,9 +279,9 @@ export default function HorseDetail({
                 const r = game.assignTrainer(horseId, trainerId);
                 if (r.ok) {
                   setTrainerOpen(false);
-                  setNotice('조교사를 바꿨습니다.');
+                  notify('조교사를 바꿨습니다.');
                 } else {
-                  setNotice(assignTrainerErrorKo(r.error));
+                  notify(assignTrainerErrorKo(r.error), 'error');
                 }
               }}
             >
@@ -291,11 +292,6 @@ export default function HorseDetail({
             </button>
           </div>
         </section>
-      )}
-      {notice && (
-        <p role="status" className="hint">
-          {notice}
-        </p>
       )}
       <nav className="tabs" aria-label="말 상세 탭">
         {tabs.map((t) => (

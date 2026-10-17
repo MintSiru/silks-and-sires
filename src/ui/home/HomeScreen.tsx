@@ -84,7 +84,7 @@ export default function HomeScreen({
           )}
         </section>
         <section className="panel home-results-card">
-          <h3>최근 결과 3건</h3>
+          <h3>내 말 최근 결과</h3>
           {view.resultRows.length === 0 && <p className="empty-state">내 말 결과 없음</p>}
           <ul className="task-list home-results">
             {view.resultRows.map((row) => (
@@ -107,7 +107,8 @@ export default function HomeScreen({
           </ul>
           {view.majorResult && (
             <p className="hint home-major">
-              주요 <GradeBadge grade="G1" /> · {view.majorResult.dateLabel} · {view.majorResult.raceName} · 우승{' '}
+              <span className="home-major__label">세계 주요 결과</span>
+              <GradeBadge grade="G1" /> · {view.majorResult.dateLabel} · {view.majorResult.raceName} · 우승{' '}
               {view.majorResult.winnerName}
             </p>
           )}
