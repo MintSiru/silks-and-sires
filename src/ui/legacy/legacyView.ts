@@ -33,6 +33,15 @@ import { chronicleKo, countryKo, laurelCategoryKo, leadingCategoryKo, RIVAL_REAS
 
 export type ChronicleFilter = 'mine' | 'world' | 'all';
 
+/** 종류 태그의 색 묶음. legacy.css 의 .legacy-tag--<tone> 과 짝을 이룬다 */
+export type ChronicleTone = 'major' | 'group' | 'debut' | 'family' | 'rival' | 'plain';
+
+/** 연대기 종류 태그(짧은 한국어 + 톤) */
+export interface ChronicleTag {
+  label: string;
+  tone: ChronicleTone;
+}
+
 /** 연대기 한 줄(화면 표). 말 항목이면 horseId 로 말 상세를 연다 */
 export interface ChronicleRow {
   id: string;
@@ -40,11 +49,16 @@ export interface ChronicleRow {
   text: string;
   horseId?: HorseId;
   player: boolean;
+  kind: ChronicleKind;
+  tag: ChronicleTag;
 }
 
 export interface ChronicleYearGroup {
   year: number;
+  /** 그 해 전체 항목, 최신순(주 내림차순, 같은 주는 순번 내림차순) */
   rows: ChronicleRow[];
+  /** 기본으로 보이는 주요 순간(최대 MAJOR_ROW_COUNT 건, 최신순) */
+  majorRows: ChronicleRow[];
 }
 
 type GoalId = (typeof DYNASTY_GOALS)[number]['id'];
@@ -176,6 +190,34 @@ const CEREMONY_LEADING_ORDER: readonly LeadingCategory[] = ['owner', 'breeder', 
 /** 연말 시상식 창의 하이라이트 줄 수 (화면 표시 상수) */
 const CEREMONY_HIGHLIGHT_COUNT = 3;
 
+/** 연도 묶음을 펼치기 전에 보이는 주요 순간 수 (화면 표시 상수) */
+const MAJOR_ROW_COUNT = 5;
+
+/** 연대기 종류 → 짧은 한국어 태그(B·I2). 모든 kind 를 넣어 빠짐을 컴파일 때 막는다 */
+const CHRONICLE_TAG: Record<ChronicleKind, ChronicleTag> = {
+  first_runner: { label: '첫 출주', tone: 'debut' },
+  first_win: { label: '첫 승', tone: 'debut' },
+  first_group_win: { label: '첫 그룹', tone: 'group' },
+  group_win: { label: '그룹', tone: 'group' },
+  g1_win: { label: 'G1 우승', tone: 'major' },
+  classic_win: { label: '클래식', tone: 'major' },
+  series_champion: { label: '시리즈', tone: 'major' },
+  laurel_award: { label: 'Laurel', tone: 'major' },
+  leading_title: { label: '리딩', tone: 'major' },
+  sire_line_established: { label: '부계', tone: 'family' },
+  female_family_established: { label: '모계', tone: 'family' },
+  homebred_stallion: { label: '생산 종마', tone: 'family' },
+  record_sale: { label: '세일 최고가', tone: 'plain' },
+  rival_declared: { label: '라이벌', tone: 'rival' },
+  rival_clash: { label: '라이벌', tone: 'rival' },
+  world_classic: { label: '세계 클래식', tone: 'plain' },
+};
+
+/** 연대기 종류의 태그(라벨·톤) */
+export function chronicleTagOf(kind: ChronicleKind): ChronicleTag {
+  return CHRONICLE_TAG[kind];
+}
+
 /** 명명의 전당에 올리는 연대기 kind */
 const HALL_KINDS: ReadonlySet<ChronicleKind> = new Set<ChronicleKind>(['g1_win', 'classic_win', 'laurel_award']);
 
@@ -260,7 +302,32 @@ function laurelLabelKo(label: string | undefined): string {
   return LAUREL_ORDER.includes(label as LaurelCategory) ? laurelCategoryKo(label as LaurelCategory) : '부문상';
 }
 
-/** 연대기를 연도 내림차순 묶음으로. 같은 해 안은 순번 내림차순. 항목이 없는 해는 만들지 않는다 */
+/** 같은 해 안의 최신순: 주 내림차순, 같은 주는 순번 내림차순(I1) */
+function compareNewestFirst(a: ChronicleEntry, b: ChronicleEntry): number {
+  return b.date.week - a.date.week || seqOf(b.id) - seqOf(a.id);
+}
+
+function chronicleRowOf(
+  entry: ChronicleEntry,
+  nameOf: (id: HorseId) => string,
+  ownerNameOf: (id: OwnerId) => string,
+): ChronicleRow {
+  return {
+    id: entry.id,
+    dateLabel: formatDateKo(entry.date),
+    text: chronicleKo(entry, nameOf, ownerNameOf),
+    horseId: entry.horseId,
+    player: entry.player,
+    kind: entry.kind,
+    tag: CHRONICLE_TAG[entry.kind],
+  };
+}
+
+/**
+ * 연대기를 연도 내림차순 묶음으로. 같은 해 안은 최신순(주 → 순번 내림차순).
+ * 주요 순간은 HIGHLIGHT_RANK 상위 MAJOR_ROW_COUNT 건을 고르고, 최신순으로 보여 준다.
+ * 항목이 없는 해는 만들지 않는다.
+ */
 export function chronicleYearGroups(
   state: GameState,
   filter: ChronicleFilter,
@@ -276,18 +343,16 @@ export function chronicleYearGroups(
   }
   return [...byYear.entries()]
     .sort(([a], [b]) => b - a)
-    .map(([year, entries]): ChronicleYearGroup => ({
-      year,
-      rows: [...entries]
-        .sort((a, b) => seqOf(b.id) - seqOf(a.id))
-        .map((entry): ChronicleRow => ({
-          id: entry.id,
-          dateLabel: formatDateKo(entry.date),
-          text: chronicleKo(entry, nameOf, ownerNameOf),
-          horseId: entry.horseId,
-          player: entry.player,
-        })),
-    }));
+    .map(([year, entries]): ChronicleYearGroup => {
+      const rows = [...entries].sort(compareNewestFirst).map((entry) => chronicleRowOf(entry, nameOf, ownerNameOf));
+      const majorIds = new Set(
+        [...entries]
+          .sort((a, b) => HIGHLIGHT_RANK[a.kind] - HIGHLIGHT_RANK[b.kind] || compareNewestFirst(a, b))
+          .slice(0, MAJOR_ROW_COUNT)
+          .map((entry) => entry.id),
+      );
+      return { year, rows, majorRows: rows.filter((row) => majorIds.has(row.id)) };
+    });
 }
 
 /** 말 상세의 영구 연대기. 현재 소유 여부와 무관하게 세계 기록도 포함한다. */

@@ -1,0 +1,49 @@
+/* M6-U3 기록 화면: 탭 목적 줄, 연대기 종류 태그, 정렬 표시, 연도 묶음 더 보기.
+   색은 app.css 의 :root 토큰(--grade-*, --warn-*, --link, --text-muted)을 쓴다. app.css 는 고치지 않는다. */
+
+.legacy-purpose { margin: 0 0 8px; }
+
+/* 연대기 목록은 툴바 아래 영역만 줄여 1440×900 에서 기록 탭도 세로 넘침이 없게 한다 */
+.legacy-toolbar + .legacy-scroll { height: min(500px, calc(100dvh - 400px)); }
+
+/* 여백은 툴바 한 곳에서만 준다(세로 높이를 늘리지 않도록 자식 여백은 0) */
+.legacy-toolbar {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;
+  margin-bottom: 12px;
+}
+.legacy-toolbar .legacy-filter { margin-bottom: 0; }
+.legacy-sort { color: var(--text-muted); font-size: 0.9rem; }
+
+/* app.css 의 3열(시각·내용·출처) 격자에 태그 열을 더한다. 클래스 선택자라 순서와 무관하게 이긴다. */
+.legacy-timeline .legacy-row {
+  grid-template-columns: 140px 92px minmax(0, 1fr) 56px;
+}
+.legacy-timeline .legacy-row > time { white-space: nowrap; }
+
+.legacy-tag {
+  justify-self: start;
+  display: inline-block;
+  padding: 2px 8px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  line-height: 18px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.legacy-tag--major { background: var(--grade-top-bg); color: var(--grade-top-fg); border-color: rgba(253, 224, 71, 0.4); }
+.legacy-tag--group { background: var(--grade-high-bg); color: var(--grade-high-fg); border-color: rgba(96, 165, 250, 0.4); }
+.legacy-tag--debut { background: var(--grade-mid-bg); color: var(--grade-mid-fg); border-color: rgba(110, 214, 160, 0.4); }
+.legacy-tag--rival { background: var(--warn-bg); color: var(--warn-fg); border-color: rgba(242, 198, 109, 0.4); }
+.legacy-tag--family { background: rgba(159, 195, 255, 0.14); color: var(--link); border-color: rgba(159, 195, 255, 0.4); }
+.legacy-tag--plain { background: var(--grade-low-bg); color: var(--grade-low-fg); border-color: rgba(184, 196, 212, 0.4); }
+
+.legacy-more { display: block; margin-top: 8px; }
+
+@media (max-width: 720px) {
+  .legacy-timeline .legacy-row { grid-template-columns: minmax(0, 1fr) auto; gap: 4px; }
+  .legacy-timeline .legacy-row > time { grid-column: 1 / -1; }
+  .legacy-timeline .legacy-row > .legacy-tag { grid-column: 1; grid-row: 2; }
+  .legacy-timeline .legacy-row > :nth-child(3) { grid-column: 1; grid-row: 3; }
+  .legacy-timeline .legacy-row > .legacy-source { grid-column: 2; grid-row: 2; }
+}

@@ -31,6 +31,7 @@ import type {
 import { chronicleKo, countryKo, laurelCategoryKo } from '../../src/ui/game/text';
 import {
   ceremonyView,
+  chronicleTagOf,
   chronicleYearGroups,
   establishedLineRows,
   familyConditionText,
@@ -42,7 +43,7 @@ import {
   lineConditionText,
   rivalRows,
 } from '../../src/ui/legacy/legacyView';
-import LegacyScreen from '../../src/ui/legacy/LegacyScreen';
+import LegacyScreen, { ChronicleList } from '../../src/ui/legacy/LegacyScreen';
 import { CeremonyContent } from '../../src/ui/legacy/AwardsCeremony';
 import RivalCard from '../../src/ui/legacy/RivalCard';
 import { HorseNavigation } from '../../src/ui/horse/HorseLink';
@@ -500,6 +501,15 @@ describe('M5-E2 말 상세와 기록 화면 연결', () => {
     expect(renderTab('rivals')).toContain('지난 라이벌');
   });
 
+  it('연대기 항목의 종류 태그를 같은 화면 목록 HTML 에 담는다(M6-U3)', () => {
+    const state = base();
+    horse(state, 'h1', '첫말');
+    add(state, { kind: 'g1_win', date: { year: 2030, week: 4 }, player: true, horseId: 'h1', label: '구름들 컵' });
+    const html = renderToStaticMarkup(createElement(LegacyScreen, { state, initialTab: 'chronicle' }));
+    expect(html).toContain('legacy-tag legacy-tag--major');
+    expect(html).toContain('>G1 우승<');
+  });
+
   it('홈 카드는 활성 라이벌만 최대 두 명 표시한다', () => {
     const state = base();
     for (const id of ['a', 'b', 'old']) owner(state, id, `구름들 ${id}`);
@@ -509,5 +519,95 @@ describe('M5-E2 말 상세와 기록 화면 연결', () => {
     expect(html).toContain('구름들 b');
     expect(html).not.toContain('구름들 old');
     expect(html).toContain('아직 맞대결이 없습니다.');
+  });
+});
+
+describe('M6-U3 기록 화면: 정렬·종류 태그·주요 순간·탭 문구', () => {
+  it('같은 해 안은 주 내림차순이고, 같은 주는 순번 내림차순이다', () => {
+    const state = base();
+    horse(state, 'h1', '첫말');
+    add(state, { kind: 'g1_win', date: { year: 2029, week: 30 }, player: true, horseId: 'h1', label: '가상 더비' });
+    add(state, { kind: 'first_win', date: { year: 2029, week: 5 }, player: true, horseId: 'h1' });
+    add(state, { kind: 'first_runner', date: { year: 2029, week: 12 }, player: true, horseId: 'h1' });
+    add(state, { kind: 'first_runner', date: { year: 2029, week: 12 }, player: true, horseId: 'h1' });
+    const groups = chronicleYearGroups(state, 'all', nameOfFor(state), ownerNameFor(state));
+    expect(groups[0]!.rows.map((r) => r.id)).toEqual(['2029-1', '2029-4', '2029-3', '2029-2']);
+  });
+
+  it('모든 연대기 종류에 짧은 태그 라벨과 톤을 준다', () => {
+    const kinds: ChronicleEntry['kind'][] = [
+      'first_runner', 'first_win', 'first_group_win', 'group_win', 'g1_win', 'classic_win', 'series_champion',
+      'laurel_award', 'leading_title', 'sire_line_established', 'female_family_established', 'homebred_stallion',
+      'record_sale', 'rival_declared', 'rival_clash', 'world_classic',
+    ];
+    for (const kind of kinds) {
+      const tag = chronicleTagOf(kind);
+      expect(tag.label.length).toBeGreaterThan(0);
+      expect(tag.label.length).toBeLessThanOrEqual(8);
+      expect(['major', 'group', 'debut', 'family', 'rival', 'plain']).toContain(tag.tone);
+    }
+    expect(chronicleTagOf('g1_win')).toEqual({ label: 'G1 우승', tone: 'major' });
+    expect(chronicleTagOf('first_win')).toEqual({ label: '첫 승', tone: 'debut' });
+    expect(chronicleTagOf('sire_line_established')).toEqual({ label: '부계', tone: 'family' });
+    expect(chronicleTagOf('rival_clash').tone).toBe('rival');
+  });
+
+  it('연도 묶음은 주요 순간 최대 5건(등급 높은 종류 우선)을 최신순으로 보이고 전체 행도 가진다', () => {
+    const state = base();
+    horse(state, 'h1', '첫말');
+    for (let week = 1; week <= 5; week++) {
+      add(state, { kind: 'first_runner', date: { year: 2029, week }, player: true, horseId: 'h1' });
+    }
+    add(state, { kind: 'g1_win', date: { year: 2029, week: 6 }, player: true, horseId: 'h1', label: '가상 더비' });
+    add(state, { kind: 'world_classic', date: { year: 2029, week: 7 }, player: false, horseId: 'h1', label: '세계 클래식' });
+    const [group] = chronicleYearGroups(state, 'all', nameOfFor(state), ownerNameFor(state));
+    expect(group!.rows).toHaveLength(7);
+    // G1(6주) 먼저, 나머지 4자리는 첫 출주 중 가장 최신 4건(5·4·3·2주). 세계 클래식은 밀려난다.
+    expect(group!.majorRows.map((r) => r.id)).toEqual(['2029-6', '2029-5', '2029-4', '2029-3', '2029-2']);
+    expect(group!.rows.map((r) => r.id)).toEqual(['2029-7', '2029-6', '2029-5', '2029-4', '2029-3', '2029-2', '2029-1']);
+  });
+
+  it('출처 배지는 전체 범위에서만 보이고, 단일 범위 목록에서는 숨긴다', () => {
+    const state = base();
+    horse(state, 'h1', '첫말');
+    add(state, { kind: 'g1_win', date: { year: 2029, week: 6 }, player: true, horseId: 'h1', label: '가상 더비' });
+    add(state, { kind: 'world_classic', date: { year: 2029, week: 7 }, player: false, horseId: 'h1', label: '세계 클래식' });
+    const all = chronicleYearGroups(state, 'all', nameOfFor(state), ownerNameFor(state));
+    const withSource = renderToStaticMarkup(createElement(ChronicleList, { rows: all[0]!.rows }));
+    expect(withSource).toContain('hint legacy-source">내 기록<');
+    expect(withSource).toContain('hint legacy-source">세계<');
+    const mine = chronicleYearGroups(state, 'mine', nameOfFor(state), ownerNameFor(state));
+    const noSource = renderToStaticMarkup(createElement(ChronicleList, { rows: mine[0]!.rows, showSource: false }));
+    expect(noSource).not.toContain('legacy-source');
+    expect(noSource).toContain('legacy-tag legacy-tag--major');
+  });
+
+  it('탭마다 목적 한 줄을 보이고, 빈 상태 안내와 최신순 표시를 준다', () => {
+    const state = base();
+    delete state.chronicle;
+    const renderTab = (initialTab: 'chronicle' | 'goals' | 'lines' | 'hall' | 'rivals') => renderToStaticMarkup(createElement(
+      HorseNavigation.Provider, { value: { state, openHorse: () => {} } }, createElement(LegacyScreen, { state, initialTab }),
+    ));
+    const chronicle = renderTab('chronicle');
+    expect(chronicle).toContain('가문의 주요 순간을 연도별로 모아 봅니다.');
+    expect(chronicle).toContain('최신순');
+    expect(chronicle).toContain('아직 내 기록이 없습니다.');
+    expect(renderTab('goals')).toContain('12개 왕조 목표의 달성 여부와 진행률을 봅니다.');
+    expect(renderTab('goals')).toContain('아직 달성한 목표가 없습니다.');
+    expect(renderTab('lines')).toContain('이어지는 혈통과 후계마를 봅니다.');
+    expect(renderTab('hall')).toContain('내 소유·생산마의 G1 우승과 Laurel 수상을 모은 곳입니다.');
+    expect(renderTab('rivals')).toContain('나와 맞붙는 마주와 맞대결 기록을 봅니다.');
+  });
+
+  it('전체 펼치기 버튼은 주요 순간 5건을 넘는 해에만 보인다', () => {
+    const state = base();
+    horse(state, 'h1', '첫말');
+    const render = () => renderToStaticMarkup(createElement(LegacyScreen, { state, initialTab: 'chronicle' }));
+    for (let week = 1; week <= 5; week++) {
+      add(state, { kind: 'first_runner', date: { year: 2029, week }, player: true, horseId: 'h1' });
+    }
+    expect(render()).not.toContain('전체 5건 보기');
+    add(state, { kind: 'first_win', date: { year: 2029, week: 6 }, player: true, horseId: 'h1' });
+    expect(render()).toContain('전체 6건 보기');
   });
 });

@@ -167,18 +167,21 @@ describe('UX2 홈', () => {
     state.sales.catalogues[0]!.status = 'closed';
     expect(homeTasks(state).some((t) => t.id.startsWith('bid:'))).toBe(false);
   });
-  it('최근 이벤트는 5건이며 주 시작을 제외한다', () => {
+  it('최근 이벤트는 부상 등 주요 사건만 최신 5건이며 주 시작·이름 짓기 같은 일반 사건은 뺀다', () => {
     const state = fixture();
     state.eventLog = Array.from({ length: 7 }, (_, i) => ({
-      type: 'horse_named' as const,
+      type: 'horse_injured' as const,
       date: state.date,
       horseId: addHorse(state, 'in_training', `h${i}`).id,
-      name: `${i}`,
-      auto: false,
+      kind: 'tendon' as const,
+      weeksOut: 4,
     }));
+    state.eventLog.push({ type: 'horse_named', date: state.date, horseId: 'h0', name: '0', auto: false });
     state.eventLog.push({ type: 'week_started', date: state.date });
-    expect(homeView(state).events).toHaveLength(5);
-    expect(homeView(state).events[0]).toMatchObject({ horseId: 'h6' });
+    const events = homeView(state).events;
+    expect(events).toHaveLength(5);
+    expect(events[0]).toMatchObject({ horseId: 'h6' });
+    expect(events.every((e) => e.type === 'horse_injured')).toBe(true);
   });
 });
 

@@ -1,14 +1,16 @@
-import { getSalesData } from '../../engine/data/staticData';
+import { getRaceTemplates, getSalesData } from '../../engine/data/staticData';
+import { bookingSeasonOf } from '../../engine/breeding/season';
 import { displayName } from '../../engine/naming/register';
 import { saleWeekOf } from '../../engine/sales/bidding';
 import { yearEndPending } from '../../engine/stud/yearEnd';
 import { autoTrainingCandidates } from '../../engine/season/autoTraining';
 import { formatDateKo, weeksBetween } from '../../engine/time/calendar';
-import type { GameState } from '../../engine/types';
-import { recentResults } from '../season/seasonView';
+import type { GameEvent, GameState, HorseId } from '../../engine/types';
+import { recentResults, type RecentResultView } from '../season/seasonView';
 import type { HorseTab } from '../horse/HorseLink';
 import { eventInvolvesHorse } from '../horse/horseDetailView';
 import { racePlanRows } from '../season/racePlanView';
+
 export interface HomeTask {
   id: string;
   label: string;
@@ -16,6 +18,25 @@ export interface HomeTask {
   horseId?: string;
   horseTab?: HorseTab;
 }
+
+/** 홈 '최근 이벤트'에 올리는 사건 종류(B2). 출주 신청·레이스 결과는 '최근 결과' 칸이 맡으므로 뺀다. */
+const HOME_EVENT_TYPES: ReadonlySet<GameEvent['type']> = new Set<GameEvent['type']>([
+  // 부상
+  'horse_injured',
+  'injury_diagnosed',
+  'horse_fatally_injured',
+  // 출산
+  'foal_born',
+  // 세일 낙찰·판매(sale_lot_result 는 buyer·vendor 만 — isHomeEvent)
+  'sale_lot_result',
+  'horse_sold',
+  'nh_store_sold',
+  // 목표 달성·연대기급
+  'sire_line_established',
+  'female_family_established',
+  'series_completed',
+]);
+
 export function homeTasks(state: GameState): HomeTask[] {
   const tasks: HomeTask[] = [];
   if (yearEndPending(state))
@@ -83,6 +104,114 @@ export function homeTasks(state: GameState): HomeTask[] {
   }
   return tasks;
 }
+
+/** '다음 진행 때 자동으로 일어날 일' 한 줄(B3). 할 일이 없을 때 홈 브리핑 카드에 보인다. */
+export interface BriefingItem {
+  id: 'races' | 'matings' | 'sales';
+  label: string;
+  count: number;
+  /** 화면 문구: '2건', '1두', 0 이면 '없음' */
+  text: string;
+  /** 한 줄 설명 */
+  detail: string;
+}
+
+function briefingItem(
+  id: BriefingItem['id'],
+  label: string,
+  count: number,
+  unit: '건' | '두',
+  detail: string,
+): BriefingItem {
+  return { id, label, count, text: count === 0 ? '없음' : `${count}${unit}`, detail };
+}
+
+/** 다음 진행 때 자동으로 처리되는 일의 개수: 출주 계획·교배 예약·판매 위탁(내 말만) */
+export function briefingItems(state: GameState): BriefingItem[] {
+  const owned = (horseId: HorseId) => state.horses[horseId]?.ownerId === state.playerOwnerId;
+  const racePlanCount = Object.entries(state.seasonState.racePlans ?? {})
+    .filter(([horseId]) => owned(horseId))
+    .flatMap(([, plans]) => plans)
+    .filter(
+      (p) =>
+        (p.status === 'proposed' || p.status === 'approved') &&
+        weeksBetween(state.date, p.date) >= 0 &&
+        weeksBetween(state.date, p.date) <= 1,
+    ).length;
+  const bookingSeason = bookingSeasonOf(state.date);
+  const matingCount = bookingSeason === null
+    ? 0
+    : (state.stud.matingProposals ?? []).filter(
+      (p) => p.season === bookingSeason && (p.status === 'proposed' || p.status === 'approved') && owned(p.mareId),
+    ).length;
+  const sellCount = (state.sales.sellProposals ?? []).filter(
+    (p) => p.status === 'proposed' && owned(p.horseId),
+  ).length;
+  return [
+    briefingItem('races', '출주 예정', racePlanCount, '건', '이번 주·다음 주 출주 계획'),
+    briefingItem('matings', '교배 예약 예정', matingCount, '두', '이번 시즌 교배 제안 중 예약 전 암말'),
+    briefingItem('sales', '판매 위탁 예정', sellCount, '두', '판매 제안 중 세일 위탁 전 말'),
+  ];
+}
+
+/** 최근 결과 한 줄(내 말 관점). 같은 레이스에 내 말이 둘이면 말마다 한 줄 */
+export interface HomeResultRow {
+  key: string;
+  horseId: HorseId;
+  horseName: string;
+  /** 착순(1부터) */
+  position: number;
+  /** 출주 두수(착순 배지 '5착/11') */
+  fieldSize: number;
+  dateLabel: string;
+  raceName: string;
+  /** 등급(G1·G2·G3·L). 등급 없는 레이스는 null */
+  grade: string | null;
+  winnerName: string;
+}
+
+/** 레이스 등급: 다시보기 목록 → 고정 일정 목록 순으로 찾는다(seasonView 의 raceInfoOf 와 같은 순서) */
+function gradeOfRace(state: GameState, raceId: string): string | null {
+  const replay = state.seasonState.replayable.find((r) => r.race.id === raceId);
+  if (replay !== undefined) return replay.race.grade;
+  return getRaceTemplates().find((t) => t.id === raceId)?.grade ?? null;
+}
+
+function homeResultRows(state: GameState, results: readonly RecentResultView[]): HomeResultRow[] {
+  return results.flatMap((result) => {
+    // recentResults 의 key 는 `${state.raceResults 순번}-${raceId}` 이다
+    const raw = state.raceResults[Number(result.key.slice(0, result.key.indexOf('-')))];
+    const fieldSize = raw?.runners.length ?? 0;
+    const grade = raw === undefined ? null : gradeOfRace(state, raw.raceId);
+    return result.playerRuns.map((run): HomeResultRow => ({
+      key: `${result.key}:${run.horseId}`,
+      horseId: run.horseId,
+      horseName: run.name,
+      position: run.position,
+      fieldSize,
+      dateLabel: result.dateLabel,
+      raceName: result.raceName,
+      grade,
+      winnerName: result.winnerName,
+    }));
+  });
+}
+
+/** 홈 최근 이벤트 대상인지: 종류 목록 + 판매·보유 관계 조건 */
+function isHomeEvent(state: GameState, event: GameEvent, owned: readonly HorseId[]): boolean {
+  if (!HOME_EVENT_TYPES.has(event.type)) return false;
+  switch (event.type) {
+    case 'sale_lot_result':
+      return event.role === 'buyer' || event.role === 'vendor';
+    case 'horse_sold':
+      return event.fromOwnerId === state.playerOwnerId || event.toOwnerId === state.playerOwnerId;
+    case 'nh_store_sold':
+      return true;
+    default:
+      return owned.some((id) => eventInvolvesHorse(event, id));
+  }
+}
+
 export function homeView(state: GameState) {
   const ownedIds = Object.values(state.horses)
     .filter((h) => h.ownerId === state.playerOwnerId)
@@ -137,18 +266,16 @@ export function homeView(state: GameState) {
       (a.weekLabel === '이번 주' ? 0 : 1) - (b.weekLabel === '이번 주' ? 0 : 1) ||
       a.key.localeCompare(b.key),
   );
+  const playedResults = results.filter((r) => r.playerRuns.length > 0).slice(0, 3);
   return {
     tasks: homeTasks(state),
+    briefing: briefingItems(state),
     entries,
-    results: results.filter((r) => r.playerRuns.length > 0).slice(0, 3),
+    results: playedResults,
+    resultRows: homeResultRows(state, playedResults),
     majorResult: results.find((r) => r.playerRuns.length === 0) ?? null,
     events: state.eventLog
-      .filter(
-        (e) =>
-          ownedIds.some((id) => eventInvolvesHorse(e, id)) ||
-          (e.type === 'horse_sold' &&
-            (e.fromOwnerId === state.playerOwnerId || e.toOwnerId === state.playerOwnerId)),
-      )
+      .filter((e) => isHomeEvent(state, e, ownedIds))
       .slice(-5)
       .reverse(),
   };

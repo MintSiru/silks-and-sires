@@ -1,0 +1,19 @@
+/* M6-U3 홈: 이번 주 브리핑, 내 말 최근 결과 줄, 최근 이벤트.
+   색과 배지는 app.css 의 :root 토큰과 .badge 클래스(U1)를 쓴다. app.css 는 고치지 않는다. */
+
+.home-briefing .hint { margin: 0 0 8px; }
+.home-briefing__item {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px;
+}
+.home-briefing__count {
+  font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap;
+}
+
+/* 한 줄: 말 이름 · 착순 배지 · 경주명 등급 배지. 줄이 좁으면 줄바꿈하되 배지는 붙여 둔다. */
+.home-result__line {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+}
+.home-result__line .link-btn { text-align: left; white-space: normal; }
+.home-result__line .badge { white-space: nowrap; }
+.home-result .hint { margin-top: 4px; }
+.home-major { margin-top: 8px; }

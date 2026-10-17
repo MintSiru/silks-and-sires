@@ -6,9 +6,10 @@ import HorseLink, { HorseNavigation } from '../horse/HorseLink';
 import {
   chronicleYearGroups, establishedLineRows, familyConditionText, femaleFamilyRows,
   goalCards, hallOfFameRows, lineConditionText, rivalRows,
-  type ChronicleFilter, type ChronicleRow,
+  type ChronicleFilter, type ChronicleRow, type ChronicleYearGroup,
 } from './legacyView';
 import { RivalIdentity } from './RivalCard';
+import './legacy.css';
 
 const TABS = [
   ['chronicle', '연대기'], ['goals', '왕조 목표'], ['lines', '부계·모계'],
@@ -16,17 +17,49 @@ const TABS = [
 ] as const;
 type Tab = (typeof TABS)[number][0];
 
-export function ChronicleList({ rows }: { rows: ChronicleRow[] }) {
+/** 탭마다 무엇을 보는 곳인지 한 줄(I3) */
+const TAB_PURPOSE: Record<Tab, string> = {
+  chronicle: '가문의 주요 순간을 연도별로 모아 봅니다. 최신순입니다.',
+  goals: '12개 왕조 목표의 달성 여부와 진행률을 봅니다.',
+  lines: '이어지는 혈통과 후계마를 봅니다. 새로 확립된 부계와 명문 모계가 여기에 남습니다.',
+  hall: '내 소유·생산마의 G1 우승과 Laurel 수상을 모은 곳입니다.',
+  rivals: '나와 맞붙는 마주와 맞대결 기록을 봅니다.',
+};
+
+/** 기록 범위별 빈 상태 안내(I3) */
+const EMPTY_CHRONICLE: Record<ChronicleFilter, string> = {
+  mine: '아직 내 기록이 없습니다. 첫 출주와 첫 승이 여기에 쌓입니다.',
+  world: '아직 세계 기록이 없습니다.',
+  all: '아직 기록이 없습니다. 경주와 생산의 발자취가 여기에 쌓입니다.',
+};
+
+/** 연대기 줄 목록. showSource 는 '전체' 범위에서만 내 기록·세계 구분을 보인다(I2) */
+export function ChronicleList({ rows, showSource = true }: { rows: ChronicleRow[]; showSource?: boolean }) {
   const { state, openHorse } = useContext(HorseNavigation);
   return <ol className="legacy-timeline">
-    {rows.map((row) => <li key={row.id}>
+    {rows.map((row) => <li key={row.id} className="legacy-row">
       <time>{row.dateLabel}</time>
+      <span className={`legacy-tag legacy-tag--${row.tag.tone}`}>{row.tag.label}</span>
       {row.horseId && state?.horses[row.horseId]
         ? <button type="button" className="link-btn horse-link" onClick={() => openHorse(row.horseId!, 'events')}>{row.text}</button>
         : <span>{row.text}</span>}
-      <span className="hint">{row.player ? '내 기록' : '세계'}</span>
+      {showSource && <span className="hint legacy-source">{row.player ? '내 기록' : '세계'}</span>}
     </li>)}
   </ol>;
+}
+
+/** 연도 묶음: 기본은 주요 순간만, '전체 N건 보기'로 펼친다(I2). 첫 묶음만 처음부터 펼쳐 둔다. */
+function ChronicleYear({ group, first, showSource }: { group: ChronicleYearGroup; first: boolean; showSource: boolean }) {
+  const [expanded, setExpanded] = useState(false);
+  const hasMore = group.rows.length > group.majorRows.length;
+  return <details open={first ? true : undefined}>
+    <summary>{group.year}년 · {group.rows.length}건</summary>
+    <ChronicleList rows={expanded ? group.rows : group.majorRows} showSource={showSource} />
+    {hasMore && <button type="button" className="link-btn legacy-more" aria-expanded={expanded}
+      onClick={() => setExpanded((value) => !value)}>
+      {expanded ? '주요 순간만 보기' : `전체 ${group.rows.length}건 보기`}
+    </button>}
+  </details>;
 }
 
 export default function LegacyScreen({ state, initialTab = 'chronicle' }: { state: GameState; initialTab?: Tab }) {
@@ -34,6 +67,7 @@ export default function LegacyScreen({ state, initialTab = 'chronicle' }: { stat
   const [filter, setFilter] = useState<ChronicleFilter>('mine');
   const nameOf = (id: string) => state.horses[id] ? displayName(state, state.horses[id]!) : id;
   const groups = tab === 'chronicle' ? chronicleYearGroups(state, filter, nameOf, (id) => state.owners[id]?.name ?? id) : [];
+  const goals = tab === 'goals' ? goalCards(state, { templates: getRaceTemplates() }) : [];
   const lines = tab === 'lines' ? establishedLineRows(state) : [];
   const families = tab === 'lines' ? femaleFamilyRows(state) : [];
   const hall = tab === 'hall' ? hallOfFameRows(state, nameOf) : [];
@@ -45,23 +79,26 @@ export default function LegacyScreen({ state, initialTab = 'chronicle' }: { stat
         className={`tab ${tab === id ? 'tab--active' : ''}`} aria-pressed={tab === id}
         onClick={() => setTab(id)}>{label}</button>)}
     </nav>
+    <p className="hint legacy-purpose">{TAB_PURPOSE[tab]}</p>
     {tab === 'chronicle' && <section className="panel">
-      <label className="legacy-filter">기록 범위{' '}
-        <select value={filter} onChange={(e) => setFilter(e.target.value as ChronicleFilter)}>
-          <option value="mine">내 기록</option><option value="world">세계</option><option value="all">전체</option>
-        </select>
-      </label>
+      <div className="legacy-toolbar">
+        <label className="legacy-filter">기록 범위{' '}
+          <select value={filter} onChange={(e) => setFilter(e.target.value as ChronicleFilter)}>
+            <option value="mine">내 기록</option><option value="world">세계</option><option value="all">전체</option>
+          </select>
+        </label>
+        <span className="legacy-sort">최신순</span>
+      </div>
       <div className="legacy-scroll" key={filter} tabIndex={0} role="region" aria-label="연대기 목록">
-        {groups.length === 0 && <p className="empty-state">아직 기록이 없습니다. 경주와 생산의 발자취가 여기에 쌓입니다.</p>}
-        {groups.map((group, index) => <details key={group.year} open={index === 0 ? true : undefined}>
-          <summary>{group.year}년 · {group.rows.length}건</summary>
-          <ChronicleList rows={group.rows} />
-        </details>)}
+        {groups.length === 0 && <p className="empty-state">{EMPTY_CHRONICLE[filter]}</p>}
+        {groups.map((group, index) => <ChronicleYear key={group.year} group={group} first={index === 0}
+          showSource={filter === 'all'} />)}
       </div>
     </section>}
     {tab === 'goals' && <div className="legacy-scroll" tabIndex={0} role="region" aria-label="왕조 목표 목록">
+      {goals.every((card) => !card.done) && <p className="empty-state">아직 달성한 목표가 없습니다. 첫 출주와 첫 승부터 노려 보세요.</p>}
       <div className="legacy-goals">
-        {goalCards(state, { templates: getRaceTemplates() }).map((card) => <section className="panel" key={card.id}>
+        {goals.map((card) => <section className="panel" key={card.id}>
           <h3>{card.title}</h3>
           {card.done ? <p className="status-good">달성{card.doneYear === null ? '' : ` · ${card.doneYear}년`}</p>
             : <><p>{card.progressLabel}</p><progress aria-label={`${card.title} 진행`} max={1} value={card.ratio} /></>}

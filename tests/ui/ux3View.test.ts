@@ -219,20 +219,16 @@ describe('UX3 홈·캘린더', () => {
       ...Array.from({ length: 5 }, () => result('world-horse', major.id)),
     ];
     state.eventLog = [
+      // M6-U3: 홈 최근 이벤트는 주요 사건(부상 등)만 — 이름 짓기·출주 신청·결과는 뺀다
+      { type: 'horse_named', horseId: horse.id, name: '이름', auto: false, date: state.date },
       ...Array.from({ length: 7 }, (_, i) => ({
-        type: 'horse_named' as const,
+        type: 'horse_injured' as const,
         horseId: horse.id,
-        name: `${i}`,
-        auto: false,
+        kind: 'knock' as const,
+        weeksOut: i,
         date: state.date,
       })),
-      {
-        type: 'horse_named',
-        horseId: 'world-horse',
-        name: '다른 말',
-        auto: false,
-        date: state.date,
-      },
+      { type: 'horse_injured', horseId: 'world-horse', kind: 'knock', weeksOut: 9, date: state.date },
       {
         type: 'race_run',
         meetingId: 'world-meeting',
@@ -246,7 +242,7 @@ describe('UX3 홈·캘린더', () => {
     expect(view.results).toHaveLength(1);
     expect(view.results[0]!.playerRuns[0]!.horseId).toBe(horse.id);
     expect(view.events).toHaveLength(5);
-    expect(view.events[0]).toMatchObject({ name: '6' });
+    expect(view.events[0]).toMatchObject({ type: 'horse_injured', weeksOut: 6 });
     expect(view.majorResult?.raceName).toBe(major.name);
     state.raceResults.shift();
     expect(

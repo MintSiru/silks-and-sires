@@ -230,6 +230,8 @@ function writeReport(extra = {}) {
     const timeline = page.getByRole('region', { name: '연대기 목록' });
     await expect(timeline.locator('details').first()).toHaveAttribute('open', '');
     await expect(timeline.locator('details').last()).not.toHaveAttribute('open', '');
+    // 연도 묶음은 주요 순간 5건만 먼저 보이므로, 긴 목록의 내부 스크롤은 '전체 N건 보기' 뒤에 확인한다.
+    await timeline.getByRole('button', { name: /^전체 \d+건 보기$/ }).first().click();
     assert(await timeline.evaluate((element) => element.scrollHeight > element.clientHeight), '긴 연대기는 내부 스크롤');
     await page.getByLabel('기록 범위').selectOption('world');
     await expect(timeline).toContainText('푸른들 Derby');

@@ -217,7 +217,7 @@ function AppContent() {
               {fundsWarningKo(banner.warning)}
             </p>
           )}
-          {pending && <p className="notice">연말 정산이 필요합니다. 홈의 이번 주 할 일에서 제출하세요.</p>}
+          {pending && <p className="notice">연말 정산이 필요합니다. 홈의 이번 주 브리핑에서 제출하세요.</p>}
         </header>
         <nav className="shell-nav" aria-label="화면 선택">
           {SCREENS.map((s) => (
