@@ -1,0 +1,64 @@
+/* 목장 화면(M6-U9 · G): 공사 고정 줄, 좌우 높이 맞춤, 시설 단계·효과 차이.
+   색은 app.css 의 토큰만 쓴다. app.css 는 이 파일보다 나중에 로드되므로
+   같은 규칙을 덮을 때는 .farm-screen 접두로 특이도를 올린다.
+   상태는 색 + 글자로 함께 전달한다. */
+
+.farm-screen { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+
+/* 공사 상태: 화면 맨 위에 고정. 다른 '공사 시작' 버튼은 이 줄을 보고 비활성 사유를 함께 본다. */
+.farm-screen .farm-construction {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  margin: 0;
+  padding: 8px 14px;
+  border: 1px solid rgba(242, 198, 109, 0.4);
+  border-radius: 8px;
+  background: var(--warn-bg);
+  color: var(--warn-fg);
+  font-weight: 600;
+  line-height: 22px;
+}
+
+/* 좌우 높이 맞춤: 왼쪽 '내 목장' 아래에 목장 매물 접기가 붙고, 오른쪽 시설 공사와 같은 높이로 늘어난다. */
+.farm-screen .farm-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 12px;
+  align-items: stretch;
+}
+.farm-screen .farm-layout--single { grid-template-columns: minmax(0, 1fr); }
+.farm-screen .farm-column { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.farm-screen .farm-column > .panel { margin: 0; box-sizing: border-box; }
+.farm-screen .farm-column--right > .panel { flex: 1 1 auto; }
+
+/* 전역 max-height(app.css)를 이 화면에서는 풀고, 긴 표만 표 안에서 스크롤한다. */
+.farm-screen .farm-listings[open] { max-height: none; overflow: visible; }
+.farm-screen .farm-listings .farm-table-scroll { max-height: 260px; overflow: auto; }
+.farm-screen .farm-column--right .farm-table-scroll { max-height: none; overflow: visible; }
+
+/* 단계 진행 칸(■□□) */
+.farm-stage {
+  display: inline-block;
+  font-size: 14px;
+  letter-spacing: 2px;
+  line-height: 20px;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+/* 효과 목록: 항목마다 한 줄. 증가분(다음 단계가 더 큼)은 좋음 색. */
+.farm-effects { margin: 0; padding: 0; list-style: none; }
+.farm-effects li { line-height: 20px; font-variant-numeric: tabular-nums; }
+.farm-delta--up { color: var(--good-fg); font-weight: 600; }
+
+.farm-screen .farm-disabled-reason { margin: 4px 0 0; font-size: 12px; line-height: 18px; }
+
+.farm-screen .farm-facility-table th,
+.farm-screen .farm-facility-table td { white-space: normal; vertical-align: top; }
+.farm-screen .farm-facility-table td:nth-child(2),
+.farm-screen .farm-facility-table td:nth-child(4) { white-space: nowrap; }
+
+@media (max-width: 800px) {
+  .farm-screen .farm-layout { grid-template-columns: minmax(0, 1fr); }
+}

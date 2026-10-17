@@ -1,0 +1,146 @@
+/* 경영 화면(M6-U9 · H): KPI 타일·판정 칩·손익표·주별 장부.
+   색은 app.css 의 토큰만 쓴다. app.css 는 이 파일보다 나중에 로드되므로
+   같은 규칙을 덮을 때는 .economy-screen 접두로 특이도를 올린다.
+   지출 색은 보조색(중립 글자색)으로 두고, 상태 색은 좋음·주의·위험 3종만 쓴다. */
+
+.economy-screen { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+
+/* 상단 KPI: 총수입·총지출·순손익 + 운영 판정 칩 */
+.economy-screen .economy-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(180px, auto);
+  gap: 12px;
+  align-items: stretch;
+}
+.economy-kpi,
+.economy-verdict {
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+.economy-kpi__label,
+.economy-verdict__label { margin: 0; color: var(--text-muted); font-size: 13px; line-height: 18px; }
+.economy-kpi__value {
+  margin: 4px 0 0;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 28px;
+  font-variant-numeric: tabular-nums;
+}
+.economy-kpi--income .economy-kpi__value { color: var(--good-fg); }
+.economy-kpi--expense .economy-kpi__value { color: var(--text-muted); }
+.economy-kpi--net-pos .economy-kpi__value { color: var(--good-fg); }
+.economy-kpi--net-neg .economy-kpi__value { color: var(--danger-fg); }
+.economy-verdict { display: flex; flex-direction: column; justify-content: center; gap: 6px; }
+.economy-verdict .badge { margin-left: 0; padding: 4px 10px; font-size: 14px; }
+
+/* 본문 두 칸: 손익(왼쪽) · 최근 장부(오른쪽). 두 칸은 같은 높이로 맞춘다. */
+.economy-screen .economy-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 12px;
+  align-items: stretch;
+}
+.economy-screen .economy-body > .panel {
+  margin: 0;
+  box-sizing: border-box;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.economy-pnl__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.economy-pnl__head h2 { margin: 0; }
+.economy-year select { margin-left: 4px; }
+
+/* 긴 표는 칸 안에서만 스크롤한다. 1440×900 에서 화면 전체가 한 화면에 들어오도록 높이를 300px 로 묶는다. */
+.economy-screen .economy-scroll { max-height: 300px; overflow: auto; overscroll-behavior: contain; }
+.economy-screen .economy-ledger__list { max-height: 300px; }
+
+.economy-screen .economy-table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 22px; }
+.economy-screen .economy-table th,
+.economy-screen .economy-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.economy-screen .economy-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.economy-screen .economy-table .num--right { text-align: right; }
+.economy-screen .economy-sum td { font-weight: 600; }
+.economy-screen .economy-net td { border-top: 1px solid var(--text-muted); font-weight: 700; }
+
+/* 금액 색: 수입 좋음 · 지출 보조(중립) · 적자 위험 */
+.economy-amount--income { color: var(--good-fg); }
+.economy-amount--expense { color: var(--text-muted); }
+.economy-amount--danger { color: var(--danger-fg); }
+
+/* 지출 비중 막대 */
+.economy-share {
+  display: inline-block;
+  width: 72px;
+  height: 6px;
+  margin-right: 8px;
+  border-radius: 3px;
+  background: var(--surface-raised);
+  vertical-align: middle;
+  overflow: hidden;
+}
+.economy-share__fill { display: block; height: 100%; background: var(--text-muted); }
+
+/* 주별 장부 묶음 */
+.economy-week { border-bottom: 1px solid var(--border); }
+.economy-week > summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, auto);
+  gap: 12px;
+  align-items: center;
+  padding: 8px 4px;
+  cursor: pointer;
+  list-style: none;
+  font-variant-numeric: tabular-nums;
+}
+.economy-week > summary::-webkit-details-marker { display: none; }
+.economy-week > summary::before {
+  content: '▸';
+  display: inline-block;
+  width: 1em;
+  margin-right: 4px;
+  color: var(--text-muted);
+}
+.economy-week[open] > summary::before { content: '▾'; }
+.economy-week__date { font-weight: 600; }
+.economy-week__count { color: var(--text-muted); font-size: 12px; }
+.economy-week .economy-table { margin: 0 0 8px 20px; width: calc(100% - 20px); }
+.economy-week .economy-table td { padding: 4px 8px; border-bottom: none; }
+
+/* 연도별 추이 */
+.economy-history__net { display: flex; align-items: center; gap: 8px; }
+.economy-bar {
+  display: inline-block;
+  width: 160px;
+  height: 8px;
+  border-radius: 3px;
+  background: var(--surface-raised);
+  overflow: hidden;
+}
+.economy-bar__fill { display: block; height: 100%; border-radius: 3px; }
+.economy-bar__fill--good { background: var(--good-fg); }
+.economy-bar__fill--danger { background: var(--danger-fg); }
+
+.economy-screen .economy-history { margin: 0; }
+
+@media (max-width: 800px) {
+  .economy-screen .economy-kpis,
+  .economy-screen .economy-body { grid-template-columns: minmax(0, 1fr); }
+}

@@ -16,7 +16,9 @@ import { createNewGame } from '../../src/engine/state/newGame';
 import { formatDateKo } from '../../src/engine/time/calendar';
 import type { GameState } from '../../src/engine/types';
 import FarmScreen from '../../src/ui/farm/FarmScreen';
-import { facilityRows, farmSummary, listingRows } from '../../src/ui/farm/farmView';
+import {
+  constructionBanner, facilityEffectParts, facilityRows, farmSummary, listingRows, stageGlyph, stageLabel,
+} from '../../src/ui/farm/farmView';
 import { useGame, type GameApi } from '../../src/ui/game/useGame';
 import { createIndexedDbSaveStore } from '../../src/ui/storage/saveStore';
 
@@ -119,6 +121,53 @@ describe('farmView', () => {
     expect(unowned).toContain('목장을 사면 오너브리더가 됩니다.');
     expect(unowned).toContain('구매');
     expect(unowned).not.toContain('공사 시작');
+  });
+});
+
+describe('farmView 화면 보조 (M6-U9 G)', () => {
+  it('단계 진행 칸과 읽기 이름: 3단계 중 1단계는 ■□□ · 1/3단계', () => {
+    expect(stageGlyph(1, FACILITY_MAX_LEVEL)).toBe('■□□');
+    expect(stageGlyph(0, FACILITY_MAX_LEVEL)).toBe('□□□');
+    expect(stageGlyph(FACILITY_MAX_LEVEL, FACILITY_MAX_LEVEL)).toBe('■■■');
+    expect(stageLabel(1, FACILITY_MAX_LEVEL)).toBe('1/3단계');
+    const state = fixture();
+    state.farm.facilities = uniformFacilities(1);
+    expect(facilityRows(state)[0]).toMatchObject({ stageGlyph: '■□□', stageLabel: '1/3단계' });
+  });
+
+  it('현재 → 다음 단계 효과: 다음 수치가 커지면 improved, 최대 단계는 next 가 없다', () => {
+    const paddock = facilityEffectParts('paddock', 1);
+    expect(paddock).toEqual([{ label: '망아지·1세 성장', current: `+${Math.round(PADDOCK_GROWTH_PER_LEVEL * 100)}%`,
+      next: `+${Math.round(PADDOCK_GROWTH_PER_LEVEL * 2 * 100)}%`, improved: true }]);
+    expect(facilityEffectParts('paddock', FACILITY_MAX_LEVEL)).toEqual([{ label: '망아지·1세 성장',
+      current: `+${Math.round(PADDOCK_GROWTH_PER_LEVEL * FACILITY_MAX_LEVEL * 100)}%`, next: null, improved: false }]);
+    // 종마사는 0→1단계에서 칸 수가 그대로(최소 1칸)라 증가분이 없다
+    expect(facilityEffectParts('stallion_barn', 0)).toEqual([{ label: '종마', current: '1칸', next: '1칸', improved: false }]);
+    expect(facilityEffectParts('stallion_barn', 1)[0]).toMatchObject({ current: '1칸', next: '2칸', improved: true });
+  });
+
+  it('공사 배너: 공사가 있을 때만 시설·단계 변화·완료 예정 주를 준다', () => {
+    const state = fixture();
+    expect(constructionBanner(state)).toBeNull();
+    const ready = { year: state.date.year + 1, week: 3 };
+    state.farm.construction = { facility: 'paddock', level: 2,
+      readyWeekKey: ready.year * DUE_WEEK_KEY_YEAR_SCALE + ready.week };
+    expect(constructionBanner(state)).toEqual({ facility: 'paddock',
+      text: `방목지 1단계 → 2단계 · 완료 예정 ${formatDateKo(ready)}` });
+  });
+
+  it('공사 중 화면: 상단 고정 공사 줄, 다른 공사 시작은 사유 title, 목장 매물 접기는 왼쪽 열', () => {
+    const state = fixture();
+    const ready = { year: state.date.year + 1, week: 3 };
+    state.farm.construction = { facility: 'paddock', level: 2,
+      readyWeekKey: ready.year * DUE_WEEK_KEY_YEAR_SCALE + ready.week };
+    const game = { ...captureGame(), state };
+    const html = renderToStaticMarkup(createElement(FarmScreen, { game }));
+    expect(html).toContain('farm-construction');
+    expect(html).toContain(`공사 중 · 방목지 1단계 → 2단계 · 완료 예정 ${formatDateKo(ready)}`);
+    expect(html).toContain('aria-label="1/3단계"');
+    expect(html).toContain('title="시설 공사 중입니다. 완공 후 착공할 수 있습니다."');
+    expect(html).toMatch(/farm-column--left[\s\S]*farm-listings[\s\S]*farm-column--right/);
   });
 });
 

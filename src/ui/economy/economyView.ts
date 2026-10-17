@@ -7,6 +7,7 @@ import { LEGACY_BANKRUPT_WEEKS } from '../../engine/config/economy';
 import { ledgerTotalsSum } from '../../engine/economy/ledger';
 import { formatDateKo } from '../../engine/time/calendar';
 import type { EconomyMode, GameDate, GameState, LedgerCategory, LedgerTotals, Money } from '../../engine/types';
+import { ledgerCategoryKo } from '../game/text';
 
 /** 최근 장부 기본 표시 개수(화면 표시 개수이므로 밸런스 상수가 아니다) */
 export const RECENT_LEDGER_COUNT = 30;
@@ -199,4 +200,98 @@ export function pnlHistory(state: GameState): PnlHistoryRow[] {
       positive: net >= 0,
     };
   });
+}
+
+// ── 경영 화면 표시 이름·판정·주별 묶음(M6-U9) ──────────────────────
+
+/**
+ * 장부 종류 중 화면 이름을 다르게 보이는 것. 장부 종류 자체와 text.ts 는 바꾸지 않는다.
+ * 'facility' 는 엔진이 공사비와 주간 유지비를 같은 종류로 적으므로 한 이름('시설 건설·유지비')으로 묶는다.
+ */
+const LEDGER_DISPLAY_OVERRIDE: Partial<Record<LedgerCategory, string>> = {
+  facility: '시설 건설·유지비',
+  farm_upkeep: '목장 기본 유지비',
+};
+
+/** 장부 종류의 화면 이름. 예: 'farm_upkeep' → '목장 기본 유지비' */
+export function ledgerDisplayName(category: LedgerCategory): string {
+  return LEDGER_DISPLAY_OVERRIDE[category] ?? ledgerCategoryKo(category);
+}
+
+export interface ExpenseShare extends PnlLine {
+  /** 화면 이름 */
+  label: string;
+  /** 지출 합계 대비 비중(0~100, 반올림) */
+  percent: number;
+}
+
+/** 지출 행마다 지출 합계 대비 비중을 붙인다. total 은 지출 합계(0 이하). 합계가 0이면 모두 0 */
+export function expenseShares(lines: readonly PnlLine[], total: Money): ExpenseShare[] {
+  const base = Math.abs(total);
+  return lines.map((line) => ({
+    ...line,
+    label: ledgerDisplayName(line.category),
+    percent: base === 0 ? 0 : Math.round((Math.abs(line.amount) / base) * BAR_FULL_PERCENT),
+  }));
+}
+
+/** 운영 판정 칩의 톤. good 좋음 · warn 주의 · danger 위험 (상태 색 3종과 같다) */
+export type OperatingTone = 'good' | 'warn' | 'danger';
+
+export interface OperatingVerdict {
+  tone: OperatingTone;
+  label: string;
+}
+
+export interface VerdictInput {
+  /** 판정할 해의 순익 */
+  net: Money;
+  /** 현재 자금 */
+  funds: Money;
+  /** 현재 빚 */
+  debt: Money;
+  /** 레거시 파산 여부 */
+  bankrupt: boolean;
+}
+
+/**
+ * 운영 판정 칩. 순익·자금·빚으로 나눈다(화면 판정 기준이며 밸런스 수치가 아니다).
+ * - 적자 위험: 파산, 빚이 있음, 자금이 마이너스, 또는 자금이 이 해 적자를 감당하지 못함
+ * - 지출 주의: 이 해 순익이 적자
+ * - 운영 여유: 그 밖
+ */
+export function operatingVerdict(input: VerdictInput): OperatingVerdict {
+  const { net, funds, debt, bankrupt } = input;
+  if (bankrupt || debt > 0 || funds < 0 || funds + Math.min(net, 0) < 0) {
+    return { tone: 'danger', label: '적자 위험' };
+  }
+  if (net < 0) return { tone: 'warn', label: '지출 주의' };
+  return { tone: 'good', label: '운영 여유' };
+}
+
+export interface LedgerWeekGroup {
+  /** 연·주로 만든 묶음 키 */
+  key: string;
+  /** 묶음의 날짜 표기(첫 항목 기준) */
+  dateLabel: string;
+  /** 묶음 합계(수입 +, 지출 −) */
+  net: Money;
+  /** 묶음 안의 개별 거래(입력의 최신순 유지) */
+  rows: LedgerRowView[];
+}
+
+/** 최신순 장부 행을 같은 연·주끼리 묶는다. 입력 순서를 그대로 유지한다. */
+export function ledgerWeekGroups(rows: readonly LedgerRowView[]): LedgerWeekGroup[] {
+  const groups: LedgerWeekGroup[] = [];
+  for (const row of rows) {
+    const key = `${row.date.year}-${row.date.week}`;
+    const last = groups[groups.length - 1];
+    if (last !== undefined && last.key === key) {
+      last.rows.push(row);
+      last.net += row.amount;
+    } else {
+      groups.push({ key, dateLabel: row.dateLabel, net: row.amount, rows: [row] });
+    }
+  }
+  return groups;
 }

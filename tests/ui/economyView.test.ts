@@ -14,7 +14,14 @@ import {
 } from '../../src/engine/data/staticData';
 import { bootstrapGame, type BootstrapData } from '../../src/engine/state/bootstrap';
 import type { GameDate, GameState, HorseId, LedgerCategory } from '../../src/engine/types';
-import { fundsBanner, pnlHistory, recentLedger, yearPnl } from '../../src/ui/economy/economyView';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import EconomyScreen from '../../src/ui/economy/EconomyScreen';
+import {
+  expenseShares, fundsBanner, ledgerDisplayName, ledgerWeekGroups, operatingVerdict, pnlHistory,
+  recentLedger, yearPnl, type LedgerRowView, type PnlLine,
+} from '../../src/ui/economy/economyView';
+import type { GameApi } from '../../src/ui/game/useGame';
 
 const SEED = 20261012;
 const SILKS = { primary: '#1d4e89', secondary: '#ffd23f', pattern: 'hoops' } as const;
@@ -232,5 +239,63 @@ describe('pnlHistory', () => {
 
   it('연말 요약이 없으면 빈 배열', () => {
     expect(pnlHistory(freshGame())).toEqual([]);
+  });
+});
+
+describe('경영 화면 표시 (M6-U9 H)', () => {
+  it('장부 표시 이름: 시설은 건설·유지비, 목장 유지비는 기본 유지비, 나머지는 장부 이름 그대로', () => {
+    expect(ledgerDisplayName('facility')).toBe('시설 건설·유지비');
+    expect(ledgerDisplayName('farm_upkeep')).toBe('목장 기본 유지비');
+    expect(ledgerDisplayName('prize')).toBe('레이스 상금');
+    expect(ledgerDisplayName('stud_fee_paid')).toBe('종부료 지출');
+  });
+
+  it('지출 비중은 지출 합계 대비 반올림 %, 합계가 0이면 모두 0', () => {
+    const lines: PnlLine[] = [
+      { category: 'stud_fee_paid', amount: -20_000 },
+      { category: 'training_fee', amount: -5_000 },
+      { category: 'farm_upkeep', amount: -1_200 },
+    ];
+    const shares = expenseShares(lines, -26_200);
+    expect(shares.map((s) => s.percent)).toEqual([76, 19, 5]);
+    expect(shares.map((s) => s.label)).toEqual(['종부료 지출', '조교료', '목장 기본 유지비']);
+    expect(shares.map((s) => s.amount)).toEqual([-20_000, -5_000, -1_200]);
+    expect(expenseShares(lines, 0).every((s) => s.percent === 0)).toBe(true);
+  });
+
+  it('운영 판정: 파산·빚·자금 마이너스·자금이 적자를 못 버팀은 적자 위험, 적자는 지출 주의, 그 밖은 운영 여유', () => {
+    const base = { net: 100, funds: 1_000, debt: 0, bankrupt: false };
+    expect(operatingVerdict(base)).toEqual({ tone: 'good', label: '운영 여유' });
+    expect(operatingVerdict({ ...base, net: -100 })).toEqual({ tone: 'warn', label: '지출 주의' });
+    expect(operatingVerdict({ ...base, net: -2_000 })).toEqual({ tone: 'danger', label: '적자 위험' });
+    expect(operatingVerdict({ ...base, debt: 1 })).toEqual({ tone: 'danger', label: '적자 위험' });
+    expect(operatingVerdict({ ...base, funds: -1 })).toEqual({ tone: 'danger', label: '적자 위험' });
+    expect(operatingVerdict({ ...base, bankrupt: true })).toEqual({ tone: 'danger', label: '적자 위험' });
+  });
+
+  it('주별 묶음: 같은 연·주 항목을 합치고 입력(최신순) 순서를 유지한다', () => {
+    const row = (year: number, week: number, category: LedgerRowView['category'], amount: number): LedgerRowView => ({
+      date: { year, week }, dateLabel: `${year}년 ${week}주`, category, amount, horseName: null,
+    });
+    const groups = ledgerWeekGroups([
+      row(2026, 5, 'prize', 100), row(2026, 5, 'farm_upkeep', -40), row(2026, 4, 'interest', -7), row(2025, 4, 'prize', 3),
+    ]);
+    expect(groups.map((g) => [g.key, g.rows.length, g.net])).toEqual([['2026-5', 2, 60], ['2026-4', 1, -7], ['2025-4', 1, 3]]);
+    expect(groups[0]?.rows.map((r) => r.category)).toEqual(['prize', 'farm_upkeep']);
+    expect(ledgerWeekGroups([])).toEqual([]);
+  });
+
+  it('경영 화면: KPI 세 칸·판정 칩·주별 장부·장부 이름 매핑을 렌더링한다', () => {
+    const state = freshGame();
+    post(state, 'prize', 10_000, 4);
+    post(state, 'farm_upkeep', -500, 4);
+    post(state, 'facility', -150_000, 6);
+    const html = renderToStaticMarkup(createElement(EconomyScreen, { game: { state } as unknown as GameApi }));
+    for (const text of ['올해 총수입', '올해 총지출', '올해 순손익', '운영 판정', '손익 (', '최근 장부',
+      '시설 건설·유지비', '목장 기본 유지비', 'economy-week', '2건']) {
+      expect(html).toContain(text);
+    }
+    expect(html).toContain('economy-amount--income');
+    expect(html).toContain('지출 비중');
   });
 });
