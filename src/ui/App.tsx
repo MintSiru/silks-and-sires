@@ -28,6 +28,7 @@ import RaceDemo from './RaceDemo';
 import './shell/shell.css';
 import SettingsModal from './shell/SettingsModal';
 import { Toast, type ToastNotice } from './shell/Toast';
+import { NotifyContext } from './shell/notify';
 import { seasonLabel } from './shell/seasonBadge';
 
 type Screen = 'home' | 'stable' | 'breeding' | 'races' | 'sales' | 'farm' | 'management' | 'legacy';
@@ -126,6 +127,7 @@ function AppContent() {
   };
   return (
     <HorseNavigation.Provider value={{ state, openHorse }}>
+      <NotifyContext.Provider value={notify}>
       <div className="app-shell">
         <header className="shell-topbar" aria-label="공통 상단 바">
           <div className="shell-identity">
@@ -363,6 +365,7 @@ function AppContent() {
         )}
         <Toast notice={notice} onExpire={dismissNotice} />
       </div>
+      </NotifyContext.Provider>
     </HorseNavigation.Provider>
   );
 }
