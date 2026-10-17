@@ -67,6 +67,11 @@ export interface GameSettings {
   tutorial?: TutorialProgress;
   /** 자동 교배 한 두당 종부료 상한(€). null·없으면 교배 담당이 암말 수준으로 예산을 정한다 */
   matingFeeCap?: Money | null;
+  /**
+   * 레이스 당일 진행(M7-RD, 사용자 결정 2026-10-17). 없거나 'brief' 면 내 말 출주 주에 진행을 멈추고 출주표·패독·작전 지시 뒤
+   * 레이스를 자동 재생한다. 'skip' 이면 멈추지 않고 결과만 남긴다(작전은 선호 작전)
+   */
+  raceDayMode?: 'brief' | 'skip';
 }
 
 /**

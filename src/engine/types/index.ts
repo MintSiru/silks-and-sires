@@ -16,3 +16,4 @@ export * from './betting';
 export * from './stud';
 export * from './farm';
 export * from './legacy';
+export * from './raceDay';

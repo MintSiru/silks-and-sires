@@ -1,6 +1,7 @@
 import type { CountryCode, HorseId, JockeyId, Money, OwnerId, RaceId, RacecourseId, TrainerId } from './common';
 import type { SampleField } from '../race/sampleField';
 import type { Going } from './going';
+import type { RunningStyle } from './horse';
 import type { Race, RaceClass, RaceGrade, RaceKind } from './race';
 import type { GameDate } from './time';
 
@@ -65,6 +66,8 @@ export interface Declaration {
   /** 확정 전 null */
   weightLb: number | null;
   isPlayer: boolean;
+  /** 플레이어 작전 지시(M7-RD). 없으면 말의 선호 작전. AI 선언에는 쓰지 않는다 */
+  tactic?: RunningStyle;
 }
 
 export type ScheduledRaceStatus = 'open' | 'closed' | 'run' | 'abandoned';
@@ -89,6 +92,11 @@ export interface Meeting {
   /** 개최 주 시작 시 확정(그 전에는 예보만) */
   going: Going | null;
   races: ScheduledRace[];
+  /**
+   * 개최 확정 시드(M7-RD). 개최를 만들 때 정하며 마장·게이트 추첨·기수 배정 스트림을 여기서 파생한다(공용 rng 흐름과 무관 →
+   * 레이스 당일 출주표 미리보기와 실제 실행이 같다). 없으면 옛 흐름(옛 저장본).
+   */
+  seed?: number;
 }
 
 /** 공식 레이팅 변동 1건 */

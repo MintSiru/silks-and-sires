@@ -164,6 +164,11 @@ export interface PrivateOffer {
   /** 이 주까지 수락 가능(그 해 기준, 포함) */
   expiresYear: number;
   expiresWeek: Week;
+  /**
+   * 출처(M7-G 상시 구매). 없거나 'relation': 관계 좋은 오너브리더의 미출주 2세(M4-C7) / 'market': 개인 거래 시장에 나온 현역마·번식 암말 /
+   * 'enquiry': 플레이어가 AI 마주 말에 구매 문의해 받은 호가
+   */
+  source?: 'relation' | 'market' | 'enquiry';
 }
 
 /** GameState.sales */
