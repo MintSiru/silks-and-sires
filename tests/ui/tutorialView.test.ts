@@ -261,6 +261,15 @@ describe('카드 렌더', () => {
     expect(html).not.toContain('그룹(G1·G2·G3)');
   });
 
+  it('단계 설명은 2줄 말줄임으로 줄어들어도 title 에 전체 문구가 남는다', () => {
+    const state = withLevel(withRacehorse(fixture()), 'racing_new');
+    const html = renderCard(state);
+    const hint = tutorialSteps(state).find((s) => s.id === 'check_horse')!.hint;
+    expect(hint.length).toBeGreaterThan(30);
+    expect(html).toContain(`title="${hint}"`);
+    expect(html).toContain('data-expand-toggle=""');
+  });
+
   it('베테랑 카드는 세 단계와 자동 진행 규칙을 그린다', () => {
     const state = withLevel(withRacehorse(fixture()), 'veteran');
     const html = renderCard(state);

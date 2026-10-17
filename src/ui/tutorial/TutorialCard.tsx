@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import type { GameState, TutorialLevel, TutorialProgress, TutorialStepId } from '../../engine/types';
 import { HorseNavigation } from '../horse/HorseLink';
 import {
@@ -47,6 +47,27 @@ export default function TutorialCard({ state, onNavigate, onTutorial }: Tutorial
     if (opening && !step.done) onTutorial?.(progressWithDone(state, step.id));
   };
 
+  /** 풀이 팝오버는 Esc·바깥 클릭으로 닫는다. '펼쳐 읽기'/'접기' 버튼(data-expand-toggle)은 토글 자체가 처리한다. */
+  const hasPopover = expandedSteps.length > 0;
+  useEffect(() => {
+    if (!hasPopover) return;
+    const close = () => setExpandedSteps([]);
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') close();
+    };
+    const onPointer = (e: MouseEvent) => {
+      const target = e.target;
+      if (target instanceof Element && target.closest('.tutorial-card__expand, [data-expand-toggle]')) return;
+      close();
+    };
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('mousedown', onPointer);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('mousedown', onPointer);
+    };
+  }, [hasPopover]);
+
   const dismissButton = (
     <button type="button" className="btn" onClick={() => onTutorial?.(progressDismissed(state))}>
       닫기
@@ -79,7 +100,15 @@ export default function TutorialCard({ state, onNavigate, onTutorial }: Tutorial
           <button type="button" className="link-btn" onClick={() => onTutorial?.(progressWithLevel(state, null))}>
             수준 바꾸기
           </button>
-          <button type="button" className="btn" aria-expanded={cardOpen} onClick={() => setCardOpen((v) => !v)}>
+          <button
+            type="button"
+            className="btn"
+            aria-expanded={cardOpen}
+            onClick={() => {
+              setCardOpen((v) => !v);
+              setExpandedSteps([]);
+            }}
+          >
             {cardOpen ? '카드 접기' : '카드 펼치기'}
           </button>
           {dismissButton}
@@ -95,11 +124,14 @@ export default function TutorialCard({ state, onNavigate, onTutorial }: Tutorial
                   <span className="tutorial-step__mark">{step.done ? '완료' : '남음'}</span>
                   <strong>{step.title}</strong>
                 </div>
-                <p className="hint">{step.hint}</p>
+                <p className="hint" title={step.hint}>
+                  {step.hint}
+                </p>
                 {step.expand !== null && (
                   <button
                     type="button"
                     className="btn"
+                    data-expand-toggle=""
                     aria-expanded={expanded}
                     onClick={() => toggleExpand(step)}
                   >
@@ -116,11 +148,11 @@ export default function TutorialCard({ state, onNavigate, onTutorial }: Tutorial
           })}
         </ol>
       )}
-      {/* 펼친 풀이는 카드 전체 폭에 두어 칸 높이를 늘리지 않는다(첫 화면 세로 스크롤 방지) */}
+      {/* 펼친 풀이는 카드 아래에 겹쳐 뜨는 팝오버(absolute)라 레이아웃을 밀지 않는다. 내용은 잘리지 않는다. */}
       {cardOpen &&
         steps.map((step) =>
           step.expand !== null && expandedSteps.includes(step.id) ? (
-            <div key={step.id} className="tutorial-card__expand">
+            <div key={step.id} className="tutorial-card__expand" role="note">
               <strong>{step.title} — 풀이</strong>
               <ul>
                 {step.expand.map((line) => (

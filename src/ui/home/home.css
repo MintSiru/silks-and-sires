@@ -1,7 +1,7 @@
 /* M6-U3 홈: 이번 주 브리핑, 내 말 최근 결과 줄, 최근 이벤트.
    색과 배지는 app.css 의 :root 토큰과 .badge 클래스(U1)를 쓴다. app.css 는 고치지 않는다. */
 
-.home-briefing .hint { margin: 0 0 8px; }
+.home-briefing .hint { margin: 0 0 6px; }
 .home-briefing__item {
   display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px;
 }
@@ -19,13 +19,13 @@
    app.css 가 이 카드를 230px 로 묶으므(.home-grid:has(+ .home-rivals))로 행 패딩·배지 높이·제목 여백을 줄여 맞춘다.
    app.css 의 .shell-main .task-list li(8px 0) 보다 높은 선택자로 덮는다. */
 .home-grid .home-results-card > h3 { margin-bottom: 4px; }
-.home-grid .home-results > li.home-result { padding: 3px 0; }
+.home-grid .home-results > li.home-result { padding: 2px 0; }
 .home-results-card .badge { padding: 1px 6px; line-height: 16px; }
 .home-result .hint { margin: 2px 0 0; line-height: 16px; }
 /* 세계 주요 결과(G1) 줄: 내 결과와 점선으로 나누고 라벨을 앞에 둔다. 한 줄 높이를 유지한다. */
 .home-grid .home-major {
-  margin: 4px 0 0;
-  padding-top: 4px;
+  margin: 2px 0 0;
+  padding-top: 2px;
   border-top: 1px dashed var(--border);
   line-height: 16px;
 }
@@ -38,3 +38,13 @@
 
 /* 출주 예정 카드 둘째 줄: 날짜 · 등급 배지 · 거리 · 상태(V1 항목 3). 마구간 다음 출주와 같은 순서. */
 .home-grid .home-entry__meta { margin: 2px 0 0; }
+
+/* X1: 첫 시즌 안내 카드가 보여도 1440×900 첫 화면이 세로 스크롤 없이 끝나고, 맨 아래 카드와 우하단 토스트 사이에 여백이 남도록
+   홈 그리드 간격·패딩과 라이벌 카드 위 간격을 줄인다. 선택자는 app.css 의 @media 규칙(0,2,0 이상)을 이긴다. */
+.shell-main .home-grid { gap: 6px 12px; }
+.shell-main .home-grid > .panel { padding: 10px 12px; }
+.shell-main .home-grid > .panel > h3,
+.shell-main .home-grid + .panel.home-rivals h3 { margin-bottom: 6px; line-height: 20px; }
+.shell-main .home-grid .task-list li:not(.home-result) { padding: 5px 0; }
+.shell-main .home-grid + .panel.home-rivals { margin-top: 6px; padding: 10px 14px; }
+.shell-main .home-rival-row { padding-top: 4px; }

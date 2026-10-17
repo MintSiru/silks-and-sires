@@ -1,9 +1,12 @@
 /* M6-T 첫 시즌 체크리스트 카드. 색은 app.css 의 :root 토큰만 쓴다(새 색 코드 없음). app.css 는 고치지 않는다.
-   1440×900 첫 화면 세로 스크롤을 막으려고 단계는 가로 칸(auto-fit)으로 펼치고, 접기로 머리글만 남길 수 있다. */
+   1440×900 첫 화면 세로 스크롤을 막으려고 단계는 가로 칸(auto-fit)으로 펼치고, 접기로 머리글만 남길 수 있다.
+   app.css 의 .panel(overflow-x: auto)이 팝오버를 잘라 내므로 overflow 를 visible 로 덮는다(.panel.tutorial-card, 0,2,0). */
 
-.tutorial-card {
-  margin-bottom: 12px;
-  padding: 10px 14px;
+.panel.tutorial-card {
+  position: relative;
+  overflow: visible;
+  margin-bottom: 8px;
+  padding: 6px 12px;
   border-color: var(--focus);
 }
 .tutorial-card__head {
@@ -18,7 +21,7 @@
 
 .tutorial-card__steps {
   list-style: none;
-  margin: 8px 0 0;
+  margin: 6px 0 0;
   padding: 0;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
@@ -27,9 +30,9 @@
 .tutorial-step {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
   min-width: 0;
-  padding: 8px 10px;
+  padding: 5px 10px;
   border: 1px solid var(--border);
   border-radius: 6px;
 }
@@ -53,7 +56,21 @@
   border-color: var(--good-fg);
   color: var(--good-fg);
 }
-.tutorial-step .hint { margin: 0; line-height: 16px; }
+.tutorial-step .hint {
+  margin: 0;
+  line-height: 16px;
+  /* 단계 설명은 1줄, 넘치면 말줄임. 전체 문구는 title 로 본다(카드 높이 고정, 첫 화면 세로 스크롤 방지) */
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.tutorial-step__title strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .tutorial-step .btn {
   align-self: flex-start;
   margin-top: auto;
@@ -68,29 +85,31 @@
   gap: 8px;
   margin-top: 8px;
 }
-/* 펼쳐 읽는 풀이: 카드 전체 폭, 두 단. 줄이 많으면 안쪽에서 스크롤한다. */
+/* 펼쳐 읽는 풀이: 카드 아래에 겹쳐 뜨는 팝오버. 다른 칸을 밀지 않고, 내용은 안쪽 스크롤 없이 전부 보인다.
+   Esc·바깥 클릭·'접기'로 닫힌다(TutorialCard). 색은 토큰만 쓴다. */
 .tutorial-card__expand {
-  margin-top: 8px;
-  padding: 8px 10px;
-  border: 1px dashed var(--border);
-  border-radius: 6px;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  box-sizing: border-box;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-raised);
+  color: var(--text);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
   font-size: 12px;
   line-height: 18px;
-  /* 펼쳐도 홈 첫 화면이 900px 을 넘지 않게 안쪽 스크롤(Opus) */
-  max-height: 72px;
-  overflow-y: auto;
 }
 .tutorial-card__expand > strong { display: block; margin-bottom: 4px; }
 .tutorial-card__expand ul {
   margin: 0;
   padding-left: 18px;
-  columns: 2;
-  column-gap: 24px;
   color: var(--text-muted);
-  max-height: 150px;
-  overflow: auto;
 }
-.tutorial-card__expand li { margin: 0 0 2px; break-inside: avoid; }
+.tutorial-card__expand li { margin: 0 0 2px; }
 
 @media (max-width: 800px) {
   .tutorial-card__steps { grid-template-columns: minmax(0, 1fr); }
