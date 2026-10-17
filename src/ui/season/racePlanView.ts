@@ -12,6 +12,7 @@ import type {
   RaceKind,
   RacePlanTarget,
 } from '../../engine/types';
+import type { StatusTone } from '../common/badges';
 import { countryKo, raceConditionsKo, raceGradeKo } from '../game/text';
 
 const KIND_KO: Record<RaceKind, string> = {
@@ -41,20 +42,67 @@ export function racePlanErrorKo(error: RacePlanError): string {
   return ERROR_KO[error];
 }
 
-export function targetLabel(target: RacePlanTarget): string {
+/** 조건 목표의 클래스 표시. 클래스 조건이 없으면 null. 예: '클래스 5', '클래스 4~5' */
+function classRangeLabel(target: RacePlanTarget): string | null {
+  if (target.minClass === undefined && target.maxClass === undefined) return null;
   const minClass = target.minClass ?? 1;
   const maxClass = target.maxClass ?? 7;
-  const classes =
-    target.minClass === undefined && target.maxClass === undefined
-      ? ''
-      : ` · 클래스 ${minClass === maxClass ? minClass : `${minClass}~${maxClass}`}`;
-  const distance = Math.round((target.minDistance + target.maxDistance) / 2 / 100) * 100;
-  return `${target.kinds.map((k) => KIND_KO[k]).join('/')} · 약 ${distance.toLocaleString('ko-KR')}m 전후${classes}`;
+  return `클래스 ${minClass === maxClass ? minClass : `${minClass}~${maxClass}`}`;
+}
+
+/** 조건 목표의 대략 거리(중간값을 100m 단위로 반올림). 표시와 거리 힌트 비교에 함께 쓴다. */
+function targetDistance(target: RacePlanTarget): number {
+  return Math.round((target.minDistance + target.maxDistance) / 2 / 100) * 100;
+}
+
+/** 조건 목표 등급 배지 글자. 리스티드 단독이면 L, 그 밖에는 클래스(없으면 종류 이름). */
+function targetGradeLabel(target: RacePlanTarget): string {
+  const first = target.kinds[0];
+  if (first === undefined) return '—';
+  if (first === 'listed' && target.kinds.length === 1) return 'L';
+  return classRangeLabel(target) ?? KIND_KO[first];
+}
+
+export function targetLabel(target: RacePlanTarget): string {
+  const classes = classRangeLabel(target);
+  return `${target.kinds.map((k) => KIND_KO[k]).join('/')} · 약 ${targetDistance(target).toLocaleString('ko-KR')}m 전후${classes === null ? '' : ` · ${classes}`}`;
+}
+
+/**
+ * 말의 거리 힌트(min~max) 밖이면 화면 메모에 덧붙일 말. 안이면 null.
+ * 엔진 메모 문자열은 바꾸지 않고 화면에서만 붙인다.
+ */
+export function distanceNoteKo(distance: number, hint: { min: number; max: number }): string | null {
+  if (distance > hint.max) return '거리 연장 도전';
+  if (distance < hint.min) return '거리 단축';
+  return null;
+}
+
+/**
+ * 출주 계획 상태 문구·톤. 상태 조작과 같은 모드(자동 / 승인제)에 맞춘다.
+ * requireApproval = true 면 제안은 '승인 대기'(주의), 아니면 '자동 출주 예정'(좋음).
+ */
+export function planStatusView(
+  status: PlannedRace['status'],
+  requireApproval: boolean,
+): { label: string; tone: StatusTone } {
+  if (status === 'proposed') {
+    return requireApproval ? { label: '승인 대기', tone: 'warn' } : { label: '자동 출주 예정', tone: 'good' };
+  }
+  if (status === 'approved') return { label: '확정', tone: 'good' };
+  if (status === 'declared') return { label: '출주 신청됨', tone: 'good' };
+  if (status === 'run') return { label: '출주 완료', tone: 'muted' };
+  return { label: '건너뜀', tone: 'muted' };
 }
 
 export function racePlanRows(
   plans: readonly PlannedRace[],
-  context: { requireApproval?: boolean; country?: CountryCode } = {},
+  context: {
+    requireApproval?: boolean;
+    country?: CountryCode;
+    /** 말의 거리 힌트. 주면 메모에 '거리 연장 도전' / '거리 단축'을 덧붙인다. */
+    distanceHint?: { min: number; max: number };
+  } = {},
 ) {
   return plans.map((plan) => {
     const race = getRaceTemplates().find((t) => t.id === plan.templateId);
@@ -65,6 +113,13 @@ export function racePlanRows(
       country && context.country && country !== context.country
         ? ` · 원정: ${countryKo(country)}`
         : '';
+    const target = plan.target;
+    const distance =
+      race !== undefined ? race.distance : target !== null ? targetDistance(target) : null;
+    const hintNote =
+      context.distanceHint !== undefined && distance !== null
+        ? distanceNoteKo(distance, context.distanceHint)
+        : null;
     return {
       id: plan.id,
       status: plan.status,
@@ -77,12 +132,33 @@ export function racePlanRows(
           : STATUS_KO[plan.status],
       name:
         race === undefined
-          ? plan.target === null
+          ? target === null
             ? '레이스 정보 없음'
-            : targetLabel(plan.target)
+            : targetLabel(target)
           : `${race.name} · ${course?.name ?? ''} · ${raceGradeKo(race)} · ${race.distance}m`,
+      /** 화면 등급 배지 글자: G1~G3·L 은 색, 핸디캡·조건 등은 '클래스 N'(회색) */
+      gradeLabel:
+        race !== undefined
+          ? (race.grade ?? `클래스 ${race.raceClass}`)
+          : target === null
+            ? '—'
+            : targetGradeLabel(target),
+      /** 화면 첫 줄: 레이스 이름(또는 조건 종류) */
+      titleLine:
+        race !== undefined
+          ? race.name
+          : target === null
+            ? '레이스 정보 없음'
+            : target.kinds.map((k) => KIND_KO[k]).join('/'),
+      /** 화면 둘째 줄(보조): 경마장 · 거리 (또는 조건 목표의 대략 거리) */
+      conditionLine:
+        race !== undefined
+          ? `${course?.name ?? ''} · ${race.distance.toLocaleString('ko-KR')}m`
+          : target === null
+            ? ''
+            : `약 ${targetDistance(target).toLocaleString('ko-KR')}m 전후`,
       away,
-      note: plan.note,
+      note: hintNote === null ? plan.note : `${plan.note} · ${hintNote}`,
       canApprove: plan.status === 'proposed',
       canRemove:
         plan.status === 'proposed' || plan.status === 'approved' || plan.status === 'skipped',

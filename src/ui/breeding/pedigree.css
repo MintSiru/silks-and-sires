@@ -1,0 +1,108 @@
+/* M6-U5 J4: 혈통표. 기본 3대가 화면 안에 들어오고, 5대 보기는 표 영역 안에서만 스크롤한다.
+   부측(파랑)·모측(보라) 왼쪽 선 3px, 인브리드 조상은 --grade-top 배경. 기존 app.css 규칙보다 높은 특이도로 덮는다. */
+
+.pedigree-view__commentary {
+  margin: 0 0 8px;
+  color: var(--text);
+  font-size: 0.9rem;
+  line-height: 22px;
+}
+
+.pedigree-view__sep {
+  color: var(--text-muted);
+}
+
+.pedigree-view__fact {
+  font-weight: 600;
+}
+
+.pedigree-view__fact--empty {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.pedigree-view__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  margin-bottom: 6px;
+}
+
+.pedigree-view__bar .pedigree__legend {
+  margin: 0;
+}
+
+.pedigree-view__toggle {
+  white-space: nowrap;
+}
+
+.pedigree-wrap {
+  max-height: min(420px, 60dvh);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.pedigree-wrap .pedigree {
+  min-width: 0;
+}
+
+/* 5대 보기에서 대 머리가 표 안 스크롤과 함께 사라지지 않게 고정 */
+.pedigree-wrap .pedigree__head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface-raised);
+}
+
+/* 범례는 표(.pedigree-wrap) 밖의 막대에 있으므로 .pedigree-view 기준으로 맞춘다 */
+.pedigree-view .pedigree__legend {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.pedigree-view .pedigree__key {
+  display: inline-block;
+  margin-right: 8px;
+  padding-left: 6px;
+  border-left: 3px solid var(--border);
+  color: var(--text-muted);
+}
+
+.pedigree-view .pedigree__key--sire {
+  border-left-color: var(--grade-high-fg);
+}
+
+.pedigree-view .pedigree__key--dam {
+  border-left-color: #b794f4;
+}
+
+.pedigree-view .pedigree__legend-inbred {
+  color: var(--grade-top-fg);
+}
+
+.pedigree-wrap .pedigree__cell {
+  border-left: 3px solid var(--border);
+}
+
+.pedigree-wrap .pedigree__cell--sire {
+  border-left-color: var(--grade-high-fg);
+}
+
+.pedigree-wrap .pedigree__cell--dam {
+  border-left-color: #b794f4;
+  background: #1a1f27;
+}
+
+.pedigree-wrap .pedigree__cell--unknown {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* 인브리드 조상: 기존 노랑 배경을 --grade-top 토큰으로. 측 선은 그대로 둔다. */
+.pedigree-wrap .pedigree__cell--inbred {
+  background: var(--grade-top-bg);
+  color: var(--grade-top-fg);
+  font-weight: 700;
+}

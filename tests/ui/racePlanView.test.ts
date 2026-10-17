@@ -93,9 +93,9 @@ it('캘린더는 경주 화면, 제안 검토는 말 상세 출주 계획 탭에
       locked: false,
     }),
   );
-  expect(detail).toContain('조교사 제안(진행 예정)');
-  expect(detail).toContain('승인</button>');
-  expect(detail).toContain('빼기</button>');
+  expect(detail).toContain('자동 출주 예정');
+  expect(detail).not.toContain('승인</button>');
+  expect(detail).toContain('제외</button>');
   expect(detail).toContain('앞으로 12주에서 골라 추가');
 });
 
@@ -132,7 +132,7 @@ it('새 게임의 자동 제안을 승인하고 마구간·상세를 그린 뒤 
         }),
       }),
     ),
-  ).toContain('승인됨');
+  ).toContain('확정');
   game.advance(4);
   const advanced = game.setRacePlan(horseId, game.racePlan(horseId));
   if (!advanced.ok) throw new Error(advanced.error);

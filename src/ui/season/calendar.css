@@ -1,0 +1,247 @@
+/* M6-U7 경주 캘린더(종합 문서 E). 색·글자는 app.css 의 토큰을 쓰고, 클래스는 cal- 접두로 구분한다.
+   주 목록은 높이가 고정되고 안에서만 스크롤한다(1440×900 첫 화면 스크롤 없음). */
+
+.cal-weeks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  height: min(440px, calc(100dvh - 430px));
+  min-height: 220px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.cal-week {
+  border-bottom: 1px solid var(--border);
+}
+
+.cal-week:last-child {
+  border-bottom: 0;
+}
+
+/* 행 전체가 펼침 버튼. 기본 버튼 글꼴·여백을 지우고 표 같은 열 배치를 쓴다. */
+.cal-week__head {
+  display: grid;
+  grid-template-columns: 26px 132px minmax(0, 1fr) minmax(0, 200px);
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  min-height: 48px;
+  margin: 0;
+  padding: 6px 12px;
+  box-sizing: border-box;
+  background: transparent;
+  color: var(--text);
+  border: 0;
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cal-week__head:hover {
+  background: var(--surface-raised);
+}
+
+.cal-week__head:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+
+.cal-week__chevron {
+  font-size: 22px;
+  line-height: 1;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.cal-week__head[aria-expanded='true'] .cal-week__chevron {
+  color: var(--text);
+}
+
+.cal-week__date {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* 고정 레이스는 한 줄에 하나씩. 등급 배지는 이름 앞 고정 칸. */
+.cal-week__fixed {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cal-week__race {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.cal-week__name {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.cal-week__none,
+.cal-week__more {
+  color: var(--text-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.cal-week__horses {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.cal-week .badge {
+  margin-left: 0;
+}
+
+/* 펼친 내용: 고정 레이스 표(등급·레이스명·거리·경마장 고정 칸) */
+.cal-week__detail {
+  display: grid;
+  gap: 8px;
+  padding: 4px 12px 14px 46px;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.cal-week__detail[hidden] {
+  display: none;
+}
+
+.cal-week__label {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.cal-week__detail .hint {
+  margin: 0;
+}
+
+.cal-fixed {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.cal-fixed__row {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) 72px minmax(0, 170px);
+  grid-template-areas:
+    'grade name distance course'
+    '. conditions conditions conditions';
+  gap: 2px 10px;
+  align-items: start;
+}
+
+.cal-fixed__grade {
+  grid-area: grade;
+}
+
+.cal-fixed__name {
+  grid-area: name;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-width: 0;
+  font-weight: 600;
+}
+
+.cal-fixed__distance {
+  grid-area: distance;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.cal-fixed__course {
+  grid-area: course;
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+.cal-fixed__conditions {
+  grid-area: conditions;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.cal-meetings,
+.cal-horses {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.cal-meetings__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  align-items: baseline;
+}
+
+.cal-meetings__name {
+  font-weight: 600;
+}
+
+.cal-meetings__expected {
+  overflow-wrap: anywhere;
+}
+
+.cal-horses__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 800px) {
+  .cal-weeks {
+    height: auto;
+    max-height: 60vh;
+  }
+
+  .cal-week__head {
+    grid-template-columns: 26px minmax(0, 1fr);
+  }
+
+  .cal-week__date,
+  .cal-week__fixed,
+  .cal-week__horses {
+    grid-column: 2;
+  }
+
+  .cal-week__detail {
+    padding-left: 12px;
+  }
+
+  .cal-fixed__row {
+    grid-template-columns: 64px minmax(0, 1fr);
+    grid-template-areas:
+      'grade name'
+      '. distance'
+      '. course'
+      '. conditions';
+  }
+}

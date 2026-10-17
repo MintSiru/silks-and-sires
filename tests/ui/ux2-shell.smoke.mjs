@@ -121,11 +121,12 @@ function writeReport(extra = {}) {
     let dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
     await dialog.getByRole('button', { name: '출주 계획', exact: true }).click();
-    const approve = dialog.getByRole('button', { name: '승인', exact: true });
-    const proposedBefore = await approve.count();
+    // 기본(자동) 모드: 제안은 '자동 출주 예정'이고 조작은 [제외]뿐이다(승인 버튼 없음)
+    const planTable = dialog.locator('.plan-table');
+    const proposedBefore = await planTable.getByRole('button', { name: '제외', exact: true }).count();
     assert(proposedBefore > 0, '새 게임 현역마에 자동 제안이 있어야 한다');
-    await approve.first().click();
-    await expect(dialog.locator('.plan-table')).toContainText('승인됨');
+    await expect(planTable).toContainText('자동 출주 예정');
+    await expect(planTable.getByRole('button', { name: '승인', exact: true })).toHaveCount(0);
     await page.screenshot({ path: '/tmp/ux2-horse-plans.png', fullPage: true });
     await dialog.getByRole('button', { name: '말 상세 닫기' }).click();
     await page.getByRole('button', { name: '4주 진행', exact: true }).click();

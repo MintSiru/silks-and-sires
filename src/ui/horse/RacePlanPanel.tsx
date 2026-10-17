@@ -1,9 +1,18 @@
 import { useMemo, useState } from 'react';
+import { assessForPlayer } from '../../engine/horse/playerView';
 import type { Horse } from '../../engine/types';
 import { formatDateKo } from '../../engine/time/calendar';
+import { GradeBadge, StatusBadge } from '../common/Badge';
 import type { GameApi } from '../game/useGame';
-import { emptyRacePlanHint, racePlanErrorKo, racePlanRows, racePlanSections } from '../season/racePlanView';
+import {
+  emptyRacePlanHint,
+  planStatusView,
+  racePlanErrorKo,
+  racePlanRows,
+  racePlanSections,
+} from '../season/racePlanView';
 import { planChoices } from './horseDetailView';
+import './racePlan.css';
 
 export default function RacePlanPanel({
   horse,
@@ -15,8 +24,21 @@ export default function RacePlanPanel({
   locked: boolean;
 }) {
   const plans = game.racePlan(horse.id);
-  const requireApproval = game.state?.settings.autoApproveRacePlans === false;
-  const context = { requireApproval, country: (horse.trainerId === null ? undefined : game.state?.trainers[horse.trainerId]?.country) ?? horse.countryOfBirth };
+  const state = game.state;
+  const requireApproval = state?.settings.autoApproveRacePlans === false;
+  // 거리 힌트는 개요와 같은 계산(assessForPlayer)을 쓴다. 말이 상태에 없으면 힌트 비교를 생략한다.
+  const distanceHint = useMemo(
+    () =>
+      state === null || state === undefined || state.horses[horse.id] === undefined
+        ? undefined
+        : assessForPlayer(state, horse.id).distanceHint,
+    [state, horse.id],
+  );
+  const context = {
+    requireApproval,
+    distanceHint,
+    country: (horse.trainerId === null ? undefined : state?.trainers[horse.trainerId]?.country) ?? horse.countryOfBirth,
+  };
   const sections = racePlanSections(plans);
   const rows = racePlanRows(sections.active, context);
   const history = racePlanRows(sections.history, context);
@@ -34,7 +56,9 @@ export default function RacePlanPanel({
     <section aria-label="출주 계획 검토">
       <h3>출주 계획</h3>
       <p className="hint">
-        {requireApproval ? '승인한 계획만 해당 주에 자동으로 출주 신청합니다.' : '조교사 제안은 빼지 않으면 해당 주에 자동으로 출주 신청합니다.'}
+        {requireApproval
+          ? '승인한 계획만 해당 주에 자동으로 출주 신청합니다. 승인 대기 계획은 승인하거나 제외하세요.'
+          : '제외하지 않은 계획은 해당 주에 자동으로 출주 신청합니다.'}
       </p>
       {horse.trainerId === null && <p className="notice">개요에서 조교사를 배정하세요.</p>}
       {horse.status === 'resting' && <p className="notice">휴양 중에는 계획을 변경할 수 없습니다.</p>}
@@ -45,7 +69,7 @@ export default function RacePlanPanel({
       )}
       {rows.length === 0 ? (
         <p className="empty-state">
-          {game.state ? emptyRacePlanHint(game.state, horse) : '현재 제안된 계획이 없습니다.'}
+          {state ? emptyRacePlanHint(state, horse) : '현재 제안된 계획이 없습니다.'}
         </p>
       ) : (
         <div className="table-scroll">
@@ -56,46 +80,54 @@ export default function RacePlanPanel({
                 <th>레이스 / 조건</th>
                 <th>조교사 메모</th>
                 <th>상태</th>
-                <th>검토</th>
+                <th>조작</th>
               </tr>
             </thead>
             <tbody>
-              {rows.map((r) => (
-                <tr key={r.id}>
-                  <td>{r.dateLabel}</td>
-                  <td>{r.name}{r.away}</td>
-                  <td>{r.note}</td>
-                  <td>
-                    <span
-                      className={`status-chip status-chip--${r.status === 'proposed' || r.status === 'skipped' ? 'caution' : 'good'}`}
-                    >
-                      {r.statusLabel}
-                    </span>
-                  </td>
-                  <td className="actions">
-                    {r.canApprove && (
-                      <button
-                        type="button"
-                        className="btn"
-                        disabled={unavailable}
-                        onClick={() => show(game.approvePlan(horse.id, r.id), '출주 계획을 승인했습니다.')}
-                      >
-                        승인
-                      </button>
-                    )}
-                    {r.canRemove && (
-                      <button
-                        type="button"
-                        className="btn"
-                        disabled={unavailable}
-                        onClick={() => show(game.removePlan(horse.id, r.id), '출주 계획에서 뺐습니다.')}
-                      >
-                        빼기
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
+              {rows.map((r) => {
+                const status = planStatusView(r.status, requireApproval);
+                return (
+                  <tr key={r.id}>
+                    <td className="plan-table__date">{r.dateLabel}</td>
+                    <td className="plan-table__race">
+                      <div className="plan-table__title">
+                        <GradeBadge grade={r.gradeLabel} />
+                        <span>{r.titleLine}</span>
+                      </div>
+                      <div className="plan-table__conditions">
+                        {r.conditionLine}
+                        {r.away}
+                      </div>
+                    </td>
+                    <td className="plan-table__note">{r.note}</td>
+                    <td>
+                      <StatusBadge tone={status.tone} label={status.label} />
+                    </td>
+                    <td className="actions">
+                      {requireApproval && r.canApprove && (
+                        <button
+                          type="button"
+                          className="btn"
+                          disabled={unavailable}
+                          onClick={() => show(game.approvePlan(horse.id, r.id), '출주 계획을 승인했습니다.')}
+                        >
+                          승인
+                        </button>
+                      )}
+                      {r.canRemove && (
+                        <button
+                          type="button"
+                          className="btn"
+                          disabled={unavailable}
+                          onClick={() => show(game.removePlan(horse.id, r.id), '출주 계획에서 제외했습니다.')}
+                        >
+                          제외
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -119,7 +151,7 @@ export default function RacePlanPanel({
       <details className="plan-add">
         <summary>앞으로 12주에서 골라 추가</summary>
         <p className="hint">
-          고정 일정 또는 일반 경주 조건을 추가하세요. {requireApproval ? '추가한 뒤 승인해야 진행됩니다. ' : '빼지 않으면 예정대로 진행됩니다. '}같은 주에는 한 계획만 둘 수 있습니다.
+          고정 일정 또는 일반 경주 조건을 추가하세요. {requireApproval ? '추가한 뒤 승인해야 진행됩니다. ' : '제외하지 않으면 예정대로 진행됩니다. '}같은 주에는 한 계획만 둘 수 있습니다.
         </p>
         <label className="field">
           주 선택
@@ -160,7 +192,7 @@ export default function RacePlanPanel({
                 (p) => p.date.year === choice.plan.date.year && p.date.week === choice.plan.date.week,
               )
             ) {
-              setNotice({ ok: false, text: '그 주에는 이미 계획이 있습니다. 기존 계획을 뺀 뒤 추가하세요.' });
+              setNotice({ ok: false, text: '그 주에는 이미 계획이 있습니다. 기존 계획을 제외한 뒤 추가하세요.' });
               return;
             }
             show(
