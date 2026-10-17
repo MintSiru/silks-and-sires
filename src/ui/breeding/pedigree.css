@@ -159,3 +159,8 @@
   color: var(--grade-top-fg);
   font-weight: 700;
 }
+
+/* 보기 전환 버튼은 줄 오른쪽 끝(아르곤 6차) */
+.pedigree-view__bar > .pedigree-view__toggle {
+  margin-left: auto;
+}

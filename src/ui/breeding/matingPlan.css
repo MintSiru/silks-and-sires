@@ -238,3 +238,8 @@ section.mating-plan .mating-plan__table .badge {
   height: 32px;
   box-sizing: border-box;
 }
+
+/* 종부료 머리글도 금액과 같은 오른쪽 정렬(아르곤 6차) */
+section.mating-plan .mating-plan__table thead th:nth-child(3) {
+  text-align: right;
+}

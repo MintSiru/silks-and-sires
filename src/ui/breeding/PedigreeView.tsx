@@ -140,7 +140,7 @@ export default function PedigreeView({ root, nameOf, nick }: PedigreeViewProps):
         <p className="pedigree__legend">
           <span className="pedigree__key pedigree__key--sire">부측</span>
           <span className="pedigree__key pedigree__key--dam">모측</span>
-          <span className="pedigree__legend-inbred">강조: 인브리드 대상 조상</span> · 미상은 —
+          <span className="pedigree__legend-inbred">강조: 중복 조상(근친)</span> · 미상은 —
         </p>
         <button
           type="button"

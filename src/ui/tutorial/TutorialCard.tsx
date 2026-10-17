@@ -154,6 +154,13 @@ export default function TutorialCard({ state, onNavigate, onTutorial }: Tutorial
           step.expand !== null && expandedSteps.includes(step.id) ? (
             <div key={step.id} className="tutorial-card__expand" role="note">
               <strong>{step.title} — 풀이</strong>
+              <button
+                type="button"
+                className="link-btn tutorial-card__expand-close"
+                onClick={() => setExpandedSteps((prev) => prev.filter((id) => id !== step.id))}
+              >
+                접기
+              </button>
               <ul>
                 {step.expand.map((line) => (
                   <li key={line}>{line}</li>

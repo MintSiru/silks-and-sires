@@ -264,7 +264,10 @@ describe('M6-U4 말 상세 뷰', () => {
       raceName: race.name,
       gradeBadge: race.grade ?? `클래스 ${race.raceClass}`,
     });
-    expect(timeline.items.find((i) => i.kind === 'milestone')!.text).toBeTruthy();
+    // 말 상세에서는 종류 배지(예: '첫 출주')가 뜻을 담고 본문은 이 말 이름을 빼서 비어 있을 수 있다(아르곤 6차)
+    const milestone = timeline.items.find((i) => i.kind === 'milestone')!;
+    expect(milestone.badgeLabel).toBeTruthy();
+    expect(typeof milestone.text).toBe('string');
     expect(timeline.ops.map((i) => i.event?.type)).toEqual(['race_plan_declared']);
   });
 

@@ -42,11 +42,11 @@ import { useNotify } from '../shell/notify';
 import './horse.css';
 
 /**
- * 기록 타임라인의 배지 열(날짜 바로 오른쪽, 모든 행 같은 열). 출주는 착순, 연대기 문장은 '주요 순간'.
+ * 기록 타임라인의 배지 열(날짜 바로 오른쪽, 모든 행 같은 열). 출주는 착순, 연대기 문장은 종류 배지(첫 출주·G1 우승 등).
  * 그 밖의 이벤트 행은 빈 칸으로 두어 열 정렬을 지킨다.
  */
 function TimelineBadge({ item }: { item: TimelineItem }) {
-  if (item.kind === 'milestone') return <span className="badge badge--grade-top">주요 순간</span>;
+  if (item.kind === 'milestone') return <span className="badge badge--grade-top">{item.badgeLabel ?? '주요 순간'}</span>;
   if (item.kind === 'race' && item.race) {
     const { position, fieldSize } = item.race;
     if (position === null) return null;

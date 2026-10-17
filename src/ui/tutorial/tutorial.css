@@ -59,9 +59,10 @@
 .tutorial-step .hint {
   margin: 0;
   line-height: 16px;
-  /* 단계 설명은 1줄, 넘치면 말줄임. 전체 문구는 title 로 본다(카드 높이 고정, 첫 화면 세로 스크롤 방지) */
+  /* 단계 설명은 2줄까지, 넘치면 말줄임(아르곤 6차). 전체 문구는 title 로 본다 */
   display: -webkit-box;
-  -webkit-line-clamp: 1;
+  -webkit-line-clamp: 2;
+  word-break: keep-all;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -95,11 +96,12 @@
   z-index: 20;
   box-sizing: border-box;
   padding: 10px 14px;
-  border: 1px solid var(--border);
+  /* 아래 카드와 구분되게 테두리·그림자를 강하게(아르곤 6차) */
+  border: 1px solid var(--input-border);
   border-radius: 8px;
   background: var(--surface-raised);
   color: var(--text);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7);
   font-size: 12px;
   line-height: 18px;
 }
@@ -113,4 +115,10 @@
 
 @media (max-width: 800px) {
   .tutorial-card__steps { grid-template-columns: minmax(0, 1fr); }
+}
+
+.tutorial-card__expand-close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
 }

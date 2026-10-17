@@ -263,7 +263,10 @@ function MatingPlanTableRow({
       </th>
       <td className="mating-plan__stallion">
         <HorseLink horseId={r.stallionId} name={r.stallionName} />
-        <span className="hint">{r.alternatives.length === 0 ? '대안 없음' : `대안 ${r.alternatives.length}두`}</span>
+        {/* 예약 완료 행은 대안 문구를 숨긴다(아르곤 6차) */}
+        {r.status !== 'booked' && (
+          <span className="hint">{r.alternatives.length === 0 ? '대안 없음' : `대안 ${r.alternatives.length}두`}</span>
+        )}
       </td>
       <td className="mating-plan__fee">{r.fee}</td>
       <td>

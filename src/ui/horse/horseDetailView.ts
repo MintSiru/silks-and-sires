@@ -37,7 +37,7 @@ import {
   raceGradeKo,
   type ConformationKey,
 } from '../game/text';
-import { horseChronicleRows } from '../legacy/legacyView';
+import { chronicleBodyKo, chronicleTagOf, horseChronicleRows } from '../legacy/legacyView';
 import type { HorseTab } from './HorseLink';
 import { targetLabel } from '../season/racePlanView';
 import type { StatusTone } from '../common/badges';
@@ -362,8 +362,10 @@ export interface TimelineItem {
   /** 같은 주 안의 정렬 순서(클수록 나중) */
   seq: number;
   kind: 'milestone' | 'race' | 'event';
-  /** milestone: 연대기 문장 */
+  /** milestone: 연대기 문장(종류 배지와 이 말 이름을 뺀 본문 — 말 상세 안이라 이름은 반복하지 않는다) */
   text?: string;
+  /** milestone: 종류 배지 글자(예: '첫 출주', 'G1 우승') */
+  badgeLabel?: string;
   /** event: 기존 이벤트(링크 포함 문장은 HorseEventText 가 만든다) */
   event?: GameEvent;
   /** race: 이 말 관점 한 줄 — 착순(없으면 null)·경주명·등급 배지 글자(등급 정보가 없으면 null) */
@@ -381,6 +383,12 @@ function chronicleSeq(id: string): number {
   return Number.parseInt(id.slice(id.lastIndexOf('-') + 1), 10) || 0;
 }
 
+/** 말 상세 안에서는 문장 앞의 이 말 이름('이름, ' 또는 이름만)을 뺀다(아르곤 6차) */
+function stripHorseName(text: string, name: string): string {
+  if (text === name) return '';
+  return text.startsWith(`${name}, `) ? text.slice(name.length + 2) : text;
+}
+
 export function horseTimeline(state: GameState, horseId: string, nameOf: (id: string) => string): HorseTimeline {
   const rowById = new Map(horseChronicleRows(state, horseId, nameOf).map((row) => [row.id, row] as const));
   const milestones: TimelineItem[] = [];
@@ -394,7 +402,8 @@ export function horseTimeline(state: GameState, horseId: string, nameOf: (id: st
       dateLabel: formatDateKo(entry.date),
       seq: chronicleSeq(entry.id),
       kind: 'milestone',
-      text: row.text,
+      text: stripHorseName(chronicleBodyKo(entry.kind, row.text), nameOf(horseId)),
+      badgeLabel: chronicleTagOf(entry.kind).label,
     });
   }
   const events: TimelineItem[] = [];
