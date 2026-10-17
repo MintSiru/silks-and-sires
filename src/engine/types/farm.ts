@@ -14,7 +14,6 @@ export type Difficulty = 'easy' | 'normal' | 'hard';
 /** 목장·마주 소재국으로 고를 수 있는 나라(유럽 5개국) */
 export type HomeCountry = 'GB' | 'IE' | 'FR' | 'DE' | 'IT';
 
-/** 새 게임에서 고른 설정(게임 내내 유지) */
 /**
  * 첫 시즌 체크리스트 단계(M6-T): 경마 기초(용어) → 말 상태 확인 → 출주 계획 검토 → 진행 → 결과 확인 / 교배 제안 확인,
  * 경험자용 '자동 진행 규칙' 안내. 수준별로 보이는 단계가 다르다(사용자 결정 2026-10-17)
@@ -37,6 +36,7 @@ export interface TutorialProgress {
   done: TutorialStepId[];
 }
 
+/** 새 게임에서 고른 설정(게임 내내 유지) */
 export interface GameSettings {
   startType: StartType;
   difficulty: Difficulty;

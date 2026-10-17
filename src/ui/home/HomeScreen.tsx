@@ -1,19 +1,24 @@
 import { useContext } from 'react';
 import { displayName } from '../../engine/naming/register';
-import type { GameState } from '../../engine/types';
+import type { GameState, TutorialProgress } from '../../engine/types';
 import { GradeBadge, PositionBadge } from '../common/Badge';
 import HorseEventText from '../horse/HorseEventText';
 import HorseLink, { HorseNavigation } from '../horse/HorseLink';
 import { homeView } from './homeView';
 import RivalCard from '../legacy/RivalCard';
+import TutorialCard from '../tutorial/TutorialCard';
+import { showTutorial } from '../tutorial/tutorialView';
 import './home.css';
 
 export default function HomeScreen({
   state,
   onNavigate,
+  onTutorial,
 }: {
   state: GameState;
-  onNavigate: (screen: 'yearEnd' | 'sales' | 'results' | 'legacy') => void;
+  onNavigate: (screen: 'yearEnd' | 'sales' | 'results' | 'legacy' | 'stable' | 'breeding') => void;
+  /** 첫 시즌 체크리스트 진행 저장(useGame.setTutorial). 없으면 카드 진행은 저장되지 않는다 */
+  onTutorial?: (progress: TutorialProgress) => void;
 }) {
   const view = homeView(state);
   const { openHorse } = useContext(HorseNavigation);
@@ -21,6 +26,7 @@ export default function HomeScreen({
   return (
     <>
       <h2>홈</h2>
+      {showTutorial(state) && <TutorialCard state={state} onNavigate={onNavigate} onTutorial={onTutorial} />}
       <div className="home-grid">
         <section className="panel home-briefing">
           {/* 결정 대기 수는 상단 '이번 주 할 일' 배지에만 보인다(V1 항목 1) */}

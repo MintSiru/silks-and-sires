@@ -265,8 +265,11 @@ function AppContent() {
                 ) : (
                   <HomeScreen
                     state={state}
+                    onTutorial={game.setTutorial}
                     onNavigate={(target) => {
                       if (target === 'yearEnd') setYearEnd(true);
+                      else if (target === 'stable') setScreen('stable');
+                      else if (target === 'breeding') setScreen('breeding');
                       else if (target === 'sales') setScreen('sales');
                       else if (target === 'legacy') {
                         setLegacyTab('rivals');

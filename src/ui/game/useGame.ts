@@ -79,6 +79,7 @@ import type {
   SilksDesign,
   StartType,
   TrainerId,
+  TutorialProgress,
   WeeklySystem,
 } from '../../engine/types';
 import {
@@ -134,6 +135,8 @@ export interface GameApi {
   consignProposal(horseId: HorseId): ReturnType<typeof consignProposal>;
   /** 판매 제안 자동 위탁(settings.autoSell). false 면 제안만 하고 위탁은 플레이어가 한다 */
   setAutoSell(enabled: boolean): ReturnType<typeof setAutoSell>;
+  /** 첫 시즌 체크리스트 진행(M6-T): 단계 완료·닫기 값을 설정에 저장한다. 원본 상태는 바꾸지 않는다 */
+  setTutorial(progress: TutorialProgress): void;
   placeBet(input: Parameters<typeof placeBet>[1]): PlayerResult<BetError>;
   cancelBet(betId: string): ReturnType<typeof cancelBet>;
   state: GameState | null;
@@ -627,6 +630,14 @@ export function useGame(): GameApi {
   }, [requireState, writeSlot]);
 
   /** 목장 API 는 이벤트만 반환하므로 훅에서 누적한 뒤 자동 저장한다. */
+  const setTutorial = useCallback((progress: TutorialProgress): void => {
+    const current = requireState();
+    const next = { ...current, settings: { ...current.settings, tutorial: structuredClone(progress) } };
+    stateRef.current = next;
+    setState(next);
+    void save().catch((error: unknown) => console.error('튜토리얼 진행 저장 실패', error));
+  }, [requireState, save]);
+
   const applyFarmResult = useCallback(<E extends string>(result: PlayerResult<E>): PlayerResult<E> => {
     if (!result.ok) return result;
     const next = appendEvents(result.state, result.events);
@@ -733,6 +744,7 @@ export function useGame(): GameApi {
     removeSellProposal: removeProposal,
     consignProposal: consignProposalNow,
     setAutoSell: setSellAuto,
+    setTutorial,
     state,
     placeBet: placePlayerBet,
     cancelBet: cancelPlayerBet,
