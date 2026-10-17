@@ -235,6 +235,7 @@ describe('확립 부계·명문 모계', () => {
     expect(lineText).toContain(`${LINE_MIN_FOUNDER_GROUP_WINNERS}두`);
     expect(lineText).toContain(`${LINE_MIN_TOTAL_GROUP_WINNERS}두`);
     const familyText = familyConditionText();
+    expect(familyText).toContain('내 번식 암말의 모계');
     expect(familyText).toContain(`${FAMILY_GENERATIONS}대`);
     expect(familyText).toContain(`${FAMILY_MIN_BLACK_TYPE_WINNERS}두`);
   });

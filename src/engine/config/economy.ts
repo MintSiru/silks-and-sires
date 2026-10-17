@@ -5,6 +5,21 @@ import type { CountryCode, EconomyMode, HorseStatus, Money } from '../types';
 export const DEFAULT_ECONOMY_MODE: EconomyMode = 'casual';
 /** 명성 기준값(0~100): 새 게임 시작값이자 주간 회귀 목표(M4-B1) */
 export const REPUTATION_BASE = 10;
+/**
+ * M6-0: 일시적인 명성은 감쇠하되 큰 업적은 시작값에 영구 가산한다.
+ * G1보다 클래식·수상을, 단발 성적보다 혈통 확립을 높게 평가한다.
+ * 바닥 상한 40은 시작 명성의 네 배까지만 보장해 현재 성적·관계의 가치를 남긴다.
+ */
+export const REPUTATION_FLOOR_POINTS = {
+  g1_win: 1,
+  classic_win: 2,
+  laurel_award: 2,
+  horse_of_the_year: 4,
+  leading_title: 3,
+  sire_line_established: 4,
+  female_family_established: 3,
+} as const;
+export const REPUTATION_FLOOR_MAX = 40;
 /** 새 게임 플레이어 명성(0~100) */
 export const STARTING_REPUTATION = REPUTATION_BASE;
 /** 플레이어 장부 보존 기간(주). 이보다 오래된 항목은 prunePlayerLedger 가 지운다 */

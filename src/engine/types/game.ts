@@ -34,6 +34,8 @@ export type GameEvent =
   /** 출주 계획 처리(UX1): 계획대로 신청함 / 조건이 안 맞아 건너뜀(부상·체력·맞는 레이스 없음 등) */
   | { type: 'race_plan_declared'; horseId: HorseId; raceId: RaceId; date: GameDate }
   | { type: 'race_plan_skipped'; horseId: HorseId; planId: string; reason: string; date: GameDate }
+  /** M6-0b: 판매 담당이 판매 제안을 냄(count 두) */
+  | { type: 'sell_proposals_ready'; count: number; date: GameDate }
   /** M5: 라이벌 지정 */
   | { type: 'rival_declared'; ownerId: OwnerId; reason: RivalReason; date: GameDate }
   /** M5: 그룹 레이스 맞대결 결과. playerAhead = 플레이어 말이 앞섬 */

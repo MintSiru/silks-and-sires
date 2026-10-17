@@ -179,4 +179,25 @@ export interface SalesState {
   privateOffers: PrivateOffer[];
   /** 내부거래 제안 일련번호(다음에 쓸 값, 1부터) */
   nextPrivateOfferNo: number;
+  /** 판매 담당(목장 매니저)의 판매 제안(M6-0b). 없으면 키 생략(옛 저장본 호환) */
+  sellProposals?: SellProposal[];
+}
+
+/** 판매 제안 상태(M6-0b). proposed: 검토 대기 / consigned: 세일 위탁 완료 / skipped: 뺌·실패·지나감 */
+export type SellProposalStatus = 'proposed' | 'consigned' | 'skipped';
+
+/**
+ * 판매 담당이 플레이어 말 한 두에 낸 세일 위탁 제안(M6-0b, 사용자 결정 2026-10-17 '자동 판매 담당').
+ * 출주 계획·교배 제안과 같은 '그대로 진행' — 빼지 않으면 위탁 마감 전에 위탁한다.
+ */
+export interface SellProposal {
+  horseId: HorseId;
+  /** 위탁할 세일과 연도 */
+  saleId: SaleEventId;
+  year: number;
+  /** 제안 유보가(€). null = 유보 없음 */
+  reserve: Money | null;
+  /** 이유 한 줄(한국어): 예 '능력 하위 · 유지비 절감 · 자금 부족' */
+  note: string;
+  status: SellProposalStatus;
 }

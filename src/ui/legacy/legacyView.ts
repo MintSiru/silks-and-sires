@@ -215,7 +215,7 @@ export function lineConditionText(): string {
 
 /** 명문 모계 목록 조건 안내 한 줄(config 값으로 만든다) */
 export function familyConditionText(): string {
-  return `명문 모계 조건: 모계 ${FAMILY_GENERATIONS}대 안 블랙타입(그룹·리스티드) 우승마 ${FAMILY_MIN_BLACK_TYPE_WINNERS}두 이상, 그중 그룹 우승마 ${FAMILY_MIN_GROUP_WINNERS}두 이상.`;
+  return `명문 모계 조건: 내 번식 암말의 모계 ${FAMILY_GENERATIONS}대 안 블랙타입(그룹·리스티드) 우승마 ${FAMILY_MIN_BLACK_TYPE_WINNERS}두 이상, 그중 그룹 우승마 ${FAMILY_MIN_GROUP_WINNERS}두 이상.`;
 }
 
 function compareIds(a: string, b: string): number {

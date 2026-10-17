@@ -285,6 +285,14 @@ function AppContent() {
                 <label>
                   <input
                     type="checkbox"
+                    checked={state.settings.autoSendToTraining !== false}
+                    onChange={(e) => game.setAutoSendToTraining(e.target.checked)}
+                  />{' '}
+                  2세 자동 조교 보내기
+                </label>
+                <label>
+                  <input
+                    type="checkbox"
                     checked={state.settings.autoApproveRacePlans === false}
                     onChange={(e) => game.setAutoApproveRacePlans(!e.target.checked)}
                   />{' '}

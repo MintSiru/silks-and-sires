@@ -17,6 +17,8 @@ import {
   RELATION_TIER_WARM,
   REPUTATION_BASE,
   REPUTATION_DECAY_WEEKLY,
+  REPUTATION_FLOOR_POINTS,
+  REPUTATION_FLOOR_MAX,
   REPUTATION_MAX,
   REPUTATION_MIN,
   REPUTATION_RANK_LIST,
@@ -161,13 +163,35 @@ export function enforceRetainerFloor(draft: GameState): void {
   }
 }
 
-/** 명성 회귀(주간): REPUTATION_BASE 쪽으로 REPUTATION_DECAY_WEEKLY 만큼 옮긴다(넘지 않는다) */
+/** 플레이어 연대기만 한 번 순회한다. 별도 저장·캐시 없이 옛 저장본에서도 같은 바닥을 얻는다. */
+export function reputationFloor(state: GameState): number {
+  let floor = REPUTATION_BASE;
+  for (const entry of state.chronicle ?? []) {
+    if (!entry.player) continue;
+    switch (entry.kind) {
+      case 'g1_win': floor += REPUTATION_FLOOR_POINTS.g1_win; break;
+      case 'classic_win': floor += REPUTATION_FLOOR_POINTS.classic_win; break;
+      case 'laurel_award': floor += entry.label === 'horse_of_the_year'
+        ? REPUTATION_FLOOR_POINTS.horse_of_the_year : REPUTATION_FLOOR_POINTS.laurel_award; break;
+      case 'leading_title':
+        if (entry.label === 'europe:1') floor += REPUTATION_FLOOR_POINTS.leading_title;
+        break;
+      case 'sire_line_established': floor += REPUTATION_FLOOR_POINTS.sire_line_established; break;
+      case 'female_family_established': floor += REPUTATION_FLOOR_POINTS.female_family_established; break;
+    }
+    if (floor >= REPUTATION_FLOOR_MAX) return REPUTATION_FLOOR_MAX;
+  }
+  return floor;
+}
+
+/** 명성 회귀(주 1회): 기준값과 업적 바닥 중 큰 값으로 기존 속도만큼 옮긴다. */
 export function regressReputation(draft: GameState): void {
   const rep = draft.relations.reputation;
-  if (rep > REPUTATION_BASE) {
-    draft.relations.reputation = Math.max(REPUTATION_BASE, roundValue(rep - REPUTATION_DECAY_WEEKLY));
-  } else if (rep < REPUTATION_BASE) {
-    draft.relations.reputation = Math.min(REPUTATION_BASE, roundValue(rep + REPUTATION_DECAY_WEEKLY));
+  const target = Math.max(REPUTATION_BASE, reputationFloor(draft));
+  if (rep > target) {
+    draft.relations.reputation = Math.max(target, roundValue(rep - REPUTATION_DECAY_WEEKLY));
+  } else if (rep < target) {
+    draft.relations.reputation = Math.min(target, roundValue(rep + REPUTATION_DECAY_WEEKLY));
   }
 }
 

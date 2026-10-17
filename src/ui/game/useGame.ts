@@ -120,6 +120,7 @@ export interface GameApi {
   setRacePlan(horseId: HorseId, plans: PlannedRace[]): ReturnType<typeof setRacePlan>;
   upcomingRaces(weeks: number): UpcomingRaceWeek[];
   setAutoApproveRacePlans(enabled: boolean): void;
+  setAutoSendToTraining(enabled: boolean): void;
   placeBet(input: Parameters<typeof placeBet>[1]): PlayerResult<BetError>;
   cancelBet(betId: string): ReturnType<typeof cancelBet>;
   state: GameState | null;
@@ -514,6 +515,12 @@ export function useGame(): GameApi {
     stateRef.current = next;
     setState(next);
   }, [requireState]);
+  const setAutoSendToTraining = useCallback((enabled: boolean): void => {
+    const current = requireState();
+    const next = { ...current, settings: { ...current.settings, autoSendToTraining: enabled } };
+    stateRef.current = next;
+    setState(next);
+  }, [requireState]);
 
   const declarePlayer = useCallback(
     (meetingId: string, raceId: RaceId, horseId: HorseId): PlayerResult<DeclareError> =>
@@ -681,6 +688,7 @@ export function useGame(): GameApi {
     setRacePlan: setPlans,
     upcomingRaces: upcoming,
     setAutoApproveRacePlans,
+    setAutoSendToTraining,
     state,
     placeBet: placePlayerBet,
     cancelBet: cancelPlayerBet,

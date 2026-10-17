@@ -8,7 +8,7 @@ import type { AdvanceResult, GameState, WeeklySystem } from '../types';
 
 import { POPULATION_RETIRE_AGE } from '../config/population';
 import { MARE_MIN_BREEDING_AGE } from '../config/breedingSeason';
-import { NOMINATION_MAX_PER_SEASON, STUD_MIN_AGE, YEAR_END_GELDING_MAX_AGE } from '../config/stud';
+import { NOMINATION_MAX_PER_SEASON, STUD_MIN_AGE, YEAR_END_GELDING_MAX_AGE, YEAR_END_MARE_BREED_AGE } from '../config/stud';
 import type { GameEvent, HorseId, Money, RetainerContract, YearEndChoice, YearEndSubmission } from '../types';
 import { canStandAtStud, freeStudSlots, standPlayerStallion } from './stand';
 import { mareCapacity, playerBroodmareCount } from '../farm/purchase';
@@ -42,6 +42,7 @@ export interface YearEndCandidate {
 /** 조회는 상태·난수를 바꾸지 않는다. 위탁마는 매각 절차를 위해 현역을 유지한다. */
 export function yearEndCandidates(state: GameState): YearEndCandidate[] {
   const year = state.date.year;
+  let mareSlots = Math.max(0, mareCapacity(state) - playerBroodmareCount(state));
   return Object.values(state.horses)
     .filter((horse) => horse.ownerId === state.playerOwnerId
       && (horse.status === 'in_training' || horse.status === 'resting'))
@@ -65,8 +66,13 @@ export function yearEndCandidates(state: GameState): YearEndCandidate[] {
         if (horse.sex === 'female' && newAge >= MARE_MIN_BREEDING_AGE && state.farm.owned) allowed.push('broodmare');
         allowed.push('retire');
       }
-      const recommended = (['continue', 'stud', 'broodmare', 'retire'] as const)
+      let recommended: YearEndChoice = (['continue', 'stud', 'retire'] as const)
         .find((choice) => allowed.includes(choice)) ?? 'retire';
+      if (horse.sex === 'female' && newAge >= YEAR_END_MARE_BREED_AGE
+        && allowed.includes('broodmare') && mareSlots > 0) {
+        recommended = 'broodmare';
+        mareSlots--;
+      }
       const quote = allowed.includes('sell_domestic') ? salePriceQuote(state, horse.id) : null;
       return { horseId: horse.id, newAge, allowed, recommended,
         salePrice: quote === null ? null : { domestic: quote.domestic, overseas: quote.overseas },

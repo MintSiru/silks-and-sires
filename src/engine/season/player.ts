@@ -161,7 +161,15 @@ export function assignTrainer(
   horseId: HorseId,
   trainerId: TrainerId,
 ): PlayerResult<AssignTrainerError> {
-  const next = structuredClone(state);
+  return assignTrainerInPlace(structuredClone(state), horseId, trainerId);
+}
+
+/** 주간 자동 입사도 수동 배정과 같은 검증·이름 등록·시설 보너스·이벤트를 쓴다. */
+export function assignTrainerInPlace(
+  next: GameState,
+  horseId: HorseId,
+  trainerId: TrainerId,
+): PlayerResult<AssignTrainerError> {
   const horse = next.horses[horseId];
   if (horse === undefined) return fail('not_found');
   if (horse.ownerId !== next.playerOwnerId) return fail('not_player_horse');

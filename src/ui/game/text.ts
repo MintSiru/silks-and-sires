@@ -439,6 +439,8 @@ export function eventKo(
       return `${formatDateKo(e.date)} · 출주 계획 취소: ${nameOf(e.horseId)} — ${e.reason}`;
     case 'mating_proposals_ready':
       return `${formatDateKo(e.date)} · 교배 제안 도착: ${e.season}년 시즌 번식 암말 ${e.count}두 — 번식 화면에서 검토`;
+    case 'sell_proposals_ready':
+      return `${formatDateKo(e.date)} · 판매 제안 도착: ${e.count}두 — 세일 화면에서 검토(빼지 않으면 위탁)`;
     case 'rival_declared':
       return `${formatDateKo(e.date)} · 라이벌 등장: ${ownerNameOf(e.ownerId)} (${RIVAL_REASON_KO[e.reason]})`;
     case 'rival_clash':

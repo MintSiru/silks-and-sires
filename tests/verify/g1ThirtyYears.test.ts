@@ -13,6 +13,7 @@ import {
 } from '../../src/engine/config/legacy';
 import { RIVAL_MAX_ACTIVE } from '../../src/engine/config/rivals';
 import { dynastyGoals } from '../../src/engine/legacy/goals';
+import { reputationFloor } from '../../src/engine/economy/relations';
 import { familyCandidates, lineCandidates, type FamilyCandidate, type LineCandidate } from '../../src/engine/legacy/lines';
 import {
   getNamingData,
@@ -145,7 +146,7 @@ const BOOT_DATA: BootstrapData = {
 /* ------------------------------------------------------------------ */
 
 const hook = vi.hoisted(() => ({
-  onMeeting: null as ((out: RunMeetingInPlaceOutput) => void) | null,
+  onMeeting: null as ((out: RunMeetingInPlaceOutput, state: GameState) => void) | null,
 }));
 
 vi.mock('../../src/engine/season/raceday', async (importOriginal) => {
@@ -154,7 +155,7 @@ vi.mock('../../src/engine/season/raceday', async (importOriginal) => {
     ...actual,
     runMeetingInPlace: (...args: Parameters<typeof actual.runMeetingInPlace>): RunMeetingInPlaceOutput => {
       const out = actual.runMeetingInPlace(...args);
-      hook.onMeeting?.(out);
+      hook.onMeeting?.(out, args[0]);
       return out;
     },
   };
@@ -223,6 +224,8 @@ function favouriteWon(result: RaceResult): boolean | null {
 }
 
 interface RaceAgg {
+  playerGroupWins: number;
+  playerBredGroupWins: number;
   run: number;
   missingResult: number;
   priced: number;
@@ -254,6 +257,8 @@ interface EntrantRec {
 }
 
 interface Collector {
+  autoTrainingByYear: Map<number, number>;
+  broodmareByYear: Map<number, number>;
   races: Map<number, RaceAgg>;
   sales: Map<number, Map<SaleKind, SaleAgg>>;
   seenCatalogues: Set<string>;
@@ -277,6 +282,8 @@ interface Collector {
 
 function newCollector(initial: GameState): Collector {
   return {
+    autoTrainingByYear: new Map(),
+    broodmareByYear: new Map(),
     races: new Map(),
     sales: new Map(),
     seenCatalogues: new Set(),
@@ -297,12 +304,13 @@ function newCollector(initial: GameState): Collector {
 function raceAggOf(c: Collector, year: number): RaceAgg {
   const existing = c.races.get(year);
   if (existing !== undefined) return existing;
-  const fresh: RaceAgg = { run: 0, missingResult: 0, priced: 0, favWon: 0, g1Priced: 0, g1FavWon: 0 };
+  const fresh: RaceAgg = { playerGroupWins: 0, playerBredGroupWins: 0,
+    run: 0, missingResult: 0, priced: 0, favWon: 0, g1Priced: 0, g1FavWon: 0 };
   c.races.set(year, fresh);
   return fresh;
 }
 
-function observeMeeting(c: Collector, out: RunMeetingInPlaceOutput): void {
+function observeMeeting(c: Collector, out: RunMeetingInPlaceOutput, state: GameState): void {
   const year = out.meeting.date.year;
   const agg = raceAggOf(c, year);
   const byId = new Map<string, RaceResult>();
@@ -314,6 +322,12 @@ function observeMeeting(c: Collector, out: RunMeetingInPlaceOutput): void {
     if (result === undefined) {
       agg.missingResult++;
       continue;
+    }
+    if (sr.race.grade === 'G1' || sr.race.grade === 'G2' || sr.race.grade === 'G3') {
+      const winner = result.runners.find((runner) => runner.position === 1);
+      const horse = winner === undefined ? undefined : state.horses[winner.horseId];
+      if (horse?.ownerId === state.playerOwnerId) agg.playerGroupWins++;
+      if (horse?.breederId === state.playerOwnerId) agg.playerBredGroupWins++;
     }
     const fav = favouriteWon(result);
     if (fav === null) continue;
@@ -649,6 +663,16 @@ function m5Snapshot(state: GameState, label: number, c: Collector, saveBytes: nu
 }
 
 interface YearRow {
+  /** M6-0: 실제 출주 결과·자동 입사·번식 전환과 연초 업적 명성. */
+  m6: {
+    playerActive: number;
+    playerGroupWins: number;
+    playerBredGroupWins: number;
+    autoTrainingYear: number;
+    broodmareTransitionsYear: number;
+    homebredBroodmares: number;
+    reputationFloor: number;
+  };
   year: number;
   /** 연차(1부터) */
   n: number;
@@ -784,6 +808,17 @@ function snapshotYear(state: GameState, label: number, c: Collector, n: number):
       - Object.values(profileByYear.get(label) ?? {}).reduce((a, b) => a + b, 0) },
     breederFlows: { ...breederFlows.get(label) },
     m5: m5Snapshot(state, label, c, saveBytes),
+    m6: {
+      playerActive: Object.values(state.horses).filter((h) => h.ownerId === state.playerOwnerId
+        && (h.status === 'in_training' || h.status === 'resting')).length,
+      playerGroupWins: race?.playerGroupWins ?? 0,
+      playerBredGroupWins: race?.playerBredGroupWins ?? 0,
+      autoTrainingYear: c.autoTrainingByYear.get(label) ?? 0,
+      broodmareTransitionsYear: c.broodmareByYear.get(label) ?? 0,
+      homebredBroodmares: Object.values(state.horses).filter((h) => h.ownerId === state.playerOwnerId
+        && h.breederId === state.playerOwnerId && h.status === 'broodmare').length,
+      reputationFloor: reputationFloor(state),
+    },
     perf: {
       advanceMsMedian: median(t),
       weeks: t.length,
@@ -874,11 +909,13 @@ function runYears(years: number): RunOutcome {
         break;
       }
       state = appendEvents(sub.state, sub.events);
+      collector.broodmareByYear.set(state.date.year, sub.events.filter((e) =>
+        e.type === 'horse_status_changed' && e.to === 'broodmare').length);
       submissions++;
     }
 
     const processed = { year: state.date.year, week: state.date.week };
-    hook.onMeeting = (out) => observeMeeting(collector, out);
+    hook.onMeeting = (out, current) => observeMeeting(collector, out, current);
     const started = performance.now();
     let advanced: ReturnType<typeof advanceWeekGated>;
     try {
@@ -896,6 +933,11 @@ function runYears(years: number): RunOutcome {
     }
     state = advanced.state;
     advances++;
+    const trained = advanced.events.filter((e) => e.type === 'horse_status_changed'
+      && e.from === 'yearling' && e.to === 'in_training'
+      && state.horses[e.horseId]?.ownerId === state.playerOwnerId).length;
+    collector.autoTrainingByYear.set(processed.year,
+      (collector.autoTrainingByYear.get(processed.year) ?? 0) + trained);
 
     const bucket = collector.weekMs.get(processed.year) ?? [];
     bucket.push(ms);

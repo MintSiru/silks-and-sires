@@ -2,6 +2,7 @@ import { getSalesData } from '../../engine/data/staticData';
 import { displayName } from '../../engine/naming/register';
 import { saleWeekOf } from '../../engine/sales/bidding';
 import { yearEndPending } from '../../engine/stud/yearEnd';
+import { autoTrainingCandidates } from '../../engine/season/autoTraining';
 import { formatDateKo, weeksBetween } from '../../engine/time/calendar';
 import type { GameState } from '../../engine/types';
 import { recentResults } from '../season/seasonView';
@@ -19,6 +20,12 @@ export function homeTasks(state: GameState): HomeTask[] {
   const tasks: HomeTask[] = [];
   if (yearEndPending(state))
     tasks.push({ id: 'yearEnd', label: '연말 정산을 제출하세요', screen: 'yearEnd' });
+  if (state.settings.autoSendToTraining === false) {
+    for (const horse of autoTrainingCandidates(state)) {
+      tasks.push({ id: `training:${horse.id}`, label: `${displayName(state, horse)} · 조교사에게 맡기기`,
+        screen: 'horse', horseId: horse.id });
+    }
+  }
   for (const h of Object.values(state.horses).filter(
     (h) => h.ownerId === state.playerOwnerId && !['dead', 'historical'].includes(h.status),
   )) {

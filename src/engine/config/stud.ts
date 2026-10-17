@@ -41,6 +41,8 @@ export const STUD_POPULARITY_MAX = 80;
 
 /** 거세마는 새해 열 살부터 현역을 계속할 수 없다. */
 export const YEAR_END_GELDING_MAX_AGE = 10;
+/** 암말은 새해 다섯 살부터 번식 전환을 기본 추천해 모계 계승을 돕는다(M6-0). */
+export const YEAR_END_MARE_BREED_AGE = 5;
 
 /** 11월 첫 주부터 다음 시즌 예약을 받는다. */
 export const BOOKING_OPEN_WEEK = 44;

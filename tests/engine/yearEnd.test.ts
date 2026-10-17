@@ -10,6 +10,7 @@ import { advanceWeek, calendarSystem } from '../../src/engine/time/advance';
 import { createContractsSystem } from '../../src/engine/economy/contracts';
 import { submitYearEnd, yearEndCandidates, yearEndPending, retainerRenewalsDue } from '../../src/engine/stud/yearEnd';
 import type { GameState, YearEndSubmission, YearEndChoice } from '../../src/engine/types';
+import { mareCapacity } from '../../src/engine/farm/purchase';
 
 function fresh(): GameState {
   const state = bootstrapWorld(createNewGame({ seed: 20261011, playerName: '테스트',
@@ -43,6 +44,55 @@ function fixture() {
 }
 
 describe('연말 정산 제출', () => {
+  it.each([4, 5, 8])('암말 새 나이 %i: 5세부터 번식을 추천하고 플레이어 선택은 보존한다', (age) => {
+    const { state } = fixture();
+    const horse = state.horses['test-broodmare']!;
+    horse.birthYear = state.date.year - age;
+    const before = structuredClone(state);
+    expect(yearEndCandidates(state).find((c) => c.horseId === horse.id)!.recommended)
+      .toBe(age >= 5 ? 'broodmare' : 'continue');
+    expect(state).toEqual(before);
+    if (age < 8) {
+      const input = submission(state);
+      input.horses.find((h) => h.horseId === horse.id)!.choice = 'continue';
+      const result = submitYearEnd(state, input);
+      expect(result.ok).toBe(true);
+      if (result.ok) expect(result.state.horses[horse.id]!.status).toBe(horse.status);
+    }
+  });
+
+  it('번식 칸이 하나면 id 순으로 한 두만 추천해 기본 제출이 수용 한도를 지킨다', () => {
+    const { state } = fixture();
+    for (let i = 0; i < mareCapacity(state) - 1; i++) {
+      const id = `existing-mare-${i}`;
+      state.horses[id] = { ...structuredClone(state.horses['test-broodmare']!), id, status: 'broodmare' };
+    }
+    for (const id of ['test-broodmare', 'test-continue', 'test-retire']) {
+      state.horses[id]!.sex = 'female';
+      state.horses[id]!.birthYear = state.date.year - 5;
+    }
+    expect(yearEndCandidates(state).filter((c) => c.recommended === 'broodmare').map((c) => c.horseId))
+      .toEqual(['test-broodmare']);
+    const result = submitYearEnd(state, submission(state));
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    result.state.date.year++;
+    expect(yearEndCandidates(result.state).find((c) => c.horseId === 'test-continue')!.recommended).toBe('continue');
+    result.state.horses['test-continue']!.birthYear = result.state.date.year - 8;
+    expect(yearEndCandidates(result.state).find((c) => c.horseId === 'test-continue')!.recommended).toBe('retire');
+  });
+
+  it('목장이 없거나 위탁 중이면 5세 암말에도 번식을 추천하지 않는다', () => {
+    const { state } = fixture();
+    const horse = state.horses['test-broodmare']!;
+    horse.birthYear = state.date.year - 5;
+    state.farm.owned = false;
+    expect(yearEndCandidates(state).find((c) => c.horseId === horse.id)!.recommended).toBe('continue');
+    state.farm.owned = true;
+    state.sales.consignments.push({ horseId: horse.id, saleId: 'test-sale', year: state.date.year, reserve: null });
+    expect(yearEndCandidates(state).find((c) => c.horseId === horse.id)!.recommended).toBe('continue');
+  });
+
   it('시드 20261011에서 다음 해 1주까지 진행하면 현역마 전부가 정렬된 후보가 된다', () => {
     let state = bootstrapRacingPopulation(bootstrapPeople(fresh(), getPeopleData(), createRng(20261011)), {
       stallionRecords: getStallionRecords(), naming: getNamingData(), stallionNames: getStallionNames(),
