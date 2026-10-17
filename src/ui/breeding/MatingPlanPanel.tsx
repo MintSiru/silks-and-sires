@@ -75,7 +75,7 @@ export function MatingApproveDialog({
               {flagged.map((r) => (
                 <li key={rowKeyOf(r)} className="mating-plan__flag">
                   <span className={`mating-plan__flag-text mating-plan__flag-text--${r.judgement.tone}`}>
-                    {`${r.mareName} × ${r.stallionName} — ${r.judgement.summary}`}
+                    {`${r.mareName} × ${r.stallionName} — ${r.judgement.reason ?? r.judgement.summary}`}
                   </span>
                   <button type="button" className="btn" onClick={() => onReview?.(r)}>검토</button>
                 </li>

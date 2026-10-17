@@ -71,13 +71,15 @@ describe('새 게임 확인 문구 (A1)', () => {
 });
 
 describe('새 게임 위험 버튼 (M6-W 항목 22)', () => {
-  it('위험 버튼 규칙은 위험 토큰 배경·테두리와 밝은 글자를 쓰고 새 색 코드를 넣지 않는다', () => {
+  it('위험 버튼 규칙은 .btn 보다 명시도가 높고 위험 토큰 색(테두리·글자, 배경은 위험 글자색 옅게)을 쓴다', () => {
     const css = readFileSync(new URL('../../src/ui/shell/shell.css', import.meta.url), 'utf8');
-    const rule = css.match(/\.shell-danger__button\s*\{([^}]*)\}/)?.[1] ?? '';
-    expect(rule).toContain('background: var(--danger-bg)');
+    // .btn(app.css)과 같은 명시도면 덮이므로 .btn.shell-danger__button 으로 둔다(아르곤 4차 검토).
+    const rule = css.match(/\.btn\.shell-danger__button\s*\{([^}]*)\}/)?.[1] ?? '';
     expect(rule).toContain('border-color: var(--danger-fg)');
-    expect(rule).toContain('color: var(--text)');
-    expect(rule).not.toMatch(/#[0-9a-fA-F]{3,8}|rgba?\(/);
+    expect(rule).toContain('color: var(--danger-fg)');
+    // 배경은 --danger-fg(#ff9191)와 같은 rgb 의 옅은 칠만 허용 — 새 색 코드 금지
+    expect(rule).toMatch(/background: rgba\(255, 145, 145, 0\.\d+\)/);
+    expect(rule).not.toMatch(/#[0-9a-fA-F]{3,8}/);
   });
 });
 

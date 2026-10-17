@@ -274,3 +274,27 @@
       '. conditions';
   }
 }
+
+/* 하단 '이번 주·다음 주 개최' 펼침 표시도 주 행과 같은 꺾쇠 모양으로(아르곤 4차: ▸ 와 > 혼용 해소). */
+.cal-meetings > summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.cal-meetings > summary::-webkit-details-marker {
+  display: none;
+}
+.cal-meetings > summary::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  margin: 0 3px;
+  border-right: 2px solid var(--text-muted);
+  border-bottom: 2px solid var(--text-muted);
+  transform: rotate(-45deg);
+}
+.cal-meetings[open] > summary::before {
+  transform: rotate(45deg);
+}

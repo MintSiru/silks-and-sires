@@ -74,7 +74,7 @@ export default function SeasonScreen({
                 />
               ))}
             </ul>
-            <details className="meeting-details">
+            <details className="meeting-details cal-meetings">
               <summary>이번 주·다음 주 개최 ({meetings.length}곳)</summary>
               <p className="hint">
                 출주 계획은 말 상세에서 계획 관리합니다. 말 이름을 누르면 출주 계획 탭이 열립니다.

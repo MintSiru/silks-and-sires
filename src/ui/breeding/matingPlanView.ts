@@ -41,6 +41,8 @@ export interface MatingJudgement {
   /** 한 줄 요약. 예: '궁합 좋음 · 근친 주의' */
   summary: string;
   tone: JudgementTone;
+  /** 주의·위험이면 사유만(예: '근친 검토 필요'). 확인창 목록용(아르곤 4차 검토) */
+  reason?: string;
 }
 
 /** 종합 판단 입력: 보완형 가능성, 공개 니크, 근친 혈량(%). 판단 불가면 null. */
@@ -66,19 +68,20 @@ export function matingJudgement(input: MatingJudgementInput): MatingJudgement {
   const positives: string[] = [];
   if (input.complement === 'likely') positives.push('궁합 좋음');
   if (input.nick === 'excellent' || input.nick === 'good') positives.push('니크 좋음');
-  let lead: string | null = null;
+  let reason: string | null = null;
   let leadTone: JudgementTone = 'warn';
   if (input.inbreedPercent > INBREED_RISK_PERCENT) {
-    lead = '위험 — 근친 검토 필요';
+    reason = '근친 검토 필요';
     leadTone = 'danger';
   } else if (input.inbreedPercent > INBREED_CAUTION_PERCENT) {
-    lead = '주의 — 근친 검토 필요';
+    reason = '근친 검토 필요';
   } else if (input.nick === 'poor') {
-    lead = '주의 — 니크 나쁨';
+    reason = '니크 나쁨';
   }
-  if (lead !== null) {
+  if (reason !== null) {
+    const lead = `${leadTone === 'danger' ? '위험' : '주의'} — ${reason}`;
     const parts = [lead, ...positives.slice(0, MATING_POSITIVE_AFTER_RISK)];
-    return { summary: parts.join(' · '), tone: leadTone };
+    return { summary: parts.join(' · '), tone: leadTone, reason };
   }
   if (positives.length === 0) return { summary: '특이 사항 없음', tone: 'muted' };
   return { summary: positives.join(' · '), tone: 'good' };

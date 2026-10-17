@@ -153,36 +153,39 @@ describe('종합 판단 (matingJudgement)', () => {
     expect(INBREED_CAUTION_PERCENT).toBe(12.5);
     expect(INBREED_RISK_PERCENT).toBe(18.75);
     expect(matingJudgement({ complement: 'likely', nick: 'good', inbreedPercent: 6 }))
-      .toEqual({ summary: '궁합 좋음 · 니크 좋음', tone: 'good' });
+      .toMatchObject({ summary: '궁합 좋음 · 니크 좋음', tone: 'good' });
     expect(matingJudgement({ complement: 'likely', nick: 'unknown', inbreedPercent: 12.5 }))
-      .toEqual({ summary: '궁합 좋음', tone: 'good' });
+      .toMatchObject({ summary: '궁합 좋음', tone: 'good' });
     expect(matingJudgement({ complement: 'likely', nick: 'unknown', inbreedPercent: 13 }))
-      .toEqual({ summary: '주의 — 근친 검토 필요 · 궁합 좋음', tone: 'warn' });
+      .toMatchObject({ summary: '주의 — 근친 검토 필요 · 궁합 좋음', tone: 'warn' });
     expect(matingJudgement({ complement: 'unlikely', nick: null, inbreedPercent: 18.75 }))
-      .toEqual({ summary: '주의 — 근친 검토 필요', tone: 'warn' });
+      .toMatchObject({ summary: '주의 — 근친 검토 필요', tone: 'warn' });
     expect(matingJudgement({ complement: 'unlikely', nick: null, inbreedPercent: 19 }))
-      .toEqual({ summary: '위험 — 근친 검토 필요', tone: 'danger' });
+      .toMatchObject({ summary: '위험 — 근친 검토 필요', tone: 'danger' });
   });
 
   it('주의 문구가 첫 배지이고 긍정 요소는 뒤에 1개까지만 붙는다(나머지는 근거)', () => {
     // 근친 주의 + 궁합·니크 둘 다 긍정: 주의 첫, 긍정은 1개(궁합)만
     expect(matingJudgement({ complement: 'likely', nick: 'excellent', inbreedPercent: 13 }))
-      .toEqual({ summary: '주의 — 근친 검토 필요 · 궁합 좋음', tone: 'warn' });
+      .toMatchObject({ summary: '주의 — 근친 검토 필요 · 궁합 좋음', tone: 'warn' });
     // 근친 위험이 니크 나쁨보다 먼저, 니크 나쁨은 근거로 간다
     expect(matingJudgement({ complement: 'unlikely', nick: 'poor', inbreedPercent: 19 }))
-      .toEqual({ summary: '위험 — 근친 검토 필요', tone: 'danger' });
+      .toMatchObject({ summary: '위험 — 근친 검토 필요', tone: 'danger' });
     // 니크 나쁨만 있으면 니크 문구가 첫 배지, 궁합 좋음은 뒤에
     expect(matingJudgement({ complement: 'likely', nick: 'poor', inbreedPercent: 0 }))
-      .toEqual({ summary: '주의 — 니크 나쁨 · 궁합 좋음', tone: 'warn' });
+      .toMatchObject({ summary: '주의 — 니크 나쁨 · 궁합 좋음', tone: 'warn' });
   });
 
   it('니크 나쁨은 주의 톤이고, 판단 정보가 없으면 판단 정보 없음으로 보인다', () => {
     expect(matingJudgement({ complement: 'unknown', nick: 'poor', inbreedPercent: 0 }))
-      .toEqual({ summary: '주의 — 니크 나쁨', tone: 'warn' });
+      .toMatchObject({ summary: '주의 — 니크 나쁨', tone: 'warn', reason: '니크 나쁨' });
+    // 확인창 목록용 사유는 주의·위험 접두와 긍정 요소 없이 사유만(아르곤 4차)
+    expect(matingJudgement({ complement: 'likely', nick: null, inbreedPercent: 30 }).reason).toBe('근친 검토 필요');
+    expect(matingJudgement({ complement: 'likely', nick: null, inbreedPercent: 0 }).reason).toBeUndefined();
     expect(matingJudgement({ complement: 'unknown', nick: 'neutral', inbreedPercent: 0 }))
-      .toEqual({ summary: '특이 사항 없음', tone: 'muted' });
+      .toMatchObject({ summary: '특이 사항 없음', tone: 'muted' });
     expect(matingJudgement({ complement: null, nick: null, inbreedPercent: null }))
-      .toEqual({ summary: '판단 정보 없음', tone: 'muted' });
+      .toMatchObject({ summary: '판단 정보 없음', tone: 'muted' });
   });
 
   it('제안 상태 톤: 검토 대기 주의, 승인·예약 좋음, 안 함 중립', () => {

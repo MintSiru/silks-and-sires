@@ -8,7 +8,7 @@
 .legacy-toolbar + .legacy-scroll {
   box-sizing: border-box;
   height: auto;
-  max-height: calc(100dvh - 320px);
+  max-height: calc(100dvh - 380px);
   padding-bottom: 12px;
 }
 
