@@ -1,0 +1,168 @@
+/* M6-U2 셸: 설정 모달·토스트·할 일 배지·시즌 배지. 색은 app.css 의 :root 토큰(M6-U1)을 쓴다. */
+
+/* 설정 모달(native dialog). 본문을 밀지 않고 배경만 흐린다. */
+.shell-modal {
+  width: min(560px, 92vw);
+  max-height: calc(100dvh - 24px);
+  overflow-y: auto;
+  margin: auto;
+  padding: 0;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-raised);
+  color: var(--text);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
+}
+.shell-modal::backdrop {
+  background: rgba(5, 8, 14, 0.6);
+}
+.shell-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 20px 10px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--surface-raised);
+  z-index: 1;
+}
+.shell-modal__head h2 {
+  margin: 0;
+}
+.shell-section {
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.shell-section:last-child {
+  border-bottom: 0;
+}
+.shell-section > h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+}
+.shell-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
+}
+.shell-fieldset {
+  margin: 0 0 8px;
+  padding: 6px 12px 8px;
+}
+.shell-fieldset > legend {
+  padding: 0 4px;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 18px;
+}
+/* 라디오·체크박스 한 줄씩. 글자와 상자가 겹치지 않게 간격을 준다. */
+.shell-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 4px 0;
+  cursor: pointer;
+}
+.shell-choice__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 2px;
+}
+.shell-choice__text > .hint {
+  margin: 0;
+}
+.shell-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0;
+  cursor: pointer;
+  white-space: normal;
+}
+.shell-check > span {
+  min-width: 0;
+}
+.shell-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 6px 0 10px;
+  max-width: 340px;
+}
+.shell-field > span {
+  white-space: nowrap;
+}
+.shell-silks {
+  display: grid;
+  gap: 8px;
+}
+.shell-danger {
+  background: var(--danger-bg);
+  border-top: 1px solid rgba(255, 145, 145, 0.4);
+}
+.shell-danger > h3 {
+  color: var(--danger-fg);
+}
+.shell-danger__button {
+  border-color: rgba(255, 145, 145, 0.5);
+  color: var(--danger-fg);
+}
+.shell-modal .hint {
+  margin: 4px 0 8px;
+}
+
+/* 토스트(M6-U2 A2): 화면 오른쪽 아래 고정. 문서 높이를 바꾸지 않는다. */
+.toast-region {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  margin: 0;
+  max-width: min(360px, calc(100vw - 32px));
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-raised);
+  color: var(--text);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  font-size: 14px;
+  line-height: 20px;
+}
+.toast--error {
+  background: var(--danger-bg);
+  border-color: rgba(255, 145, 145, 0.4);
+  color: var(--danger-fg);
+}
+
+/* 할 일 배지(M6-U2 A3): 상단 바에서 배지처럼 보이는 버튼. 누르면 홈. */
+.shell-actions .shell-task-badge {
+  margin-left: 0;
+  padding: 6px 12px;
+  border-width: 1px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.shell-actions .shell-task-badge:hover {
+  filter: brightness(1.15);
+}
+
+/* 시즌 배지(M6-U2 A4): 날짜 옆 작은 배지. */
+.shell-season {
+  margin-left: 6px;
+}

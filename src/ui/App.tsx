@@ -1,11 +1,10 @@
-import { useCallback, useState } from 'react';
-import type { GameState, SilksDesign } from '../engine/types';
+import { useCallback, useRef, useState } from 'react';
+import type { GameState } from '../engine/types';
 import { formatDateKo, weeksBetween } from '../engine/time/calendar';
 import { yearEndPending } from '../engine/stud/yearEnd';
 import { silksDesignOf } from '../engine/people/silks';
 import { useGame } from './game/useGame';
-import { WeightUnitProvider, useWeightUnit } from './game/WeightUnitContext';
-import { WEIGHT_UNITS, isWeightUnit, weightUnitLabelKo } from './game/units';
+import { WeightUnitProvider } from './game/WeightUnitContext';
 import { feeKo, economyModeKo, fundsWarningKo } from './game/text';
 import { fundsBanner } from './economy/economyView';
 import NewGameScreen from './newGame/NewGameScreen';
@@ -25,9 +24,11 @@ import EconomyScreen from './economy/EconomyScreen';
 import StaffScreen from './staff/StaffScreen';
 import YearEndScreen from './yearEnd/YearEndScreen';
 import SilksSvg from './silks/SilksSvg';
-import SilksEditor from './silks/SilksEditor';
-import { SILKS_ERROR_KO } from './silks/silksText';
 import RaceDemo from './RaceDemo';
+import './shell/shell.css';
+import SettingsModal from './shell/SettingsModal';
+import { Toast, type ToastNotice } from './shell/Toast';
+import { seasonLabel } from './shell/seasonBadge';
 
 type Screen = 'home' | 'stable' | 'breeding' | 'races' | 'sales' | 'farm' | 'management' | 'legacy';
 const SCREENS: { id: Screen; label: string }[] = [
@@ -77,12 +78,16 @@ function AppContent() {
   const [newGame, setNewGame] = useState(false);
   const [menu, setMenu] = useState(false);
   const [yearEnd, setYearEnd] = useState(false);
-  const [notice, setNotice] = useState<string | null>(null);
+  /** 토스트 알림. id 가 바뀔 때마다 4초를 다시 잰다. */
+  const [notice, setNotice] = useState<ToastNotice | null>(null);
+  const noticeSeq = useRef(0);
   const [selected, setSelected] = useState<{ id: string; tab?: HorseTab } | null>(null);
-  const [silks, setSilks] = useState<SilksDesign | null>(null);
-  const [saving, setSaving] = useState(false);
-  const { unit, setUnit } = useWeightUnit();
   const openHorse = useCallback((id: string, tab?: HorseTab) => setSelected({ id, tab }), []);
+  const notify = useCallback((text: string, tone: ToastNotice['tone'] = 'ok') => {
+    noticeSeq.current += 1;
+    setNotice({ id: noticeSeq.current, text, tone });
+  }, []);
+  const dismissNotice = useCallback(() => setNotice(null), []);
   const state = game.state;
   if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('demo'))
     return (
@@ -96,7 +101,6 @@ function AppContent() {
     setYearEnd(false);
     setMenu(false);
     setNewGame(false);
-    setSilks(null);
     setNotice(null);
   };
   if (state === null)
@@ -115,9 +119,9 @@ function AppContent() {
   const run = (action: () => void, text: string) => {
     try {
       action();
-      setNotice(text);
+      notify(text);
     } catch (e) {
-      setNotice(messageOf(e));
+      notify(messageOf(e), 'error');
     }
   };
   return (
@@ -127,6 +131,11 @@ function AppContent() {
           <div className="shell-identity">
             <span className="shell-brand">Silks &amp; Sires</span>
             <strong data-testid="game-date">{formatDateKo(state.date)}</strong>
+            {seasonLabel(state.date).map((label) => (
+              <span key={label} className="badge badge--muted shell-season">
+                {label}
+              </span>
+            ))}
             {owner && <SilksSvg design={silksDesignOf(owner.silks, owner.id)} size={36} />}
             <span>마주 {owner?.name ?? '—'}</span>
             <strong
@@ -158,11 +167,11 @@ function AppContent() {
               onClick={() => {
                 const weeks = nextPlayerRaceInWeeks(state);
                 if (weeks === null) {
-                  setNotice(state.settings.autoApproveRacePlans === false ? '승인된 출주 계획이 없습니다. 말 상세에서 제안을 승인하세요.' : '출주 예정 계획이 없습니다. 말 상세에서 계획을 확인하세요.');
+                  notify(state.settings.autoApproveRacePlans === false ? '승인된 출주 계획이 없습니다. 말 상세에서 제안을 승인하세요.' : '출주 예정 계획이 없습니다. 말 상세에서 계획을 확인하세요.');
                   return;
                 }
                 if (weeks === 0) {
-                  setNotice('이번 주 내 출주가 있습니다. 1주 진행하면 결과를 확인할 수 있습니다.');
+                  notify('이번 주 내 출주가 있습니다. 1주 진행하면 결과를 확인할 수 있습니다.');
                   return;
                 }
                 run(
@@ -183,7 +192,7 @@ function AppContent() {
             </button>
             <button
               type="button"
-              className="btn task-badge"
+              className={`badge shell-task-badge ${tasks.length > 0 ? 'badge--warn' : 'badge--muted'}`}
               onClick={() => {
                 setScreen('home');
                 setYearEnd(false);
@@ -196,9 +205,9 @@ function AppContent() {
             <button
               type="button"
               className="btn"
+              aria-haspopup="dialog"
               aria-expanded={menu}
-              aria-controls="game-menu"
-              onClick={() => setMenu((v) => !v)}
+              onClick={() => setMenu(true)}
             >
               메뉴
             </button>
@@ -209,145 +218,6 @@ function AppContent() {
             </p>
           )}
           {pending && <p className="notice">연말 정산이 필요합니다. 홈의 이번 주 할 일에서 제출하세요.</p>}
-          {notice && (
-            <p className="notice" role="status">
-              {notice}
-            </p>
-          )}
-          {menu && (
-            <div id="game-menu" className="shell-menu">
-              <div className="toolbar">
-                <button
-                  type="button"
-                  className="btn"
-                  disabled={saving}
-                  onClick={() => {
-                    setSaving(true);
-                    void game
-                      .save()
-                      .then(() => setNotice('저장했습니다.'))
-                      .catch((e) => setNotice(messageOf(e)))
-                      .finally(() => setSaving(false));
-                  }}
-                >
-                  저장
-                </button>
-                <button
-                  type="button"
-                  className="btn"
-                  disabled={saving}
-                  onClick={() => {
-                    setSaving(true);
-                    void game
-                      .load()
-                      .then((ok) => {
-                        if (ok) {
-                          resetView();
-                          setNotice('저장본을 불러왔습니다.');
-                        } else setNotice('불러올 저장본이 없습니다.');
-                      })
-                      .catch((e) => setNotice(messageOf(e)))
-                      .finally(() => setSaving(false));
-                  }}
-                >
-                  불러오기
-                </button>
-                <button
-                  type="button"
-                  className="btn"
-                  disabled={saving}
-                  onClick={() => {
-                    setNewGame(true);
-                    setSelected(null);
-                    setMenu(false);
-                  }}
-                >
-                  새 게임
-                </button>
-              </div>
-              <fieldset className="settings">
-                <legend>설정</legend>
-                <label className="field">
-                  부담중량 단위
-                  <select
-                    value={unit}
-                    onChange={(e) => {
-                      if (isWeightUnit(e.target.value)) setUnit(e.target.value);
-                    }}
-                  >
-                    {WEIGHT_UNITS.map((u) => (
-                      <option key={u} value={u}>
-                        {weightUnitLabelKo(u)}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={state.settings.autoSendToTraining !== false}
-                    onChange={(e) => game.setAutoSendToTraining(e.target.checked)}
-                  />{' '}
-                  2세 자동 조교 보내기
-                </label>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={state.settings.autoApproveRacePlans === false}
-                    onChange={(e) => game.setAutoApproveRacePlans(!e.target.checked)}
-                  />{' '}
-                  출주 계획은 승인해야 출주
-                </label>
-                <p className="hint">
-                  끄면(기본) 조교사 제안을 빼지 않는 한 그대로 출주합니다. 켜면 승인한 계획만 출주합니다. ·{' '}
-                  {economyModeKo(banner.mode)}
-                </p>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={state.settings.autoSell !== false}
-                    onChange={(e) => game.setAutoSell(e.target.checked)}
-                  />{' '}
-                  판매 제안 자동 위탁
-                </label>
-                <button
-                  type="button"
-                  className="btn"
-                  onClick={() => owner && setSilks(silksDesignOf(owner.silks, owner.id))}
-                >
-                  승부복 바꾸기
-                </button>
-                {silks && (
-                  <>
-                    <SilksEditor design={silks} onChange={setSilks} />
-                    <button
-                      type="button"
-                      className="btn"
-                      disabled={saving}
-                      onClick={() => {
-                        setSaving(true);
-                        void game
-                          .setSilks(silks)
-                          .then((r) => {
-                            if (r.ok) {
-                              setSilks(null);
-                              setNotice('승부복을 적용했습니다.');
-                            } else setNotice(SILKS_ERROR_KO[r.error]);
-                          })
-                          .catch((e) => setNotice(messageOf(e)))
-                          .finally(() => setSaving(false));
-                      }}
-                    >
-                      승부복 적용
-                    </button>
-                    <button type="button" className="btn" disabled={saving} onClick={() => setSilks(null)}>
-                      취소
-                    </button>
-                  </>
-                )}
-              </fieldset>
-            </div>
-          )}
         </header>
         <nav className="shell-nav" aria-label="화면 선택">
           {SCREENS.map((s) => (
@@ -473,6 +343,25 @@ function AppContent() {
             }}
           />
         )}
+        {menu && (
+          <SettingsModal
+            game={game}
+            state={state}
+            economyText={economyModeKo(banner.mode)}
+            onClose={() => setMenu(false)}
+            onNotify={notify}
+            onLoaded={() => {
+              resetView();
+              notify('저장본을 불러왔습니다.');
+            }}
+            onStartNewGame={() => {
+              setNewGame(true);
+              setSelected(null);
+              setMenu(false);
+            }}
+          />
+        )}
+        <Toast notice={notice} onExpire={dismissNotice} />
       </div>
     </HorseNavigation.Provider>
   );

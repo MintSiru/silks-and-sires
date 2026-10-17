@@ -136,6 +136,8 @@ function writeReport(extra = {}) {
     await page.getByRole('button', { name: '저장', exact: true }).click();
     await expect(page.getByRole('status').filter({ hasText: '저장했습니다.' })).toBeVisible();
     await page.getByRole('button', { name: '1주 진행', exact: true }).click();
+    // M6-U2: 저장 뒤 모달은 닫힌다. 불러오기는 메뉴를 다시 열어 진행한다.
+    await page.getByRole('button', { name: '메뉴', exact: true }).click();
     await page.getByRole('button', { name: '불러오기', exact: true }).click();
     await expect(page.getByTestId('game-date')).toHaveText(endDate);
     await nav.getByRole('button', { name: '번식', exact: true }).click();
@@ -218,6 +220,7 @@ function writeReport(extra = {}) {
       db.close();
       return { name: runner.name, year };
     });
+    await page.getByRole('button', { name: '메뉴', exact: true }).click();
     await page.getByRole('button', { name: '불러오기', exact: true }).click();
     await measureMenus('legacy-fixture');
     await nav.getByRole('button', { name: '기록', exact: true }).click();
