@@ -23,7 +23,7 @@ const BOOT_DATA: BootstrapData = {
 };
 // 구현 전 HEAD 를 /tmp 에 별도로 풀어 같은 옵션·정적 데이터로 측정한 전체 JSON 해시. 2026-10-16 18~22회차 혈통·털색 정리로 재고정.
 // M4-F1: 실명 NH 종마의 데이터 studRole 을 초기 Stallion 에 옮겨 전체 상태 해시만 갱신.
-const LEGACY_HASH = '7f1ebc16acf85ae145a1266621cbe41d374f4ad1e192900abab45f707553afcd';
+const LEGACY_HASH = '3a13b6bf001bc4440efe25f580cd8ab9f1acb0d95dacaaca4c105379951a9b5e';
 const PACKAGES = [
   { difficulty: 'easy', funds: 1_500_000, mares: 3, breeder: 2, owner: 3, level: 2, size: 'medium' },
   { difficulty: 'normal', funds: 600_000, mares: 2, breeder: 1, owner: 2, level: 1, size: 'medium' },

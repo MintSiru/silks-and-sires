@@ -6,6 +6,8 @@ import {
 } from '../config/entries';
 import type { EntryRequest } from '../race/setup';
 import type { SampleField } from '../race/sampleField';
+import { buildEntries } from '../race/setup';
+import { createRng } from '../rng';
 import { ageInYear, monthOfWeek } from '../time/calendar';
 import type {
   CountryCode,
@@ -19,6 +21,7 @@ import type {
   Owner,
   OwnerId,
   Race,
+  RaceEntry,
   Rng,
   RunnerInput,
   ScheduledRace,
@@ -32,6 +35,8 @@ export interface BuildRaceFieldResult {
   field: SampleField;
   /** Declaration 의 jockeyId·weightLb(감량 전)를 채운 새 개최 레이스. 상태·나머지 필드는 그대로 */
   race: ScheduledRace;
+  /** 개최 시드가 있을 때만 확정한 게이트·감량 후 중량. 옛 개최는 실행 시드로 추첨한다. */
+  entries?: RaceEntry[];
 }
 
 function at<T>(items: readonly T[], index: number): T {
@@ -186,6 +191,7 @@ function horseSnapshot(horse: Horse): RunnerInput['horse'] & Pick<Horse, 'formVa
  * - 견습 감량은 그룹·리스티드에서 0.
  * - 같은 레이스에 같은 기수는 없다. 기수 최저 기승 체중 조건을 지킨다.
  * - courseCountry 를 주면 기수는 레이스 나라에서 고른다(없으면 전체 기수 대상).
+ * - meetingSeed 가 있으면 기수·게이트를 `${meetingSeed}:field:${race.id}` 에서 확정하고 rng 는 보존한다.
  * - 같은 state·sr·date·rng 상태면 결과가 같다. 선언이 2두 미만이거나 abandoned 면 RangeError.
  */
 export function buildRaceField(
@@ -194,8 +200,11 @@ export function buildRaceField(
   date: GameDate,
   rng: Rng,
   courseCountry: CourseCountryLookup,
+  meetingSeed?: number,
 ): BuildRaceFieldResult {
   const { race, declarations } = sr;
+  // 기수 배정 다음 게이트 추첨까지 같은 독립 스트림을 쓴다. 전달받은 공용 rng 는 소비하지 않는다.
+  const fieldRng = meetingSeed === undefined ? rng : createRng(`${meetingSeed}:field:${race.id}`);
   if (sr.status === 'abandoned') {
     throw new RangeError('buildRaceField: 취소된 레이스(abandoned)는 확정할 수 없다');
   }
@@ -223,7 +232,7 @@ export function buildRaceField(
     const rider: RiderPick =
       reservedJockey !== undefined
         ? { jockey: reservedJockey, weightLb: at(weights, i) }
-        : pickJockey(jockeys, at(owners, i), at(weights, i), used, raceCountry, reservation.reserved, rng);
+        : pickJockey(jockeys, at(owners, i), at(weights, i), used, raceCountry, reservation.reserved, fieldRng);
     used.add(rider.jockey.id);
     picked.push(rider.jockey);
     actualWeights.push(rider.weightLb);
@@ -240,7 +249,7 @@ export function buildRaceField(
     requests.push({
       horseId: horse.id,
       jockeyId: jockey.id,
-      tactic: horse.preferredStyle,
+      tactic: d.isPlayer ? d.tactic ?? horse.preferredStyle : horse.preferredStyle,
       silks: { ...owner.silks },
       isPlayer: d.isPlayer,
       weightLb: weight,
@@ -254,8 +263,13 @@ export function buildRaceField(
     return { ...d, jockeyId: jockey.id, weightLb: weight };
   });
 
+  // 개최 시드가 있으면 게이트를 여기서 확정해 요청에 적는다. 실행(runRace·summarizeRace)과 다시보기는 같은 게이트를 쓴다.
+  const confirmed = meetingSeed === undefined ? undefined : buildEntries(fieldRng, requests);
+  const fieldRequests = confirmed === undefined ? requests
+    : requests.map((req, i) => ({ ...req, draw: confirmed[i]?.draw }));
   return {
-    field: { runners, requests, ownerNames },
+    field: { runners, requests: fieldRequests, ownerNames },
     race: { ...sr, declarations: newDeclarations },
+    ...(confirmed === undefined ? {} : { entries: confirmed }),
   };
 }

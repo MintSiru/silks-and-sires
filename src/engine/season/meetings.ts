@@ -11,6 +11,7 @@ import {
   type MinorCountry,
 } from '../config/meetings';
 import { isInPhase } from '../time/calendar';
+import { MEETING_SEED_MAX } from '../config/raceDayBrief';
 import type {
   GameDate,
   Meeting,
@@ -84,12 +85,13 @@ function toRaceSnapshot(t: RaceTemplate): Race {
   return race;
 }
 
-function makeMeeting(date: GameDate, course: Racecourse, races: ScheduledRace[]): Meeting {
+function makeMeeting(date: GameDate, course: Racecourse, races: ScheduledRace[], rng: Rng): Meeting {
   return {
     id: `${course.id}:${date.year}-${date.week}`,
     date: { year: date.year, week: date.week },
     racecourseId: course.id,
     going: null,
+    seed: rng.int(0, MEETING_SEED_MAX),
     races,
   };
 }
@@ -174,7 +176,7 @@ export function buildWeekMeetings(args: BuildWeekMeetingsArgs): BuildWeekMeeting
       simulated: false,
     }));
     races.push(...makeGenerated(course, Math.max(0, MEETING_RACES_TARGET - races.length)));
-    meetings.push(makeMeeting(date, course, races));
+    meetings.push(makeMeeting(date, course, races, rng));
     used.add(id);
   }
 
@@ -186,14 +188,14 @@ export function buildWeekMeetings(args: BuildWeekMeetingsArgs): BuildWeekMeeting
       );
       for (const course of pickCourses(rng, candidates, n)) {
         used.add(course.id);
-        meetings.push(makeMeeting(date, course, makeGenerated(course, MEETING_RACES_TARGET)));
+        meetings.push(makeMeeting(date, course, makeGenerated(course, MEETING_RACES_TARGET), rng));
       }
     }
   } else {
     const candidates = sortCourses(courses.filter((c) => c.surface === 'aw' && !used.has(c.id)));
     for (const course of pickCourses(rng, candidates, AW_MEETINGS_PER_WEEK)) {
       used.add(course.id);
-      meetings.push(makeMeeting(date, course, makeGenerated(course, MEETING_RACES_TARGET)));
+      meetings.push(makeMeeting(date, course, makeGenerated(course, MEETING_RACES_TARGET), rng));
     }
   }
 

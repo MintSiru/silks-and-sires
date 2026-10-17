@@ -1,6 +1,7 @@
 import { settleBetsForRace } from '../betting/betting';
 import { RACE_SEED_MAX, SIMULATE_GRADES } from '../config/season';
 import { rollGoing } from '../going/going';
+import { createRng } from '../rng';
 import { runRace } from '../race/runRace';
 import { monthOfWeek } from '../time/calendar';
 import type {
@@ -42,7 +43,7 @@ export interface RunMeetingOutput extends RunMeetingInPlaceOutput {
 
 /**
  * 개최일 하나를 실행한다(마장 결정 → 필드 구성 → 시뮬레이션 또는 요약 → 결과 반영). state 를 직접 고친다.
- * - 마장: rollGoing(rng.fork('going:' + meeting.id), 개최 경마장, 개최 월).
+ * - 마장: rollGoing(rng.fork('going:' + meeting.id), 개최 경마장, 개최 월). 개최 시드가 있으면 createRng(`${seed}:going`)(M7-RD1b).
  * - 'closed' 레이스만 실행한다. 'open'·'abandoned' 등은 그대로 둔다.
  * - 레이스 시드: rng.fork('race:' + race.id) 에서 정수 하나. 필드 구성도 같은 하위 스트림을 쓴다.
  * - 그룹·리스티드 또는 플레이어 말 출주 레이스는 시뮬레이션(recordReplay false), 나머지는 요약 모드.
@@ -68,7 +69,8 @@ export function runMeetingInPlace(
 
   // 1. 개최일 마장
   const host = requireCourse(meeting.racecourseId);
-  const going = rollGoing(rng.fork('going:' + meeting.id), host, monthOfWeek(meeting.date.week));
+  const going = rollGoing(meeting.seed === undefined ? rng.fork('going:' + meeting.id)
+    : createRng(`${meeting.seed}:going`), host, monthOfWeek(meeting.date.week));
   const out: Meeting = { ...structuredClone(meeting), going };
 
   // 2. 레이스별 실행
@@ -89,7 +91,7 @@ export function runMeetingInPlace(
     const course = requireCourse(sr.race.racecourseId);
     const raceRng = rng.fork('race:' + sr.race.id);
     const seed = raceRng.int(0, RACE_SEED_MAX);
-    const built = buildRaceField(draft, sr, meeting.date, raceRng, courseCountry);
+    const built = buildRaceField(draft, sr, meeting.date, raceRng, courseCountry, meeting.seed);
 
     const hasPlayer = built.field.requests.some((r) => r.isPlayer);
     const grade = sr.race.grade;

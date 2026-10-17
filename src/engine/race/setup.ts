@@ -10,6 +10,11 @@ export interface EntryRequest {
   weightLb: number;
   /** 기수 견습 감량(lb) */
   jockeyAllowanceLb: number;
+  /**
+   * 개최 시드로 미리 확정한 게이트(M7-RD1b). 모든 요청에 있으면 buildEntries 는 추첨하지 않고 이 값을 쓴다
+   * (다시보기는 저장된 field.requests 에서 같은 게이트를 얻는다). 일부만 있으면 RangeError.
+   */
+  draw?: number;
 }
 
 /**
@@ -31,7 +36,7 @@ export function drawStalls(rng: Rng, fieldSize: number): number[] {
  * 출주 요청을 RaceEntry 로 변환한다.
  * - 반환 배열은 requests 와 같은 순서(index i = runner index i).
  * - 마번: 감량 전 부담중량 내림차순(최고 중량 = 1번), 동률은 요청 index 오름차순.
- * - 게이트: drawStalls(rng, n)[i]. 마번과 독립.
+ * - 게이트: 요청에 draw 가 모두 있으면 그 값(1..n 순열이어야 한다, rng 미사용), 없으면 drawStalls(rng, n)[i]. 마번과 독립.
  * - weightLb: 요청 weightLb - jockeyAllowanceLb. odds: null.
  */
 export function buildEntries(rng: Rng, requests: readonly EntryRequest[]): RaceEntry[] {
@@ -47,7 +52,14 @@ export function buildEntries(rng: Rng, requests: readonly EntryRequest[]): RaceE
   }
 
   const n = requests.length;
-  const stalls = drawStalls(rng, n);
+  const drawn = requests.filter((req) => req.draw !== undefined).length;
+  if (drawn !== 0 && drawn !== n) {
+    throw new RangeError(`buildEntries: 게이트는 전부 있거나 전부 없어야 한다 (${drawn}/${n})`);
+  }
+  const stalls = drawn === n ? requests.map((req) => req.draw ?? 0) : drawStalls(rng, n);
+  if (drawn === n && [...stalls].sort((a, b) => a - b).some((draw, i) => draw !== i + 1)) {
+    throw new RangeError('buildEntries: 확정 게이트는 1..n 순열이어야 한다');
+  }
 
   const ranked = requests
     .map((req, index) => ({ index, weight: req.weightLb }))
