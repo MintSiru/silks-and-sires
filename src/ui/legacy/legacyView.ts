@@ -194,7 +194,7 @@ const CEREMONY_LEADING_ORDER: readonly LeadingCategory[] = ['owner', 'breeder', 
 const CEREMONY_HIGHLIGHT_COUNT = 3;
 
 /** 연도 묶음을 펼치기 전에 보이는 주요 순간 수 (화면 표시 상수) */
-const MAJOR_ROW_COUNT = 5;
+export const MAJOR_ROW_COUNT = 5;
 
 /** 연대기 종류 → 짧은 한국어 태그(B·I2). 모든 kind 를 넣어 빠짐을 컴파일 때 막는다 */
 const CHRONICLE_TAG: Record<ChronicleKind, ChronicleTag> = {
@@ -227,11 +227,12 @@ export function chronicleTagOf(kind: ChronicleKind): ChronicleTag {
  */
 const CHRONICLE_BODY_KO: Partial<Record<ChronicleKind, (text: string) => string>> = {
   first_runner: (text) => text.replace(/, 첫 출주$/, ''),
-  first_win: (text) => text.replace('첫 승리', '승리'),
+  first_win: (text) => text.replace(/, 첫 승리$/, ''),
   first_group_win: (text) => text.replace('첫 그룹 ', ''),
   group_win: (text) => text.replace(' · 통산 그룹 ', ' · 통산 '),
-  g1_win: (text) => text.replace(' G1 우승', ' 우승'),
+  g1_win: (text) => text.replace(' G1 우승', ''),
   classic_win: (text) => text.replace(' 클래식 우승', ' 우승'),
+  series_champion: (text) => text.replace(' 시리즈 달성', ' 달성'),
   laurel_award: (text) => text.replace('Laurel ', ''),
   leading_title: (text) => text.replace(' 리딩 ', ' '),
   sire_line_established: (text) => text.replace('부계 확립', '계통 확립'),

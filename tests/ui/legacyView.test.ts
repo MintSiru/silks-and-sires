@@ -491,7 +491,7 @@ describe('M5-E2 말 상세와 기록 화면 연결', () => {
     const renderTab = (initialTab: 'chronicle' | 'goals' | 'lines' | 'hall' | 'rivals') => renderToStaticMarkup(createElement(
       HorseNavigation.Provider, { value: { state, openHorse: () => {} } }, createElement(LegacyScreen, { state, initialTab }),
     ));
-    expect(renderTab('chronicle')).toContain('첫말, 구름들 컵 우승');
+    expect(renderTab('chronicle')).toContain('>첫말, 구름들 컵<');
     expect(renderTab('chronicle')).toContain('G1 우승</span>');
     expect(renderTab('chronicle')).toContain('horse-link');
     expect(renderTab('goals').match(/<h3>/g)).toHaveLength(12);
@@ -602,9 +602,9 @@ describe('M6-U3 기록 화면: 정렬·종류 태그·주요 순간·탭 문구'
     const rows = chronicleYearGroups(state, 'all', nameOfFor(state), ownerNameFor(state))[0]!.rows;
     const bodyOf = (kind: ChronicleEntry['kind']) => rows.find((r) => r.kind === kind)!.body;
     expect(bodyOf('first_runner')).toBe('첫말');
-    expect(bodyOf('first_win')).toBe('첫말, 승리');
+    expect(bodyOf('first_win')).toBe('첫말');
     expect(bodyOf('first_group_win')).toBe('첫말, 우승');
-    expect(bodyOf('g1_win')).toBe('첫말, 가상 더비 우승');
+    expect(bodyOf('g1_win')).toBe('첫말, 가상 더비');
     expect(bodyOf('classic_win')).toBe('첫말, 가상 더비 우승');
     expect(bodyOf('laurel_award')).toBe('첫말, 올해의 말 수상');
     expect(bodyOf('sire_line_established')).toBe('첫말, 계통 확립');
@@ -617,8 +617,43 @@ describe('M6-U3 기록 화면: 정렬·종류 태그·주요 순간·탭 문구'
     const html = renderToStaticMarkup(createElement(ChronicleList, { rows: rows.filter((r) => r.kind === 'first_runner') }));
     expect(html.split('첫 출주').length - 1).toBe(1);
     const g1Html = renderToStaticMarkup(createElement(ChronicleList, { rows: rows.filter((r) => r.kind === 'g1_win') }));
-    expect(g1Html).toContain('첫말, 가상 더비 우승');
+    expect(g1Html).toContain('>첫말, 가상 더비<');
     expect(g1Html.split('G1 우승').length - 1).toBe(1);
+  });
+
+  it('모든 종류의 본문에는 그 종류 배지 문구가 다시 나오지 않는다(M6-W 16번)', () => {
+    const state = base();
+    horse(state, 'h1', '가온');
+    owner(state, 'rival', '가상 마주');
+    const samples: Omit<ChronicleEntry, 'id'>[] = [
+      { kind: 'first_runner', date: { year: 2029, week: 1 }, player: true, horseId: 'h1' },
+      { kind: 'first_win', date: { year: 2029, week: 2 }, player: true, horseId: 'h1' },
+      { kind: 'first_group_win', date: { year: 2029, week: 3 }, player: true, horseId: 'h1' },
+      { kind: 'group_win', date: { year: 2029, week: 4 }, player: true, horseId: 'h1', label: '가상 더비', count: 2 },
+      { kind: 'g1_win', date: { year: 2029, week: 5 }, player: true, horseId: 'h1', label: '가상 더비' },
+      { kind: 'classic_win', date: { year: 2029, week: 6 }, player: true, horseId: 'h1', label: '가상 더비' },
+      { kind: 'series_champion', date: { year: 2029, week: 7 }, player: true, horseId: 'h1', label: 'european_stayers_series' },
+      { kind: 'series_champion', date: { year: 2029, week: 8 }, player: true, horseId: 'h1', label: 'european_sprint_series' },
+      { kind: 'laurel_award', date: { year: 2029, week: 9 }, player: true, horseId: 'h1', label: 'horse_of_the_year' },
+      { kind: 'leading_title', date: { year: 2029, week: 10 }, player: true, horseId: 'h1', label: 'europe:1' },
+      { kind: 'sire_line_established', date: { year: 2029, week: 11 }, player: true, horseId: 'h1' },
+      { kind: 'female_family_established', date: { year: 2029, week: 12 }, player: true, horseId: 'h1' },
+      { kind: 'homebred_stallion', date: { year: 2029, week: 13 }, player: true, horseId: 'h1' },
+      { kind: 'record_sale', date: { year: 2029, week: 14 }, player: true, horseId: 'h1', label: '가상 세일', amount: 10_000 },
+      { kind: 'rival_declared', date: { year: 2029, week: 15 }, player: true, ownerId: 'rival' },
+      { kind: 'rival_clash', date: { year: 2029, week: 16 }, player: true, ownerId: 'rival', count: 2 },
+      { kind: 'world_classic', date: { year: 2029, week: 17 }, player: false, horseId: 'h1', label: '가상 더비' },
+    ];
+    for (const entry of samples) add(state, entry);
+    const rows = chronicleYearGroups(state, 'all', nameOfFor(state), ownerNameFor(state))[0]!.rows;
+    expect(rows).toHaveLength(samples.length);
+    for (const row of rows) {
+      expect(row.body.length).toBeGreaterThan(0);
+      expect(row.body).not.toContain(row.tag.label);
+    }
+    const seriesBodies = rows.filter((r) => r.kind === 'series_champion').map((r) => r.body);
+    expect(seriesBodies.every((body) => !body.includes('시리즈'))).toBe(true);
+    expect(rows.find((r) => r.kind === 'leading_title')!.body).toBe('가온, 유럽 1위');
   });
 
   it('탭마다 목적 한 줄을 보이고, 빈 상태 안내와 최신순 표시를 준다', () => {
@@ -648,5 +683,8 @@ describe('M6-U3 기록 화면: 정렬·종류 태그·주요 순간·탭 문구'
     expect(render()).not.toContain('전체 5건 보기');
     add(state, { kind: 'first_win', date: { year: 2029, week: 6 }, player: true, horseId: 'h1' });
     expect(render()).toContain('전체 6건 보기');
+    // 펼치기 전에는 머리줄의 '주요 5건만 보기' 버튼이 없다(펼친 뒤에만 나온다)
+    expect(render()).not.toContain('주요 5건만 보기');
+    expect(render()).not.toContain('legacy-collapse');
   });
 });

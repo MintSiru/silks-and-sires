@@ -3,12 +3,17 @@
 
 .legacy-purpose { margin: 0 0 8px; }
 
-/* 연대기 목록은 툴바 아래 영역만 줄여 1440×900 에서 기록 탭도 세로 넘침이 없게 한다 */
+/* 연대기 목록은 툴바 아래 내부 스크롤로 둔다. 짧으면 내용 높이만큼, 길면 최대 높이에서 스크롤.
+   패널 여백(20px·테두리)을 포함해 1440×900 첫 화면에서 세로 넘침이 없도록 320px 를 뺀다. */
 .legacy-toolbar + .legacy-scroll {
   box-sizing: border-box;
-  height: min(500px, calc(100dvh - 400px));
+  height: auto;
+  max-height: calc(100dvh - 320px);
   padding-bottom: 12px;
 }
+
+/* 연도 머리줄 오른쪽의 '주요 N건만 보기'(펼친 뒤에만). summary 의 마커와 연도 글자는 그대로 한 줄에 둔다 */
+.legacy-collapse { float: right; white-space: nowrap; }
 
 /* 여백은 툴바 한 곳에서만 준다(세로 높이를 늘리지 않도록 자식 여백은 0) */
 .legacy-toolbar {
@@ -23,6 +28,8 @@
   grid-template-columns: 140px 92px minmax(0, 1fr) 56px;
 }
 .legacy-timeline .legacy-row > time { white-space: nowrap; }
+/* 한글 문장 본문은 어절 단위로만 줄바꿈한다(한 글자 줄바꿈 방지) */
+.legacy-timeline .legacy-row { word-break: keep-all; }
 
 /* 말 링크 밑줄은 글자 폭에서 끝난다(셀 전체로 늘어나지 않게) */
 .legacy-timeline .legacy-row > .horse-link { justify-self: start; width: fit-content; max-width: 100%; }

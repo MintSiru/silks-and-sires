@@ -5,7 +5,7 @@ import type { GameState } from '../../engine/types';
 import HorseLink, { HorseNavigation } from '../horse/HorseLink';
 import {
   chronicleYearGroups, establishedLineRows, familyConditionText, femaleFamilyRows,
-  goalCards, hallOfFameRows, lineConditionText, rivalRows,
+  goalCards, hallOfFameRows, lineConditionText, MAJOR_ROW_COUNT, rivalRows,
   type ChronicleFilter, type ChronicleRow, type ChronicleYearGroup,
 } from './legacyView';
 import { RivalIdentity } from './RivalCard';
@@ -48,17 +48,23 @@ export function ChronicleList({ rows, showSource = true }: { rows: ChronicleRow[
   </ol>;
 }
 
-/** 연도 묶음: 기본은 주요 순간만, '전체 N건 보기'로 펼친다(I2). 첫 묶음만 처음부터 펼쳐 둔다. */
+/**
+ * 연도 묶음: 기본은 주요 순간만, '전체 N건 보기'로 펼친다(I2). 펼친 뒤에는 머리줄 오른쪽 '주요 N건만 보기'로 다시 접는다.
+ * 첫 묶음만 처음부터 펼쳐 둔다. 머리줄 버튼은 details 가 접히지 않도록 기본 동작을 막는다.
+ */
 function ChronicleYear({ group, first, showSource }: { group: ChronicleYearGroup; first: boolean; showSource: boolean }) {
   const [expanded, setExpanded] = useState(false);
   const hasMore = group.rows.length > group.majorRows.length;
   return <details open={first ? true : undefined}>
-    <summary>{group.year}년 · {group.rows.length}건</summary>
+    <summary>{group.year}년 · {group.rows.length}건
+      {expanded && <button type="button" className="link-btn legacy-collapse" onClick={(event) => {
+        event.preventDefault();
+        setExpanded(false);
+      }}>{`주요 ${MAJOR_ROW_COUNT}건만 보기`}</button>}
+    </summary>
     <ChronicleList rows={expanded ? group.rows : group.majorRows} showSource={showSource} />
-    {hasMore && <button type="button" className="link-btn legacy-more" aria-expanded={expanded}
-      onClick={() => setExpanded((value) => !value)}>
-      {expanded ? '주요 순간만 보기' : `전체 ${group.rows.length}건 보기`}
-    </button>}
+    {hasMore && !expanded && <button type="button" className="link-btn legacy-more"
+      onClick={() => setExpanded(true)}>{`전체 ${group.rows.length}건 보기`}</button>}
   </details>;
 }
 
