@@ -30,6 +30,7 @@ import SettingsModal from './shell/SettingsModal';
 import { Toast, type ToastNotice } from './shell/Toast';
 import { NotifyContext } from './shell/notify';
 import { seasonLabel } from './shell/seasonBadge';
+import { decisionStopFrom } from './shell/decisionStop';
 
 type Screen = 'home' | 'stable' | 'breeding' | 'races' | 'sales' | 'farm' | 'management' | 'legacy';
 const SCREENS: { id: Screen; label: string }[] = [
@@ -125,6 +126,17 @@ function AppContent() {
       notify(messageOf(e), 'error');
     }
   };
+  /** 4주 진행·다음 내 출주까지: 중요 결정 앞에서 멈추고, 멈추면 사유를 알린다(M6-T3). */
+  const advanceToDecision = (weeks: number, doneText: string) => {
+    const watch = decisionStopFrom(state.date);
+    try {
+      game.advanceUntil(watch.stop, weeks);
+    } catch (e) {
+      notify(messageOf(e), 'error');
+      return;
+    }
+    notify(watch.reason !== null ? `중요 결정 앞에서 멈췄습니다: ${watch.reason}` : doneText);
+  };
   return (
     <HorseNavigation.Provider value={{ state, openHorse }}>
       <NotifyContext.Provider value={notify}>
@@ -176,10 +188,7 @@ function AppContent() {
                   notify('이번 주 내 출주가 있습니다. 1주 진행하면 결과를 확인할 수 있습니다.');
                   return;
                 }
-                run(
-                  () => game.advance(weeks),
-                  '다음 내 출주 예정 주까지 진행했습니다. 홈에서 출주와 알림을 확인하세요.',
-                );
+                advanceToDecision(weeks, '다음 내 출주 예정 주까지 진행했습니다. 홈에서 출주와 알림을 확인하세요.');
               }}
             >
               다음 내 출주까지
@@ -188,7 +197,7 @@ function AppContent() {
               type="button"
               className="btn"
               disabled={locked || pending || newGame}
-              onClick={() => run(() => game.advance(4), '4주 진행했습니다.')}
+              onClick={() => advanceToDecision(4, '4주 진행했습니다.')}
             >
               4주 진행
             </button>

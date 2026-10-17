@@ -59,7 +59,13 @@ await page.getByRole('textbox', { name: '마주 이름', exact: true }).fill('�
 await page.getByRole('button', { name: '이 조건으로 시작', exact: true }).click();
 const nav = page.getByRole('navigation', { name: '화면 선택' });
 await nav.waitFor({ timeout: 90000 });
-for (let k = 0; k < 6; k++) { await page.getByRole('button', { name: '4주 진행', exact: true }).click(); await page.waitForTimeout(500); }
+// M6-T3: '4주 진행'이 중요 결정 앞에서 멈추므로 24주(6월 3주)에 닿을 때까지 누른다(최대 15번).
+const weekIndex = (text) => { const m = text.match(/(\d+)년 (\d+)월 (\d+)주/); return m ? (Number(m[1]) - 2026) * 60 + Number(m[2]) * 5 + Number(m[3]) : 0; };
+for (let k = 0; k < 15 && weekIndex(await page.getByTestId('game-date').innerText()) < weekIndex('2026년 6월 3주'); k++) {
+  const target = weekIndex('2026년 6월 3주') - weekIndex(await page.getByTestId('game-date').innerText());
+  await page.getByRole('button', { name: target >= 4 ? '4주 진행' : '1주 진행', exact: true }).click();
+  await page.waitForTimeout(500);
+}
 const menus = ['홈', '마구간', '번식', '경주', '세일', '목장', '경영', '기록'];
 for (let i = 0; i < menus.length; i++) {
   await step(`${String(i + 2).padStart(2, '0')}-${menus[i]}`, async () => {

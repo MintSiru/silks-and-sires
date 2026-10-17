@@ -131,8 +131,10 @@ function writeReport(extra = {}) {
     await dialog.getByRole('button', { name: '말 상세 닫기' }).click();
     await page.getByRole('button', { name: '4주 진행', exact: true }).click();
     await expect(page.getByTestId('game-date')).not.toHaveText(startDate);
+    // M6-T3: 새 게임의 첫 '4주 진행'은 교배 자동 예약 주(1월 2주)에서 멈추고 사유를 토스트로 알린다.
+    await expect(page.getByRole('status').filter({ hasText: '중요 결정 앞에서 멈췄습니다' })).toBeVisible();
     const endDate = await page.getByTestId('game-date').innerText();
-    assert.equal(endDate, '2026년 1월 5주');
+    assert.equal(endDate, '2026년 1월 2주');
     await page.getByRole('button', { name: '메뉴', exact: true }).click();
     await page.getByRole('button', { name: '저장', exact: true }).click();
     await expect(page.getByRole('status').filter({ hasText: '저장했습니다.' })).toBeVisible();
