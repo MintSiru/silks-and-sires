@@ -10,7 +10,8 @@
     "test:watch": "vitest",
     "test:verify": "vitest run tests/verify --no-file-parallelism",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "screens": "npm run build && node tests/ui/capture-screens.mjs"
   },
   "dependencies": {
     "react": "^19.3.0",
