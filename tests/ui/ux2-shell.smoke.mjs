@@ -14,6 +14,27 @@ const layoutFailures = [];
 const errors = [];
 const menuNames = ['홈', '마구간', '번식', '경주', '세일', '목장', '경영', '기록'];
 const legacyTabs = ['연대기', '왕조 목표', '부계·모계', '명예의 전당', '라이벌'];
+/**
+ * 레이스 당일(M7-RD): 진행 버튼 뒤에 레이스 당일 화면이 떠 있으면 '출주 — 레이스 보기'를 누르고 재생을 건너뛰어 결과를 닫는다.
+ * 떠 있지 않으면 아무것도 하지 않는다(false). 여러 레이스면 '다음 레이스'로 모두 넘긴다.
+ */
+async function passRaceDay(page) {
+  const dialog = page.getByRole('dialog', { name: '레이스 당일', exact: true });
+  await page.waitForTimeout(150);
+  if ((await dialog.count()) === 0) return false;
+  await dialog.getByRole('button', { name: '출주 — 레이스 보기', exact: true }).click();
+  for (;;) {
+    await dialog.getByRole('button', { name: '결과로 건너뛰기', exact: true }).click();
+    await expect(dialog.locator('.rd-result')).toBeVisible();
+    const next = dialog.getByRole('button', { name: '다음 레이스', exact: true });
+    if ((await next.count()) === 0) break;
+    await next.click();
+  }
+  await dialog.getByRole('button', { name: '닫기', exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+  return true;
+}
+
 function writeReport(extra = {}) {
   const report = {
     result: layoutFailures.length || errors.length ? 'FAIL' : 'PASS',
@@ -130,9 +151,11 @@ function writeReport(extra = {}) {
     await page.screenshot({ path: '/tmp/ux2-horse-plans.png', fullPage: true });
     await dialog.getByRole('button', { name: '말 상세 닫기' }).click();
     await page.getByRole('button', { name: '4주 진행', exact: true }).click();
+    await passRaceDay(page);
     await expect(page.getByTestId('game-date')).not.toHaveText(startDate);
     // M6-T3·M7-C3: 첫 해 교배 자동 예약은 6주(2월 1주). 두 번째 '4주 진행'이 그 주에서 멈추고 사유를 토스트로 알린다.
     await page.getByRole('button', { name: '4주 진행', exact: true }).click();
+    await passRaceDay(page);
     await expect(page.getByRole('status').filter({ hasText: '중요 결정 앞에서 멈췄습니다' })).toBeVisible();
     const endDate = await page.getByTestId('game-date').innerText();
     assert.equal(endDate, '2026년 2월 1주');
@@ -142,7 +165,12 @@ function writeReport(extra = {}) {
     await expect(page.getByRole('status').filter({ hasText: '칸 1에 저장했습니다.' })).toBeVisible();
     await expect(page.getByRole('table', { name: '저장 칸' })).toContainText(endDate);
     await page.getByRole('dialog').getByRole('button', { name: '닫기', exact: true }).click();
+    // M7-RD: 내 말 출주 주의 '1주 진행'은 주를 넘기지 않고 레이스 당일 화면을 먼저 연다.
+    const raceWeek = await page.getByTestId('game-date').innerText();
     await page.getByRole('button', { name: '1주 진행', exact: true }).click();
+    await expect(page.getByRole('dialog', { name: '레이스 당일', exact: true })).toBeVisible();
+    await expect(page.getByTestId('game-date')).toHaveText(raceWeek);
+    await passRaceDay(page);
     // M6-U2: 불러오기는 메뉴를 다시 열어 진행한다.
     await page.getByRole('button', { name: '메뉴', exact: true }).click();
     await page.getByRole('button', { name: '칸 1 불러오기', exact: true }).click();
@@ -162,10 +190,15 @@ function writeReport(extra = {}) {
     await dialog.getByRole('button', { name: '말 상세 닫기' }).click();
     await nav.getByRole('button', { name: '홈', exact: true }).click();
     await page.getByRole('button', { name: '4주 진행', exact: true }).click();
+    await passRaceDay(page);
     await page.getByRole('button', { name: '4주 진행', exact: true }).click();
+    await passRaceDay(page);
     await page.getByRole('button', { name: '4주 진행', exact: true }).click();
+    await passRaceDay(page);
     await page.getByRole('button', { name: '4주 진행', exact: true }).click();
+    await passRaceDay(page);
     await page.getByRole('button', { name: '4주 진행', exact: true }).click();
+    await passRaceDay(page);
     await measureMenus('replay24');
     await page.setViewportSize({ width: 390, height: 844 });
     await measureMenus('mobile', true);
@@ -266,6 +299,7 @@ function writeReport(extra = {}) {
     await nav.getByRole('button', { name: '홈', exact: true }).click();
     await expect(page.locator('.home-rival-row')).toHaveCount(2);
     await page.getByRole('button', { name: '1주 진행', exact: true }).click();
+    await passRaceDay(page);
     const ceremony = page.getByRole('dialog', { name: `${fixture.year}년 연말 시상식` });
     await expect(ceremony).toBeVisible();
     await expect(ceremony).toContainText('명성 보상 합계');

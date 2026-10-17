@@ -14,6 +14,12 @@ import { startFacilityUpgrade } from '../../engine/farm/facilities';
 import { setPlayerSilks, validateSilksDesign } from '../../engine/people/silks';
 import { SILKS_ERROR_KO } from '../silks/silksText';
 import { placeBet, cancelBet, type BetError } from '../../engine/betting/betting';
+import {
+  pendingRaceDays,
+  prepareRaceDay as prepareRaceDayState,
+  raceDayBrief,
+  setRaceOrder as setRaceOrderState,
+} from '../../engine/season/raceDayBrief';
 import { acceptPrivateOffer, declinePrivateOffer, type AcceptPrivateOfferError, type DeclinePrivateOfferError } from '../../engine/sales/privateTrade';
 import { enquirePrivatePurchase, type EnquiryError } from '../../engine/sales/privateMarket';
 import { useCallback, useRef, useState } from 'react';
@@ -72,6 +78,8 @@ import type {
   HorseId,
   PlannedRace,
   MatingProposal,
+  RaceDayBrief,
+  RunningStyle,
   SellProposal,
   InjuryTreatment,
   Money,
@@ -139,6 +147,17 @@ export interface GameApi {
   setAutoSell(enabled: boolean): ReturnType<typeof setAutoSell>;
   /** 세일 발표·거래 주 정지(settings.stopAtSales, M7-E). false 면 세일 주에 멈추지 않는다 */
   setStopAtSales(enabled: boolean): void;
+  /** 레이스 당일 진행 방식(M7-RD). 'brief' 기본, 'skip' 이면 출주 주에 멈추지 않는다 */
+  setRaceDayMode(mode: 'brief' | 'skip'): void;
+  /**
+   * 레이스 당일 신청 확정(M7-RD). 이번 주 플레이어 출주가 있으면 prepareRaceDay 결과(사건 포함)를 상태에 넣고 대기 목록을 돌려준다.
+   * 출주가 없으면 상태를 바꾸지 않고 빈 목록
+   */
+  prepareRaceDay(): ReturnType<typeof pendingRaceDays>;
+  /** 이번 주 선언된 플레이어 말의 레이스 당일 요약(출주표·패독·코멘트·작전). 상태는 바꾸지 않는다 */
+  raceDayBrief(raceId: RaceId, horseId: HorseId): RaceDayBrief;
+  /** 레이스 당일 작전 지시(M7-RD). 성공하면 상태를 갱신한다 */
+  setRaceOrder(raceId: RaceId, horseId: HorseId, tactic: RunningStyle): ReturnType<typeof setRaceOrderState>;
   /** 첫 시즌 체크리스트 진행(M6-T): 단계 완료·닫기 값을 설정에 저장한다. 원본 상태는 바꾸지 않는다 */
   setTutorial(progress: TutorialProgress): void;
   placeBet(input: Parameters<typeof placeBet>[1]): PlayerResult<BetError>;
@@ -568,6 +587,42 @@ export function useGame(): GameApi {
     setState(next);
   }, [requireState]);
 
+  const setRaceDayMode = useCallback((mode: 'brief' | 'skip'): void => {
+    const current = requireState();
+    const next = { ...current, settings: { ...current.settings, raceDayMode: mode } };
+    stateRef.current = next;
+    setState(next);
+  }, [requireState]);
+
+  const prepareRaceDay = useCallback((): ReturnType<typeof pendingRaceDays> => {
+    const current = requireState();
+    const { state: prepared, events } = prepareRaceDayState(current, gameStaticData());
+    const pending = pendingRaceDays(prepared);
+    // 출주가 없는 주는 상태를 건드리지 않는다. 신청 사건은 주간 진행과 같은 규칙으로 기록한다.
+    if (pending.length === 0) return pending;
+    const next = appendEvents(prepared, events);
+    stateRef.current = next;
+    setState(next);
+    setLastEvents(events);
+    return pending;
+  }, [requireState]);
+
+  const raceDayBriefOf = useCallback(
+    (raceId: RaceId, horseId: HorseId): RaceDayBrief => raceDayBrief(requireState(), raceId, horseId, gameStaticData()),
+    [requireState],
+  );
+
+  const setRaceOrderWith = useCallback(
+    (raceId: RaceId, horseId: HorseId, tactic: RunningStyle): ReturnType<typeof setRaceOrderState> => {
+      const result = setRaceOrderState(requireState(), raceId, horseId, tactic);
+      if (!result.ok) return result;
+      stateRef.current = result.state;
+      setState(result.state);
+      return result;
+    },
+    [requireState],
+  );
+
   const declarePlayer = useCallback(
     (meetingId: string, raceId: RaceId, horseId: HorseId): PlayerResult<DeclareError> =>
       applyPlayerResult(declarePlayerHorse(requireState(), meetingId, raceId, horseId)),
@@ -779,6 +834,10 @@ export function useGame(): GameApi {
     consignProposal: consignProposalNow,
     setAutoSell: setSellAuto,
     setStopAtSales,
+    setRaceDayMode,
+    prepareRaceDay,
+    raceDayBrief: raceDayBriefOf,
+    setRaceOrder: setRaceOrderWith,
     setTutorial,
     state,
     placeBet: placePlayerBet,

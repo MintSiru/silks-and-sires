@@ -30,7 +30,8 @@ import SettingsModal from './shell/SettingsModal';
 import { Toast, type ToastNotice } from './shell/Toast';
 import { NotifyContext } from './shell/notify';
 import { seasonLabel } from './shell/seasonBadge';
-import { decisionStopFrom } from './shell/decisionStop';
+import { RACE_DAY_REASON, decisionStopFrom } from './shell/decisionStop';
+import RaceDayScreen, { type RaceDayEntry } from './raceDay/RaceDayScreen';
 
 type Screen = 'home' | 'stable' | 'breeding' | 'races' | 'sales' | 'farm' | 'management' | 'legacy';
 const SCREENS: { id: Screen; label: string }[] = [
@@ -80,6 +81,8 @@ function AppContent() {
   const [newGame, setNewGame] = useState(false);
   const [menu, setMenu] = useState(false);
   const [yearEnd, setYearEnd] = useState(false);
+  /** 레이스 당일 화면에 띄울 이번 주 내 말 출주(null 이면 닫힘) */
+  const [raceDay, setRaceDay] = useState<RaceDayEntry[] | null>(null);
   /** 토스트 알림. id 가 바뀔 때마다 4초를 다시 잰다. */
   const [notice, setNotice] = useState<ToastNotice | null>(null);
   const noticeSeq = useRef(0);
@@ -126,7 +129,23 @@ function AppContent() {
       notify(messageOf(e), 'error');
     }
   };
-  /** 4주 진행·다음 내 출주까지: 중요 결정 앞에서 멈추고, 멈추면 사유를 알린다(M6-T3). */
+  /**
+   * 레이스 당일(M7-RD): 이번 주 내 말 출주가 있으면 신청을 확정하고 레이스 당일 화면을 연다.
+   * 열었으면 true(진행하지 않는다). raceDayMode 'skip' 이거나 출주가 없으면 false. 확정이 실패하면 알리고 false.
+   */
+  const openRaceDay = (): boolean => {
+    if (state.settings.raceDayMode === 'skip') return false;
+    try {
+      const pending = game.prepareRaceDay();
+      if (pending.length === 0) return false;
+      setRaceDay(pending);
+      return true;
+    } catch (e) {
+      notify(messageOf(e), 'error');
+      return false;
+    }
+  };
+  /** 4주 진행·다음 내 출주까지: 중요 결정 앞에서 멈추고, 멈추면 사유를 알린다(M6-T3). 내 말 출주 주에 멈추면 레이스 당일 화면을 연다(M7-RD). */
   const advanceToDecision = (weeks: number, doneText: string) => {
     const watch = decisionStopFrom(state.date);
     try {
@@ -136,6 +155,7 @@ function AppContent() {
       return;
     }
     notify(watch.reason !== null ? `중요 결정 앞에서 멈췄습니다: ${watch.reason}` : doneText);
+    if (watch.reason === RACE_DAY_REASON) openRaceDay();
   };
   return (
     <HorseNavigation.Provider value={{ state, openHorse }}>
@@ -170,7 +190,9 @@ function AppContent() {
               type="button"
               className={pending || newGame ? 'btn' : 'btn btn--primary'}
               disabled={locked || pending || newGame}
-              onClick={() => run(() => game.advance(1), '1주 진행했습니다.')}
+              onClick={() => {
+                if (!openRaceDay()) run(() => game.advance(1), '1주 진행했습니다.');
+              }}
             >
               1주 진행
             </button>
@@ -179,6 +201,7 @@ function AppContent() {
               className="btn"
               disabled={locked || pending || newGame}
               onClick={() => {
+                if (openRaceDay()) return;
                 const weeks = nextPlayerRaceInWeeks(state);
                 if (weeks === null) {
                   notify(state.settings.autoApproveRacePlans === false ? '승인된 출주 계획이 없습니다. 말 상세에서 제안을 승인하세요.' : '출주 예정 계획이 없습니다. 말 상세에서 계획을 확인하세요.');
@@ -197,7 +220,9 @@ function AppContent() {
               type="button"
               className="btn"
               disabled={locked || pending || newGame}
-              onClick={() => advanceToDecision(4, '4주 진행했습니다.')}
+              onClick={() => {
+                if (!openRaceDay()) advanceToDecision(4, '4주 진행했습니다.');
+              }}
             >
               4주 진행
             </button>
@@ -374,6 +399,9 @@ function AppContent() {
               setMenu(false);
             }}
           />
+        )}
+        {raceDay !== null && (
+          <RaceDayScreen game={game} entries={raceDay} onClose={() => setRaceDay(null)} />
         )}
         <Toast notice={notice} onExpire={dismissNotice} />
       </div>

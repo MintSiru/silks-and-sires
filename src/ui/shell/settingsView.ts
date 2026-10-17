@@ -73,3 +73,23 @@ export function matingProgressGuide(settings: GameSettings): string {
 /** 새 게임 확인 단계의 경고 문구. */
 export const NEW_GAME_WARNING_KO =
   '지금 진행을 두고 새 게임을 시작합니다. 저장하지 않은 진행은 되돌릴 수 없습니다.';
+
+/** 레이스 당일 진행 방식 선택지(M7-RD). 없으면 'brief'(기본). */
+export type RaceDayModeChoice = 'brief' | 'skip';
+export const RACE_DAY_MODE_OPTIONS: readonly { mode: RaceDayModeChoice; label: string; hint: string }[] = [
+  {
+    mode: 'brief',
+    label: '출주표·작전 뒤 레이스 보기(기본)',
+    hint: '내 말이 출주하는 주에 멈춰 출주표·패독·코멘트를 보고 작전을 정한 뒤 레이스를 봅니다.',
+  },
+  {
+    mode: 'skip',
+    label: '멈추지 않음(결과만 기록)',
+    hint: '출주 주에도 멈추지 않고 레이스 결과만 기록합니다. 작전은 말의 선호 작전으로 나갑니다.',
+  },
+];
+
+/** 레이스 당일 진행 방식. 값이 없으면 'brief'. */
+export function raceDayModeOf(settings: GameSettings): RaceDayModeChoice {
+  return settings.raceDayMode === 'skip' ? 'skip' : 'brief';
+}

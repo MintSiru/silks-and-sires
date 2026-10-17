@@ -3,10 +3,12 @@
  * 엔진은 바꾸지 않는다. 사유는 한국어 한 줄이고, 여러 개가 겹치면 아래 순서(a → f)의 첫 번째를 쓴다.
  */
 import { matingAutoBookWeek } from '../../engine/breeding/matingPlan';
-import { getSalesData } from '../../engine/data/staticData';
+import { getRaceTemplates, getRacecourses, getSalesData } from '../../engine/data/staticData';
 import { yearEndPending } from '../../engine/stud/yearEnd';
 import { announceWeekOf } from '../../engine/sales/system';
 import { saleWeekOf } from '../../engine/sales/bidding';
+import { pendingRaceDays, prepareRaceDay } from '../../engine/season/raceDayBrief';
+import type { RaceCalendarData } from '../../engine/season/lookahead';
 import { compareDates, formatDateKo } from '../../engine/time/calendar';
 import type { GameDate, GameState, SaleEventDef } from '../../engine/types';
 
@@ -19,6 +21,9 @@ const CONSIGN_DEADLINE_OFFSET_WEEKS = 1;
 const SALE_EVENTS: ReadonlyMap<string, SaleEventDef> = new Map(
   (getSalesData().events ?? []).map((e) => [e.id, e] as const),
 );
+
+/** 레이스 당일 정지 사유(M7-RD). 내 말 출주 주에 멈춘 뒤 레이스 당일 화면을 연다. */
+export const RACE_DAY_REASON = '이번 주 내 말 출주 주입니다. 레이스 당일 화면에서 출주표와 작전을 확인하세요.';
 
 /** 세일 정의를 id 순으로(엔진이 세일을 만드는 순서와 같다). 목록 결과의 순서 기준 */
 const SALES_BY_ID: readonly SaleEventDef[] = [...SALE_EVENTS.values()].sort((a, b) =>
@@ -125,9 +130,24 @@ function biddenTradeReason(state: GameState): string | null {
 }
 
 /**
+ * 이번 주 플레이어 말이 출주하는가(M7-RD). 신청 확정(prepareRaceDay) 뒤 대기 목록이 있으면 true.
+ * 출주 후보가 없는 주는 상태 복제 없이 넘어간다. 레이스 당일 진행이 'skip' 이면 항상 false.
+ */
+function raceDayDue(state: GameState): boolean {
+  if (state.settings.raceDayMode === 'skip') return false;
+  const candidate = pendingRaceDays(state).length > 0 || Object.values(state.seasonState.racePlans ?? {}).some(
+    (plans) => plans.some((p) => compareDates(p.date, state.date) === 0 && (p.status === 'proposed' || p.status === 'approved')),
+  );
+  if (!candidate) return false;
+  const data: RaceCalendarData = { courses: getRacecourses(), templates: getRaceTemplates() };
+  return pendingRaceDays(prepareRaceDay(state, data).state).length > 0;
+}
+
+/**
  * 이번 주 플레이어가 확인해야 할 결정의 사유. 없으면 null.
  * (a) 판매 제안 위탁 마감 (b) 교배 자동 예약 주의 검토 안 한 제안 (c) 승인제의 이번 주 출주 승인 대기 (d) 연말 정산 대기
- * (e) 이번 주 카탈로그 발표 세일 (f) 입찰한 세일의 거래 주. (e)(f) 는 settings.stopAtSales === false 면 보지 않는다(M7-E).
+ * (d') 내 말 출주 주(레이스 당일, raceDayMode !== 'skip') (e) 이번 주 카탈로그 발표 세일 (f) 입찰한 세일의 거래 주.
+ * (e)(f) 는 settings.stopAtSales === false 면 보지 않는다(M7-E).
  */
 export function decisionStopReason(state: GameState): string | null {
   const sales = consignDeadlineCount(state);
@@ -137,6 +157,7 @@ export function decisionStopReason(state: GameState): string | null {
   const plans = racePlanApprovalCount(state);
   if (plans > 0) return `승인 대기 출주 계획 ${plans}건이 이번 주 출주 대상입니다. 말 상세에서 승인하세요.`;
   if (yearEndPending(state)) return '연말 정산을 제출해야 합니다. 홈에서 제출하세요.';
+  if (raceDayDue(state)) return RACE_DAY_REASON;
   if (state.settings.stopAtSales === false) return null;
   return announcedSalesReason(state) ?? biddenTradeReason(state);
 }

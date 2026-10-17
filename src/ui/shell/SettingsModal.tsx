@@ -15,7 +15,9 @@ import {
   autoSellOn,
   autoSendToTrainingOn,
   autoTrainingGuide,
+  RACE_DAY_MODE_OPTIONS,
   matingProgressGuide,
+  raceDayModeOf,
   racePlanMode,
   stopAtSalesOn,
 } from './settingsView';
@@ -394,6 +396,24 @@ export default function SettingsModal({
                   value={option.mode}
                   checked={mode === option.mode}
                   onChange={() => game.setAutoApproveRacePlans(autoApproveFromMode(option.mode))}
+                />
+                <span className="shell-choice__text">
+                  <span>{option.label}</span>
+                  <span className="hint">{option.hint}</span>
+                </span>
+              </label>
+            ))}
+          </fieldset>
+          <fieldset className="shell-fieldset">
+            <legend>레이스 당일</legend>
+            {RACE_DAY_MODE_OPTIONS.map((option) => (
+              <label key={option.mode} className="shell-choice">
+                <input
+                  type="radio"
+                  name="race-day-mode"
+                  value={option.mode}
+                  checked={raceDayModeOf(state.settings) === option.mode}
+                  onChange={() => game.setRaceDayMode(option.mode)}
                 />
                 <span className="shell-choice__text">
                   <span>{option.label}</span>
