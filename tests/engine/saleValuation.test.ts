@@ -303,9 +303,9 @@ describe('세일 가치 평가 (valueLot / estimateRange / marketTrend)', () => 
   });
 
   describe('4. 추정 범위 estimateRange', () => {
-    it('low = 0.7 배, high = 1.4 배, 100 단위 반올림', () => {
-      expect(estimateRange(100_000)).toEqual({ low: 70_000, high: 140_000 });
-      expect(estimateRange(12_345)).toEqual({ low: 8_600, high: 17_300 });
+    it('low = SALE_RANGE_LOW 배, high = SALE_RANGE_HIGH 배(1.0 ~ 1.55), 100 단위 반올림', () => {
+      expect(estimateRange(100_000)).toEqual({ low: 100_000, high: 155_000 });
+      expect(estimateRange(12_345)).toEqual({ low: 12_300, high: 19_100 });
     });
 
     it('상수 SALE_RANGE_LOW·SALE_RANGE_HIGH 와 일치한다', () => {

@@ -101,9 +101,14 @@ export const SALE_IN_FOAL_SHARE = 0.5;
 /** 번식 암말: 로그 노이즈 SD */
 export const SALE_MARE_NOISE_SD = 0.3;
 
-/** 화면 추정 범위: 평가값 × 이 배율 */
-export const SALE_RANGE_LOW = 0.7;
-export const SALE_RANGE_HIGH = 1.4;
+/**
+ * 화면 추정 범위: 평가값 × 이 배율. 표시 전용(estimateRange) — 게임 결과에 쓰이지 않는다.
+ * 측정(2026-10-17, M6-B3a): 무입력 5년 × 시드 20261011·7, 팔린 로트 6,616두(낙찰가 ÷ 평가값).
+ * 전체 15% 분위 1.000(낙찰가가 평가값 미만이면 유보가 미달로 팔리지 않으므로 하한이 평가값에 붙는다), 85% 분위 1.546 → 0.05 단위 1.55.
+ * 바이백 766두·철회 0두는 비율에서 뺐다. 종류별 중앙값은 1.216~1.371(차이 0.155 < 0.2).
+ */
+export const SALE_RANGE_LOW = 1.0;
+export const SALE_RANGE_HIGH = 1.55;
 
 // ── 카탈로그 생성(M4-C2a) ─────────────────────────────────────
 
