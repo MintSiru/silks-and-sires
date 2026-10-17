@@ -9,6 +9,8 @@ import type { GameApi } from '../game/useGame';
 import { NOMINATION_MAX_PER_SEASON } from '../../engine/config/stud';
 import type { StudRole, YearEndChoice, YearEndHorseDecision } from '../../engine/types';
 import { defaultSubmission, salePriceWithNominationsKo, yearEndErrorKo, yearEndView } from './yearEndView';
+import YearReview from './YearReview';
+import { yearReviewView } from './yearReviewView';
 
 /** 국내 판매 때 고를 수 있는 교배권 수(0~엔진 상한) */
 const NOMINATION_CHOICES: readonly number[] = Array.from({ length: NOMINATION_MAX_PER_SEASON + 1 }, (_, i) => i);
@@ -24,6 +26,7 @@ function withChoice(decision: YearEndHorseDecision, choice: YearEndChoice): Year
 export default function YearEndScreen({ game }: { game: GameApi }) {
   const state = game.state!;
   const view = yearEndView(state);
+  const review = yearReviewView(state);
   const [submission, setSubmission] = useState(() => defaultSubmission(state));
   const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,6 +43,7 @@ export default function YearEndScreen({ game }: { game: GameApi }) {
   return <section className="panel" aria-label="연말 정산">
     {/* view.year 는 맞이하는 새해. 정산은 끝난 해 기준으로 표시 */}
     <h2>{view.year - 1}년 연말 정산</h2>
+    <YearReview view={review} />
     <p>모든 현역마의 진로와 전속 계약 갱신을 정해야 새해로 진행합니다.</p>
     <h3>현역마 진로</h3>
     <p>{view.freeSlotsKo}</p>
