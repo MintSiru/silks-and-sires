@@ -31,6 +31,11 @@ export interface GameSettings {
    * 시즌 해 MATING_AUTO_BOOK_WEEK 에 빼지 않은 제안을 예약 / false: 승인한 제안만 예약
    */
   autoApproveMatings?: boolean;
+  /**
+   * 2세가 된 플레이어 육성마를 조교사에게 자동으로 보낸다(M6-0, 사용자 결정 2026-10-17 — 출주 계획·교배와 같은 '그대로 진행').
+   * 없거나 true 면 자동, false 면 플레이어가 직접 맡긴다
+   */
+  autoSendToTraining?: boolean;
   /** 자동 교배 한 두당 종부료 상한(€). null·없으면 교배 담당이 암말 수준으로 예산을 정한다 */
   matingFeeCap?: Money | null;
 }
