@@ -10,6 +10,8 @@ import PedigreeView from '../breeding/PedigreeView';
 import { pedigreeNameOf } from '../breeding/pedigreeNames';
 import { bookStatusOf, fertilityKo, mareBookingKo } from '../breeding/bookView';
 import { GradeBadge, PositionBadge, StatusBadge } from '../common/Badge';
+import { orValueKo } from '../common/glossary';
+import { Term } from '../common/Term';
 import { useWeightUnit } from '../game/WeightUnitContext';
 import { assignTrainerErrorKo, coatColourKo, feeKo, sexKo, statusKo } from '../game/text';
 import { formatWeight, type WeightUnit } from '../game/units';
@@ -255,7 +257,9 @@ export default function HorseDetail({
             </>
           )}
         </span>
-        <span>OR {horse.officialRating ?? '미부여'}</span>
+        <span>
+          <Term id="or">OR</Term> {orValueKo(horse.officialRating)}
+        </span>
       </p>
       {canChangeTrainer && trainerOpen && (
         <section className="trainer-form" aria-label="조교사 변경">

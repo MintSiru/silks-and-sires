@@ -1,3 +1,4 @@
+import { Term } from '../common/Term';
 import { useMemo, useRef, useState } from 'react';
 import { bookingSeasonOf } from '../../engine/breeding/season';
 import { getNicks, getStallionRecords } from '../../engine/data/staticData';
@@ -249,9 +250,9 @@ function MatingPlanTableRow({
           <dl>
             <dt>수준</dt>
             <dd>{r.quality}</dd>
-            <dt>니크</dt>
+            <dt><Term id="nick">니크</Term></dt>
             <dd>{r.nick}</dd>
-            <dt>근친</dt>
+            <dt><Term id="inbreeding">근친</Term></dt>
             <dd>{r.inbreeding}</dd>
             <dt>거리 보완</dt>
             <dd>{r.distance}</dd>

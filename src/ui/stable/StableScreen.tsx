@@ -2,6 +2,8 @@ import { useContext, useState } from 'react';
 import type { GameState } from '../../engine/types';
 import { GradeBadge, StatusBadge } from '../common/Badge';
 import { positionLabel, positionTone, statusTone } from '../common/badges';
+import { orBandKo } from '../common/glossary';
+import { Term } from '../common/Term';
 import HorseLink, { HorseNavigation } from '../horse/HorseLink';
 import type { RunForm } from '../horse/horseDetailView';
 import {
@@ -73,7 +75,12 @@ function StableRowCells({ row, tab, showWarn }: { row: StableRow; tab: StableTab
       <td className="stable-col stable-col--form">
         <FormBand runs={row.form} />
       </td>
-      <td className="stable-col stable-col--or">{row.rating}</td>
+      <td className="stable-col stable-col--or">
+        {row.rating}
+        {typeof row.rating === 'number' && (
+          <small className="term-band">{orBandKo(row.rating)}</small>
+        )}
+      </td>
       <td className="stable-col stable-col--trainer">
         <span className="stable-trainer">{row.trainer}</span>
       </td>
@@ -115,7 +122,7 @@ export default function StableScreen({ state }: { state: GameState }) {
     { cls: 'stable-col--overall', label: '종합' },
     { cls: 'stable-col--condition', label: '컨디션' },
     { cls: 'stable-col--form', label: '최근 5전' },
-    { cls: 'stable-col--or', label: 'OR' },
+    { cls: 'stable-col--or', label: 'OR', term: 'or' as const },
     { cls: 'stable-col--trainer', label: '조교사' },
     { cls: 'stable-col--next', label: tab === 'active' ? '다음 출주' : '번식 상태 / 계획' },
     { cls: 'stable-col--warn', label: '확인' },
@@ -155,7 +162,7 @@ export default function StableScreen({ state }: { state: GameState }) {
               <tr>
                 {columns.map((c) => (
                   <th key={c.cls} className={c.cls}>
-                    {c.label}
+                    {c.term ? <Term id={c.term}>{c.label}</Term> : c.label}
                   </th>
                 ))}
               </tr>

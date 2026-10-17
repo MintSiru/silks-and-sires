@@ -1,0 +1,64 @@
+/* 용어 도움말(Term). 색은 app.css 의 기존 토큰만 쓴다. */
+
+.term {
+  position: relative;
+  display: inline;
+  cursor: help;
+  text-decoration: underline dotted;
+  text-decoration-color: var(--text-muted);
+  text-underline-offset: 3px;
+  border-radius: 2px;
+}
+
+.term:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* 스크린리더 전용 풀이: 화면에는 보이지 않는다. */
+.term__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* 호버·포커스 때 나오는 한 줄 풀이 말풍선. 왼쪽 기준으로 열고, 폭은 뷰포트 안으로 제한한다. */
+.term__bubble {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: 100%;
+  z-index: 20;
+  margin-top: 4px;
+  width: max-content;
+  max-width: min(18rem, calc(100vw - 2rem));
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-raised);
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 400;
+  line-height: 1.4;
+  white-space: normal;
+  text-align: left;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.term:hover .term__bubble,
+.term:focus .term__bubble {
+  display: block;
+}
+
+/* OR 값 옆 판정(예: 95 (상위권)) 의 보조 글자. */
+.term-band {
+  margin-left: 0.3em;
+  font-size: 0.75em;
+  color: var(--text-muted);
+  font-weight: 400;
+  white-space: nowrap;
+}
