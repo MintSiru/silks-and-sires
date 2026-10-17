@@ -18,6 +18,7 @@ import {
   START_TYPE_OPTIONS,
   isRecommendedStart,
   recommendedStartKo,
+  ruleSummaryKo,
   startSummaryKo,
 } from './newGameView';
 import './newGame.css';
@@ -100,14 +101,16 @@ export default function NewGameScreen({
   const [designOpen, setDesignOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const summary = startSummaryKo(startType, difficulty, grantRacehorses);
-  const recommended = isRecommendedStart({
+  const choice = {
     startType,
     difficulty,
     homeCountry,
     economyMode,
     grantRacehorses,
     catastrophicInjuries,
-  });
+  };
+  const recommended = isRecommendedStart(choice);
+  const rules = ruleSummaryKo(choice);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
@@ -324,6 +327,14 @@ export default function NewGameScreen({
               <p className="start-summary__title">고른 시작 조건</p>
               <ul>
                 {summary.map((line) => (
+                  <li key={line}>{line}</li>
+                ))}
+              </ul>
+            </section>
+            <section className="start-rules" aria-label="고른 조건의 규칙">
+              <p className="start-rules__title">규칙 요약</p>
+              <ul>
+                {rules.map((line) => (
                   <li key={line}>{line}</li>
                 ))}
               </ul>

@@ -10,6 +10,7 @@ import {
   nearestSaleKey,
   patronProgressView,
   patronTierBadgeClass,
+  saleActionLabelKo,
   saleScheduleNoticeKo,
   saleSubLineKo,
 } from '../../src/ui/sales/salesLayoutView';
@@ -141,5 +142,13 @@ describe('후원 등급 진행 막대', () => {
   it('등급 배지 클래스는 세 등급이 서로 다르다', () => {
     const tiers: SalePatronTier[] = ['none', 'silver', 'gold'];
     expect(new Set(tiers.map((tier) => patronTierBadgeClass(tier))).size).toBe(3);
+  });
+});
+
+describe('일정 표 버튼 이름(M6-V V7)', () => {
+  it('발표 전 세일은 발표 일정 보기, 공개 뒤 세일은 카탈로그 보기', () => {
+    expect(saleActionLabelKo(calRow({ status: 'upcoming' }))).toBe('발표 일정 보기');
+    expect(saleActionLabelKo(calRow({ status: 'catalogued', lots: 12 }))).toBe('카탈로그 보기');
+    expect(saleActionLabelKo(calRow({ status: 'closed', lots: 12 }))).toBe('카탈로그 보기');
   });
 });

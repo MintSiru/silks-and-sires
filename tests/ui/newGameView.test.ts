@@ -11,6 +11,7 @@ import {
   START_TYPE_OPTIONS,
   isRecommendedStart,
   recommendedStartKo,
+  ruleSummaryKo,
   startSummaryKo,
 } from '../../src/ui/newGame/newGameView';
 
@@ -116,8 +117,8 @@ describe('추천 조건(L1 추천 조건으로 시작)', () => {
     expect(RECOMMENDED_START.economyMode).toBe(DEFAULT_ECONOMY_MODE);
   });
 
-  it('추천 문구는 오너브리더 · 보통 · 영국 · 캐주얼이다', () => {
-    expect(recommendedStartKo()).toBe('오너브리더 · 보통 · 영국 · 캐주얼');
+  it('추천 문구는 오너브리더 · 보통 · 영국 · 캐주얼(고급 설정)이다(경제 모드는 고급 설정 안에 있다)', () => {
+    expect(recommendedStartKo()).toBe('오너브리더 · 보통 · 영국 · 캐주얼(고급 설정)');
   });
 
   it('추천 조건 그대로면 추천이고 하나라도 다르면 추천이 아니다', () => {
@@ -134,5 +135,28 @@ describe('추천 조건(L1 추천 조건으로 시작)', () => {
     expect(isRecommendedStart({ ...owner, grantRacehorses: false })).toBe(
       isRecommendedStart({ ...owner, grantRacehorses: true }),
     );
+  });
+});
+
+describe('고른 조건의 규칙 요약(M6-V V7 오른쪽 열)', () => {
+  it('규칙 요약은 4줄이고 시작 유형·난이도·경제 모드·예후불량 순서다', () => {
+    const lines = ruleSummaryKo({ ...RECOMMENDED_START });
+    expect(lines).toHaveLength(4);
+    expect(lines[0]).toMatch(/^오너브리더 — /);
+    expect(lines[1]).toMatch(/^보통 — /);
+    expect(lines[2]).toBe(`경제 캐주얼 — ${ECONOMY_MODE_OPTIONS[0]?.line ?? ''}`);
+    expect(lines[3]).toMatch(/^예후불량 켬 — /);
+  });
+
+  it('경제 모드 줄은 고른 모드의 선택지 설명을 그대로 재사용한다', () => {
+    const legacy = ruleSummaryKo({ ...RECOMMENDED_START, economyMode: 'legacy' });
+    expect(legacy[2]).toBe('경제 레거시 — 자금이 12주 연속 음수면 파산합니다');
+  });
+
+  it('예후불량을 끄면 사망으로 이어지지 않는다는 줄이 되고, 비율은 엔진 config 에서 만든다', () => {
+    const off = ruleSummaryKo({ ...RECOMMENDED_START, catastrophicInjuries: false });
+    expect(off[3]).toBe('예후불량 끔 — 경주 중 중증 골절이 사망으로 이어지지 않습니다');
+    const on = ruleSummaryKo({ ...RECOMMENDED_START, catastrophicInjuries: true });
+    expect(on[3]).toContain(`${Math.round(CATASTROPHIC_FRACTURE_SHARE * 100)}%`);
   });
 });

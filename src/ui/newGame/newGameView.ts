@@ -90,15 +90,40 @@ function labelOf<T extends string>(options: readonly ChoiceOption<T>[], value: T
   return options.find((option) => option.value === value)?.label ?? value;
 }
 
-/** 추천 조건 문구: "오너브리더 · 보통 · 영국 · 캐주얼" */
+/** 값 → 선택지 한 줄 설명. 목록에 없으면 빈 문자열. */
+function lineOf<T extends string>(options: readonly ChoiceOption<T>[], value: T): string {
+  return options.find((option) => option.value === value)?.line ?? '';
+}
+
+/** 추천 조건 문구: "오너브리더 · 보통 · 영국 · 캐주얼(고급 설정)". 경제 모드는 고급 설정 안에 있다. */
 export function recommendedStartKo(): string {
   const r = RECOMMENDED_START;
   return [
     labelOf(START_TYPE_OPTIONS, r.startType),
     labelOf(DIFFICULTY_OPTIONS, r.difficulty),
     countryKo(r.homeCountry),
-    labelOf(ECONOMY_MODE_OPTIONS, r.economyMode),
+    `${labelOf(ECONOMY_MODE_OPTIONS, r.economyMode)}(고급 설정)`,
   ].join(' · ');
+}
+
+/** 예후불량 규칙 한 줄. 켜면 중증 골절의 사망 비율을, 끄면 사망으로 이어지지 않음을 말한다. 비율은 엔진 config 에서 만든다. */
+function injuryRuleKo(on: boolean): string {
+  return on
+    ? `예후불량 켬 — 경주 중 중증 골절의 약 ${Math.round(CATASTROPHIC_FRACTURE_SHARE * 100)}%가 사망합니다`
+    : '예후불량 끔 — 경주 중 중증 골절이 사망으로 이어지지 않습니다';
+}
+
+/**
+ * 오른쪽 열 아래 규칙 요약 4줄: 시작 유형 · 난이도 · 경제 모드 · 예후불량.
+ * 선택지의 한 줄 설명을 그대로 재사용한다(엔진 수치는 config 에서 온다).
+ */
+export function ruleSummaryKo(choice: StartChoice): string[] {
+  return [
+    `${labelOf(START_TYPE_OPTIONS, choice.startType)} — ${lineOf(START_TYPE_OPTIONS, choice.startType)}`,
+    `${labelOf(DIFFICULTY_OPTIONS, choice.difficulty)} — ${lineOf(DIFFICULTY_OPTIONS, choice.difficulty)}`,
+    `경제 ${labelOf(ECONOMY_MODE_OPTIONS, choice.economyMode)} — ${lineOf(ECONOMY_MODE_OPTIONS, choice.economyMode)}`,
+    injuryRuleKo(choice.catastrophicInjuries),
+  ];
 }
 
 /** 나이 목록 → "3세·2세" */

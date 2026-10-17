@@ -72,6 +72,11 @@ function isNearer(
   return candidate.row.saleId < best.row.saleId;
 }
 
+/** 일정 표 버튼 이름: 발표 전 세일은 '발표 일정 보기', 공개 뒤 세일은 '카탈로그 보기' */
+export function saleActionLabelKo(row: SaleCalendarRow): string {
+  return row.status === 'upcoming' ? '발표 일정 보기' : '카탈로그 보기';
+}
+
 /** 일정 표 세일 이름 아래 보조 줄: '8월 · 1세마 세일 · 발표 전' */
 export function saleSubLineKo(row: SaleCalendarRow): string {
   return `${row.monthKo} · ${row.kindKo} · ${row.statusKo}`;

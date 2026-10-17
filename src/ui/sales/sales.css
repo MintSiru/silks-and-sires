@@ -56,12 +56,15 @@
   margin-left: auto;
 }
 
+/* 진행 막대 트랙: 배경·테두리로 빈 칸을 보이게 하고 폭 160px, 높이 8px, 양 끝 둥글게 */
 .sales-screen .sales-tier__bar {
   position: relative;
-  flex: 0 1 200px;
-  min-width: 120px;
+  box-sizing: border-box;
+  flex: 0 0 160px;
+  width: 160px;
   height: 8px;
-  border-radius: 4px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
   background: var(--surface-raised);
   overflow: hidden;
 }
@@ -69,7 +72,7 @@
 .sales-screen .sales-tier__bar > span {
   position: absolute;
   inset: 0 auto 0 0;
-  border-radius: 4px;
+  border-radius: 999px;
   background: var(--link);
 }
 
@@ -200,6 +203,12 @@
 
 .sales-screen .sales-buy > .panel {
   min-height: 0;
+}
+
+/* 카탈로그 칸에 로트 목록이 없으면(발표 전 안내 등) 칸을 내용 높이만큼만 쓴다 */
+.sales-screen .sales-buy > .panel.sales-catalogue--compact {
+  align-self: start;
+  height: fit-content;
 }
 
 .sales-screen .sales-schedule {

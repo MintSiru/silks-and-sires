@@ -19,6 +19,13 @@ describe('M6-U10 시작 화면 구성(L1·L3)', () => {
     expect(html).toContain('어려움');
   });
 
+  it('추천 조건 안내는 경제 모드를 고급 설정 안으로 표기하고, 오른쪽 열에 규칙 요약 4줄을 둔다', () => {
+    const html = render();
+    expect(html).toContain('캐주얼(고급 설정)');
+    expect(html).toContain('규칙 요약');
+    expect(html.match(/<section class="start-rules"[\s\S]*?<\/section>/)?.[0].match(/<li>/g)).toHaveLength(4);
+  });
+
   it('고급 설정은 접힌 상태로 시작하며 펼침 버튼이 aria-expanded 를 가진다', () => {
     const html = render();
     expect(html).toContain('고급 설정');

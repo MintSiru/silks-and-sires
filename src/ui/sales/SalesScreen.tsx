@@ -41,6 +41,7 @@ import {
   nearSaleCalendar,
   nearestSaleKey,
   patronProgressView,
+  saleActionLabelKo,
   saleScheduleNoticeKo,
   saleSubLineKo,
   type SaleKey,
@@ -206,6 +207,8 @@ function BuyTab({ game, state, locked, calendar, active, onPick, filters, onFilt
   const activeName = activeEvent?.name ?? active?.saleId ?? '';
   // 발표 전 세일은 카탈로그가 이미 만들어졌어도 후원 등급의 공개 주 전이라 보이지 않는다
   const showLots = catalogue !== undefined && activeRow?.status !== 'upcoming';
+  // 로트 목록이 없고 안내 문구만 있으면 카탈로그 칸을 내용 높이만큼만 쓴다(로트 목록이 있으면 칸을 채운다)
+  const catalogueCompact = !showLots;
   // 엔진 일정에서 빠진 마감 카탈로그(결과 보기용)
   const closedOnly = state.sales.catalogues.filter(
     (c) => c.status === 'closed' && !calendar.some((r) => r.saleId === c.saleId && r.year === c.year),
@@ -269,7 +272,7 @@ function BuyTab({ game, state, locked, calendar, active, onPick, filters, onFilt
                     aria-pressed={selected}
                     onClick={() => pickSale({ saleId: row.saleId, year: row.year })}
                   >
-                    카탈로그 보기
+                    {saleActionLabelKo(row)}
                   </button>
                 </td>
               </tr>
@@ -423,7 +426,10 @@ function BuyTab({ game, state, locked, calendar, active, onPick, filters, onFilt
         </div>
       </section>
 
-      <section className="panel" aria-label="카탈로그">
+      <section
+        className={catalogueCompact ? 'panel sales-catalogue--compact' : 'panel'}
+        aria-label="카탈로그"
+      >
         <h2>카탈로그{activeName === '' ? '' : ` · ${activeName}`}</h2>
         {catalogueBody}
       </section>
