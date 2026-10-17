@@ -2,7 +2,7 @@ import { useContext, useState } from 'react';
 import type { GameState } from '../../engine/types';
 import { GradeBadge, StatusBadge } from '../common/Badge';
 import { positionLabel, positionTone, statusTone } from '../common/badges';
-import { orBandKo } from '../common/glossary';
+import { orValueKo } from '../common/glossary';
 import { Term } from '../common/Term';
 import HorseLink, { HorseNavigation } from '../horse/HorseLink';
 import type { RunForm } from '../horse/horseDetailView';
@@ -76,10 +76,7 @@ function StableRowCells({ row, tab, showWarn }: { row: StableRow; tab: StableTab
         <FormBand runs={row.form} />
       </td>
       <td className="stable-col stable-col--or">
-        {row.rating}
-        {typeof row.rating === 'number' && (
-          <small className="term-band">{orBandKo(row.rating)}</small>
-        )}
+        {typeof row.rating === 'number' ? orValueKo(row.rating) : row.rating}
       </td>
       <td className="stable-col stable-col--trainer">
         <span className="stable-trainer">{row.trainer}</span>

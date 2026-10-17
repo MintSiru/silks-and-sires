@@ -202,7 +202,7 @@ export default function MatingPlanPanel({
               <tr>
                 <th scope="col">암말</th>
                 <th scope="col">제안 종마</th>
-                <th scope="col">종부료</th>
+                <th scope="col"><Term id="stud_fee">종부료</Term></th>
                 <th scope="col">종합 판단</th>
                 <th scope="col">상태·조작</th>
               </tr>

@@ -41,22 +41,34 @@ import { horseLegacyBadges } from '../legacy/legacyView';
 import { useNotify } from '../shell/notify';
 import './horse.css';
 
-/** 기록 타임라인 한 줄의 본문. 연대기는 문장, 말 관점 출주는 '착순 — 경주명', 나머지는 이벤트 문장. */
+/**
+ * 기록 타임라인의 배지 열(날짜 바로 오른쪽, 모든 행 같은 열). 출주는 착순, 연대기 문장은 '주요 순간'.
+ * 그 밖의 이벤트 행은 빈 칸으로 두어 열 정렬을 지킨다.
+ */
+function TimelineBadge({ item }: { item: TimelineItem }) {
+  if (item.kind === 'milestone') return <span className="badge badge--grade-top">주요 순간</span>;
+  if (item.kind === 'race' && item.race) {
+    const { position, fieldSize } = item.race;
+    if (position === null) return null;
+    return <PositionBadge position={position} fieldSize={fieldSize ?? undefined} />;
+  }
+  return null;
+}
+
+/** 기록 타임라인 한 줄의 본문. 연대기는 문장, 말 관점 출주는 '[등급] 경주명', 나머지는 이벤트 문장. */
 function TimelineText({ item }: { item: TimelineItem }) {
   if (item.kind === 'milestone') return <>{item.text ?? ''}</>;
   if (item.kind === 'race' && item.race) {
-    const { position, fieldSize, raceName, gradeBadge } = item.race;
-    const grade = gradeBadge !== null ? <GradeBadge grade={gradeBadge} /> : null;
-    if (position === null) {
-      return (
-        <>
-          출주 — {grade} {raceName}
-        </>
-      );
-    }
+    const { position, raceName, gradeBadge } = item.race;
     return (
       <>
-        <PositionBadge position={position} fieldSize={fieldSize ?? undefined} /> — {grade} {raceName}
+        {position === null && '출주 — '}
+        {gradeBadge !== null && (
+          <>
+            <GradeBadge grade={gradeBadge} />{' '}
+          </>
+        )}
+        {raceName}
       </>
     );
   }
@@ -90,7 +102,12 @@ function RecordRows({
               </td>
               <td className="record-col--race">
                 <span className="record-race" title={r.name}>
-                  <GradeBadge grade={r.gradeBadge} /> {r.name}
+                  {r.gradeBadge !== null && (
+                    <>
+                      <GradeBadge grade={r.gradeBadge} />{' '}
+                    </>
+                  )}
+                  {r.name}
                 </span>
                 <small className="record-cond" title={r.goingTitle}>
                   {r.course} · {r.distance} · {r.going}
@@ -150,10 +167,12 @@ function TimelineList({ items, className }: { items: TimelineItem[]; className: 
       {items.map((item) => (
         <li key={item.key}>
           <time>{item.dateLabel}</time>
+          <span className="horse-timeline__badge">
+            <TimelineBadge item={item} />
+          </span>
           <span className="horse-timeline__text">
             <TimelineText item={item} />
           </span>
-          {item.kind === 'milestone' && <span className="badge badge--grade-top">주요 순간</span>}
         </li>
       ))}
     </ol>

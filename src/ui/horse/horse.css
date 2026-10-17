@@ -227,9 +227,10 @@
   overscroll-behavior: contain;
 }
 
+/* 날짜 | 배지 열(고정 폭, 출주 착순·주요 순간 공용) | 본문 */
 .horse-detail ol.horse-timeline > li {
   display: grid;
-  grid-template-columns: 96px minmax(0, 1fr) auto;
+  grid-template-columns: 96px 88px minmax(0, 1fr);
   gap: 10px;
   align-items: baseline;
   padding: 6px 0;
@@ -245,6 +246,29 @@
 
 .horse-detail ol.horse-timeline .badge {
   margin-left: 0;
+}
+
+.horse-detail ol.horse-timeline .horse-timeline__badge {
+  justify-self: start;
+  white-space: nowrap;
+}
+
+/* 390px 폭: 배지 열을 본문 위 한 줄로 내리고 날짜는 두 줄 높이에 둔다 */
+@media (max-width: 600px) {
+  .horse-detail ol.horse-timeline > li {
+    grid-template-columns: 96px minmax(0, 1fr);
+  }
+  .horse-detail ol.horse-timeline > li time {
+    grid-row: 1 / span 2;
+  }
+  .horse-detail ol.horse-timeline .horse-timeline__badge {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .horse-detail ol.horse-timeline .horse-timeline__text {
+    grid-column: 2;
+    grid-row: 2;
+  }
 }
 
 .horse-detail .ops-log {

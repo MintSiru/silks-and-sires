@@ -49,9 +49,11 @@
 .stable-table .stable-col--condition { width: 76px; }
 .stable-table .stable-col--form { width: 172px; }
 .stable-table tbody td.stable-col--form { min-width: 0; }
-.stable-table .stable-col--or { width: 48px; }
+/* OR 칸은 '95 (상위권)' 한 줄(괄호 띠 포함). 줄바꿈 금지 */
+.stable-table .stable-col--or { width: 104px; }
+.stable-table tbody td.stable-col--or { white-space: nowrap; }
 .stable-table .stable-col--trainer { width: 112px; }
-.stable-table .stable-col--next { width: 244px; }
+.stable-table .stable-col--next { width: 232px; }
 .stable-table .stable-col--warn { width: auto; min-width: 96px; }
 
 .stable-table tbody td.stable-col--name,

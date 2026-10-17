@@ -78,7 +78,8 @@ it('번식 화면 맨 위 슬롯에서 일괄 승인·자동 승인·상한·대
 
 it('표는 열 5개(암말·제안 종마·종부료·종합 판단·상태·조작)만 보이고 근거는 펼치기 안에 든다', () => {
   const html = renderToStaticMarkup(createElement(MatingPlanPanel, { state, game, locked: false }));
-  for (const head of ['암말', '제안 종마', '종부료', '종합 판단', '상태·조작']) expect(html).toContain(`>${head}</th>`);
+  for (const head of ['암말', '제안 종마', '종합 판단', '상태·조작']) expect(html).toContain(`>${head}</th>`);
+  expect(html).toContain('data-term="stud_fee">종부료');
   expect(html).not.toContain('>니크</th>');
   expect(html).not.toContain('>거리 보완</th>');
   expect(html).toContain('<details class="mating-plan__why">');

@@ -202,7 +202,19 @@ describe('M6-U4 말 상세 뷰', () => {
     expect(row.going).toBe('약간 단단함');
     expect(row.distance).toMatch(/^[\d,]+m \(/);
     expect(row).toMatchObject({ position: 5, fieldSize: 11, placing: '5/11' });
-    expect(row.gradeBadge.length).toBeGreaterThan(0);
+    expect(row.gradeBadge).not.toBeNull();
+  });
+
+  it('자동 편성 레이스는 등급 배지를 숨기고 상금은 €0 으로 적는다(— 대신)', () => {
+    const state = fixture();
+    const h = addHorse(state, 'in_training');
+    addRun(state, h.id, 4, 5);
+    const autoRaceId = 'auto-race-not-in-templates';
+    state.raceResults = state.raceResults.map((r) => ({ ...r, raceId: autoRaceId }));
+    const row = horseRunRows(state, h.id)[0]!;
+    expect(row.gradeBadge).toBeNull();
+    expect(row.name).toBe('자동 편성 레이스');
+    expect(row.prize).toBe('€0');
   });
 
   it('전적 요약은 1착과 1~3착 횟수를 나눠 센다', () => {

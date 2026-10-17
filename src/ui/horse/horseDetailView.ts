@@ -136,8 +136,8 @@ export interface HorseRunRow {
   date: string;
   course: string;
   name: string;
-  /** 등급 배지 글자. 등급 없는 레이스는 '클래스 N' */
-  gradeBadge: string;
+  /** 등급 배지 글자. 등급 없는 레이스는 '클래스 N', 자동 편성 레이스(등급 정보 없음)는 null 이라 배지를 숨긴다 */
+  gradeBadge: string | null;
   /** 한국어 등급 문구(원래 표기) */
   grade: string;
   /** 거리 한국어. 예: "1,600m (8f)" */
@@ -175,7 +175,7 @@ export function horseRunRows(state: GameState, id: string): HorseRunRow[] {
         date: formatDateKo(result.date),
         course: getRacecourses().find((c) => c.id === result.racecourseId)?.name ?? '—',
         name: race?.name ?? '자동 편성 레이스',
-        gradeBadge: race ? (race.grade ?? `클래스 ${race.raceClass}`) : '—',
+        gradeBadge: race ? (race.grade ?? `클래스 ${race.raceClass}`) : null,
         grade: race ? raceGradeKo(race) : '—',
         distance: raceDistanceKo(result.distance),
         going: goingKo(result.going),
@@ -187,7 +187,8 @@ export function horseRunRows(state: GameState, id: string): HorseRunRow[] {
         jockey: state.jockeys[runner.jockeyId]?.name ?? '—',
         weight: runner.weightLb,
         rating: change ? `${change.from ?? '미부여'} → ${change.to}` : '—',
-        prize: race ? feeKo(race.prizeMoney[runner.position - 1] ?? 0) : '—',
+        /* 상금 정보가 없는 자동 편성 레이스도 '€0' 으로 적는다(— 대신). */
+        prize: feeKo(race?.prizeMoney[runner.position - 1] ?? 0),
         replayKey: replay ? `${replay.meetingId}|${replay.race.id}` : null,
       },
     ];
