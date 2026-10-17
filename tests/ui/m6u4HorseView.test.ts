@@ -205,7 +205,7 @@ describe('M6-U4 말 상세 뷰', () => {
     expect(row.gradeBadge).not.toBeNull();
   });
 
-  it('자동 편성 레이스는 등급 배지를 숨기고 상금은 €0 으로 적는다(— 대신)', () => {
+  it('자동 편성 레이스: 보관 목록에 없으면 등급 배지를 숨기고 상금은 장부 항목으로 적는다(M7-A2)', () => {
     const state = fixture();
     const h = addHorse(state, 'in_training');
     addRun(state, h.id, 4, 5);
@@ -214,7 +214,8 @@ describe('M6-U4 말 상세 뷰', () => {
     const row = horseRunRows(state, h.id)[0]!;
     expect(row.gradeBadge).toBeNull();
     expect(row.name).toBe('자동 편성 레이스');
-    expect(row.prize).toBe('€0');
+    // 5착은 장부에 상금 항목이 없다 → 레이스 정의가 없으므로 '—'
+    expect(row.prize).toBe('—');
   });
 
   it('전적 요약은 1착과 1~3착 횟수를 나눠 센다', () => {

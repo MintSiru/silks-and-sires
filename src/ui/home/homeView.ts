@@ -6,11 +6,14 @@ import { saleWeekOf } from '../../engine/sales/bidding';
 import { yearEndPending } from '../../engine/stud/yearEnd';
 import { autoTrainingCandidates } from '../../engine/season/autoTraining';
 import { formatDateKo, weeksBetween } from '../../engine/time/calendar';
-import type { GameEvent, GameState, HorseId, Race } from '../../engine/types';
+import type { GameDate, GameEvent, GameState, HorseId, Race } from '../../engine/types';
 import { recentResults, type RecentResultView } from '../season/seasonView';
 import type { HorseTab } from '../horse/HorseLink';
 import { eventInvolvesHorse } from '../horse/horseDetailView';
 import { racePlanRows } from '../season/racePlanView';
+
+/** 자동 생성 레이스 이름을 보관 목록에서 못 찾을 때 쓰는 표기 */
+const GENERATED_RACE_NAME = '자동 편성 레이스';
 
 /** 등급 배지 글자: G1·G2·G3·L 은 그대로, 등급 없는 레이스는 '클래스 N'(회색 배지) */
 function gradeTextOf(race: Pick<Race, 'grade' | 'raceClass'>): string {
@@ -37,11 +40,26 @@ const HOME_EVENT_TYPES: ReadonlySet<GameEvent['type']> = new Set<GameEvent['type
   'sale_lot_result',
   'horse_sold',
   'nh_store_sold',
+  // 목장(플레이어 목장 구매만 남는다)
+  'farm_purchased',
   // 목표 달성·연대기급
   'sire_line_established',
   'female_family_established',
   'series_completed',
 ]);
+
+/** 홈 '주요 사건' 줄 수 */
+const HOME_EVENT_COUNT = 5;
+
+/**
+ * 주요 사건 한 줄. line 이 있으면 화면은 그 문장을 쓴다(내 말 입상·첫 승: 말 이름과 착순을 한 줄로 적는다).
+ * line 이 null 이면 사건 문장(HorseEventText)을 쓴다.
+ */
+export interface HomeEventRow {
+  key: string;
+  event: GameEvent;
+  line: string | null;
+}
 
 export function homeTasks(state: GameState): HomeTask[] {
   const tasks: HomeTask[] = [];
@@ -204,6 +222,13 @@ function homeResultRows(state: GameState, results: readonly RecentResultView[]):
 }
 
 /** 홈 최근 이벤트 대상인지: 종류 목록 + 판매·보유 관계 조건 */
+/** 플레이어 장부에 같은 종류·같은 말·같은 날짜 항목이 있는가(플레이어가 거래한 사건인지 가릴 때 쓴다) */
+function playerLedgerHas(state: GameState, category: string, horseId: HorseId, date: GameDate): boolean {
+  return state.economy.playerLedger.some(
+    (e) => e.category === category && e.horseId === horseId && e.date.year === date.year && e.date.week === date.week,
+  );
+}
+
 function isHomeEvent(state: GameState, event: GameEvent, owned: readonly HorseId[]): boolean {
   if (!HOME_EVENT_TYPES.has(event.type)) return false;
   switch (event.type) {
@@ -212,10 +237,73 @@ function isHomeEvent(state: GameState, event: GameEvent, owned: readonly HorseId
     case 'horse_sold':
       return event.fromOwnerId === state.playerOwnerId || event.toOwnerId === state.playerOwnerId;
     case 'nh_store_sold':
+      // 세계 NH 스토어 세일(남의 말)은 뺀다. 플레이어가 판 말은 장부(nh_store_sale)로 가린다.
+      return owned.includes(event.horseId) || playerLedgerHas(state, 'nh_store_sale', event.horseId, event.date);
+    case 'farm_purchased':
       return true;
     default:
       return owned.some((id) => eventInvolvesHorse(event, id));
   }
+}
+
+/** 레이스 이름: 다시보기 보관 목록(날짜 일치) → 정적 목록 → 자동 편성 레이스 표기 */
+function raceNameOf(state: GameState, raceId: string, date: GameDate): string {
+  const replay = state.seasonState.replayable.find(
+    (r) => r.race.id === raceId && r.date.year === date.year && r.date.week === date.week,
+  );
+  if (replay !== undefined) return replay.race.name;
+  return getRaceTemplates().find((t) => t.id === raceId)?.name ?? GENERATED_RACE_NAME;
+}
+
+/**
+ * 내 말이 나온 레이스 한 줄. 첫 승(이 말이 처음 이긴 출주)이거나 블랙타입(그룹·리스티드) 1~3착이면 줄을 만든다.
+ * firstWin: 이 출주가 이 말의 첫 승인지(eventLog 에서 미리 센다).
+ */
+function raceLineOf(
+  state: GameState,
+  event: Extract<GameEvent, { type: 'race_run' }>,
+  horseId: HorseId,
+  firstWin: boolean,
+): string | null {
+  const horse = state.horses[horseId];
+  if (horse === undefined) return null;
+  const name = displayName(state, horse);
+  const dateLabel = formatDateKo(event.date);
+  const raceName = raceNameOf(state, event.raceId, event.date);
+  if (event.winnerId === horseId && firstWin) return `${dateLabel} · ${name} 첫 승 · ${raceName}`;
+  const template = getRaceTemplates().find((t) => t.id === event.raceId);
+  if (template === undefined || template.grade === null) return null;
+  const result = state.raceResults.find(
+    (r) => r.raceId === event.raceId && r.date.year === event.date.year && r.date.week === event.date.week,
+  );
+  const position = result?.runners.find((r) => r.horseId === horseId)?.position;
+  if (position === undefined || position > 3) return null;
+  return `${dateLabel} · ${name} ${position}착 · ${raceName} (${gradeTextOf(template)})`;
+}
+
+/**
+ * 홈 주요 사건(최신순, 최대 HOME_EVENT_COUNT 줄). 플레이어 말·목장·플레이어 거래 사건만 고른다.
+ * race_run 은 내 말 블랙타입 입상과 첫 승 줄로 바꿔 넣는다(말 한 마리당 한 줄).
+ */
+export function homeEventRows(state: GameState, ownedIds: readonly HorseId[]): HomeEventRow[] {
+  const owned = new Set(ownedIds);
+  const firstWinAt = new Map<HorseId, number>();
+  state.eventLog.forEach((event, index) => {
+    if (event.type === 'race_run' && !firstWinAt.has(event.winnerId)) firstWinAt.set(event.winnerId, index);
+  });
+  const rows: HomeEventRow[] = [];
+  state.eventLog.forEach((event, index) => {
+    if (event.type === 'race_run') {
+      for (const horseId of event.playerHorseIds) {
+        if (!owned.has(horseId)) continue;
+        const line = raceLineOf(state, event, horseId, firstWinAt.get(event.winnerId) === index);
+        if (line !== null) rows.push({ key: `${index}:${horseId}`, event, line });
+      }
+      return;
+    }
+    if (isHomeEvent(state, event, ownedIds)) rows.push({ key: String(index), event, line: null });
+  });
+  return rows.slice(-HOME_EVENT_COUNT).reverse();
 }
 
 /** '출주 예정' 카드 한 줄. 등급·거리는 조건 목표(레이스 미정)면 null */
@@ -300,9 +388,6 @@ export function homeView(state: GameState) {
     results: playedResults,
     resultRows: homeResultRows(state, playedResults),
     majorResult: results.find((r) => r.playerRuns.length === 0) ?? null,
-    events: state.eventLog
-      .filter((e) => isHomeEvent(state, e, ownedIds))
-      .slice(-5)
-      .reverse(),
+    events: homeEventRows(state, ownedIds),
   };
 }

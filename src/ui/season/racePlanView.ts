@@ -1,11 +1,13 @@
 import { getRaceTemplates, getRacecourses } from '../../engine/data/staticData';
 import { TWO_YO_FROM_WEEK } from '../../engine/config/meetings';
+import { RACE_PLAN_TARGET_SLACK_WEEKS } from '../../engine/config/racePlan';
 import { displayName } from '../../engine/naming/register';
 import type { RacePlanError } from '../../engine/season/racePlan';
 import type { UpcomingRaceWeek } from '../../engine/season/lookahead';
 import { ageInYear, compareDates, formatDateKo } from '../../engine/time/calendar';
 import type {
   CountryCode,
+  GameDate,
   GameState,
   Horse,
   PlannedRace,
@@ -90,7 +92,9 @@ export function distanceNoteKo(distance: number, hint: { min: number; max: numbe
 export function planStatusView(
   status: PlannedRace['status'],
   requireApproval: boolean,
+  searching = false,
 ): { label: string; tone: StatusTone } {
+  if (searching) return { label: SEARCHING_LABEL, tone: 'warn' };
   if (status === 'proposed') {
     return requireApproval ? { label: '승인 대기', tone: 'warn' } : { label: '자동 출주 예정', tone: 'good' };
   }
@@ -100,6 +104,19 @@ export function planStatusView(
   return { label: '건너뜀', tone: 'muted' };
 }
 
+/** 지난 조건 목표 계획의 찾는 중 문구(상태 칸·마구간 다음 출주 공통) */
+export const SEARCHING_LABEL = '맞는 레이스 찾는 중';
+
+/**
+ * 날짜가 지났는데 아직 진행 중(제안·확정)인 조건 목표 계획인지. 레이스가 정해진 계획은 해당하지 않는다.
+ * currentDate 가 없으면 false.
+ */
+export function isSearchingTarget(plan: PlannedRace, currentDate: GameDate | undefined): boolean {
+  if (currentDate === undefined || plan.target === null) return false;
+  if (plan.status !== 'proposed' && plan.status !== 'approved') return false;
+  return compareDates(plan.date, currentDate) < 0;
+}
+
 export function racePlanRows(
   plans: readonly PlannedRace[],
   context: {
@@ -107,6 +124,8 @@ export function racePlanRows(
     country?: CountryCode;
     /** 말의 거리 힌트. 주면 힌트 밖일 때 주 문구를 거리 판단 문구로 바꾸고 엔진 메모는 펼침으로 뺀다. */
     distanceHint?: { min: number; max: number };
+    /** 지금 날짜. 주면 날짜가 지난 조건 목표 계획(제안·확정)을 '맞는 레이스 찾는 중'으로 표시한다. */
+    currentDate?: GameDate;
   } = {},
 ) {
   return plans.map((plan) => {
@@ -125,12 +144,16 @@ export function racePlanRows(
       context.distanceHint !== undefined && distance !== null
         ? distanceNoteKo(distance, context.distanceHint)
         : null;
+    const searching = isSearchingTarget(plan, context.currentDate);
     return {
       id: plan.id,
       status: plan.status,
       dateLabel: formatDateKo(plan.date),
-      statusLabel:
-        plan.status === 'proposed'
+      /** 날짜가 지난 조건 목표: 엔진이 RACE_PLAN_TARGET_SLACK_WEEKS 주까지 맞는 레이스를 더 찾는다 */
+      searching,
+      statusLabel: searching
+        ? `${SEARCHING_LABEL} (최대 ${RACE_PLAN_TARGET_SLACK_WEEKS}주)`
+        : plan.status === 'proposed'
           ? context.requireApproval
             ? '검토 대기'
             : '조교사 제안(진행 예정)'

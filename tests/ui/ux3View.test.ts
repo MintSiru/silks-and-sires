@@ -242,7 +242,7 @@ describe('UX3 홈·캘린더', () => {
     expect(view.results).toHaveLength(1);
     expect(view.results[0]!.playerRuns[0]!.horseId).toBe(horse.id);
     expect(view.events).toHaveLength(5);
-    expect(view.events[0]).toMatchObject({ type: 'horse_injured', weeksOut: 6 });
+    expect(view.events[0]!.event).toMatchObject({ type: 'horse_injured', weeksOut: 6 });
     expect(view.majorResult?.raceName).toBe(major.name);
     state.raceResults.shift();
     expect(

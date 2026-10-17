@@ -126,10 +126,8 @@ export default function HomeScreen({
             <p className="empty-state">부상·출산·세일 같은 주요 사건이 여기에 남습니다.</p>
           )}
           <ol className="event-list">
-            {view.events.map((e, i) => (
-              <li key={i}>
-                <HorseEventText event={e} />
-              </li>
+            {view.events.map((e) => (
+              <li key={e.key}>{e.line ?? <HorseEventText event={e.event} />}</li>
             ))}
           </ol>
         </section>

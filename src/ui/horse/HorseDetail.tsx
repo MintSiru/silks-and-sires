@@ -259,7 +259,10 @@ export default function HorseDetail({
         </button>
       </div>
       <p className="horse-detail__meta">
-        <StatusBadge tone={horse.condition.injury ? 'danger' : 'good'} label={statusKo(horse.status)} />
+        <StatusBadge
+          tone={horse.condition.injury ? 'danger' : 'good'}
+          label={statusKo(horse.status, ageInYear(horse.birthYear, state.date.year))}
+        />
         <span>
           조교사 {trainerName}
           {canChangeTrainer && (

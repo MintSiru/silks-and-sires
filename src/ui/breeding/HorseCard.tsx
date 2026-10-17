@@ -81,7 +81,7 @@ export default function HorseCard({
         {gradeBadge(report.overall)}
       </header>
       <p className="horse-card__meta">
-        {sexKo(horse.sex, horse.gelded)} · {ageYears}세 · {statusKo(horse.status)}
+        {sexKo(horse.sex, horse.gelded)} · {ageYears}세 · {statusKo(horse.status, ageYears)}
       </p>
       <p className="horse-card__parents">
         <HorseLink name={parentage.sire} /> × <HorseLink name={parentage.dam} /> (<HorseLink name={parentage.damsire} />)

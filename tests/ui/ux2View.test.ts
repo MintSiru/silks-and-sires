@@ -180,8 +180,8 @@ describe('UX2 홈', () => {
     state.eventLog.push({ type: 'week_started', date: state.date });
     const events = homeView(state).events;
     expect(events).toHaveLength(5);
-    expect(events[0]).toMatchObject({ horseId: 'h6' });
-    expect(events.every((e) => e.type === 'horse_injured')).toBe(true);
+    expect(events[0]!.event).toMatchObject({ horseId: 'h6' });
+    expect(events.every((e) => e.event.type === 'horse_injured')).toBe(true);
   });
 });
 

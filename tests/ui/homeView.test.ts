@@ -189,7 +189,7 @@ describe('M6-U3 홈 최근 이벤트 필터', () => {
       { type: 'sire_line_established', horseId: horse.id, lineId: 'line_x', date: state.date },
     ];
     // 남는 것: 부상·출산·세일 위탁(vendor)·player 말 판매·부계 확립. 최신순(목록 뒤에서부터)
-    expect(homeView(state).events.map((e) => e.type)).toEqual([
+    expect(homeView(state).events.map((e) => e.event.type)).toEqual([
       'sire_line_established',
       'horse_sold',
       'sale_lot_result',

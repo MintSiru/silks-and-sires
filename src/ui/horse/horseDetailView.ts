@@ -22,6 +22,7 @@ import type {
   Grade,
   Horse,
   PlannedRace,
+  Race,
 } from '../../engine/types';
 import type { UpcomingRaceWeek } from '../../engine/season/lookahead';
 import {
@@ -156,6 +157,28 @@ export interface HorseRunRow {
   replayKey: string | null;
 }
 
+/**
+ * 이 말이 이 출주에서 받은 상금(원). 결과 기록(raceResults)에는 상금이 없다.
+ * 1) 플레이어 장부의 상금 항목(같은 말·같은 주)이 있으면 그 금액이 정확한 값이다(보관 기간과 무관).
+ * 2) 항목이 없는데 레이스 정의를 알면 상금표의 착순 금액(없으면 0).
+ * 3) 레이스 정의도 항목도 없으면 null(표에는 '—').
+ */
+export function prizeOfRun(
+  state: GameState,
+  horseId: string,
+  date: GameDate,
+  position: number,
+  race: Pick<Race, 'prizeMoney'> | undefined,
+): number | null {
+  const entry = state.economy.playerLedger.find(
+    (e) =>
+      e.category === 'prize' && e.horseId === horseId && e.date.year === date.year && e.date.week === date.week,
+  );
+  if (entry !== undefined) return entry.amount;
+  if (race === undefined) return null;
+  return race.prizeMoney[position - 1] ?? 0;
+}
+
 export function horseRunRows(state: GameState, id: string): HorseRunRow[] {
   return [...state.raceResults].reverse().flatMap((result): HorseRunRow[] => {
     const runner = result.runners.find((r) => r.horseId === id);
@@ -165,6 +188,7 @@ export function horseRunRows(state: GameState, id: string): HorseRunRow[] {
         r.race.id === result.raceId && r.date.year === result.date.year && r.date.week === result.date.week,
     );
     const race = replay?.race ?? getRaceTemplates().find((t) => t.id === result.raceId);
+    const prize = prizeOfRun(state, id, result.date, runner.position, race);
     const change = (state.seasonState.ratingHistory[id] ?? []).find(
       (c) =>
         c.raceId === result.raceId && c.date.year === result.date.year && c.date.week === result.date.week,
@@ -187,8 +211,8 @@ export function horseRunRows(state: GameState, id: string): HorseRunRow[] {
         jockey: state.jockeys[runner.jockeyId]?.name ?? '—',
         weight: runner.weightLb,
         rating: change ? `${change.from ?? '미부여'} → ${change.to}` : '—',
-        /* 상금 정보가 없는 자동 편성 레이스도 '€0' 으로 적는다(— 대신). */
-        prize: feeKo(race?.prizeMoney[runner.position - 1] ?? 0),
+        /* 상금은 장부 항목을 먼저 본다(자동 편성 레이스는 보관 목록에서 밀리면 상금표를 못 찾는다). */
+        prize: prize === null ? '—' : feeKo(prize),
         replayKey: replay ? `${replay.meetingId}|${replay.race.id}` : null,
       },
     ];

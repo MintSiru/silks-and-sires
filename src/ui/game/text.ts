@@ -94,6 +94,10 @@ const STAGE_KO: Record<AssessmentStage, string> = {
   in_training: '조교 중',
 };
 
+/** 'yearling' 상태에서 '1세'로 부르는 마지막 나이. 이보다 나이가 많으면 '미입사'(M7-A2, 표시 경계) */
+const YEARLING_LAST_AGE = 1;
+const UNDEBUTED_STATUS_KO = '미입사';
+
 const STATUS_KO: Record<HorseStatus, string> = {
   foal: '망아지',
   weanling: '이유 망아지',
@@ -203,7 +207,12 @@ export function stageKo(s: AssessmentStage): string {
   return STAGE_KO[s];
 }
 
-export function statusKo(s: HorseStatus): string {
+/**
+ * 말 상태 한국어. 'yearling' 은 나이로 나눈다(M7-A2): 1세는 '1세', 2세 이상은 조교사에게 아직 가지 않은 '미입사'.
+ * 나이를 주지 않으면 표 기본값('1세')을 쓴다.
+ */
+export function statusKo(s: HorseStatus, age?: number): string {
+  if (s === 'yearling' && age !== undefined && age > YEARLING_LAST_AGE) return UNDEBUTED_STATUS_KO;
   return STATUS_KO[s];
 }
 

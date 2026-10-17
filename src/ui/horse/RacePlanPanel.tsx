@@ -57,6 +57,7 @@ export default function RacePlanPanel({
   const context = {
     requireApproval,
     distanceHint,
+    currentDate: state?.date,
     country: (horse.trainerId === null ? undefined : state?.trainers[horse.trainerId]?.country) ?? horse.countryOfBirth,
   };
   const sections = racePlanSections(plans);
@@ -100,7 +101,7 @@ export default function RacePlanPanel({
             </thead>
             <tbody>
               {rows.map((r) => {
-                const status = planStatusView(r.status, requireApproval);
+                const status = planStatusView(r.status, requireApproval, r.searching);
                 return (
                   <tr key={r.id}>
                     <td className="plan-table__date">{r.dateLabel}</td>

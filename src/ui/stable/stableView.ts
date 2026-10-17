@@ -114,6 +114,7 @@ export function stableRows(state: GameState, tab: StableTab, query = ''): Stable
     const nextRow = racePlanRows(plans, {
       requireApproval: state.settings.autoApproveRacePlans === false,
       country: (h.trainerId === null ? undefined : state.trainers[h.trainerId]?.country) ?? h.countryOfBirth,
+      currentDate: state.date,
     })[0];
     const nextPlan = plans[0];
     const mare = state.mares[h.id];
@@ -128,7 +129,7 @@ export function stableRows(state: GameState, tab: StableTab, query = ''): Stable
       id: h.id,
       name: nameOf(h.id),
       ageSex: `${ageInYear(h.birthYear, state.date.year)}세 · ${sexKo(h.sex, h.gelded)}`,
-      status: statusKo(h.status),
+      status: statusKo(h.status, ageInYear(h.birthYear, state.date.year)),
       tone: h.condition.injury ? 'danger' : h.status === 'resting' ? 'caution' : 'good',
       trainer: h.trainerId === null ? '미배정' : (state.trainers[h.trainerId]?.name ?? '—'),
       rating: h.officialRating ?? '미부여',
