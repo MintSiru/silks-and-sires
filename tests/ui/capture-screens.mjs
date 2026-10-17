@@ -243,6 +243,23 @@ await step('22-메뉴-새-게임-확인', async () => {
 });
 await closeOverlays();
 
+// 23~24: 첫 시즌 안내(M6-T2) — 수준을 고른 뒤 상태. 홈으로 가서 '경마를 몰라요' + 기초 펼침, 그다음 '해 봤어요' + 자동 진행 규칙 펼침.
+const homeNav = page.getByRole('navigation', { name: '화면 선택' });
+await step('23-홈-튜토리얼-경마-처음', async () => {
+  await homeNav.getByRole('button', { name: '홈', exact: true }).click();
+  await page.getByRole('button', { name: /경마를 몰라요/ }).click();
+  await page.getByRole('button', { name: '펼쳐 읽기' }).first().click();
+  await page.waitForTimeout(300);
+  await shot('23-홈-튜토리얼-경마-처음');
+});
+await step('24-홈-튜토리얼-경험자', async () => {
+  await page.getByRole('button', { name: '수준 바꾸기' }).click();
+  await page.getByRole('button', { name: /이런 류의 게임을 해 봤어요/ }).click();
+  await page.getByRole('button', { name: '펼쳐 읽기' }).first().click();
+  await page.waitForTimeout(300);
+  await shot('24-홈-튜토리얼-경험자');
+});
+
 console.log(`[촬영] ${captured.length}장: ${captured.join(', ')}`);
 if (skipped.length > 0) console.log(`[건너뜀] ${skipped.length}건:\n${skipped.map((s) => `  - ${s}`).join('\n')}`);
 else console.log('[건너뜀] 없음');
