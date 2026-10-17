@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import { Fragment, useContext, useEffect, useRef, useState } from 'react';
 import { coatColour } from '../../engine/horse/coat';
 import type { InjuryError } from '../../engine/horse/injury';
 import { assessForPlayer } from '../../engine/horse/playerView';
@@ -12,7 +12,7 @@ import { bookStatusOf, fertilityKo, mareBookingKo } from '../breeding/bookView';
 import { GradeBadge, PositionBadge, StatusBadge } from '../common/Badge';
 import { useWeightUnit } from '../game/WeightUnitContext';
 import { assignTrainerErrorKo, coatColourKo, feeKo, sexKo, statusKo } from '../game/text';
-import { formatWeight } from '../game/units';
+import { formatWeight, type WeightUnit } from '../game/units';
 import type { GameApi } from '../game/useGame';
 import ReplayPanel from '../season/ReplayPanel';
 import { injuryViewOf, playerHorses, trainerChoices } from '../season/seasonView';
@@ -32,6 +32,7 @@ import {
   horseTimeline,
   overviewOf,
   recentRuns,
+  type HorseRunRow,
   type TimelineItem,
 } from './horseDetailView';
 import { horseLegacyBadges } from '../legacy/legacyView';
@@ -41,15 +42,103 @@ import './horse.css';
 function TimelineText({ item }: { item: TimelineItem }) {
   if (item.kind === 'milestone') return <>{item.text ?? ''}</>;
   if (item.kind === 'race' && item.race) {
-    const { position, fieldSize, raceName } = item.race;
-    if (position === null) return <>출주 — {raceName}</>;
+    const { position, fieldSize, raceName, gradeBadge } = item.race;
+    const grade = gradeBadge !== null ? <GradeBadge grade={gradeBadge} /> : null;
+    if (position === null) {
+      return (
+        <>
+          출주 — {grade} {raceName}
+        </>
+      );
+    }
     return (
       <>
-        <PositionBadge position={position} fieldSize={fieldSize ?? undefined} /> — {raceName}
+        <PositionBadge position={position} fieldSize={fieldSize ?? undefined} /> — {grade} {raceName}
       </>
     );
   }
   return item.event ? <HorseEventText event={item.event} /> : null;
+}
+
+/**
+ * 전적 행. 1줄: 날짜·착순·경주(등급 배지+이름)·상금, 2줄: 코스·거리·마장(보조).
+ * 기수·중량·OR·착차·다시보기는 '자세히'를 눌러 바로 아래 행에 펼친다.
+ */
+function RecordRows({
+  runs,
+  unit,
+  onReplay,
+}: {
+  runs: HorseRunRow[];
+  unit: WeightUnit;
+  onReplay: (key: string) => void;
+}) {
+  const [openKey, setOpenKey] = useState<string | null>(null);
+  return (
+    <tbody>
+      {runs.map((r) => {
+        const open = openKey === r.key;
+        return (
+          <Fragment key={r.key}>
+            <tr className="record-row">
+              <td className="record-col--date">{r.date}</td>
+              <td className="record-col--pos">
+                <PositionBadge position={r.position} fieldSize={r.fieldSize} />
+              </td>
+              <td className="record-col--race">
+                <span className="record-race" title={r.name}>
+                  <GradeBadge grade={r.gradeBadge} /> {r.name}
+                </span>
+                <small className="record-cond" title={r.goingTitle}>
+                  {r.course} · {r.distance} · {r.going}
+                </small>
+              </td>
+              <td className="record-col--prize">{r.prize}</td>
+              <td className="record-col--more">
+                <button
+                  type="button"
+                  className="link-btn"
+                  aria-expanded={open}
+                  onClick={() => setOpenKey(open ? null : r.key)}
+                >
+                  {open ? '접기' : '자세히'}
+                </button>
+              </td>
+            </tr>
+            {open && (
+              <tr className="record-detail">
+                <td colSpan={5}>
+                  <dl className="record-facts">
+                    <div>
+                      <dt>기수</dt>
+                      <dd>{r.jockey}</dd>
+                    </div>
+                    <div>
+                      <dt>중량</dt>
+                      <dd>{formatWeight(r.weight, unit)}</dd>
+                    </div>
+                    <div>
+                      <dt>OR</dt>
+                      <dd>{r.rating}</dd>
+                    </div>
+                    <div>
+                      <dt>착차</dt>
+                      <dd>{r.margin}</dd>
+                    </div>
+                  </dl>
+                  {r.replayKey && (
+                    <button type="button" className="link-btn" onClick={() => onReplay(r.replayKey!)}>
+                      다시보기
+                    </button>
+                  )}
+                </td>
+              </tr>
+            )}
+          </Fragment>
+        );
+      })}
+    </tbody>
+  );
 }
 
 function TimelineList({ items, className }: { items: TimelineItem[]; className: string }) {
@@ -245,18 +334,23 @@ export default function HorseDetail({
                   <strong>성장형</strong> {overview.growthKo}
                 </li>
               </ul>
-              <ul className="overview-notes">
+              <ul className="grade-chips" aria-label="세부 등급">
                 {overview.details.map((d) => (
                   <li key={d.key}>
-                    {d.label} {d.grade}
-                  </li>
-                ))}
-                {overview.notes.map((n, i) => (
-                  <li key={i} className={`comment comment--${n.tone}`}>
-                    {n.text}
+                    <span>{d.label}</span>
+                    <GradeBadge grade={d.grade} />
                   </li>
                 ))}
               </ul>
+              {overview.notes.length > 0 && (
+                <ul className="overview-notes">
+                  {overview.notes.map((n, i) => (
+                    <li key={i} className={`comment comment--${n.tone}`}>
+                      {n.text}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </section>
             <section>
               <h3>컨디션·피로</h3>
@@ -333,41 +427,13 @@ export default function HorseDetail({
                 <table className="data-table record-table">
                   <thead>
                     <tr>
-                      {['날짜', '착순', '경주', '조건', '상금'].map((c) => (
+                      {['날짜', '착순', '경주', '상금'].map((c) => (
                         <th key={c}>{c}</th>
                       ))}
+                      <th aria-label="상세 펼치기" />
                     </tr>
                   </thead>
-                  <tbody>
-                    {runs.map((r) => (
-                      <tr key={r.key}>
-                        <td>{r.date}</td>
-                        <td>
-                          <PositionBadge position={r.position} fieldSize={r.fieldSize} />
-                          <small>{r.margin}</small>
-                        </td>
-                        <td>
-                          <GradeBadge grade={r.gradeBadge} /> {r.name}
-                          <small>
-                            {r.course} · 기수 {r.jockey} · {formatWeight(r.weight, unit)} · OR {r.rating}
-                          </small>
-                          {r.replayKey && (
-                            <button
-                              type="button"
-                              className="link-btn"
-                              onClick={() => setReplay(r.replayKey)}
-                            >
-                              다시보기
-                            </button>
-                          )}
-                        </td>
-                        <td title={r.goingTitle}>
-                          {r.distance} · {r.going}
-                        </td>
-                        <td>{r.prize}</td>
-                      </tr>
-                    ))}
-                  </tbody>
+                  <RecordRows runs={runs} unit={unit} onReplay={setReplay} />
                 </table>
               </div>
             )}

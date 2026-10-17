@@ -41,6 +41,32 @@
   font-weight: 600;
 }
 
+/* 세부 등급 5개: 가로 한 줄(폭이 좁으면 줄바꿈), 등급은 색 배지 */
+.horse-detail .grade-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.horse-detail .grade-chips li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 2px 4px 2px 10px;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.horse-detail .grade-chips .badge {
+  margin-left: 0;
+}
+
 .horse-detail .overview-notes {
   margin: 0 0 8px;
   padding-left: 1.2em;
@@ -110,8 +136,75 @@
   text-overflow: ellipsis;
 }
 
+.horse-detail .record-table th,
 .horse-detail .record-table td {
+  padding: 6px 8px;
   vertical-align: middle;
+}
+
+/* 행 1줄: 날짜·착순·경주·상금·자세히. 경주 칸은 남는 폭을 쓰고 넘치면 말줄임. */
+.horse-detail .record-col--date,
+.horse-detail .record-col--prize,
+.horse-detail .record-col--more {
+  white-space: nowrap;
+}
+
+.horse-detail .record-col--prize {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.horse-detail .record-col--pos .badge {
+  margin-left: 0;
+}
+
+.horse-detail .record-col--race {
+  width: 100%;
+  max-width: 0;
+}
+
+.horse-detail .record-race {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  line-height: 22px;
+}
+
+.horse-detail .record-race .badge {
+  margin-left: 0;
+}
+
+.horse-detail .record-table .record-cond {
+  max-width: 100%;
+}
+
+.horse-detail .record-detail td {
+  background: var(--surface);
+  white-space: normal;
+}
+
+.horse-detail .record-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+  margin: 0 0 6px;
+}
+
+.horse-detail .record-facts > div {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.horse-detail .record-facts dt {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.horse-detail .record-facts dd {
+  margin: 0;
+  font-weight: 600;
 }
 
 /* 기록: 단일 타임라인(최신순) */

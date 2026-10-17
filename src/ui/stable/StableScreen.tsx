@@ -14,19 +14,6 @@ import {
 } from './stableView';
 import './stable.css';
 
-const COLUMN_CLASSES = [
-  'stable-col--name',
-  'stable-col--age',
-  'stable-col--status',
-  'stable-col--overall',
-  'stable-col--condition',
-  'stable-col--form',
-  'stable-col--or',
-  'stable-col--trainer',
-  'stable-col--next',
-  'stable-col--warn',
-] as const;
-
 /** 최근 착순 띠. 1~3착은 색으로 강조하고, 착순 숫자를 그대로 적는다. */
 function FormBand({ runs }: { runs: readonly RunForm[] }) {
   if (runs.length === 0) return <span className="hint">—</span>;
@@ -64,7 +51,7 @@ function NextRace({ race, full }: { race: NextRaceView; full: string }) {
   );
 }
 
-function StableRowCells({ row, tab }: { row: StableRow; tab: StableTab }) {
+function StableRowCells({ row, tab, showWarn }: { row: StableRow; tab: StableTab; showWarn: boolean }) {
   const c = row.condition;
   return (
     <>
@@ -97,17 +84,19 @@ function StableRowCells({ row, tab }: { row: StableRow; tab: StableTab }) {
           <span className="next-race__text">{row.next}</span>
         )}
       </td>
-      <td className="stable-col stable-col--warn">
-        {row.warnings.length > 0 && (
-          <span
-            className="status-caution"
-            title={row.warnings.join(' · ')}
-            aria-label={row.warnings.join(' · ')}
-          >
-            ⚠ {row.warnings.join(' · ')}
-          </span>
-        )}
-      </td>
+      {showWarn && (
+        <td className="stable-col stable-col--warn">
+          {row.warnings.length > 0 && (
+            <span
+              className="status-caution"
+              title={row.warnings.join(' · ')}
+              aria-label={row.warnings.join(' · ')}
+            >
+              ⚠ {row.warnings.join(' · ')}
+            </span>
+          )}
+        </td>
+      )}
     </>
   );
 }
@@ -117,22 +106,24 @@ export default function StableScreen({ state }: { state: GameState }) {
   const [query, setQuery] = useState('');
   const { openHorse } = useContext(HorseNavigation);
   const rows = stableRows(state, tab, query);
-  const headers = [
-    '이름',
-    '나이·성별',
-    '상태',
-    '종합',
-    '컨디션',
-    '최근 5전',
-    'OR',
-    '조교사',
-    tab === 'active' ? '다음 출주' : '번식 상태 / 계획',
-    '확인',
-  ];
+  /* '확인' 열은 이 목록의 어떤 말에도 표시할 내용이 없으면 열째 숨긴다. */
+  const showWarn = rows.some((r) => r.warnings.length > 0);
+  const columns = [
+    { cls: 'stable-col--name', label: '이름' },
+    { cls: 'stable-col--age', label: '나이·성별' },
+    { cls: 'stable-col--status', label: '상태' },
+    { cls: 'stable-col--overall', label: '종합' },
+    { cls: 'stable-col--condition', label: '컨디션' },
+    { cls: 'stable-col--form', label: '최근 5전' },
+    { cls: 'stable-col--or', label: 'OR' },
+    { cls: 'stable-col--trainer', label: '조교사' },
+    { cls: 'stable-col--next', label: tab === 'active' ? '다음 출주' : '번식 상태 / 계획' },
+    { cls: 'stable-col--warn', label: '확인' },
+  ].filter((c) => c.cls !== 'stable-col--warn' || showWarn);
   return (
     <section className="panel" aria-label="마구간">
       <h2>마구간</h2>
-      <div className="tabs-row">
+      <div className="tabs-row stable-tabs-row">
         <nav className="tabs" aria-label="마구간 구분">
           {STABLE_TABS.map((t) => (
             <button
@@ -162,9 +153,9 @@ export default function StableScreen({ state }: { state: GameState }) {
           <table className="data-table stable-table">
             <thead>
               <tr>
-                {headers.map((s, i) => (
-                  <th key={s} className={COLUMN_CLASSES[i]}>
-                    {s}
+                {columns.map((c) => (
+                  <th key={c.cls} className={c.cls}>
+                    {c.label}
                   </th>
                 ))}
               </tr>
@@ -172,7 +163,7 @@ export default function StableScreen({ state }: { state: GameState }) {
             <tbody>
               {rows.map((r) => (
                 <tr key={r.id} className="is-clickable" onClick={() => openHorse(r.id)}>
-                  <StableRowCells row={r} tab={tab} />
+                  <StableRowCells row={r} tab={tab} showWarn={showWarn} />
                 </tr>
               ))}
             </tbody>

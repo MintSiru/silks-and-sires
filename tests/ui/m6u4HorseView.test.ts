@@ -5,7 +5,7 @@ import { createNewGame } from '../../src/engine/state/newGame';
 import { generateHorse } from '../../src/engine/horse/generate';
 import { assessForPlayer } from '../../src/engine/horse/playerView';
 import { createRng } from '../../src/engine/rng';
-import type { GameState, Horse, HorseStatus, RunnerResult } from '../../src/engine/types';
+import type { GameState, Horse, HorseStatus, RunnerResult, Trainer } from '../../src/engine/types';
 import { getRaceTemplates } from '../../src/engine/data/staticData';
 import { formatDateKo } from '../../src/engine/time/calendar';
 import { WeightUnitProvider } from '../../src/ui/game/WeightUnitContext';
@@ -154,6 +154,22 @@ describe('M6-U4 마구간 뷰', () => {
     expect(conditionOf(h).reasons).toContain('부상 중');
   });
 
+  it('확인 열은 경고가 있는 말이 있을 때만 그린다', () => {
+    const state = fixture();
+    const h = addHorse(state, 'in_training');
+    /* 평가에 필요한 최소 조교사(상마안만) — 실제 조교사 생성 없이 확인 열 규칙만 본다 */
+    state.trainers['trainer-test'] = { id: 'trainer-test', name: '가상 조교사', eye: 50 } as unknown as Trainer;
+    h.trainerId = 'trainer-test';
+    expect(stableRows(state, 'active')[0]!.warnings).toEqual([]);
+    expect(renderToStaticMarkup(createElement(StableScreen, { state }))).not.toContain('stable-col--warn');
+    h.trainerId = null;
+    expect(stableRows(state, 'active')[0]!.warnings).toContain('조교사 미배정');
+    const html = renderToStaticMarkup(createElement(StableScreen, { state }));
+    expect(html).toContain('stable-col--warn');
+    expect(html).toContain('>확인<');
+    expect(html).toContain('stable-tabs-row');
+  });
+
   it('검색어는 말 이름으로 걸러지고, 탭 두수는 목록 길이와 같다', () => {
     const state = fixture();
     addHorse(state, 'in_training');
@@ -234,6 +250,7 @@ describe('M6-U4 말 상세 뷰', () => {
       position: 5,
       fieldSize: 11,
       raceName: race.name,
+      gradeBadge: race.grade ?? `클래스 ${race.raceClass}`,
     });
     expect(timeline.items.find((i) => i.kind === 'milestone')!.text).toBeTruthy();
     expect(timeline.ops.map((i) => i.event?.type)).toEqual(['race_plan_declared']);
@@ -257,6 +274,8 @@ describe('M6-U4 말 상세 뷰', () => {
     const overview = render('overview');
     expect(overview).toContain('overview-lead');
     expect(overview).toContain('적성 거리');
+    expect(overview).toContain('class="grade-chips"');
+    expect(overview).toContain('체격');
     expect(overview).toContain('>변경<');
     expect(overview).not.toContain('조교사 맡기기');
 
@@ -264,6 +283,8 @@ describe('M6-U4 말 상세 뷰', () => {
     expect(record).toContain('최근 1전 1착 0회 · 1~3착 0회');
     expect(record).toContain('5착/11');
     expect(record).toContain('title="GOOD TO FIRM"');
+    expect(record).toContain('자세히');
+    expect(record).not.toContain('<dt>기수</dt>');
 
     const events = render('events');
     expect(events).toContain('legacy-timeline horse-timeline');

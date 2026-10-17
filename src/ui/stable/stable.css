@@ -1,14 +1,27 @@
 /* M6-U4 마구간: 열 폭 고정, 다음 출주 두 줄, 최근 5전 착순 띠, 탭 줄 오른쪽 검색.
    app.css 의 전역 규칙과 겹치지 않도록 .stable-table 아래에 더 구체적인 선택자를 쓴다. */
 
+/* 탭 줄 + 검색을 감싸는 헤더 전체에 하단선을 긋고(탭 아래 선이 검색 앞에서 끊기지 않게), 탭 자체의 선은 뺀다.
+   검색창 아래 여백을 없애 입력칸 바닥과 탭 밑줄이 같은 기준선에 선다. */
+.tabs-row.stable-tabs-row {
+  margin: 12px 0 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.stable-tabs-row .tabs {
+  border-bottom: none;
+}
+
 .stable-search {
   flex: 0 0 220px;
   width: 220px;
-  margin: 0 0 8px;
+  margin: 0;
 }
 
+/* 목록 내부 스크롤 + 아래 여백 12px: 넘치는 행은 스크롤로 본다 */
 .table-scroll.stable-scroll {
   max-height: min(560px, calc(100dvh - 300px));
+  padding-bottom: 12px;
   overflow: auto;
   overscroll-behavior: contain;
 }
@@ -62,8 +75,8 @@
 .stable-trainer {
   display: block;
   color: var(--text-muted);
-  font-size: 12px;
-  line-height: 18px;
+  font-size: 13px;
+  line-height: 22px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;

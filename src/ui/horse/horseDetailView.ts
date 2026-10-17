@@ -365,8 +365,8 @@ export interface TimelineItem {
   text?: string;
   /** event: 기존 이벤트(링크 포함 문장은 HorseEventText 가 만든다) */
   event?: GameEvent;
-  /** race: 이 말 관점 한 줄 — 착순(없으면 null)·경주명 */
-  race?: { position: number | null; fieldSize: number | null; raceName: string };
+  /** race: 이 말 관점 한 줄 — 착순(없으면 null)·경주명·등급 배지 글자(등급 정보가 없으면 null) */
+  race?: { position: number | null; fieldSize: number | null; raceName: string; gradeBadge: string | null };
 }
 
 export interface HorseTimeline {
@@ -418,6 +418,7 @@ export function horseTimeline(state: GameState, horseId: string, nameOf: (id: st
           position,
           fieldSize: result ? result.runners.length : null,
           raceName: race?.name ?? '자동 편성 레이스',
+          gradeBadge: race ? (race.grade ?? `클래스 ${race.raceClass}`) : null,
         },
       });
       return;
