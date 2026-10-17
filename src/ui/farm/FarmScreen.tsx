@@ -7,6 +7,9 @@ import type { GameApi } from '../game/useGame';
 import { constructionBanner, facilityRows, farmSummary, listingRows } from './farmView';
 import './farm.css';
 
+/** 단계 진행 칸 중 채운 칸 글자(farmView.stageGlyph 와 같은 글자). 채운 칸은 좋음 색, 빈 칸은 흐린 색. */
+const FILLED_STAGE_CELL = '■';
+
 const ERROR_KO = {
   ...FARM_NAME_ERROR_KO,
   no_farm: '목장을 먼저 구매하세요.',
@@ -118,7 +121,10 @@ function FarmView({ game, state, locked }: { game: GameApi; state: GameState; lo
             const reason = lockReason ?? row.disabledReason;
             return <tr key={row.kind}>
               <th scope="row">{row.name}</th>
-              <td><span className="farm-stage" role="img" aria-label={row.stageLabel}>{row.stageGlyph}</span></td>
+              <td><span className="farm-stage" role="img" aria-label={row.stageLabel}>
+                {Array.from(row.stageGlyph).map((cell, index) => <span key={index}
+                  className={cell === FILLED_STAGE_CELL ? 'farm-stage__on' : 'farm-stage__off'}>{cell}</span>)}
+              </span></td>
               <td><ul className="farm-effects">{row.effects.map((part) => <li key={part.label}>
                 {part.label} {part.current}
                 {part.next !== null && <> → <span className={part.improved ? 'farm-delta--up' : undefined}>{part.next}</span></>}

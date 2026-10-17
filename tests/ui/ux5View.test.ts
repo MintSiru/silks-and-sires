@@ -62,10 +62,10 @@ describe('거리 힌트 메모', () => {
     expect(distanceNoteKo(1600, hint)).toBeNull();
     expect(distanceNoteKo(1400, hint)).toBeNull();
     expect(distanceNoteKo(2000, hint)).toBeNull();
-    expect(distanceNoteKo(2400, hint)).toBe('거리 연장 도전');
-    expect(distanceNoteKo(1000, hint)).toBe('거리 단축');
+    expect(distanceNoteKo(2400, hint)).toBe('거리 연장 도전 — 적성 상한보다 400m 김');
+    expect(distanceNoteKo(1000, hint)).toBe('거리 단축 — 적성 하한보다 400m 짧음');
   });
-  it('racePlanRows 는 힌트를 주면 메모 뒤에 덧붙이고 엔진 메모 원문은 그대로 둔다', () => {
+  it('힌트 밖이면 주 문구는 거리 판단 하나이고 엔진 메모 원문은 펼침(engineNote)으로 뺀다', () => {
     const race = getRaceTemplates().find((t) => t.distance > 0)!;
     const plan: PlannedRace = {
       id: 'p1',
@@ -76,12 +76,32 @@ describe('거리 힌트 메모', () => {
       note: '거리 적성과 출주 조건에 맞춤',
     };
     const long = racePlanRows([plan], { distanceHint: { min: 800, max: race.distance - 100 } })[0]!;
-    expect(long.note).toBe('거리 적성과 출주 조건에 맞춤 · 거리 연장 도전');
+    expect(long.note).toBe('거리 연장 도전 — 적성 상한보다 100m 김');
+    expect(long.noteFolded).toBe(true);
+    expect(long.engineNote).toBe('거리 적성과 출주 조건에 맞춤');
     expect(plan.note).toBe('거리 적성과 출주 조건에 맞춤');
     const short = racePlanRows([plan], { distanceHint: { min: race.distance + 100, max: race.distance + 400 } })[0]!;
-    expect(short.note).toBe('거리 적성과 출주 조건에 맞춤 · 거리 단축');
-    expect(racePlanRows([plan], { distanceHint: { min: race.distance - 100, max: race.distance + 100 } })[0]!.note).toBe(plan.note);
-    expect(racePlanRows([plan])[0]!.note).toBe(plan.note);
+    expect(short.note).toBe('거리 단축 — 적성 하한보다 100m 짧음');
+    expect(short.noteFolded).toBe(true);
+    expect(short.note).not.toContain('거리 적성');
+  });
+  it('힌트 안이거나 힌트가 없으면 엔진 메모 원문을 그대로 주 문구로 쓴다', () => {
+    const race = getRaceTemplates().find((t) => t.distance > 0)!;
+    const plan: PlannedRace = {
+      id: 'p1',
+      date: { year: 2026, week: 1 },
+      templateId: race.id,
+      target: null,
+      status: 'proposed',
+      note: '거리 적성과 출주 조건에 맞춤',
+    };
+    const inside = racePlanRows([plan], { distanceHint: { min: race.distance - 100, max: race.distance + 100 } })[0]!;
+    expect(inside.note).toBe(plan.note);
+    expect(inside.noteFolded).toBe(false);
+    const none = racePlanRows([plan])[0]!;
+    expect(none.note).toBe(plan.note);
+    expect(none.noteFolded).toBe(false);
+    expect(none.engineNote).toBe(plan.note);
   });
   it('레이스 행은 등급 배지 글자·첫 줄 이름·둘째 줄 경마장·거리를 나눠 준다', () => {
     const race = getRaceTemplates()[0]!;
@@ -198,6 +218,10 @@ describe('혈통표 렌더링', () => {
     for (const g of [1, 2, 3, 4, 5]) expect(html).toContain(`>${g}대<`);
     expect(html).toContain('pedigree__cell--unknown');
     expect(html).toContain('>—</div>');
+  });
+  it('말단 칸 높이는 28px 행이고 3대는 8행 격자다', () => {
+    const html = renderToStaticMarkup(createElement(PedigreeTable, { root: fullTree(3), nameOf, depth: 3 }));
+    expect(html).toContain('repeat(8, 28px)');
   });
   it('니크를 넘기면 상단 해설에 니크가 나온다', () => {
     const html = renderToStaticMarkup(createElement(PedigreeView, { root: fullTree(3), nameOf, nick: '양호' }));

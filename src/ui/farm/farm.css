@@ -31,21 +31,25 @@
 .farm-screen .farm-column { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .farm-screen .farm-column > .panel { margin: 0; box-sizing: border-box; }
 .farm-screen .farm-column--right > .panel { flex: 1 1 auto; }
+/* 왼쪽 열 아래 빈 공간 줄이기: 목장 매물 접기 상자를 오른쪽 시설 표 높이까지 늘린다. */
+.farm-screen .farm-column--left > .farm-listings { flex: 1 1 auto; }
+.farm-screen .farm-column--left > .farm-listings:not([open]) { flex: 0 0 auto; } /* 접힌 매물은 빈 상자로 늘리지 않음 (Opus) */
 
 /* 전역 max-height(app.css)를 이 화면에서는 풀고, 긴 표만 표 안에서 스크롤한다. */
 .farm-screen .farm-listings[open] { max-height: none; overflow: visible; }
 .farm-screen .farm-listings .farm-table-scroll { max-height: 260px; overflow: auto; }
 .farm-screen .farm-column--right .farm-table-scroll { max-height: none; overflow: visible; }
 
-/* 단계 진행 칸(■□□) */
+/* 단계 진행 칸(■□□): 채운 칸은 좋음 색, 빈 칸은 흐린(보조) 색. 글자 크기 14px·간격 3px. */
 .farm-stage {
   display: inline-block;
   font-size: 14px;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
   line-height: 20px;
-  color: var(--text);
   white-space: nowrap;
 }
+.farm-stage__on { color: var(--good-fg); }
+.farm-stage__off { color: var(--text-muted); }
 
 /* 효과 목록: 항목마다 한 줄. 증가분(다음 단계가 더 큼)은 좋음 색. */
 .farm-effects { margin: 0; padding: 0; list-style: none; }
@@ -55,7 +59,7 @@
 .farm-screen .farm-disabled-reason { margin: 4px 0 0; font-size: 12px; line-height: 18px; }
 
 .farm-screen .farm-facility-table th,
-.farm-screen .farm-facility-table td { white-space: normal; vertical-align: top; }
+.farm-screen .farm-facility-table td { white-space: normal; vertical-align: middle; }
 .farm-screen .farm-facility-table td:nth-child(2),
 .farm-screen .farm-facility-table td:nth-child(4) { white-space: nowrap; }
 

@@ -14,6 +14,25 @@ import {
 import { planChoices } from './horseDetailView';
 import './racePlan.css';
 
+type PlanRow = ReturnType<typeof racePlanRows>[number];
+
+/**
+ * 메모 칸. 거리 판단 문구가 주 문구이면(noteFolded) 엔진 메모 원문은 '조교사 메모' 펼침 안에 둔다.
+ * 힌트 안이면 원문을 그대로 보인다.
+ */
+function PlanNote({ row }: { row: PlanRow }) {
+  if (!row.noteFolded) return <>{row.note}</>;
+  return (
+    <>
+      <span>{row.note}</span>
+      <details className="plan-note__memo">
+        <summary>조교사 메모</summary>
+        <p className="hint">{row.engineNote}</p>
+      </details>
+    </>
+  );
+}
+
 export default function RacePlanPanel({
   horse,
   game,
@@ -72,7 +91,7 @@ export default function RacePlanPanel({
           {state ? emptyRacePlanHint(state, horse) : '현재 제안된 계획이 없습니다.'}
         </p>
       ) : (
-        <div className="table-scroll">
+        <div className="table-scroll plan-table-scroll">
           <table className="data-table plan-table">
             <thead>
               <tr>
@@ -92,14 +111,16 @@ export default function RacePlanPanel({
                     <td className="plan-table__race">
                       <div className="plan-table__title">
                         <GradeBadge grade={r.gradeLabel} />
-                        <span>{r.titleLine}</span>
-                      </div>
-                      <div className="plan-table__conditions">
-                        {r.conditionLine}
-                        {r.away}
+                        <span className="plan-table__name">{r.titleLine}</span>
+                        <span className="plan-table__conditions">
+                          {r.conditionLine}
+                          {r.away}
+                        </span>
                       </div>
                     </td>
-                    <td className="plan-table__note">{r.note}</td>
+                    <td className="plan-table__note">
+                      <PlanNote row={r} />
+                    </td>
                     <td>
                       <StatusBadge tone={status.tone} label={status.label} />
                     </td>
@@ -136,7 +157,15 @@ export default function RacePlanPanel({
         <details className="plan-history">
           <summary>지난 계획 · 최근 {history.length}건 (전체 {sections.historyCount}건)</summary>
           <ul className="task-list">
-            {history.map((r) => <li key={r.id}>{r.dateLabel} · {r.name}{r.away} · {r.statusLabel}<div className="hint">{r.note}</div></li>)}
+            {history.map((r) => (
+              <li key={r.id}>
+                {r.dateLabel} · {r.name}
+                {r.away} · {r.statusLabel}
+                <div className="hint">
+                  <PlanNote row={r} />
+                </div>
+              </li>
+            ))}
           </ul>
         </details>
       )}

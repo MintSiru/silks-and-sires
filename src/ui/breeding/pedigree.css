@@ -42,6 +42,7 @@
   max-height: min(420px, 60dvh);
   overflow: auto;
   overscroll-behavior: contain;
+  padding-bottom: 12px;
 }
 
 .pedigree-wrap .pedigree {
@@ -82,8 +83,24 @@
   color: var(--grade-top-fg);
 }
 
+/* 칸: 말단 칸 최소 28px(행 높이는 PedigreeView 의 ROW_HEIGHT_PX), 이름 14px/20px.
+   상위 칸은 자손 묶음 높이만큼 늘어나고 flex 로 세로 가운데에 놓인다. 빈 칸도 같은 높이를 쓴다. */
 .pedigree-wrap .pedigree__cell {
   border-left: 3px solid var(--border);
+  min-height: 28px;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+/* 혈통 안 링크: 밑줄은 호버 때만 보인다(자리는 유지해 흔들리지 않게) */
+.pedigree-wrap .horse-link,
+.pedigree-wrap a {
+  border-bottom-color: transparent;
+}
+
+.pedigree-wrap .horse-link:hover,
+.pedigree-wrap a:hover {
+  border-bottom-color: var(--link);
 }
 
 .pedigree-wrap .pedigree__cell--sire {

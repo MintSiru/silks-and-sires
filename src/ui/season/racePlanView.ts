@@ -69,12 +69,17 @@ export function targetLabel(target: RacePlanTarget): string {
 }
 
 /**
- * 말의 거리 힌트(min~max) 밖이면 화면 메모에 덧붙일 말. 안이면 null.
- * 엔진 메모 문자열은 바꾸지 않고 화면에서만 붙인다.
+ * 말의 거리 힌트(min~max) 밖이면 화면 주 문구가 되는 거리 판단 문구. 안이면 null.
+ * 예: '거리 연장 도전 — 적성 상한보다 214m 김', '거리 단축 — 적성 하한보다 300m 짧음'
+ * 엔진 메모 문자열은 바꾸지 않는다. 화면에서는 이 문구만 보이고 원문은 '조교사 메모' 펼침으로 간다.
  */
 export function distanceNoteKo(distance: number, hint: { min: number; max: number }): string | null {
-  if (distance > hint.max) return '거리 연장 도전';
-  if (distance < hint.min) return '거리 단축';
+  if (distance > hint.max) {
+    return `거리 연장 도전 — 적성 상한보다 ${(distance - hint.max).toLocaleString('ko-KR')}m 김`;
+  }
+  if (distance < hint.min) {
+    return `거리 단축 — 적성 하한보다 ${(hint.min - distance).toLocaleString('ko-KR')}m 짧음`;
+  }
   return null;
 }
 
@@ -100,7 +105,7 @@ export function racePlanRows(
   context: {
     requireApproval?: boolean;
     country?: CountryCode;
-    /** 말의 거리 힌트. 주면 메모에 '거리 연장 도전' / '거리 단축'을 덧붙인다. */
+    /** 말의 거리 힌트. 주면 힌트 밖일 때 주 문구를 거리 판단 문구로 바꾸고 엔진 메모는 펼침으로 뺀다. */
     distanceHint?: { min: number; max: number };
   } = {},
 ) {
@@ -158,7 +163,12 @@ export function racePlanRows(
             ? ''
             : `약 ${targetDistance(target).toLocaleString('ko-KR')}m 전후`,
       away,
-      note: hintNote === null ? plan.note : `${plan.note} · ${hintNote}`,
+      /** 화면 주 문구: 힌트 밖이면 거리 판단 문구 하나, 안이면 엔진 메모 원문 */
+      note: hintNote ?? plan.note,
+      /** 엔진 메모 원문(펼침용). 바꾸지 않는다. */
+      engineNote: plan.note,
+      /** true 면 주 문구는 거리 판단이고 원문은 '조교사 메모' 펼침 안에 있다 */
+      noteFolded: hintNote !== null,
       canApprove: plan.status === 'proposed',
       canRemove:
         plan.status === 'proposed' || plan.status === 'approved' || plan.status === 'skipped',

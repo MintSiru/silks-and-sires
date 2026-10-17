@@ -1,5 +1,7 @@
 /* M6-U5 J2: 출주 계획 표. 날짜는 한 줄(nowrap), 레이스는 등급 배지 + 첫 줄 이름, 둘째 줄 보조색 조건.
-   상태·조작 열은 모드(자동 / 승인제)에 맞춘 문구·버튼만 보인다. 색은 U1 토큰(.badge--*)을 쓴다. */
+   상태·조작 열은 모드(자동 / 승인제)에 맞춘 문구·버튼만 보인다. 색은 U1 토큰(.badge--*)을 쓴다.
+   M6-V V5: 레이스 칸은 72px 배지 열 + 이름 열(정렬 start), 가로선은 tr 단위로 조작 열까지 일직선,
+   거리 판단 문구가 주 문구일 때 엔진 메모 원문은 '조교사 메모' 펼침 안. */
 
 .plan-table td.plan-table__date {
   white-space: nowrap;
@@ -12,28 +14,68 @@
   white-space: normal;
 }
 
+/* 등급 배지 열(72px)과 레이스명 열이 같은 기준선에 선다. 조건은 둘째 줄(이름 열 아래). */
 .plan-table__title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  align-items: start;
+  column-gap: 8px;
+  row-gap: 2px;
   font-weight: 600;
   color: var(--text);
 }
 
 .plan-table__title .badge {
   margin: 0;
-  flex: 0 0 auto;
+  justify-self: start;
+}
+
+.plan-table__name {
+  min-width: 0;
 }
 
 .plan-table__conditions {
-  margin-top: 2px;
+  grid-column: 2;
   color: var(--text-muted);
   font-size: 0.85rem;
+  font-weight: 400;
 }
 
 .plan-table td.plan-table__note {
   color: var(--text-muted);
   font-size: 0.87rem;
+}
+
+.plan-note__memo {
+  margin-top: 4px;
+}
+
+.plan-note__memo > summary {
+  padding: 2px 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.plan-note__memo > .hint {
+  margin: 4px 0 0;
+}
+
+/* 표가 넘치면 표 안에서만 스크롤하고, 끝 행이 스크롤 끝에서 잘리지 않게 아래 여백을 둔다 */
+.plan-table-scroll {
+  padding-bottom: 12px;
+}
+
+/* 가로선은 tr 단위: 행 하단선이 '조작' 열까지 끊기지 않는다(셀 테두리는 끈다) */
+.data-table.plan-table {
+  border-collapse: collapse;
+}
+
+.plan-table tbody tr {
+  border-bottom: 1px solid var(--border);
+}
+
+.plan-table tbody td {
+  border-bottom: 0;
 }
 
 .plan-table td.actions {

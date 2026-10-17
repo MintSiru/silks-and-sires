@@ -116,6 +116,9 @@ describe('farmView', () => {
     const game = { ...captureGame(), state };
     const owned = renderToStaticMarkup(createElement(FarmScreen, { game }));
     for (const text of ['구름들 목장', '시설 공사', '목장 매물', '€72,000', '공사 시작', '이전']) expect(owned).toContain(text);
+    // 단계 칸: 채운 칸은 좋음 색 클래스, 빈 칸은 흐린 색 클래스로 나뉜다(V3 · 17)
+    expect(owned).toContain('farm-stage__on');
+    expect(owned).toContain('farm-stage__off');
     state.farm = emptyFarm();
     const unowned = renderToStaticMarkup(createElement(FarmScreen, { game }));
     expect(unowned).toContain('목장을 사면 오너브리더가 됩니다.');

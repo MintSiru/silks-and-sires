@@ -12,8 +12,8 @@ import {
 } from './pedigreeLayout';
 import './pedigree.css';
 
-/** 한 행 높이(px). CSS 와 맞춘다 */
-const ROW_HEIGHT_PX = 18;
+/** 한 행 높이(px). 말단(가장 깊은 대) 칸 한 칸의 높이이며 최소 28px 다(M6-V V5). pedigree.css 의 칸 최소 높이와 맞춘다. */
+const ROW_HEIGHT_PX = 28;
 
 /** 혈통표 격자. depth 대까지 그린다(기본 3대, 펼치면 5대). */
 export function PedigreeTable({
