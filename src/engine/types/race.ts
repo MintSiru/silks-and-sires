@@ -163,6 +163,10 @@ export interface RunnerResult {
   /** 성적 지수(lb). 승자 = 0 기준, 패배 마신과 부담중량 보정. M3 레이팅의 입력 */
   performanceFigure: number;
   odds: FractionalOdds | null;
+  /** 플레이어 소유로 출주했으면 true(M8-R — 연중 매매 말도 출주 당시 소유로 집계). 아니면 키 생략(저장 크기) */
+  isPlayer?: true;
+  /** 받은 상금(€, 0 이면 키 생략 — M8-R) */
+  prize?: Money;
 }
 
 export interface RaceResult {
@@ -177,6 +181,11 @@ export interface RaceResult {
   sectionalMarks: number[];
   /** 착순 오름차순 (동착은 마번 오름차순) */
   runners: RunnerResult[];
+  /** 레이스 이름·등급·클래스·종류(M8-R — 다시보기 보관 밖에서도 전적 이름을 보이게). 옛 저장본은 없음 */
+  name?: string;
+  grade?: RaceGrade | null;
+  raceClass?: RaceClass | null;
+  kind?: RaceKind;
 }
 
 /** 0.1초 틱 하나의 스냅샷. 배열 인덱스 = runner index */

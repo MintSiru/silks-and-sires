@@ -3,6 +3,7 @@
  * 사용자 결정: 시작 유형 마주/오너브리더(2026-10-12), 난이도 안 A(2026-10-12),
  * 시설 확장 9종·각 3단계, 예후불량 기본 켬·현실 수준, 소재국 유럽 5개국, 목장 규모 3단계(2026-10-16).
  */
+import type { SaleKind } from './sales';
 import type { Money } from './common';
 
 /** 시작 유형. owner: 목장 없이 현역마만(목장을 사면 오너브리더) / owner_breeder: 목장 + 번식 암말 */
@@ -77,6 +78,11 @@ export interface GameSettings {
    * false 면 멈추지 않는다
    */
   stopAtSales?: boolean;
+  /**
+   * 카탈로그 발표 때 멈출 세일 종류(M8-R). 없으면 기본(1세·브리즈업·현역마 — 사러 갈 만한 세일). 위탁·입찰한 세일은 종류와 무관하게 멈춘다.
+   * stopAtSales 가 false 면 이 값과 무관하게 멈추지 않는다
+   */
+  stopAtSaleKinds?: SaleKind[];
 }
 
 /**

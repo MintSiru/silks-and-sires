@@ -144,6 +144,8 @@ export interface CareerRecord {
   blackTypePlacings: number;
   /** 그룹 레이스 우승 횟수 */
   groupWins: number;
+  /** 그 중 G1 우승 횟수(M8-R). 옛 저장본·기존 말은 없음(0 으로 본다) */
+  g1Wins?: number;
 }
 
 /** 가상 모마 요약(M4-ST3). sireId 는 실명 종마 key 또는 게임 말 id */
