@@ -460,3 +460,4 @@
 - 2026-10-18 사용자 결정: 순서 — 남은 위험 정리 → 플레이 테스트 3회차 → 추가 기능. 추가 기능: 미국·남반구에서 마주/오너브리더(지역별 완전한 경마 — 거점·경마장·레이스 달력·세일·종마가 지역마다 돌아가고 지역 간 원정·이적 가능). 남반구는 호주·뉴질랜드. 미국은 더트 주로·더트 혈통, 클레이밍 레이스, 가상 3관·연말 대축제(실제 이름 금지). 남반구 8월 1일 생일·계절 반대·셔틀 종마 모두 반영. CLAUDE.md 원칙 3('유럽 시스템')을 지역별 시스템으로 넓히는 개정이 필요(M9 설계 때).
 - 2026-10-18 사용자 결정: Codex·Antigravity 는 AionUI(사용자 PC)로 협업 — 이 세션은 codex exec 를 쓰지 않는다(요금제). Opus 가 AGENTS.md·GEMINI.md(외부 에이전트 규칙)와 docs/collab/kickstart.md(프롬프트 A Codex·B Antigravity·C 화면 리뷰, 브랜치 agent/<이름>/<티켓>)를 작성. 첫 시범은 M8-R4 패독·코멘트 문구(Antigravity). CLAUDE.md 3장에 협업 절 추가.
 - 2026-10-18 M8-R 공용 타입(Opus): RaceResult.name·grade·raceClass·kind, RunnerResult.isPlayer·prize(저장 크기 위해 해당할 때만 키), CareerRecord.g1Wins, GameSettings.stopAtSaleKinds.
+- 2026-10-18 사용자 질문: 작업을 AionUI 쪽으로 옮기기 — 가능. 인계 문서 docs/collab/handoff.md, 보조 스크립트 scripts/dev/(merge-branch.sh·repin-hashes.py·playtest-driver.mjs), 남은 위험 명세 M8-R2·R6 추가. 클라우드 세션은 새 티켓을 시작하지 않고 인계 상태로 둔다.
